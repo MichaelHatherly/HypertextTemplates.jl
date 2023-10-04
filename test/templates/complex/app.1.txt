@@ -1,0 +1,1 @@
+<html lang='en'><head><title>App</title></head><body><div><h1>sidebar</h1><p>sidebar content</p><button>button content</button></div><div><h1>app</h1><p>app content</p><ul><li>dropdown content</li></ul></div></body></html>

@@ -1,0 +1,40 @@
+const SHOW_TAG = "show"
+
+struct Show <: AbstractNode
+    when::String
+    body::Vector{AbstractNode}
+    fallback::Vector{AbstractNode}
+
+    function Show(when, body, fallback)
+        return new(_restore_special_symbols(when), body, fallback)
+    end
+end
+
+function Show(n::EzXML.Node)
+    tag = EzXML.nodename(n)
+    if tag == SHOW_TAG
+        attrs = Dict(attributes(n))
+        haskey(attrs, "when") || error("expected a 'when' attribute for a 'show' node.")
+        when = key_default(attrs, "when")
+        nodes, fallback = split_fallback(n)
+        return Show(when, transform(nodes), transform(EzXML.nodes(fallback)))
+    else
+        error("expected a '<show>' tag, found: $tag")
+    end
+end
+
+Base.show(io::IO, s::Show) = print(io, "$(Show)($(s.when))")
+AbstractTrees.children(s::Show) = [s.body, s.fallback]
+
+function expression(c::BuilderContext, s::Show)
+    when = Meta.parse(s.when)
+    body = expression(c, s.body)
+    fallback = expression(c, s.fallback)
+    quote
+        if $(when)
+            $(body)
+        else
+            $(fallback)
+        end
+    end
+end

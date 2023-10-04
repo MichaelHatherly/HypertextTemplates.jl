@@ -1,0 +1,1 @@
+<div><div><h1>Header</h1><p>Slot <b>content</b>!</p><h2>Footer</h2></div></div>

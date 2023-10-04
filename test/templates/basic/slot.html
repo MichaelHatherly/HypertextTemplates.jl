@@ -1,0 +1,15 @@
+<component slot-example>
+    <div>
+        <h1>Header</h1>
+        <slot />
+        <h2>Footer</h2>
+    </div>
+</component>
+
+<component slot-consumer value>
+    <div>
+        <slot-example>
+            <p>Slot content: <julia value=value></julia>!</p>
+        </slot-example>
+    </div>
+</component>

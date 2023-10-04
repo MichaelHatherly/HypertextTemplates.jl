@@ -1,0 +1,9 @@
+<component special-symbols class>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <div x-data="{ open: false }">
+        <button @click="open = true">Expand</button>
+        <span x-show="open" .class>
+            Content...
+        </span>
+    </div>
+</component>

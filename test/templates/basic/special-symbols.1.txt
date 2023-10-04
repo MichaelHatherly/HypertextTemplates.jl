@@ -1,0 +1,1 @@
+<script src="//unpkg.com/alpinejs" defer></script><div x-data="{ open: false }"><button @click="open = true">Expand</button><span x-show="open" class="p-2 bg-purple-200"> Content... </span></div>
