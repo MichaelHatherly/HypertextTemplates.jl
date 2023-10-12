@@ -23,7 +23,7 @@ include("utilities.jl")
 include("macro.jl")
 include("nodes/abstract.jl")
 include("nodes/slot.jl")
-include("nodes/component.jl")
+include("nodes/function.jl")
 include("nodes/element.jl")
 include("nodes/for.jl")
 include("nodes/julia.jl")
@@ -34,7 +34,7 @@ include("symbol-swapping.jl")
 include("render.jl")
 
 const RESERVED_ELEMENT_NAMES = Set([
-    COMPONENT_TAG,
+    TEMPLATE_FUNCTION_TAG,
     SLOT_TAG,
     SHOW_TAG,
     FALLBACK_TAG,

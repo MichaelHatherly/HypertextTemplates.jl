@@ -1,4 +1,4 @@
-const COMPONENT_TAG = "component"
+const TEMPLATE_FUNCTION_TAG = "function"
 
 struct Prop
     name::String
@@ -202,7 +202,7 @@ const VALID_SVG_ELEMENTS = Set([
     "desc",
     "title",
 ])
-struct Component
+struct TemplateFunction
     name::String
     html::Bool # Wraps an HTML document?
     props::Vector{Prop}
@@ -210,30 +210,36 @@ struct Component
     file::String
     mod::Module
 
-    function Component(name, html, props, body, file, mod)
+    function TemplateFunction(name, html, props, body, file, mod)
         if name in VALID_HTML_ELEMENTS
-            error("cannot name a component the same as a valid HTML element name: $name")
+            error(
+                "cannot name a template function the same as a valid HTML element name: $name",
+            )
         end
         if name in VALID_SVG_ELEMENTS
-            error("cannot name a component the same as a valid SVG element name: $name")
+            error(
+                "cannot name a template function the same as a valid SVG element name: $name",
+            )
         end
         if name in RESERVED_ELEMENT_NAMES
-            error("cannot name a component the same as a reserved element name: $name")
+            error(
+                "cannot name a template function the same as a reserved element name: $name",
+            )
         end
         return new(_restore_special_symbols(name), html, props, body, file, mod)
     end
 end
 
-function Component(n::EzXML.Node, file::String, mod::Module)
+function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
     if isabspath(file)
         if EzXML.iselement(n)
             tag = EzXML.nodename(n)
-            if tag == COMPONENT_TAG
+            if tag == TEMPLATE_FUNCTION_TAG
                 attrs = attributes(n)
                 if length(attrs) > 0
                     (name, value), props... = attrs
                     if isempty(value)
-                        return Component(
+                        return TemplateFunction(
                             name,
                             false,
                             Prop.(props),
@@ -242,30 +248,39 @@ function Component(n::EzXML.Node, file::String, mod::Module)
                             mod,
                         )
                     else
-                        error("name (first attribute) of a component must have no value")
+                        error(
+                            "name (first attribute) of a template function must have no value",
+                        )
                     end
                 else
-                    error("expected a 'name' attribute for a component definition.")
+                    error("expected a 'name' attribute for a template function definition.")
                 end
             elseif tag == "html"
                 name = basename(first(splitext(file)))
-                return Component(name, true, [], transform(EzXML.nodes(n)), file, mod)
+                return TemplateFunction(
+                    name,
+                    true,
+                    [],
+                    transform(EzXML.nodes(n)),
+                    file,
+                    mod,
+                )
             else
-                error("expected a '<component>' or '<html>' tag, found: $tag")
+                error("expected a '<function>' or '<html>' tag, found: $tag")
             end
         else
-            error("expected an element node for a component definition.")
+            error("expected an element node for a template function definition.")
         end
     else
         error("file path must be absolute: $file")
     end
 end
 
-Base.show(io::IO, c::Component) =
-    print(io, "$Component($(c.name), $(join(c.props, " ")), $(basename(c.file)))")
-AbstractTrees.children(c::Component) = c.body
+Base.show(io::IO, c::TemplateFunction) =
+    print(io, "$TemplateFunction($(c.name), $(join(c.props, " ")), $(basename(c.file)))")
+AbstractTrees.children(c::TemplateFunction) = c.body
 
-function components(file::String, mod::Module)::Vector{Component}
+function components(file::String, mod::Module)::Vector{TemplateFunction}
     if endswith(file, ".html")
         content = _swap_special_symbols(read(file, String))
         if isempty(content)
@@ -274,12 +289,12 @@ function components(file::String, mod::Module)::Vector{Component}
             html = _with_filtered_logging() do
                 return EzXML.parsehtml(content)
             end
-            roots = findall("//$COMPONENT_TAG", html)
+            roots = findall("//$TEMPLATE_FUNCTION_TAG", html)
             roots = isempty(roots) ? findall("//html", html) : roots
             if isempty(roots)
-                error("no '<component>' or '<html>' found in file: $file.")
+                error("no '<function>' or '<html>' found in file: $file.")
             else
-                return Component.(roots, Ref(file), Ref(mod))
+                return TemplateFunction.(roots, Ref(file), Ref(mod))
             end
         end
     else
@@ -301,13 +316,13 @@ function Base.getproperty(p::PropsAccessor, name::Symbol)
     end
 end
 
-# Generates a function expression for a component. Handles both cases of a component:
+# Generates a function expression for a template function. Handles both cases of a template function:
 # wrapping an HTML document or not. Also includes a check to see if the template file
 # has been modified since the last time it was compiled. If so, it recompiles the
 # template first before invoking the function again to ensure that the latest version
 # of the template is used. Note that this functionality only works when Revise is
 # loaded within the session.
-function expression(c::Component)::Expr
+function expression(c::TemplateFunction)::Expr
     context = BuilderContext()
     body = expression(context, c.body)
     name = Symbol(c.name)
@@ -327,7 +342,7 @@ function expression(c::Component)::Expr
         end
     else
         props = expression(context, c.props)
-        # The actual component definition gets wrapped so that we can handle
+        # The actual template function definition gets wrapped so that we can handle
         # potential keyword argument name changes prior to invoking the real
         # function.
         wrapped = gensym(name)
