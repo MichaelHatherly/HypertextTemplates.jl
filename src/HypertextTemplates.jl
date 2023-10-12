@@ -6,6 +6,7 @@ import AbstractTrees
 import EzXML
 import Logging
 import LoggingExtras
+import MacroTools
 import PackageExtensionCompat
 
 # Aliasing the Match package to avoid name conflicts with the Match struct.

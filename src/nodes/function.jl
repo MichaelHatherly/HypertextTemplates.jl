@@ -15,7 +15,22 @@ end
 
 function expression(c::BuilderContext, p::Prop)
     name = Symbol(p.name)
-    return p.name == p.value ? name : Expr(:(::), name, Meta.parse(p.value))
+    if p.name == p.value
+        # Required keyword with no default value or type.
+        return name
+    else
+        expr = Meta.parse(p.value)
+        if MacroTools.@capture(expr, default_::Type_)
+            # Keyword with default value and type.
+            return Expr(:kw, Expr(:(::), name, Type), default)
+        elseif MacroTools.@capture(expr, ::Type_)
+            # Required keyword with type.
+            return Expr(:(::), name, Type)
+        else
+            # Keyword with no type.
+            return Expr(:kw, name, expr)
+        end
+    end
 end
 
 function expression(c::BuilderContext, ps::Vector{Prop})

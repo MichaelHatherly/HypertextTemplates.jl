@@ -38,6 +38,14 @@ template"templates/complex/components/modal.html"
 
 end
 
+module Keywords
+
+using HypertextTemplates
+
+template"templates/keywords/keywords.html"
+
+end
+
 end
 
 # Helper function to render a template to a string. Perhaps fold this into
@@ -149,5 +157,38 @@ end
         @test_reference joinpath(complex, "tutorials.1.txt") render(TC.var"tutorials";)
 
         @test_reference joinpath(complex, "home.1.txt") render(TC.var"home";)
+    end
+
+    @testset "keywords" begin
+        keywords = joinpath(templates, "keywords")
+        TK = Templates.Keywords
+
+        @test_reference joinpath(keywords, "default-props.1.txt") render(
+            TK.var"default-props";
+        )
+        @test_reference joinpath(keywords, "default-props.2.txt") render(
+            TK.var"default-props";
+            props = "string",
+        )
+        @test_reference joinpath(keywords, "default-props.3.txt") render(
+            TK.var"default-props";
+            props = 1:3:10,
+        )
+
+        @test_reference joinpath(keywords, "default-typed-props.1.txt") render(
+            TK.var"default-typed-props";
+        )
+        @test_reference joinpath(keywords, "default-typed-props.2.txt") render(
+            TK.var"default-typed-props";
+            props = [4, 5, 6],
+        )
+        @test_throws TypeError render(TK.var"default-typed-props"; props = "string")
+
+        @test_reference joinpath(keywords, "typed-props.1.txt") render(
+            TK.var"typed-props";
+            props = [1, 2, 3],
+        )
+        @test_throws UndefKeywordError render(TK.var"typed-props";)
+        @test_throws TypeError render(TK.var"typed-props"; props = "string")
     end
 end
