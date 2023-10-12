@@ -22,7 +22,7 @@ function _template_str(file::AbstractString, __module__, __source__; create::Boo
     if endswith(file, ".html")
         if create
             if isfile(file)
-                @error "template file exists, replace `create_template` with the `template` string macro and implement the component definition" file
+                @error "template file exists, replace `create_template` with the `template` string macro and implement the template function definition" file
             else
                 mkpath(dirname(file))
                 touch(file)

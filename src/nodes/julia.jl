@@ -25,7 +25,15 @@ end
 function expression(c::BuilderContext, j::Julia)
     expr = Meta.parse(j.value)
     quote
-        $(escape_html)($(c.io), string($(expr)))
+        $(escape_html)($(c.io), $(expr))
+    end
+end
+
+function escape_html(io::IO, value)
+    if showable("text/html", value)
+        show(io, "text/html", value)
+    else
+        escape_string(io, string(value))
     end
 end
 
