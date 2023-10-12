@@ -348,7 +348,7 @@ function expression(c::TemplateFunction)::Expr
                     Base.invokelatest($(name), $(context.io), $(context.slots); props...)
                 else
                     props = $(PropsAccessor)(props)
-                    print($(context.io), "<html lang='en'>")
+                    print($(context.io), "<!DOCTYPE html><html lang='en'>")
                     $(body)
                     print($(context.io), "</html>")
                 end
