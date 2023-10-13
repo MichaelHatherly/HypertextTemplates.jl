@@ -13,7 +13,7 @@ function Julia(n::EzXML.Node)
     if length(attrs) == 1
         (name, value), = attrs
         if name == "value"
-            return Julia(value)
+            return Julia(isempty(value) ? name : value)
         else
             error("expected a 'value' attribute for a julia node.")
         end
