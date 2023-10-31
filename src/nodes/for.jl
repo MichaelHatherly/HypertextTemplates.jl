@@ -38,7 +38,7 @@ function expression(c::BuilderContext, f::For)
     item = Symbol(f.item)
     iter = Meta.parse(f.iter)
 
-    item = isnothing(f.index) ? item : Expr(:tuple, item, Symbol(f.index))
+    item = isnothing(f.index) ? item : Expr(:tuple, Symbol(f.index), item)
     iter = isnothing(f.index) ? iter : Expr(:call, enumerate, iter)
 
     body = expression(c, f.body)

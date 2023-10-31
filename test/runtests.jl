@@ -91,6 +91,10 @@ end
             Templates.var"for-example";
             iter = split("1 3 5"),
         )
+        @test_reference joinpath(basic, "for-indexed.1.txt") render(
+            Templates.var"for-example-indexed";
+            iter = split("a b c"),
+        )
 
         @test_reference joinpath(basic, "show.1.txt") render(
             Templates.var"show-example";
