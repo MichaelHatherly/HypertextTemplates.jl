@@ -21,6 +21,7 @@ HypertextTemplatesReviseExt = "Revise"
 [compat]
 AbstractTrees = "0.4"
 EzXML = "1"
+Logging = "1.6"
 LoggingExtras = "1"
 MacroTools = "0.5"
 Match = "2"
