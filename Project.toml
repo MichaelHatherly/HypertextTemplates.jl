@@ -1,7 +1,7 @@
 name = "HypertextTemplates"
 uuid = "c7d46f9d-34c3-4420-bf57-257f25aec718"
 authors = ["Michael Hatherly <michaelhatherly@gmail.com>"]
-version = "1.0.1"
+version = "1.1.0"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
