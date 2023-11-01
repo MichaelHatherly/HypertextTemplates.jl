@@ -170,12 +170,23 @@ end
         @test_throws TypeError render(TK.var"typed-props"; props = "string")
     end
 
-    @testset "data-filename" begin
+    @testset "data-htloc" begin
         HypertextTemplates._DATA_FILENAME_ATTR[] = true
         html = render(Templates.Complex.app)
-        @test contains(html, "data-filename")
-        @test contains(html, "base-layout.html")
-        @test contains(html, "sidebar.html")
-        @test contains(html, "app.html")
+        @test contains(html, "data-htloc")
+
+        # Since the filenames are encoded as an integer counter in the order
+        # they are encountered, we need to map them back to the original
+        # filename for the test to be easily readable.
+        mapping = Dict(
+            basename(file) => line for
+            (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
+        )
+        @test contains(html, "$(mapping["base-layout.html"]):8")
+        @test contains(html, "$(mapping["sidebar.html"]):2")
+        @test contains(html, "$(mapping["app.html"]):4")
+        @test contains(html, "$(mapping["button.html"]):2")
+        @test contains(html, "$(mapping["dropdown.html"]):2")
+        @test contains(html, "$(mapping["dropdown.html"]):3")
     end
 end

@@ -14,23 +14,37 @@ function HypertextTemplates._template_file_lookup(
     # page that uses the same target, as unlikely as that may be.
     target = "/template-file-lookup-$(Random.randstring())"
     function (request::HTTP.Request)
-        if request.method == "POST" && request.target == target
-            filename = String(request.body)
-            if isfile(filename)
-                @debug "Opening $filename for editing."
-                InteractiveUtils.edit(filename)
-                return HTTP.Response(200, "Opened file in default editor.")
-            else
-                error("filename does not exist: $filename")
-            end
+        return _template_file_lookup_impl(handler, request, target)
+    end
+end
+
+function _template_file_lookup_impl(handler, request::HTTP.Request, target::String)
+    if request.method == "POST" && request.target == target
+        location = String(request.body)
+        file, line = split(location, ':'; limit = 2)
+
+        filekey = Base.parse(Int, file)
+        filename = get(HypertextTemplates.DATA_FILENAME_MAPPING_REVERSE, filekey, nothing)
+        isnothing(filename) && error("filename not found for key: $filekey")
+
+        linenumber = Base.parse(Int, line)
+        if isfile(filename)
+            @debug "Opening $filename at line $linenumber for editing."
+            InteractiveUtils.edit(filename, linenumber)
+            return HTTP.Response(
+                200,
+                "Opened file '$filename' at line '$linenumber' in default editor.",
+            )
         else
-            return _insert_template_file_lookup_listener(handler(request), target)
+            error("filename does not exist: $filename")
         end
+    else
+        return _insert_template_file_lookup_listener(handler(request), target)
     end
 end
 
 # Injects a script into the response that listens for clicks on elements with
-# the `data-filename` attribute and sends a POST request to the given address
+# the `data-htloc` attribute and sends a POST request to the given address
 # with the filename as the body. This is used to open the template file in the
 # default editor when the user clicks on the rendered template.
 function _insert_template_file_lookup_listener(
@@ -46,7 +60,7 @@ function _insert_template_file_lookup_listener(
         window.addEventListener("mousemove", async function (event) {
             window._lastMousePosition = { x: event.clientX, y: event.clientY };
         });
-        // Listen for Ctrl+Shift clicks on elements with the `data-filename`
+        // Listen for Ctrl+Shift clicks on elements with the `data-htloc`
         // attribute and send a POST request to the given address with the
         // filename as the body.
         window.addEventListener("keydown", async function (event) {
@@ -54,8 +68,8 @@ function _insert_template_file_lookup_listener(
                 const target = document.elementFromPoint(window._lastMousePosition.x, window._lastMousePosition.y);
                 // When we can't find the attribute on the clicked element, we
                 // look for it on the body element.
-                const node = target.closest("[data-filename]") || target.querySelector("body");
-                const filename = node.attributes["data-filename"].value;
+                const node = target.closest("[data-htloc]") || target.querySelector("body");
+                const filename = node.attributes["data-htloc"].value;
                 if (filename) {
                     fetch("$address", { method: "POST", body: filename });
                 } else {

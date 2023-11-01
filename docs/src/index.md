@@ -330,6 +330,36 @@ Note that this does add a small amount of overhead. For production builds of
 your code you should ensure that `Revise` is not part of your build. If you do
 this then all templates will be run without checking for updated file contents.
 
+## Template Lookup
+
+During development you'll likely need to find the source file and line number of
+particular parts of the rendered HTML. This is usually done by searching the
+codebase for matching tag or attribute names with an editor's search feature.
+This becomes tedious though, so `HypertextTemplates` provides a "template
+lookup" feature that allows you to jump to the source file and line number of
+any part of the rendered HTML by hovering over it in the browser and pressing
+`Ctrl+Shift`.
+
+To set this up you'll need to have `Revise` loaded in your session, as you
+should if you're in a development setting. Doing this will automatically
+annotate all rendered HTML with special `data-htloc` attributes that contain the
+source file and line number of the template that rendered that part of the HTML.
+Secondly, you'll need to add the `TemplateFileLookup` middleware to the `HTTP`
+server that is serving your rendered HTML.
+
+```julia
+using HypertextTemplates
+using HTTP
+
+HTTP.serve(router |> TemplateFileLookup, host, port)
+```
+
+Now just hover your mouse over any part of your browser and press `Ctrl+Shift`.
+This will open your editor at the correct file and line number. You'll need to
+have set the `"EDITOR"` environment variable to your editor command in your
+`ENV` in your `~/.julia/config/startup.jl` file for this to work. See the Julia
+manual for more details on setting environment variables.
+
 ## Public Interface
 
 ```@autodocs

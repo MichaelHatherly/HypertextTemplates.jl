@@ -45,8 +45,26 @@ const RESERVED_ELEMENT_NAMES = Set([
     JULIA_TAG,
 ])
 
+const DATA_FILENAME_MAPPING = Dict{String,Int}()
+const DATA_FILENAME_MAPPING_REVERSE = Dict{Int,String}()
+
+function _register_filename_mapping!(file::String)
+    key = get!(DATA_FILENAME_MAPPING, file) do
+        return length(DATA_FILENAME_MAPPING) + 1
+    end
+    if haskey(DATA_FILENAME_MAPPING_REVERSE, key) &&
+       DATA_FILENAME_MAPPING_REVERSE[key] != file
+        error("filename key collision: $key")
+    else
+        DATA_FILENAME_MAPPING_REVERSE[key] = file
+    end
+    return key
+end
+
 function __init__()
     PackageExtensionCompat.@require_extensions
+    empty!(DATA_FILENAME_MAPPING)
+    empty!(DATA_FILENAME_MAPPING_REVERSE)
     return nothing
 end
 

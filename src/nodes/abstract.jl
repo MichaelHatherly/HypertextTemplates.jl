@@ -29,6 +29,13 @@ function transform(n::EzXML.Node)
     end
 end
 
+function nodeline(node::EzXML.Node)
+    node_ptr = node.ptr
+    @assert node_ptr != C_NULL
+    @assert unsafe_load(node_ptr).typ == EzXML.ELEMENT_NODE
+    return unsafe_load(convert(Ptr{EzXML._Element}, node_ptr)).line
+end
+
 # TODO: is this hack sufficient, or required?
 function cdata(n::EzXML.Node)
     buffer = IOBuffer()

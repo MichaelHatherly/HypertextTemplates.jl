@@ -23,9 +23,10 @@ function HypertextTemplates.is_stale_template(file::AbstractString, previous_mti
     end
 end
 
-function HypertextTemplates._data_filename_attr(file::String)
+function HypertextTemplates._data_filename_attr(file::String, line::Int)
     if HypertextTemplates._DATA_FILENAME_ATTR[]
-        return [Symbol("data-filename") => file]
+        filekey = HypertextTemplates._register_filename_mapping!(file)
+        return [Symbol("data-htloc") => "$filekey:$line"]
     else
         return Pair{Symbol,String}[]
     end

@@ -39,9 +39,10 @@ struct Element <: AbstractNode
     attributes::Vector{Attribute}
     body::Vector{AbstractNode}
     slots::Vector{Pair{String,Vector{AbstractNode}}}
+    line::Int
 
-    function Element(name, attributes, body, slots)
-        return new(_restore_special_symbols(name), attributes, body, slots)
+    function Element(name, attributes, body, slots, line)
+        return new(_restore_special_symbols(name), attributes, body, slots, line)
     end
 end
 
@@ -53,7 +54,7 @@ function Element(n::EzXML.Node)
     attrs = attributes(n)
     if name in VALID_HTML_ELEMENTS
         body = transform(EzXML.nodes(n))
-        return Element(name, Attribute.(attrs), body, [])
+        return Element(name, Attribute.(attrs), body, [], nodeline(n))
     else
         slots = []
         nodes = EzXML.nodes(n)
@@ -62,7 +63,8 @@ function Element(n::EzXML.Node)
                 tag = EzXML.nodename(each)
                 if contains(tag, ':')
                     tag, slot = split(tag, ':'; limit = 2)
-                    child = Element(tag, [], transform(EzXML.nodes(each)), [])
+                    child =
+                        Element(tag, [], transform(EzXML.nodes(each)), [], nodeline(each))
                     push!(slots, slot => [child])
                 end
             end
@@ -70,7 +72,7 @@ function Element(n::EzXML.Node)
         if isempty(slots)
             push!(slots, UNNAMED_SLOT => transform(nodes))
         end
-        return Element(name, Attribute.(attrs), [], slots)
+        return Element(name, Attribute.(attrs), [], slots, nodeline(n))
     end
 end
 
@@ -102,7 +104,7 @@ function expression(c::BuilderContext, e::Element)
                 print($(c.io), "<", $(e.name))
                 $(print_attributes)(
                     $(c.io);
-                    $(_data_filename_attr)($(c.file))...,
+                    $(_data_filename_attr)($(c.file), $(e.line))...,
                     $(attrs...),
                 )
                 print($(c.io), "/>")
@@ -114,7 +116,7 @@ function expression(c::BuilderContext, e::Element)
                 print($(c.io), "<", $(e.name))
                 $(print_attributes)(
                     $(c.io);
-                    $(_data_filename_attr)($(c.file))...,
+                    $(_data_filename_attr)($(c.file), $(e.line))...,
                     $(attrs...),
                 )
                 print($(c.io), ">")
@@ -143,10 +145,10 @@ function expression(c::BuilderContext, e::Element)
     end
 end
 
-# Used in `HypertextTemplatesReviseExt` to toggle the `data-filename` attribute
+# Used in `HypertextTemplatesReviseExt` to toggle the `data-htloc` attribute
 # on and off during tests. Not a public API, do not rely on this.
 const _DATA_FILENAME_ATTR = Ref(true)
-_data_filename_attr(::Any) = (;)
+_data_filename_attr(::Any, line) = (;)
 
 function print_attributes(io::IO; attrs...)
     for (k, v) in attrs
