@@ -1,50 +1,11 @@
 using HypertextTemplates
 using Test
 using ReferenceTests
+using Revise
 
 module Templates
 
-using HypertextTemplates
-
-template"templates/basic/for.html"
-template"templates/basic/julia.html"
-template"templates/basic/show.html"
-template"templates/basic/match.html"
-template"templates/basic/slot.html"
-template"templates/basic/named-slot.html"
-template"templates/basic/complete.html"
-template"templates/basic/props.html"
-template"templates/basic/layout.html"
-template"templates/basic/layout-usage.html"
-template"templates/basic/special-symbols.html"
-
-module Complex
-
-using HypertextTemplates
-
-template"templates/complex/layouts/base-layout.html"
-template"templates/complex/layouts/sidebar.html"
-template"templates/complex/layouts/docs.html"
-
-template"templates/complex/pages/home.html"
-template"templates/complex/pages/app.html"
-template"templates/complex/pages/help.html"
-template"templates/complex/pages/tutorials.html"
-
-template"templates/complex/components/button.html"
-template"templates/complex/components/dropdown.html"
-template"templates/complex/components/tooltip.html"
-template"templates/complex/components/modal.html"
-
-end
-
-module Keywords
-
-using HypertextTemplates
-
-template"templates/keywords/keywords.html"
-
-end
+include("templates.jl")
 
 end
 
@@ -57,6 +18,8 @@ function render(f, args...; kws...)
 end
 
 @testset "HypertextTemplates" begin
+    HypertextTemplates._DATA_FILENAME_ATTR[] = false
+
     templates = joinpath(@__DIR__, "templates")
 
     @testset "basic" begin
@@ -194,5 +157,14 @@ end
         )
         @test_throws UndefKeywordError render(TK.var"typed-props";)
         @test_throws TypeError render(TK.var"typed-props"; props = "string")
+    end
+
+    @testset "data-filename" begin
+        HypertextTemplates._DATA_FILENAME_ATTR[] = true
+        html = render(Templates.Complex.app)
+        @test contains(html, "data-filename")
+        @test contains(html, "base-layout.html")
+        @test contains(html, "sidebar.html")
+        @test contains(html, "app.html")
     end
 end

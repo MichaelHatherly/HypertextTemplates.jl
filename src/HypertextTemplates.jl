@@ -16,7 +16,7 @@ end
 
 # Exports.
 
-export @template_str, @create_template_str, render
+export @template_str, @create_template_str, render, TemplateFileLookup
 
 # Includes.
 

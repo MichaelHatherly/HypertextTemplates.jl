@@ -7,6 +7,36 @@ function is_stale_template(file, mtime)
     return false
 end
 
+# Internal type used to dispatch to the correct handler generating function
+# based on whether `Revise` and `HTTP` are loaded. See the
+# `HypertextTemplatesHTTPReviseExt` module for the actual implementation of the
+# feature.
+struct TemplateFileLookupType end
+
+"""
+    TemplateFileLookup(handler)
+
+This is a developer tool that can be added to an `HTTP` handler stack to allow
+the user to open the template file in their default editor by holding down the
+`Ctrl` key and clicking on the rendered template. This is useful for debugging
+navigating the template files instead of having to manually search through a
+codebase for the template file that renders a given item within a page.
+
+```julia
+HTTP.serve(router |> TemplateFileLookup, host, port)
+```
+
+Always add the `TemplateFileLookup` handler after the other handlers, since it
+needs to inject a script into the response to listen for clicks on the rendered
+template.
+"""
+TemplateFileLookup(handler) = _template_file_lookup(TemplateFileLookupType(), handler)
+
+function _template_file_lookup(T, handler)
+    function (request)
+        return handler(request)
+    end
+end
 
 # Logging hacks to drop warnings about invalid HTML tags but also capture them to a tag set.
 

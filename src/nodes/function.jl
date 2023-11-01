@@ -338,7 +338,7 @@ end
 # of the template is used. Note that this functionality only works when Revise is
 # loaded within the session.
 function expression(c::TemplateFunction)::Expr
-    context = BuilderContext()
+    context = BuilderContext(c.file)
     body = expression(context, c.body)
     name = Symbol(c.name)
     expr = if c.html

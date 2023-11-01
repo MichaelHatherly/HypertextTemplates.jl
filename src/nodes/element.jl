@@ -93,7 +93,11 @@ function expression(c::BuilderContext, e::Element)
         if e.name in VOID_ELEMENTS
             quote
                 print($(c.io), "<", $(e.name))
-                $(print_attributes)($(c.io); $(attrs...))
+                $(print_attributes)(
+                    $(c.io);
+                    $(_data_filename_attr)($(c.file))...,
+                    $(attrs...),
+                )
                 print($(c.io), "/>")
             end
         else
@@ -101,7 +105,11 @@ function expression(c::BuilderContext, e::Element)
             body = expression(c, e.body)
             quote
                 print($(c.io), "<", $(e.name))
-                $(print_attributes)($(c.io); $(attrs...))
+                $(print_attributes)(
+                    $(c.io);
+                    $(_data_filename_attr)($(c.file))...,
+                    $(attrs...),
+                )
                 print($(c.io), ">")
                 $(body)
                 print($(c.io), "</", $(e.name), ">")
@@ -127,6 +135,11 @@ function expression(c::BuilderContext, e::Element)
         :($(name)($(c.io), $(slots); $(attrs...)))
     end
 end
+
+# Used in `HypertextTemplatesReviseExt` to toggle the `data-filename` attribute
+# on and off during tests. Not a public API, do not rely on this.
+const _DATA_FILENAME_ATTR = Ref(true)
+_data_filename_attr(::Any) = (;)
 
 function print_attributes(io::IO; attrs...)
     for (k, v) in attrs
