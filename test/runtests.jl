@@ -102,6 +102,17 @@ end
             class = "mx-2 flex",
         )
 
+        @test_reference joinpath(basic, "props.3.txt") render(
+            Templates.var"dollar-props-example";
+            class = "mx-2 flex",
+            id = 100,
+        )
+
+        @test_reference joinpath(basic, "props.4.txt") render(
+            Templates.var"wrapped-props-example";
+            class = "mx-2 flex",
+        )
+
         @test_reference joinpath(basic, "layout-usage.1.txt") render(
             Templates.var"layout-usage";
             class = "p-2 bg-gray-200",

@@ -2,9 +2,14 @@ struct Attribute
     name::String
     value::String
     dynamic::Bool
+    interpolate::Bool
 
     function Attribute(name, value, dynamic)
-        return new(_restore_special_symbols(name), _restore_special_symbols(value), dynamic)
+        name = _restore_special_symbols(name)
+        interpolate = startswith(name, "\$")
+        name = lstrip(name, '\$')
+        value = _restore_special_symbols(value)
+        return new(name, value, dynamic, interpolate)
     end
 end
 
@@ -18,6 +23,8 @@ function expression(c::BuilderContext, a::Attribute)
     name = Symbol(a.name)
     if a.dynamic
         return Expr(:(kw), name, Meta.parse(a.value))
+    elseif a.interpolate
+        return Expr(:(kw), name, Meta.parse("\"\"\"$(a.value)\"\"\""))
     else
         return Expr(:kw, name, a.value)
     end
