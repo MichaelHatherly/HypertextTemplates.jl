@@ -296,8 +296,22 @@ julia> render(Templates.var"props-vs-attributes-dynamic"; foo="my-css-class")
 "<p class=\"my-css-class\"></p>"
 ```
 
-You don't need to worry about this different on custom template functions since
-all props are dynamic. You can't have static props.
+If you would like to instead just construct a string attribute based on some
+interpolated Julia values then prefixing the attribute with a `$` will do that
+for you.
+
+```html
+<function edit-contact-link id>
+  <a $href="/contact/$id/edit">Edit</a>
+</function>
+```
+
+This will render as follows:
+
+```julia-repl
+julia> render(Templates.var"edit-contact-link"; id=123)
+"<a href=\"/contact/123/edit\">Edit</a>"
+```
 
 ## Development vs. Production Usage
 
