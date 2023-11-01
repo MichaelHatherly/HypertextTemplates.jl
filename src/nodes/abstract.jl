@@ -40,9 +40,10 @@ end
 struct BuilderContext
     io::Symbol
     slots::Symbol
+    file::String
 
-    function BuilderContext()
-        return new(Symbol("#io#"), Symbol("#slots#"))
+    function BuilderContext(file::AbstractString)
+        return new(Symbol("#io#"), Symbol("#slots#"), file)
     end
 end
 

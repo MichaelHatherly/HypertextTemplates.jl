@@ -1,6 +1,7 @@
 module HypertextTemplatesReviseExt
 
 import HypertextTemplates
+import InteractiveUtils
 import Revise
 
 function HypertextTemplates.is_stale_template(file::AbstractString, previous_mtime::Float64)
@@ -19,6 +20,14 @@ function HypertextTemplates.is_stale_template(file::AbstractString, previous_mti
     else
         # If the file doesn't exist, it's not stale.
         return false
+    end
+end
+
+function HypertextTemplates._data_filename_attr(file::String)
+    if HypertextTemplates._DATA_FILENAME_ATTR[]
+        return [Symbol("data-filename") => file]
+    else
+        return Pair{Symbol,String}[]
     end
 end
 
