@@ -122,6 +122,16 @@ end
             Templates.var"special-symbols";
             class = "p-2 bg-purple-200",
         )
+
+        @test_reference joinpath(basic, "custom-elements.1.txt") render(
+            Templates.var"custom-elements";
+            value = true,
+        )
+
+        @test_reference joinpath(basic, "custom-elements-nested.1.txt") render(
+            Templates.var"custom-elements-nested";
+            value = true,
+        )
     end
 
     @testset "complex" begin

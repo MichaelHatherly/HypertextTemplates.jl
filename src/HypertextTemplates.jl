@@ -16,7 +16,7 @@ end
 
 # Exports.
 
-export @template_str, @create_template_str, render, TemplateFileLookup
+export @template_str, @custom_element, @create_template_str, render, TemplateFileLookup
 
 # Includes.
 
@@ -31,6 +31,7 @@ include("nodes/julia.jl")
 include("nodes/match.jl")
 include("nodes/show.jl")
 include("nodes/text.jl")
+include("custom_element.jl")
 include("symbol-swapping.jl")
 include("render.jl")
 
