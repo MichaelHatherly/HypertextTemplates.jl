@@ -1,5 +1,7 @@
 using HypertextTemplates
 
+@custom_element "custom-element"
+
 template"templates/basic/for.html"
 template"templates/basic/julia.html"
 template"templates/basic/show.html"
@@ -11,6 +13,7 @@ template"templates/basic/props.html"
 template"templates/basic/layout.html"
 template"templates/basic/layout-usage.html"
 template"templates/basic/special-symbols.html"
+template"templates/basic/custom-elements.html"
 
 module Complex
 
