@@ -132,6 +132,36 @@ end
             Templates.var"custom-elements-nested";
             value = true,
         )
+
+        @test_reference joinpath(basic, "splat-args.1.txt") render(
+            Templates.var"splat-args";
+            key = :value,
+        )
+
+        @test_reference joinpath(basic, "splat-args.2.txt") render(
+            Templates.var"splat-args";
+        )
+
+        @test_reference joinpath(basic, "splat-args.3.txt") render(
+            Templates.var"splat-args";
+            a = 1,
+            b = 2,
+        )
+
+        @test_reference joinpath(basic, "splat-args-2.1.txt") render(
+            Templates.var"splat-args-2";
+        )
+
+        @test_reference joinpath(basic, "splat-args-2.2.txt") render(
+            Templates.var"splat-args-2";
+            a = 2,
+        )
+
+        @test_reference joinpath(basic, "splat-args-2.3.txt") render(
+            Templates.var"splat-args-2";
+            a = 2,
+            b = 10,
+        )
     end
 
     @testset "complex" begin

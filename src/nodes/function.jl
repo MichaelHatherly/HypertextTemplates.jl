@@ -3,9 +3,17 @@ const TEMPLATE_FUNCTION_TAG = "function"
 struct Prop
     name::String
     value::String
+    vararg::Bool
 
     function Prop(name, value)
-        return new(_restore_special_symbols(name), _restore_special_symbols(value))
+        vararg = false
+        if endswith(name, "...")
+            name == value || error("invalid syntax for '...' prop: $(name)...=$(value).")
+            name, _ = rsplit(name, "..."; limit = 2)
+            value = name
+            vararg = true
+        end
+        return new(_restore_special_symbols(name), _restore_special_symbols(value), vararg)
     end
 end
 
@@ -17,8 +25,12 @@ function expression(c::BuilderContext, p::Prop)
     name = Symbol(p.name)
     if p.name == p.value
         # Required keyword with no default value or type.
-        return name
+        return p.vararg ? Expr(:(...), name) : name
     else
+        # Gaurd against this condition, although it should have already been caught
+        # during initialization of `Prop`.
+        p.vararg && error("invalid syntax for '...' prop: $(name)...=$(p.value).")
+
         expr = Meta.parse(p.value)
         if MacroTools.@capture(expr, default_::Type_)
             # Keyword with default value and type.

@@ -14,6 +14,7 @@ template"templates/basic/layout.html"
 template"templates/basic/layout-usage.html"
 template"templates/basic/special-symbols.html"
 template"templates/basic/custom-elements.html"
+template"templates/basic/splat.html"
 
 module Complex
 
