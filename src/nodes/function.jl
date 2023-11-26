@@ -236,8 +236,9 @@ struct TemplateFunction
     body::Vector{AbstractNode}
     file::String
     mod::Module
+    line::Int
 
-    function TemplateFunction(name, html, props, body, file, mod)
+    function TemplateFunction(name, html, props, body, file, mod, line)
         if name in VALID_HTML_ELEMENTS
             error(
                 "cannot name a template function the same as a valid HTML element name: $name",
@@ -253,7 +254,7 @@ struct TemplateFunction
                 "cannot name a template function the same as a reserved element name: $name",
             )
         end
-        return new(_restore_special_symbols(name), html, props, body, file, mod)
+        return new(_restore_special_symbols(name), html, props, body, file, mod, line)
     end
 end
 
@@ -273,6 +274,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                             transform(EzXML.nodes(n)),
                             file,
                             mod,
+                            nodeline(n),
                         )
                     else
                         error(
@@ -291,6 +293,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                     transform(EzXML.nodes(n)),
                     file,
                     mod,
+                    nodeline(n),
                 )
             else
                 error("expected a '<function>' or '<html>' tag, found: $tag")
@@ -396,7 +399,7 @@ function expression(c::TemplateFunction)::Expr
             end
         end
     end
-    return Base.remove_linenums!(expr)
+    return expr |> lln_replacer(c.file, c.line)
 end
 
 # Decide whether to recompile the template or not.

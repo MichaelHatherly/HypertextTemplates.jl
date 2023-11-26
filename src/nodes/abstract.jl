@@ -24,7 +24,7 @@ function transform(n::EzXML.Node)
                 return Element(n)
             end
         else
-            return Text(cdata(n))
+            return Text(cdata(n), 0)
         end
     end
 end
@@ -32,7 +32,7 @@ end
 function nodeline(node::EzXML.Node)
     node_ptr = node.ptr
     @assert node_ptr != C_NULL
-    @assert unsafe_load(node_ptr).typ == EzXML.ELEMENT_NODE
+    @assert unsafe_load(node_ptr).typ in (EzXML.ELEMENT_NODE, EzXML.TEXT_NODE)
     return unsafe_load(convert(Ptr{EzXML._Element}, node_ptr)).line
 end
 

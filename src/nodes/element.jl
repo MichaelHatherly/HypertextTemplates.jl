@@ -108,7 +108,7 @@ function expression(c::BuilderContext, e::Element)
                     $(attrs...),
                 )
                 print($(c.io), "/>")
-            end
+            end |> lln_replacer(c.file, e.line)
         else
             name = Symbol(e.name)
             body = expression(c, e.body)
@@ -122,7 +122,7 @@ function expression(c::BuilderContext, e::Element)
                 print($(c.io), ">")
                 $(body)
                 print($(c.io), "</", $(e.name), ">")
-            end
+            end |> lln_replacer(c.file, e.line)
         end
     else
         name = Symbol(e.name)
@@ -132,7 +132,7 @@ function expression(c::BuilderContext, e::Element)
                     $(body)
                     return nothing
                 end
-            end)
+            end) |> lln_replacer(c.file, e.line)
         end
         slots = Expr(
             :tuple,
@@ -141,7 +141,7 @@ function expression(c::BuilderContext, e::Element)
                 (builder(Symbol(k), expression(c, v)) for (k, v) in e.slots)...,
             ),
         )
-        :($(name)($(c.io), $(slots); $(attrs...)))
+        :($(name)($(c.io), $(slots); $(attrs...))) |> lln_replacer(c.file, e.line)
     end
 end
 

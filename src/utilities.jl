@@ -95,3 +95,24 @@ function split_fallback(n::EzXML.Node)
     end
     return nodes, fallback
 end
+
+function lln_replacer(file::Union{String,Symbol}, line::Integer)
+    file = Symbol(file)
+    function (ex::Expr)
+        if line > 0
+            MacroTools.postwalk(ex) do each
+                if isa(each, LineNumberNode)
+                    if startswith(string(each.file), SRC_DIR)
+                        return LineNumberNode(line, file)
+                    else
+                        return each
+                    end
+                else
+                    return each
+                end
+            end
+        else
+            return ex
+        end
+    end
+end

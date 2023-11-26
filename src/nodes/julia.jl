@@ -2,9 +2,10 @@ const JULIA_TAG = "julia"
 
 struct Julia <: AbstractNode
     value::String
+    line::Int
 
-    function Julia(value)
-        return new(_restore_special_symbols(value))
+    function Julia(value, line)
+        return new(_restore_special_symbols(value), line)
     end
 end
 
@@ -13,7 +14,7 @@ function Julia(n::EzXML.Node)
     if length(attrs) == 1
         (name, value), = attrs
         if name == "value"
-            return Julia(isempty(value) ? name : value)
+            return Julia(isempty(value) ? name : value, nodeline(n))
         else
             error("expected a 'value' attribute for a julia node.")
         end
@@ -26,7 +27,7 @@ function expression(c::BuilderContext, j::Julia)
     expr = Meta.parse(j.value)
     quote
         $(escape_html)($(c.io), $(expr))
-    end
+    end |> lln_replacer(c.file, j.line)
 end
 
 function escape_html(io::IO, value)

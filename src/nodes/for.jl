@@ -5,13 +5,15 @@ struct For <: AbstractNode
     item::String
     index::Union{String,Nothing}
     body::Vector{AbstractNode}
+    line::Int
 
-    function For(iter, item, index, body)
+    function For(iter, item, index, body, line)
         return new(
             _restore_special_symbols(iter),
             _restore_special_symbols(item),
             _restore_special_symbols(index),
             body,
+            line,
         )
     end
 end
@@ -25,7 +27,7 @@ function For(n::EzXML.Node)
         iter = key_default(attrs, "iter")
         item = key_default(attrs, "item")
         index = key_default(attrs, "index")
-        return For(iter, item, index, transform(EzXML.nodes(n)))
+        return For(iter, item, index, transform(EzXML.nodes(n)), nodeline(n))
     else
         error("expected a '<for>' tag, found: $tag")
     end
@@ -46,5 +48,5 @@ function expression(c::BuilderContext, f::For)
         for $(item) in $(iter)
             $(body)
         end
-    end
+    end |> lln_replacer(c.file, f.line)
 end
