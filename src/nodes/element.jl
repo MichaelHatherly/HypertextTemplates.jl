@@ -21,7 +21,9 @@ end
 
 function expression(c::BuilderContext, a::Attribute)
     name = Symbol(a.name)
-    if a.dynamic
+    if name == :...
+        return Expr(:(...), Meta.parse(a.value))
+    elseif a.dynamic
         return Expr(:(kw), name, Meta.parse(a.value))
     elseif a.interpolate
         return Expr(:(kw), name, Meta.parse("\"\"\"$(a.value)\"\"\""))
