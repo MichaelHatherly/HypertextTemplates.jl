@@ -25,7 +25,7 @@ macro custom_element(name)
                 attributes...,
             )
         end
-    end
+    end |> lln_replacer(file, line)
 end
 
 function custom_element(io::IO, name::String, slots::NamedTuple; attributes...)

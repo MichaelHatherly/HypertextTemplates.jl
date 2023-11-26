@@ -17,6 +17,41 @@ function render(f, args...; kws...)
     return String(take!(buffer))
 end
 
+function check_backtrace(bt, checks)
+    io = IOBuffer()
+    Base.show_backtrace(io, bt)
+    text = String(take!(io))
+    function handle(needle::Union{Regex,AbstractString})
+        result = contains(text, needle)
+        if !result
+            @error "expected to find '$(repr(needle))' in backtrace:\n$text"
+        end
+        return result
+    end
+    function handle(fn)
+        result = fn(text)
+        if !result
+            @error "expected to find match in backtrace:\n$text"
+        end
+        return result
+    end
+    for each in vec(checks)
+        @test handle(each)
+    end
+end
+
+macro test_throws_st(E, ex, contains)
+    quote
+        try
+            $ex
+            @test false
+        catch e
+            @test isa(e, $E)
+            check_backtrace(catch_backtrace(), $contains)
+        end
+    end
+end
+
 @testset "HypertextTemplates" begin
     HypertextTemplates._DATA_FILENAME_ATTR[] = false
 
@@ -162,6 +197,41 @@ end
             a = 2,
             b = 10,
         )
+
+        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-1") [
+            "file-and-line-info.html:2",
+            "file-and-line-info.html:1",
+            !contains("file-and-line-info.html:7"),
+            !contains(HypertextTemplates.SRC_DIR),
+        ]
+        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-2") [
+            "file-and-line-info.html:7",
+            "file-and-line-info.html:5",
+            !contains("file-and-line-info.html:1"),
+            !contains(HypertextTemplates.SRC_DIR),
+        ]
+        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-3") [
+            "file-and-line-info.html:17",
+            "file-and-line-info.html:15",
+            !contains("file-and-line-info.html:21"),
+            !contains(HypertextTemplates.SRC_DIR),
+        ]
+        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-4") [
+            "file-and-line-info.html:21",
+            "file-and-line-info.html:23",
+            "file-and-line-info.html:7",
+            "file-and-line-info.html:5",
+            !contains("file-and-line-info.html:1"),
+            !contains(HypertextTemplates.SRC_DIR),
+        ]
+        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-5") [
+            "file-and-line-info.html:27",
+            "file-and-line-info.html:29",
+            "file-and-line-info.html:15",
+            "file-and-line-info.html:17",
+            !contains("file-and-line-info.html:3"),
+            !contains(HypertextTemplates.SRC_DIR),
+        ]
     end
 
     @testset "complex" begin

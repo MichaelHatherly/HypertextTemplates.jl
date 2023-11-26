@@ -18,6 +18,11 @@ end
 
 export @template_str, @custom_element, @create_template_str, render, TemplateFileLookup
 
+# Constants.
+
+# Used for replacing package-specific file/line information in macro-generated code.
+const SRC_DIR = @__DIR__
+
 # Includes.
 
 include("utilities.jl")

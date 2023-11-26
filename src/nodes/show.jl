@@ -4,9 +4,10 @@ struct Show <: AbstractNode
     when::String
     body::Vector{AbstractNode}
     fallback::Vector{AbstractNode}
+    line::Int
 
-    function Show(when, body, fallback)
-        return new(_restore_special_symbols(when), body, fallback)
+    function Show(when, body, fallback, line)
+        return new(_restore_special_symbols(when), body, fallback, line)
     end
 end
 
@@ -17,7 +18,7 @@ function Show(n::EzXML.Node)
         haskey(attrs, "when") || error("expected a 'when' attribute for a 'show' node.")
         when = key_default(attrs, "when")
         nodes, fallback = split_fallback(n)
-        return Show(when, transform(nodes), transform(EzXML.nodes(fallback)))
+        return Show(when, transform(nodes), transform(EzXML.nodes(fallback)), nodeline(n))
     else
         error("expected a '<show>' tag, found: $tag")
     end
@@ -36,5 +37,5 @@ function expression(c::BuilderContext, s::Show)
         else
             $(fallback)
         end
-    end
+    end |> lln_replacer(c.file, s.line)
 end

@@ -3,9 +3,10 @@ const CASE_TAG = "case"
 struct Case
     when::String
     body::Vector{AbstractNode}
+    line::Int
 
-    function Case(when, body)
-        return new(_restore_special_symbols(when), body)
+    function Case(when, body, line)
+        return new(_restore_special_symbols(when), body, line)
     end
 end
 
@@ -17,6 +18,7 @@ const MATCH_TAG = "match"
 struct Match <: AbstractNode
     value::String
     cases::Vector{Case}
+    line::Int
 
     function Match(n::EzXML.Node)
         tag = EzXML.nodename(n)
@@ -31,7 +33,7 @@ struct Match <: AbstractNode
                     if length(attrs) == 1
                         when = key_default(attrs, "when")
                         body = transform(EzXML.nodes(each))
-                        push!(cases, Case(when, body))
+                        push!(cases, Case(when, body, nodeline(each)))
                     else
                         error("'match' nodes require a single attribute.")
                     end
@@ -42,7 +44,7 @@ struct Match <: AbstractNode
                     # Silently drops text nodes found in the match block.
                 end
             end
-            return new(value, cases)
+            return new(value, cases, nodeline(n))
         else
             error("expected a '<match>' tag, found: $tag")
         end
@@ -64,5 +66,5 @@ function expression(c::BuilderContext, s::Match)
         $(Deps.Match).@match $(value) begin
             $(cases...)
         end
-    end
+    end |> lln_replacer(c.file, s.line)
 end
