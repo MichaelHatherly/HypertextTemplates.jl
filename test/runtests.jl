@@ -198,6 +198,21 @@ end
             b = 10,
         )
 
+        @test_reference joinpath(basic, "splatted-props.1.txt") render(
+            Templates.var"splatted-props";
+            props = (;),
+        )
+
+        @test_reference joinpath(basic, "splatted-props.2.txt") render(
+            Templates.var"splatted-props";
+            props = (; value = 2),
+        )
+
+        @test_reference joinpath(basic, "splatted-props.3.txt") render(
+            Templates.var"splatted-props";
+            props = (; option = "option"),
+        )
+
         @test_throws_st UndefVarError render(Templates.var"file-and-line-info-1") [
             "file-and-line-info.html:2",
             "file-and-line-info.html:1",

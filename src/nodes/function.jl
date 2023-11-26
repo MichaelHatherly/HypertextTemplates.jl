@@ -7,9 +7,9 @@ struct Prop
 
     function Prop(name, value)
         vararg = false
-        if endswith(name, "...")
+        if endswith(name, __SPECIAL_SPLAT_SYMBOL__)
             name == value || error("invalid syntax for '...' prop: $(name)...=$(value).")
-            name, _ = rsplit(name, "..."; limit = 2)
+            name, _ = rsplit(name, __SPECIAL_SPLAT_SYMBOL__; limit = 2)
             value = name
             vararg = true
         end
