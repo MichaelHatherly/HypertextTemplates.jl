@@ -102,6 +102,14 @@ end
             Templates.var"show-example";
             value = 2,
         )
+        @test_reference joinpath(basic, "show.3.txt") render(
+            Templates.var"show-example-2";
+            value = 1,
+        )
+        @test_reference joinpath(basic, "show.4.txt") render(
+            Templates.var"show-example-2";
+            value = 2,
+        )
 
         @test_reference joinpath(basic, "match.1.txt") render(
             Templates.var"match-example";
