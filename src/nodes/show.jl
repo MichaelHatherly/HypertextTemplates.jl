@@ -18,7 +18,12 @@ function Show(n::EzXML.Node)
         haskey(attrs, "when") || error("expected a 'when' attribute for a 'show' node.")
         when = key_default(attrs, "when")
         nodes, fallback = split_fallback(n)
-        return Show(when, transform(nodes), transform(EzXML.nodes(fallback)), nodeline(n))
+        return Show(
+            when,
+            transform(nodes),
+            isnothing(fallback) ? [] : transform(EzXML.nodes(fallback)),
+            nodeline(n),
+        )
     else
         error("expected a '<show>' tag, found: $tag")
     end
