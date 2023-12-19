@@ -13,12 +13,15 @@ MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 Match = "7eb4fadd-790c-5f42-8a69-bfa0b872bfbf"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [weakdeps]
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [extensions]
+HypertextTemplatesCommonMarkExt = "CommonMark"
 HypertextTemplatesHTTPReviseExt = ["HTTP", "Revise"]
 HypertextTemplatesReviseExt = "Revise"
 
@@ -32,4 +35,5 @@ MacroTools = "0.5"
 Match = "2"
 PackageExtensionCompat = "1"
 Random = "1.6"
+TOML = "1"
 julia = "1.6"

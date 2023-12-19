@@ -312,23 +312,28 @@ AbstractTrees.children(c::TemplateFunction) = c.body
 
 function components(file::String, mod::Module)::Vector{TemplateFunction}
     if endswith(file, ".html")
-        content = _swap_special_symbols(read(file, String))
-        if isempty(content)
-            error("template file is empty: $file")
-        else
-            html = _with_filtered_logging() do
-                return EzXML.parsehtml(content)
-            end
-            roots = findall("//$TEMPLATE_FUNCTION_TAG", html)
-            roots = isempty(roots) ? findall("//html", html) : roots
-            if isempty(roots)
-                error("no '<function>' or '<html>' found in file: $file.")
-            else
-                return TemplateFunction.(roots, Ref(file), Ref(mod))
-            end
-        end
+        str = read(file, String)
+        return _components_from_str(str, file, mod)
     else
         error("template file must have an '.html' extension: $file")
+    end
+end
+
+function _components_from_str(str::AbstractString, file::String, mod::Module)
+    content = _swap_special_symbols(str)
+    if isempty(content)
+        error("template file is empty: $file")
+    else
+        html = _with_filtered_logging() do
+            return EzXML.parsehtml(content)
+        end
+        roots = findall("//$TEMPLATE_FUNCTION_TAG", html)
+        roots = isempty(roots) ? findall("//html", html) : roots
+        if isempty(roots)
+            error("no '<function>' or '<html>' found in file: $file.")
+        else
+            return TemplateFunction.(roots, Ref(file), Ref(mod))
+        end
     end
 end
 

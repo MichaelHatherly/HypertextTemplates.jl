@@ -1,4 +1,5 @@
 [deps]
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 ReferenceTests = "324d217c-45ce-50fc-942e-d289b448e8cf"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"

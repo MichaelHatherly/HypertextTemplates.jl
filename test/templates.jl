@@ -45,3 +45,11 @@ using HypertextTemplates
 template"templates/keywords/keywords.html"
 
 end
+
+module Markdown
+
+using HypertextTemplates
+
+template"templates/markdown/markdown.md"
+
+end

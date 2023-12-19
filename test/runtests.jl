@@ -1,3 +1,4 @@
+using CommonMark
 using HypertextTemplates
 using Test
 using ReferenceTests
@@ -301,6 +302,16 @@ end
         )
         @test_throws UndefKeywordError render(TK.var"typed-props";)
         @test_throws TypeError render(TK.var"typed-props"; props = "string")
+    end
+
+    @testset "markdown" begin
+        markdown = joinpath(templates, "markdown")
+        TM = Templates.Markdown
+
+        @test_reference joinpath(markdown, "markdown.1.txt") render(
+            TM.var"custom-markdown-name";
+            prop = "prop-value",
+        )
     end
 
     @testset "data-htloc" begin
