@@ -18,7 +18,7 @@ struct For <: AbstractNode
     end
 end
 
-function For(n::EzXML.Node)
+function For(ctx, n::EzXML.Node)
     tag = EzXML.nodename(n)
     if tag == FOR_TAG
         attrs = Dict(attributes(n))
@@ -27,7 +27,7 @@ function For(n::EzXML.Node)
         iter = key_default(attrs, "iter")
         item = key_default(attrs, "item")
         index = key_default(attrs, "index")
-        return For(iter, item, index, transform(EzXML.nodes(n)), nodeline(n))
+        return For(iter, item, index, transform(ctx, EzXML.nodes(n)), nodeline(n))
     else
         error("expected a '<for>' tag, found: $tag")
     end

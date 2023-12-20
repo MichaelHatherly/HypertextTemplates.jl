@@ -9,7 +9,7 @@ struct Julia <: AbstractNode
     end
 end
 
-function Julia(n::EzXML.Node)
+function Julia(ctx, n::EzXML.Node)
     attrs = attributes(n)
     if length(attrs) == 1
         (name, value), = attrs

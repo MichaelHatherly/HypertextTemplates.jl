@@ -7,7 +7,7 @@ struct Text <: AbstractNode
     end
 end
 
-function Text(n::EzXML.Node)
+function Text(ctx, n::EzXML.Node)
     if EzXML.istext(n)
         content = EzXML.nodecontent(n)
 

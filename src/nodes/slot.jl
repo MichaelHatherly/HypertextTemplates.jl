@@ -10,7 +10,7 @@ struct Slot <: AbstractNode
     end
 end
 
-function Slot(n::EzXML.Node)
+function Slot(ctx, n::EzXML.Node)
     attrs = attributes(n)
     if isempty(attrs)
         return Slot(nothing, nodeline(n))
@@ -36,3 +36,27 @@ function expression(c::BuilderContext, s::Slot)
         :($(c.slots).$(name)($(c.io)))
     end |> lln_replacer(c.file, s.line)
 end
+
+"""
+    slots([unnamed]; named...)
+
+Helper function to construct `NamedTuple`s to pass to templates as their slots.
+
+This function is useful when composing template functions within Julia code
+rather than within template files templates. For example when rendering a
+markdown template with a specific wrapper layout.
+
+```julia
+base_layout(stdout, slots(markdown(; title = "My Title")))
+```
+
+The above does several things:
+
+  - Delays the rendering of the `markdown` template until the `base_layout`
+    template requests rendering within it's unnamed slot.
+  - Creates the `slots` object to assign the delayed `markdown` template to the
+    unnamed slot.
+  - Renders the `base_layout` template to `stdout` with the `slots` object, which
+    will render the `markdown` template within the unnamed slot.
+"""
+slots(unnamed = (io) -> nothing; named...) = (; named..., Symbol(UNNAMED_SLOT) => unnamed)

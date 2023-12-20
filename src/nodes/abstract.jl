@@ -2,26 +2,26 @@ const FALLBACK_TAG = "fallback"
 
 abstract type AbstractNode end
 
-transform(ns::Vector{EzXML.Node}) = [transform(n) for n in ns]
+transform(ctx, ns::Vector{EzXML.Node}) = [transform(ctx, n) for n in ns]
 
-function transform(n::EzXML.Node)
+function transform(ctx, n::EzXML.Node)
     if EzXML.istext(n)
-        return Text(n)
+        return Text(ctx, n)
     else
         if EzXML.iselement(n)
             tag = EzXML.nodename(n)
             if tag == FOR_TAG
-                return For(n)
+                return For(ctx, n)
             elseif tag == JULIA_TAG
-                return Julia(n)
+                return Julia(ctx, n)
             elseif tag == SHOW_TAG
-                return Show(n)
+                return Show(ctx, n)
             elseif tag == MATCH_TAG
-                return Match(n)
+                return Match(ctx, n)
             elseif tag == SLOT_TAG
-                return Slot(n)
+                return Slot(ctx, n)
             else
-                return Element(n)
+                return Element(ctx, n)
             end
         else
             return Text(cdata(n), 0)

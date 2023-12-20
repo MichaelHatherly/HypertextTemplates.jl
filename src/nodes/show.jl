@@ -11,7 +11,7 @@ struct Show <: AbstractNode
     end
 end
 
-function Show(n::EzXML.Node)
+function Show(ctx, n::EzXML.Node)
     tag = EzXML.nodename(n)
     if tag == SHOW_TAG
         attrs = Dict(attributes(n))
@@ -20,8 +20,8 @@ function Show(n::EzXML.Node)
         nodes, fallback = split_fallback(n)
         return Show(
             when,
-            transform(nodes),
-            isnothing(fallback) ? [] : transform(EzXML.nodes(fallback)),
+            transform(ctx, nodes),
+            isnothing(fallback) ? [] : transform(ctx, EzXML.nodes(fallback)),
             nodeline(n),
         )
     else

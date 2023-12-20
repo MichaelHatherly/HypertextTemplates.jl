@@ -313,6 +313,44 @@ julia> render(Templates.var"edit-contact-link"; id=123)
 "<a href=\"/contact/123/edit\">Edit</a>"
 ```
 
+## Markdown Template Files
+
+*Experimental Feature*
+
+You can also use Markdown files as templates. This requires the user to have
+imported the `CommonMark` package prior to using a markdown file in a template
+macro. Internally the markdown syntax is rendered to HTML using
+`CommonMark.jl`'s `html` function and then parsed into a template function using
+`HypertextTemplates.jl`.
+
+Extensions are enabled by default in the CommonMark parser, such as tables,
+admonitions, and footnotes. Since CommonMark supports embedding *some* basic
+HTML tags you can also use those in your markdown templates to call other HTML
+or markdown templates for composition. Don't expect complete HTML support to
+work though, and if you find yourself embedding large amounts of HTML in your
+markdown templates then you should probably just use HTML templates instead and
+then embed that custom template tag in your markdown template.
+
+TOML frontmatter syntax is used to allow the template name and props to be
+declared. When no `name` is provided the template name will be derived from the
+file name. When no `props` are provided the template will have no props.
+Frontmatter is optional and declared with `+++` fences at the top of the file.
+
+```markdown
++++
+name = "my-template"
+props = ["foo", "bar"]
++++
+
+<large-custom-template prop="foo" />
+
+# My Template
+
+This is a template that takes two props: `foo` and `bar`. Their values are
+<julia value="foo" /> and <julia value="bar" /> respectively.
+```
+
+
 ## Development vs. Production Usage
 
 `HypertextTemplates` supports integration with `Revise`-based development

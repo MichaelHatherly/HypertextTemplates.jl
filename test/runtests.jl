@@ -1,3 +1,4 @@
+using CommonMark
 using HypertextTemplates
 using Test
 using ReferenceTests
@@ -303,6 +304,16 @@ end
         @test_throws TypeError render(TK.var"typed-props"; props = "string")
     end
 
+    @testset "markdown" begin
+        markdown = joinpath(templates, "markdown")
+        TM = Templates.Markdown
+
+        @test_reference joinpath(markdown, "markdown.1.txt") render(
+            TM.var"custom-markdown-name";
+            prop = "prop-value",
+        )
+    end
+
     @testset "data-htloc" begin
         HypertextTemplates._DATA_FILENAME_ATTR[] = true
         html = render(Templates.Complex.app)
@@ -321,5 +332,28 @@ end
         @test contains(html, "$(mapping["button.html"]):2")
         @test contains(html, "$(mapping["dropdown.html"]):2")
         @test contains(html, "$(mapping["dropdown.html"]):3")
+
+        html = render(Templates.Markdown.var"custom-markdown-name"; prop = "prop-value")
+        @test contains(html, "data-htloc")
+
+        mapping = Dict(
+            basename(file) => line for
+            (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
+        )
+        @test contains(html, "$(mapping["markdown.md"]):8")
+        @test contains(html, "$(mapping["markdown.md"]):10")
+        @test contains(html, "$(mapping["markdown.md"]):12")
+
+        HypertextTemplates._DATA_FILENAME_ATTR[] = false
+    end
+
+    @testset "composed templates" begin
+        template = Templates.Complex.var"base-layout"(
+            slots(Templates.Markdown.var"custom-markdown-name"(; prop = "prop-value"));
+            title = "title",
+        )
+        html = render(template)
+        @test contains(html, "<!DOCTYPE")
+        @test contains(html, "language-julia")
     end
 end
