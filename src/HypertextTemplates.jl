@@ -16,7 +16,8 @@ end
 
 # Exports.
 
-export @template_str, @custom_element, @create_template_str, render, TemplateFileLookup
+export @template_str,
+    @custom_element, @create_template_str, render, TemplateFileLookup, slots
 
 # Constants.
 

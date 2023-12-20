@@ -20,7 +20,7 @@ struct Match <: AbstractNode
     cases::Vector{Case}
     line::Int
 
-    function Match(n::EzXML.Node)
+    function Match(ctx, n::EzXML.Node)
         tag = EzXML.nodename(n)
         if tag == MATCH_TAG
             nodes, fallback = split_fallback(n)
@@ -32,7 +32,7 @@ struct Match <: AbstractNode
                     attrs = Dict(attributes(each))
                     if length(attrs) == 1
                         when = key_default(attrs, "when")
-                        body = transform(EzXML.nodes(each))
+                        body = transform(ctx, EzXML.nodes(each))
                         push!(cases, Case(when, body, nodeline(each)))
                     else
                         error("'match' nodes require a single attribute.")

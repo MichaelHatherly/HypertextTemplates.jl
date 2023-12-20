@@ -259,6 +259,7 @@ struct TemplateFunction
 end
 
 function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
+    ctx = (; markdown = endswith(file, ".md"))
     if isabspath(file)
         if EzXML.iselement(n)
             tag = EzXML.nodename(n)
@@ -271,7 +272,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                             name,
                             false,
                             Prop.(props),
-                            transform(EzXML.nodes(n)),
+                            transform(ctx, EzXML.nodes(n)),
                             file,
                             mod,
                             nodeline(n),
@@ -290,7 +291,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                     name,
                     true,
                     [],
-                    transform(EzXML.nodes(n)),
+                    transform(ctx, EzXML.nodes(n)),
                     file,
                     mod,
                     nodeline(n),
@@ -374,6 +375,9 @@ function expression(c::TemplateFunction)::Expr
                 end
                 return nothing
             end
+            function $(name)(default_slots::NamedTuple = (;); default_props...)
+                return $(delay_io)($(name), default_slots, default_props)
+            end
         end
     else
         props = expression(context, c.props)
@@ -402,6 +406,9 @@ function expression(c::TemplateFunction)::Expr
                 end
                 return nothing
             end
+            function $(name)(default_slots::NamedTuple = (;); default_props...)
+                return $(delay_io)($(name), default_slots, default_props)
+            end
         end
     end
     return expr |> lln_replacer(c.file, c.line)
@@ -415,5 +422,11 @@ function _recompile_template(mod::Module, file::String, mtime::Float64)
         return true
     else
         return false
+    end
+end
+
+function delay_io(name, default_slots, default_props)
+    return function (io::IO, slots::NamedTuple = (;); props...)
+        name(io, merge(default_slots, slots); default_props..., props...)
     end
 end

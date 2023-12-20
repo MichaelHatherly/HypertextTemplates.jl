@@ -28,10 +28,19 @@ function HypertextTemplates._handle_commonmark_ext(
     props = join(get(Vector{String}, frontmatter, "props"), " ")
     props = isempty(props) ? props : " $props"
 
-    str = "<function $name$props>$(CommonMark.html(ast))</function>"
+    str = "<function $name$props>$(html_str(ast))</function>"
     return HypertextTemplates._components_from_str(str, file, mod)
 end
 
-function format_prop(k) end
+# Custom wrapper around CommonMark's HTML writer so that we can enable sourcepos
+# which allows us to use goto definition in browsers when dev mode is enabled.
+function html_str(ast::CommonMark.Node)
+    html = CommonMark.HTML(; sourcepos = true)
+    io = IOBuffer()
+    env = Dict{String,Any}()
+    w = CommonMark.Writer(html, io, env)
+    CommonMark.write_html(w, ast)
+    return String(take!(io))
+end
 
 end

@@ -43,20 +43,47 @@ struct Element <: AbstractNode
     slots::Vector{Pair{String,Vector{AbstractNode}}}
     line::Int
 
-    function Element(name, attributes, body, slots, line)
+    function Element(ctx, name, attributes, body, slots, line)
+        attributes, line = _translate_data_sourcepos(ctx, attributes, line)
         return new(_restore_special_symbols(name), attributes, body, slots, line)
     end
 end
 
-function Element(n::EzXML.Node)
+# CommonMark HTML output stores a `data-sourcepos` attribute on each element
+# to track source position. We use a slightly different attribute name in
+# HypertextTemplates and don't care about column information.
+function _translate_data_sourcepos(ctx, attributes::Vector, line::Integer)
+    attrs = Attribute[]
+    sourcepos = nothing
+    for each in attributes
+        if each.name == "data-sourcepos"
+            sourcepos = each.value
+        else
+            push!(attrs, each)
+        end
+    end
+    if isnothing(sourcepos)
+        return attrs, ctx.markdown ? 0 : line
+    else
+        m = match(r"(\d+):(\d+)-(\d+):(\d+)", sourcepos)
+        if isnothing(m)
+            return attrs, 0
+        else
+            line = something(tryparse(Int, m.captures[1]), 0)
+            return attrs, line
+        end
+    end
+end
+
+function Element(ctx, n::EzXML.Node)
     name = EzXML.nodename(n)
     if name in RESERVED_ELEMENT_NAMES
         error("elements cannot be named after reserved node names: $name")
     end
     attrs = attributes(n)
     if name in VALID_HTML_ELEMENTS
-        body = transform(EzXML.nodes(n))
-        return Element(name, Attribute.(attrs), body, [], nodeline(n))
+        body = transform(ctx, EzXML.nodes(n))
+        return Element(ctx, name, Attribute.(attrs), body, [], nodeline(n))
     else
         slots = []
         nodes = EzXML.nodes(n)
@@ -66,15 +93,22 @@ function Element(n::EzXML.Node)
                 if contains(tag, ':')
                     tag, slot = split(tag, ':'; limit = 2)
                     child =
-                        Element(tag, [], transform(EzXML.nodes(each)), [], nodeline(each))
+                        Element(
+                            ctx,
+                            tag,
+                            [],
+                            transform(ctx, EzXML.nodes(each)),
+                            [],
+                            nodeline(each),
+                        )
                     push!(slots, slot => [child])
                 end
             end
         end
         if isempty(slots)
-            push!(slots, UNNAMED_SLOT => transform(nodes))
+            push!(slots, UNNAMED_SLOT => transform(ctx, nodes))
         end
-        return Element(name, Attribute.(attrs), [], slots, nodeline(n))
+        return Element(ctx, name, Attribute.(attrs), [], slots, nodeline(n))
     end
 end
 

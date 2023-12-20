@@ -332,5 +332,28 @@ end
         @test contains(html, "$(mapping["button.html"]):2")
         @test contains(html, "$(mapping["dropdown.html"]):2")
         @test contains(html, "$(mapping["dropdown.html"]):3")
+
+        html = render(Templates.Markdown.var"custom-markdown-name"; prop = "prop-value")
+        @test contains(html, "data-htloc")
+
+        mapping = Dict(
+            basename(file) => line for
+            (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
+        )
+        @test contains(html, "$(mapping["markdown.md"]):8")
+        @test contains(html, "$(mapping["markdown.md"]):10")
+        @test contains(html, "$(mapping["markdown.md"]):12")
+
+        HypertextTemplates._DATA_FILENAME_ATTR[] = false
+    end
+
+    @testset "composed templates" begin
+        template = Templates.Complex.var"base-layout"(
+            slots(Templates.Markdown.var"custom-markdown-name"(; prop = "prop-value"));
+            title = "title",
+        )
+        html = render(template)
+        @test contains(html, "<!DOCTYPE")
+        @test contains(html, "language-julia")
     end
 end
