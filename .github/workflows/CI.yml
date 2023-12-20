@@ -24,6 +24,9 @@ jobs:
         if: needs.test.result == 'failure' || needs.test.result == 'skipped'
 
   test:
+    permissions:
+      actions: write
+      contents: read
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -37,6 +40,9 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
+        exclude:
+          - version: "1.6"
+            os: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +50,8 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
+
+      - uses: julia-actions/cache@v1
 
       - uses: julia-actions/julia-buildpkg@v1
 
