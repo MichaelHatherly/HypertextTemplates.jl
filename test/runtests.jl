@@ -222,6 +222,8 @@ end
             props = (; option = "option"),
         )
 
+        @test_reference joinpath(basic, "svg.1.txt") render(Templates.var"svg-content")
+
         @test_throws_st UndefVarError render(Templates.var"file-and-line-info-1") [
             "file-and-line-info.html:2",
             "file-and-line-info.html:1",

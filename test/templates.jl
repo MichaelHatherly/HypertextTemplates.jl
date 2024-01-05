@@ -17,6 +17,7 @@ template"templates/basic/custom-elements.html"
 template"templates/basic/splat.html"
 template"templates/basic/splatted-props.html"
 template"templates/basic/file-and-line-info.html"
+template"templates/basic/svg.html"
 
 module Complex
 
