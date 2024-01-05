@@ -22,11 +22,11 @@ end
 function expression(c::BuilderContext, a::Attribute)
     name = Symbol(a.name)
     if name == :...
-        return Expr(:(...), Meta.parse(a.value))
+        return Expr(:..., Meta.parse(a.value))
     elseif a.dynamic
-        return Expr(:(kw), name, Meta.parse(a.value))
+        return Expr(:kw, name, Meta.parse(a.value))
     elseif a.interpolate
-        return Expr(:(kw), name, Meta.parse("\"\"\"$(a.value)\"\"\""))
+        return Expr(:kw, name, Meta.parse("\"\"\"$(a.value)\"\"\""))
     else
         return Expr(:kw, name, a.value)
     end
@@ -135,31 +135,32 @@ const VOID_ELEMENTS = [
 function expression(c::BuilderContext, e::Element)
     attrs = expression(c, e.attributes)
     if e.name in VALID_HTML_ELEMENTS || e.name in VALID_SVG_ELEMENTS
+        attrs, static_attrs = _split_attributes(attrs)
+        opening_tag = "<$(e.name)"
+        opening_expr = quote
+            print($(c.io), $(opening_tag))
+            $(print_attributes)(
+                $(c.io),
+                $(static_attrs);
+                $(_data_filename_attr)($(c.file), $(e.line))...,
+                $(attrs...),
+            )
+        end
         if e.name in VOID_ELEMENTS
             quote
-                print($(c.io), "<", $(e.name))
-                $(print_attributes)(
-                    $(c.io);
-                    $(_data_filename_attr)($(c.file), $(e.line))...,
-                    $(attrs...),
-                )
+                $(opening_expr)
                 print($(c.io), "/>")
-            end |> lln_replacer(c.file, e.line)
+            end
         else
-            name = Symbol(e.name)
+            closing_tag = "</$(e.name)>"
             body = expression(c, e.body)
             quote
-                print($(c.io), "<", $(e.name))
-                $(print_attributes)(
-                    $(c.io);
-                    $(_data_filename_attr)($(c.file), $(e.line))...,
-                    $(attrs...),
-                )
+                $(opening_expr)
                 print($(c.io), ">")
                 $(body)
-                print($(c.io), "</", $(e.name), ">")
-            end |> lln_replacer(c.file, e.line)
-        end
+                print($(c.io), $(closing_tag))
+            end
+        end |> lln_replacer(c.file, e.line)
     else
         name = Symbol(e.name)
         function builder(slot, body)
@@ -181,12 +182,42 @@ function expression(c::BuilderContext, e::Element)
     end
 end
 
+# Optimised printing of attributes that we know are "static" within the template
+# functions, e.g. they are just strings. We print them all to a single `String`
+# during macro expansion time and then just interpolate that string into the
+# template function. This avoids runtime overhead of printing the attributes one
+# by one every single time the template function is called.
+function _split_attributes(attrs::Vector{Expr})
+    dynamic_attrs = Expr[]
+    static_attrs = Pair{Symbol,String}[]
+    for each in attrs
+        if _is_static_attribute(each)
+            push!(static_attrs, each.args[1] => each.args[2])
+        else
+            push!(dynamic_attrs, each)
+        end
+    end
+    if isempty(static_attrs)
+        return dynamic_attrs, ""
+    else
+        buffer = IOBuffer()
+        print_attributes(buffer; static_attrs...)
+        return dynamic_attrs, String(take!(buffer))
+    end
+end
+
+_is_static_attribute(ex::Expr) =
+    Meta.isexpr(ex, :kw, 2) && isa(ex.args[1], Symbol) && isa(ex.args[2], String)
+
 # Used in `HypertextTemplatesReviseExt` to toggle the `data-htloc` attribute
 # on and off during tests. Not a public API, do not rely on this.
 const _DATA_FILENAME_ATTR = Ref(true)
 _data_filename_attr(::Any, line) = (;)
 
-function print_attributes(io::IO; attrs...)
+function print_attributes(io::IO, static_attrs::String = ""; attrs...)
+    if !isempty(static_attrs)
+        print(io, static_attrs)
+    end
     for (k, v) in attrs
         if v isa AbstractString && k === Symbol(v)
             print(io, " ", k)
