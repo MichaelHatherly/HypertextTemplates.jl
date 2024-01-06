@@ -81,7 +81,7 @@ function Element(ctx, n::EzXML.Node)
         error("elements cannot be named after reserved node names: $name")
     end
     attrs = attributes(n)
-    if name in VALID_HTML_ELEMENTS
+    if name in VALID_HTML_ELEMENTS || name in VALID_SVG_ELEMENTS
         body = transform(ctx, EzXML.nodes(n))
         return Element(ctx, name, Attribute.(attrs), body, [], nodeline(n))
     else
@@ -112,7 +112,8 @@ function Element(ctx, n::EzXML.Node)
     end
 end
 
-Base.show(io::IO, e::Element) = print(io, "$(Element)($(e.name), $(join(e.props, " ")))")
+Base.show(io::IO, e::Element) =
+    print(io, "$(Element)($(e.name), $(join(e.attributes, " ")))")
 AbstractTrees.children(e::Element) = e.body
 
 const VOID_ELEMENTS = [
