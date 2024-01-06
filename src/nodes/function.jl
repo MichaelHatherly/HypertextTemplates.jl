@@ -51,7 +51,12 @@ end
 
 Base.show(io::IO, p::Prop) = print(io, "$(p.name)=$(repr(p.value))")
 
-const VALID_HTML_ELEMENTS = Set([
+function _caseless_set(set)
+    return union(set, lowercase.(set), uppercase.(set))
+end
+
+const VALID_HTML_ELEMENTS = _caseless_set(
+    Set([
     "a",
     "abbr",
     "address",
@@ -170,9 +175,11 @@ const VALID_HTML_ELEMENTS = Set([
     "var",
     "video",
     "wbr",
-])
+    ]),
+)
 
-const VALID_SVG_ELEMENTS = Set([
+const VALID_SVG_ELEMENTS = _caseless_set(
+    Set([
     "svg",
     "a",
     "circle",
@@ -228,7 +235,8 @@ const VALID_SVG_ELEMENTS = Set([
     "style",
     "desc",
     "title",
-])
+    ]),
+)
 struct TemplateFunction
     name::String
     html::Bool # Wraps an HTML document?
