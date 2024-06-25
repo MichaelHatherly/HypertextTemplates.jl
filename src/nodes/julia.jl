@@ -4,12 +4,12 @@ struct Julia <: AbstractNode
     value::String
     line::Int
 
-    function Julia(value, line)
-        return new(_restore_special_symbols(value), line)
+    function Julia(value::AbstractString, line::Integer)
+        return new(value, line)
     end
 end
 
-function Julia(ctx, n::EzXML.Node)
+function Julia(ctx, n::Lexbor.Node)
     attrs = attributes(n)
     if length(attrs) == 1
         (name, value), = attrs
@@ -34,7 +34,7 @@ function escape_html(io::IO, value)
     if showable("text/html", value)
         show(io, "text/html", value)
     else
-        escape_string(io, string(value))
+        escape_html(io, string(value))
     end
 end
 
@@ -49,7 +49,13 @@ function escape_html(io::IO, value::AbstractString)
         elseif c == '"'
             print(io, "&quot;")
         elseif c == '\''
-            print(io, "&#39;")
+            print(io, "&#x27;")
+        elseif c == '/'
+            print(io, "&#x2F;")
+        elseif c == '`'
+            print(io, "&grave;")
+        elseif c == '='
+            print(io, "&#x3D;")
         else
             print(io, c)
         end

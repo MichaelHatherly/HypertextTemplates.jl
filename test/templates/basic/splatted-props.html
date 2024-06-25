@@ -1,12 +1,10 @@
 <function splatted-props props>
     <div>
-        <splatted-props-inner ...=props />
+        <splatted-props-inner ...=props></splatted-props-inner>
         <div ...="merge(props, (; other = 1))"></div>
     </div>
 </function>
 
 <function splatted-props-inner value="1" _...>
-    <b>
-        <julia value />
-    </b>
+    <b .julia=value></b>
 </function>

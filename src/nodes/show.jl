@@ -7,12 +7,12 @@ struct Show <: AbstractNode
     line::Int
 
     function Show(when, body, fallback, line)
-        return new(_restore_special_symbols(when), body, fallback, line)
+        return new(when, body, fallback, line)
     end
 end
 
-function Show(ctx, n::EzXML.Node)
-    tag = EzXML.nodename(n)
+function Show(ctx, n::Lexbor.Node)
+    tag = Lexbor.nodename(n)
     if tag == SHOW_TAG
         attrs = Dict(attributes(n))
         haskey(attrs, "when") || error("expected a 'when' attribute for a 'show' node.")
@@ -21,7 +21,7 @@ function Show(ctx, n::EzXML.Node)
         return Show(
             when,
             transform(ctx, nodes),
-            isnothing(fallback) ? [] : transform(ctx, EzXML.nodes(fallback)),
+            isnothing(fallback) ? [] : transform(ctx, Lexbor.nodes(fallback)),
             nodeline(n),
         )
     else

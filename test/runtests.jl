@@ -54,6 +54,8 @@ macro test_throws_st(E, ex, contains)
 end
 
 @testset "HypertextTemplates" begin
+    include("Lexbor.jl")
+
     HypertextTemplates._DATA_FILENAME_ATTR[] = false
 
     templates = joinpath(@__DIR__, "templates")
@@ -167,6 +169,11 @@ end
             class = "p-2 bg-purple-200",
         )
 
+        @test_reference joinpath(basic, "escaped-content.1.txt") render(
+            Templates.var"escaped-content";
+            content = "&='`<>/",
+        )
+
         @test_reference joinpath(basic, "custom-elements.1.txt") render(
             Templates.var"custom-elements";
             value = true,
@@ -259,7 +266,6 @@ end
             !contains(HypertextTemplates.SRC_DIR),
         ]
     end
-
     @testset "complex" begin
         complex = joinpath(templates, "complex")
         TC = Templates.Complex
@@ -328,7 +334,7 @@ end
             basename(file) => line for
             (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
         )
-        @test contains(html, "$(mapping["base-layout.html"]):8")
+        @test contains(html, "$(mapping["base-layout.html"]):6")
         @test contains(html, "$(mapping["sidebar.html"]):2")
         @test contains(html, "$(mapping["app.html"]):4")
         @test contains(html, "$(mapping["button.html"]):2")
