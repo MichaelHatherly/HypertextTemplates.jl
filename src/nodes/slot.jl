@@ -5,12 +5,12 @@ struct Slot <: AbstractNode
     name::Union{String,Nothing}
     line::Int
 
-    function Slot(name, line)
-        return new(_restore_special_symbols(name), line)
+    function Slot(name::Union{Nothing,AbstractString}, line::Integer)
+        return new(name, line)
     end
 end
 
-function Slot(ctx, n::EzXML.Node)
+function Slot(ctx, n::Lexbor.Node)
     attrs = attributes(n)
     if isempty(attrs)
         return Slot(nothing, nodeline(n))

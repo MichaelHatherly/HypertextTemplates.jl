@@ -4,12 +4,12 @@ struct Julia <: AbstractNode
     value::String
     line::Int
 
-    function Julia(value, line)
-        return new(_restore_special_symbols(value), line)
+    function Julia(value::AbstractString, line::Integer)
+        return new(value, line)
     end
 end
 
-function Julia(ctx, n::EzXML.Node)
+function Julia(ctx, n::Lexbor.Node)
     attrs = attributes(n)
     if length(attrs) == 1
         (name, value), = attrs

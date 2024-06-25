@@ -8,18 +8,12 @@ struct For <: AbstractNode
     line::Int
 
     function For(iter, item, index, body, line)
-        return new(
-            _restore_special_symbols(iter),
-            _restore_special_symbols(item),
-            _restore_special_symbols(index),
-            body,
-            line,
-        )
+        return new(iter, item, index, body, line)
     end
 end
 
-function For(ctx, n::EzXML.Node)
-    tag = EzXML.nodename(n)
+function For(ctx, n::Lexbor.Node)
+    tag = Lexbor.nodename(n)
     if tag == FOR_TAG
         attrs = Dict(attributes(n))
         haskey(attrs, "iter") || error("expected a 'iter' attribute for a 'for' node.")
@@ -27,7 +21,7 @@ function For(ctx, n::EzXML.Node)
         iter = key_default(attrs, "iter")
         item = key_default(attrs, "item")
         index = key_default(attrs, "index")
-        return For(iter, item, index, transform(ctx, EzXML.nodes(n)), nodeline(n))
+        return For(iter, item, index, transform(ctx, Lexbor.nodes(n)), nodeline(n))
     else
         error("expected a '<for>' tag, found: $tag")
     end

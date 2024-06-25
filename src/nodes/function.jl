@@ -7,13 +7,13 @@ struct Prop
 
     function Prop(name, value)
         vararg = false
-        if endswith(name, __SPECIAL_SPLAT_SYMBOL__)
+        if endswith(name, "...")
             name == value || error("invalid syntax for '...' prop: $(name)...=$(value).")
-            name, _ = rsplit(name, __SPECIAL_SPLAT_SYMBOL__; limit = 2)
+            name, _ = rsplit(name, "..."; limit = 2)
             value = name
             vararg = true
         end
-        return new(_restore_special_symbols(name), _restore_special_symbols(value), vararg)
+        return new(name, value, vararg)
     end
 end
 
@@ -262,15 +262,15 @@ struct TemplateFunction
                 "cannot name a template function the same as a reserved element name: $name",
             )
         end
-        return new(_restore_special_symbols(name), html, props, body, file, mod, line)
+        return new(name, html, props, body, file, mod, line)
     end
 end
 
-function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
+function TemplateFunction(n::Lexbor.Node, file::String, mod::Module)
     ctx = (; markdown = endswith(file, ".md"))
     if isabspath(file)
-        if EzXML.iselement(n)
-            tag = EzXML.nodename(n)
+        if Lexbor.iselement(n)
+            tag = Lexbor.nodename(n)
             if tag == TEMPLATE_FUNCTION_TAG
                 attrs = attributes(n)
                 if length(attrs) > 0
@@ -280,7 +280,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                             name,
                             false,
                             Prop.(props),
-                            transform(ctx, EzXML.nodes(n)),
+                            transform(ctx, Lexbor.nodes(n)),
                             file,
                             mod,
                             nodeline(n),
@@ -299,7 +299,7 @@ function TemplateFunction(n::EzXML.Node, file::String, mod::Module)
                     name,
                     true,
                     [],
-                    transform(ctx, EzXML.nodes(n)),
+                    transform(ctx, Lexbor.nodes(n)),
                     file,
                     mod,
                     nodeline(n),
@@ -329,15 +329,12 @@ function components(file::String, mod::Module)::Vector{TemplateFunction}
 end
 
 function _components_from_str(str::AbstractString, file::String, mod::Module)
-    content = _swap_special_symbols(str)
-    if isempty(content)
+    if isempty(str)
         error("template file is empty: $file")
     else
-        html = _with_filtered_logging() do
-            return EzXML.parsehtml(content)
-        end
-        roots = findall("//$TEMPLATE_FUNCTION_TAG", html)
-        roots = isempty(roots) ? findall("//html", html) : roots
+        html = Lexbor.Document(str, file)
+        roots = Lexbor.find_all_nodes("$TEMPLATE_FUNCTION_TAG", html)
+        roots = isempty(roots) ? Lexbor.find_all_nodes("html", html) : roots
         if isempty(roots)
             error("no '<function>' or '<html>' found in file: $file.")
         else
