@@ -6,7 +6,7 @@ struct Case
     line::Int
 
     function Case(when, body, line)
-        return new(_restore_special_symbols(when), body, line)
+        return new(when, body, line)
     end
 end
 
@@ -20,25 +20,25 @@ struct Match <: AbstractNode
     cases::Vector{Case}
     line::Int
 
-    function Match(ctx, n::EzXML.Node)
-        tag = EzXML.nodename(n)
+    function Match(ctx, n::Lexbor.Node)
+        tag = Lexbor.nodename(n)
         if tag == MATCH_TAG
             nodes, fallback = split_fallback(n)
             attrs = Dict(attributes(n))
             value = key_default(attrs, "value")
             cases = []
             for each in nodes
-                if EzXML.nodename(each) == CASE_TAG
+                if Lexbor.nodename(each) == CASE_TAG
                     attrs = Dict(attributes(each))
                     if length(attrs) == 1
                         when = key_default(attrs, "when")
-                        body = transform(ctx, EzXML.nodes(each))
+                        body = transform(ctx, Lexbor.nodes(each))
                         push!(cases, Case(when, body, nodeline(each)))
                     else
                         error("'match' nodes require a single attribute.")
                     end
                 else
-                    if EzXML.iselement(each)
+                    if Lexbor.iselement(each)
                         error("only 'case' nodes are allowed in 'match' nodes.")
                     end
                     # Silently drops text nodes found in the match block.

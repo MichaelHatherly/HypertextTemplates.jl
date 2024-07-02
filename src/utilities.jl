@@ -69,17 +69,21 @@ function attributes(n::EzXML.Node)
     return [EzXML.nodename(a) => EzXML.nodecontent(a) for a in EzXML.attributes(n)]
 end
 
+function attributes(n::Lexbor.Node)
+    return [k => something(v, "") for (k, v) in n.attributes]
+end
+
 function key_default(dict::AbstractDict, key::AbstractString)
     value = get(dict, key, nothing)
     return isnothing(value) ? value : isempty(value) ? key : value
 end
 
-function split_fallback(n::EzXML.Node)
+function split_fallback(n::Lexbor.Node)
     fallback = nothing
-    nodes = EzXML.Node[]
-    for each in EzXML.nodes(n)
-        if EzXML.iselement(each)
-            tag = EzXML.nodename(each)
+    nodes = Union{String,Lexbor.Node}[]
+    for each in Lexbor.nodes(n)
+        if Lexbor.iselement(each)
+            tag = Lexbor.nodename(each)
             if tag == FALLBACK_TAG
                 if isnothing(fallback)
                     fallback = each

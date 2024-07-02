@@ -5,10 +5,8 @@ struct Attribute
     interpolate::Bool
 
     function Attribute(name, value, dynamic)
-        name = _restore_special_symbols(name)
         interpolate = startswith(name, "\$")
         name = lstrip(name, '\$')
-        value = _restore_special_symbols(value)
         return new(name, value, dynamic, interpolate)
     end
 end
@@ -45,7 +43,7 @@ struct Element <: AbstractNode
 
     function Element(ctx, name, attributes, body, slots, line)
         attributes, line = _translate_data_sourcepos(ctx, attributes, line)
-        return new(_restore_special_symbols(name), attributes, body, slots, line)
+        return new(name, attributes, body, slots, line)
     end
 end
 
@@ -75,32 +73,31 @@ function _translate_data_sourcepos(ctx, attributes::Vector, line::Integer)
     end
 end
 
-function Element(ctx, n::EzXML.Node)
-    name = EzXML.nodename(n)
+function Element(ctx, n::Lexbor.Node)
+    name = Lexbor.nodename(n)
     if name in RESERVED_ELEMENT_NAMES
         error("elements cannot be named after reserved node names: $name")
     end
     attrs = attributes(n)
     if name in VALID_HTML_ELEMENTS || name in VALID_SVG_ELEMENTS
-        body = transform(ctx, EzXML.nodes(n))
+        body = transform(ctx, Lexbor.nodes(n))
         return Element(ctx, name, Attribute.(attrs), body, [], nodeline(n))
     else
         slots = []
-        nodes = EzXML.nodes(n)
+        nodes = Lexbor.nodes(n)
         for each in nodes
-            if EzXML.iselement(each)
-                tag = EzXML.nodename(each)
+            if Lexbor.iselement(each)
+                tag = Lexbor.nodename(each)
                 if contains(tag, ':')
                     tag, slot = split(tag, ':'; limit = 2)
-                    child =
-                        Element(
-                            ctx,
-                            tag,
-                            [],
-                            transform(ctx, EzXML.nodes(each)),
-                            [],
-                            nodeline(each),
-                        )
+                    child = Element(
+                        ctx,
+                        tag,
+                        [],
+                        transform(ctx, Lexbor.nodes(each)),
+                        [],
+                        nodeline(each),
+                    )
                     push!(slots, slot => [child])
                 end
             end
@@ -220,7 +217,7 @@ function print_attributes(io::IO, static_attrs::String = ""; attrs...)
         print(io, static_attrs)
     end
     for (k, v) in attrs
-        if v isa AbstractString && k === Symbol(v)
+        if v isa AbstractString && (k === Symbol(v) || isempty(v))
             print(io, " ", k)
         else
             print(io, " ", k, "=", '"', v, '"')
