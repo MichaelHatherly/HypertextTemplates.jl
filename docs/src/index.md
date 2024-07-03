@@ -57,7 +57,7 @@ Let's add a new template function to that `template.html` file:
 <function second-template count="1::Integer" value>
   <ul>
     <for iter="1:count" item>
-      <li><julia value="item" />: <julia value /></li>
+      <li><span .julia=item></span>: <span .julia=value></span></li>
     </for>
   </ul>
 </function>
@@ -109,9 +109,9 @@ You can use one of your template functions in another template with:
 
 ```html
 <function third-template number>
-  <example />
-  <second-template count="number" value='"Hello, world!"' />
-  <second-template count="2 * number" value='"Goodbye, world!"' />
+  <example></example>
+  <second-template count="number" value='"Hello, world!"'></second-template>
+  <second-template count="2 * number" value='"Goodbye, world!"'></second-template>
 </function>
 ```
 
@@ -141,10 +141,10 @@ be called `<base-template>` in other templates that it is used in, and
 ```html
 <html lang="en">
   <head>
-    <title>My Website - <julia value="props.title" /></title>
+    <title $julia="My Website - $(props.title)"></title>
   </head>
   <body>
-    <third-example number="props.number" />
+    <third-example number="props.number"></third-example>
   </body>
 </html>
 ```
@@ -195,7 +195,7 @@ since it uses that package internally.
     <case when="[element]">
       <p>
         The number is actually a single element vector containing:
-        <julia value="element" />
+        <span .julia=element></span>
       </p>
     </case>
     <case when="_">
@@ -219,7 +219,7 @@ For that we use `<slot>` tags.
 <function slot-example>
   <div class="...">
     <h1>Header</h1>
-    <slot />
+    <slot></slot>
     <hr />
     <p>Footer</p>
   </div>
@@ -241,9 +241,9 @@ rendered in a single template function. For that we have named slots:
 <function named-slots-example>
   <div class="...">
     <h1>Header</h1>
-    <slot content />
+    <slot content></slot>
     <hr />
-    <p><slot footer /></p>
+    <p><slot footer></slot></p>
   </div>
 </function>
 ```
@@ -342,12 +342,12 @@ name = "my-template"
 props = ["foo", "bar"]
 +++
 
-<large-custom-template prop="foo" />
+<large-custom-template prop="foo"></large-custom-template>
 
 # My Template
 
 This is a template that takes two props: `foo` and `bar`. Their values are
-<julia value="foo" /> and <julia value="bar" /> respectively.
+<span julia="foo"></span> and <span julia="bar"></span> respectively.
 ```
 
 

@@ -3,9 +3,6 @@ module HypertextTemplates
 # Imports.
 
 import AbstractTrees
-import EzXML
-import Logging
-import LoggingExtras
 import MacroTools
 import PackageExtensionCompat
 
@@ -26,6 +23,7 @@ const SRC_DIR = @__DIR__
 
 # Includes.
 
+include("Lexbor.jl")
 include("utilities.jl")
 include("macro.jl")
 include("nodes/abstract.jl")
@@ -38,7 +36,6 @@ include("nodes/match.jl")
 include("nodes/show.jl")
 include("nodes/text.jl")
 include("custom_element.jl")
-include("symbol-swapping.jl")
 include("render.jl")
 
 const RESERVED_ELEMENT_NAMES = Set([

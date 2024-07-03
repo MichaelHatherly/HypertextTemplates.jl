@@ -7,7 +7,7 @@ props = [
 
 # Markdown Template
 
-<julia value=prop /> *content* **here**.
+<span julia=prop></span> *content* **here**.
 
 ```julia
 function test()

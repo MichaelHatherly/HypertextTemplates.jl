@@ -5,15 +5,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <julia value=props.title />
-    </title>
+    <title .julia=props.title></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" .href=props.stylesheet>
 </head>
 
 <body>
-    <slot />
+    <slot></slot>
 </body>
 
 </html>
