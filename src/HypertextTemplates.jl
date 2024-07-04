@@ -24,6 +24,7 @@ const SRC_DIR = @__DIR__
 # Includes.
 
 include("Lexbor.jl")
+include("SafeString.jl")
 include("utilities.jl")
 include("macro.jl")
 include("nodes/abstract.jl")

@@ -24,9 +24,18 @@ function expression(c::BuilderContext, a::Attribute)
     elseif a.dynamic
         return Expr(:kw, name, Meta.parse(a.value))
     elseif a.interpolate
-        return Expr(:kw, name, Meta.parse("\"\"\"$(a.value)\"\"\""))
+        expr = Meta.parse("\"\"\"$(a.value)\"\"\"")
+        # When we interpolate prop values into another prop via Julia string
+        # interpolation with the `$prop=value` syntax, we want to perform HTML
+        # escaping on each value interpolated into the string, but not perform
+        # escaping on the hardcoded values that appear directly in the HTML
+        # template. This is what `_escape_html_str_expr` does. The resulting
+        # value is a `SafeString`, which will not be further HTML escaped it
+        # itself is interpolated into another string.
+        escaped_expr = _escape_html_attr_str_expr(expr)
+        return Expr(:kw, name, escaped_expr)
     else
-        return Expr(:kw, name, a.value)
+        return Expr(:kw, name, SafeString(a.value))
     end
 end
 

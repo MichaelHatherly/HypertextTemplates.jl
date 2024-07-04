@@ -172,6 +172,30 @@ end
         @test_reference joinpath(basic, "escaped-content.1.txt") render(
             Templates.var"escaped-content";
             content = "&='`<>/",
+            interpolated = "user-name",
+        )
+
+        @test_reference joinpath(basic, "escaped-content.2.txt") render(
+            Templates.var"escaped-content";
+            content = "&='`<>/",
+            interpolated = "\"></a><script>alert('xss')</script><a href=\"",
+        )
+
+        @test_reference joinpath(basic, "escaped-content.3.txt") render(
+            Templates.var"escaped-content";
+            content = cm"**bold**",
+            interpolated = "user-name",
+        )
+
+        struct HTMLObject
+            value::String
+        end
+        HypertextTemplates.escape_html(io::IO, obj::HTMLObject) = print(io, obj.value)
+
+        @test_reference joinpath(basic, "escaped-content.4.txt") render(
+            Templates.var"escaped-content";
+            content = HTMLObject(html(cm"**bold**")),
+            interpolated = "user-name",
         )
 
         @test_reference joinpath(basic, "custom-elements.1.txt") render(
