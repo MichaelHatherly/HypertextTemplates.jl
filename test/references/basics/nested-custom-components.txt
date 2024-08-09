@@ -1,0 +1,1 @@
+<div class="class-name"><p class="captured" id="inner">content</p></div>

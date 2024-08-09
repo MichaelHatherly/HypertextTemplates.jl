@@ -1,0 +1,6 @@
+<div class="prose"><h1 id="header"><a href="#header" class="anchor"></a><em>Header</em></h1>
+<blockquote>
+<p>Some <code>code</code> goes <a href="/link"><span class="julia-value">there</span></a>.</p>
+</blockquote>
+<pre><code class="language-julia">a = 1
+</code></pre></div>

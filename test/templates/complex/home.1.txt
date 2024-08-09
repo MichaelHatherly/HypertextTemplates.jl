@@ -1,1 +1,0 @@
-<!DOCTYPE html><html lang='en'><head><title>Home</title></head><body><div><h1>sidebar</h1><p>sidebar content</p><button>button content</button></div><div><h1>home</h1><p>home content</p></div></body></html>

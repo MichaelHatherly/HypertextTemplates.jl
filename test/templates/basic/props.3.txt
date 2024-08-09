@@ -1,1 +1,0 @@
-<p class="mx-2 flex bg-blue-200" hx-get="/contact/100/edit">$Content goes here.</p>

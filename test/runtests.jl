@@ -1,391 +1,187 @@
-using CommonMark
+import CommonMark
+import HTTP
+import Revise
 using HypertextTemplates
-using Test
+using HypertextTemplates.Elements
+import HypertextTemplates.Elements: @time
 using ReferenceTests
-using Revise
+using Test
 
-module Templates
-
-include("templates.jl")
-
-end
-
-# Helper function to render a template to a string. Perhaps fold this into
-# HypertextTemplates itself?
-function render(f, args...; kws...)
-    buffer = IOBuffer()
-    f(buffer, args...; kws...)
-    return String(take!(buffer))
-end
-
-function check_backtrace(bt, checks)
+# Turns off source locations in the rendered HTML such that the reference
+# testing does not need to account for that variablity.
+function render_test(f, file)
     io = IOBuffer()
-    Base.show_backtrace(io, bt)
-    text = String(take!(io))
-    function handle(needle::Union{Regex,AbstractString})
-        result = contains(text, needle)
-        if !result
-            @error "expected to find '$(repr(needle))' in backtrace:\n$text"
-        end
-        return result
-    end
-    function handle(fn)
-        result = fn(text)
-        if !result
-            @error "expected to find match in backtrace:\n$text"
-        end
-        return result
-    end
-    for each in vec(checks)
-        @test handle(each)
-    end
+    ctx = IOContext(io, HypertextTemplates._include_data_htloc() => false)
+    f(ctx)
+    @test_reference(file, String(take!(io)))
 end
 
-macro test_throws_st(E, ex, contains)
-    quote
-        try
-            $ex
-            @test false
-        catch e
-            @test isa(e, $E)
-            check_backtrace(catch_backtrace(), $contains)
-        end
+@element "custom-element" custom_element
+@deftag macro custom_element end
+
+@component function custom_component(; prop)
+    @div {class = prop, id = 1} begin
+        @p @text "component content"
     end
 end
+@deftag macro custom_component end
 
-@testset "HypertextTemplates" begin
-    include("Lexbor.jl")
+@component function nested_component(; prop, captured)
+    @component function inner_component(; prop)
+        @p {class = captured, id = prop} "content"
+    end
+    @div {class = prop} @<inner_component {prop = "inner"}
+end
+@deftag macro nested_component end
 
-    HypertextTemplates._DATA_FILENAME_ATTR[] = false
+@component function slot_component()
+    @div begin
+        @__slot__
+        @__slot__ named
+    end
+end
+@deftag macro slot_component end
 
-    templates = joinpath(@__DIR__, "templates")
+@component function conditional_component(; show)
+    if show
+        @p "shown"
+    else
+        @strong "hidden"
+    end
+end
+@deftag macro conditional_component end
 
-    @testset "basic" begin
-        basic = joinpath(templates, "basic")
+@component function commonmark_component()
+    here = "there"
+    @div {class = "prose"} @text CommonMark.cm"""
+    # *Header*
 
-        @test_reference joinpath(basic, "julia.1.txt") render(
-            Templates.var"julia-example";
-            value = "HypertextTemplates! 🎉 <3",
-        )
-        @test_reference joinpath(basic, "julia.2.txt") render(
-            Templates.var"julia-example";
-            value = "",
-        )
-        @test_reference joinpath(basic, "julia.3.txt") render(
-            Templates.var"julia-example";
-            value = nothing,
-        )
-        @test_reference joinpath(basic, "julia.4.txt") render(
-            Templates.var"julia-example";
-            value = collect(1:5),
-        )
+    > Some `code` goes [$here](/link).
 
-        @test_reference joinpath(basic, "for.1.txt") render(
-            Templates.var"for-example";
-            iter = 1:5,
-        )
-        @test_reference joinpath(basic, "for.2.txt") render(
-            Templates.var"for-example";
-            iter = [1, 3, 5],
-        )
-        @test_reference joinpath(basic, "for.3.txt") render(
-            Templates.var"for-example";
-            iter = split("1 3 5"),
-        )
-        @test_reference joinpath(basic, "for-indexed.1.txt") render(
-            Templates.var"for-example-indexed";
-            iter = split("a b c"),
-        )
+    ```julia
+    a = 1
+    ```
+    """
+end
+@deftag macro commonmark_component end
 
-        @test_reference joinpath(basic, "show.1.txt") render(
-            Templates.var"show-example";
-            value = 1,
-        )
-        @test_reference joinpath(basic, "show.2.txt") render(
-            Templates.var"show-example";
-            value = 2,
-        )
-        @test_reference joinpath(basic, "show.3.txt") render(
-            Templates.var"show-example-2";
-            value = 1,
-        )
-        @test_reference joinpath(basic, "show.4.txt") render(
-            Templates.var"show-example-2";
-            value = 2,
-        )
+@cm_component markdown_component(; x) = joinpath(@__DIR__, "markdown.md")
+@deftag macro markdown_component end
 
-        @test_reference joinpath(basic, "match.1.txt") render(
-            Templates.var"match-example";
-            value = 1,
-        )
-        @test_reference joinpath(basic, "match.2.txt") render(
-            Templates.var"match-example";
-            value = "foo",
-        )
-        @test_reference joinpath(basic, "match.3.txt") render(
-            Templates.var"match-example";
-            value = nothing,
-        )
-
-        @test_reference joinpath(basic, "slot.1.txt") render(
-            Templates.var"slot-consumer";
-            value = 1,
-        )
-
-        @test_reference joinpath(basic, "named-slot.1.txt") render(
-            Templates.var"named-slot-consumer";
-            value = 1,
-        )
-
-        @test_reference joinpath(basic, "complete.1.txt") render(
-            Templates.var"complete";
-            title = "Custom Title",
-        )
-
-        @test_reference joinpath(basic, "props.1.txt") render(Templates.var"props-example";)
-        @test_reference joinpath(basic, "props.2.txt") render(
-            Templates.var"dynamic-props-example";
-            class = "mx-2 flex",
-        )
-
-        @test_reference joinpath(basic, "props.3.txt") render(
-            Templates.var"dollar-props-example";
-            class = "mx-2 flex",
-            id = 100,
-        )
-
-        @test_reference joinpath(basic, "props.4.txt") render(
-            Templates.var"wrapped-props-example";
-            class = "mx-2 flex",
-        )
-
-        @test_reference joinpath(basic, "layout-usage.1.txt") render(
-            Templates.var"layout-usage";
-            class = "p-2 bg-gray-200",
-        )
-
-        @test_reference joinpath(basic, "special-symbols.1.txt") render(
-            Templates.var"special-symbols";
-            class = "p-2 bg-purple-200",
-        )
-
-        @test_reference joinpath(basic, "escaped-content.1.txt") render(
-            Templates.var"escaped-content";
-            content = "&='`<>/",
-            interpolated = "user-name",
-        )
-
-        @test_reference joinpath(basic, "escaped-content.2.txt") render(
-            Templates.var"escaped-content";
-            content = "&='`<>/",
-            interpolated = "\"></a><script>alert('xss')</script><a href=\"",
-        )
-
-        @test_reference joinpath(basic, "escaped-content.3.txt") render(
-            Templates.var"escaped-content";
-            content = cm"**bold**",
-            interpolated = "user-name",
-        )
-
-        struct HTMLObject
-            value::String
+@testset "HypertestTemplates" begin
+    @testset "Basics" begin
+        render_test("references/basics/html-elements.txt") do io
+            @render io @html {lang = "en"} begin
+                @head begin
+                    @meta {charset = "UTF-8"}
+                    @meta {name = "viewport", content = "width=device-width"}
+                    @title "Document title"
+                end
+                @body begin
+                    @header begin
+                        @a {href = "#", class = "logo"} "Page Header"
+                    end
+                    @article begin
+                        @header begin
+                            @h1 "Article Title"
+                            @time "01/01/2000"
+                        end
+                        # Test that `@text` works on non-string-literals.
+                        content = "Content goes here."
+                        @p @text content
+                    end
+                end
+            end
         end
-        HypertextTemplates.escape_html(io::IO, obj::HTMLObject) = print(io, obj.value)
-
-        @test_reference joinpath(basic, "escaped-content.4.txt") render(
-            Templates.var"escaped-content";
-            content = HTMLObject(html(cm"**bold**")),
-            interpolated = "user-name",
-        )
-
-        @test_reference joinpath(basic, "custom-elements.1.txt") render(
-            Templates.var"custom-elements";
-            value = true,
-        )
-
-        @test_reference joinpath(basic, "custom-elements-nested.1.txt") render(
-            Templates.var"custom-elements-nested";
-            value = true,
-        )
-
-        @test_reference joinpath(basic, "splat-args.1.txt") render(
-            Templates.var"splat-args";
-            key = :value,
-        )
-
-        @test_reference joinpath(basic, "splat-args.2.txt") render(
-            Templates.var"splat-args";
-        )
-
-        @test_reference joinpath(basic, "splat-args.3.txt") render(
-            Templates.var"splat-args";
-            a = 1,
-            b = 2,
-        )
-
-        @test_reference joinpath(basic, "splat-args-2.1.txt") render(
-            Templates.var"splat-args-2";
-        )
-
-        @test_reference joinpath(basic, "splat-args-2.2.txt") render(
-            Templates.var"splat-args-2";
-            a = 2,
-        )
-
-        @test_reference joinpath(basic, "splat-args-2.3.txt") render(
-            Templates.var"splat-args-2";
-            a = 2,
-            b = 10,
-        )
-
-        @test_reference joinpath(basic, "splatted-props.1.txt") render(
-            Templates.var"splatted-props";
-            props = (;),
-        )
-
-        @test_reference joinpath(basic, "splatted-props.2.txt") render(
-            Templates.var"splatted-props";
-            props = (; value = 2),
-        )
-
-        @test_reference joinpath(basic, "splatted-props.3.txt") render(
-            Templates.var"splatted-props";
-            props = (; option = "option"),
-        )
-
-        @test_reference joinpath(basic, "svg.1.txt") render(Templates.var"svg-content")
-
-        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-1") [
-            "file-and-line-info.html:2",
-            "file-and-line-info.html:1",
-            !contains("file-and-line-info.html:7"),
-            !contains(HypertextTemplates.SRC_DIR),
-        ]
-        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-2") [
-            "file-and-line-info.html:7",
-            "file-and-line-info.html:5",
-            !contains("file-and-line-info.html:1"),
-            !contains(HypertextTemplates.SRC_DIR),
-        ]
-        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-3") [
-            "file-and-line-info.html:17",
-            "file-and-line-info.html:15",
-            !contains("file-and-line-info.html:21"),
-            !contains(HypertextTemplates.SRC_DIR),
-        ]
-        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-4") [
-            "file-and-line-info.html:21",
-            "file-and-line-info.html:23",
-            "file-and-line-info.html:7",
-            "file-and-line-info.html:5",
-            !contains("file-and-line-info.html:1"),
-            !contains(HypertextTemplates.SRC_DIR),
-        ]
-        @test_throws_st UndefVarError render(Templates.var"file-and-line-info-5") [
-            "file-and-line-info.html:27",
-            "file-and-line-info.html:29",
-            "file-and-line-info.html:15",
-            "file-and-line-info.html:17",
-            !contains("file-and-line-info.html:3"),
-            !contains(HypertextTemplates.SRC_DIR),
-        ]
+        render_test("references/basics/prop_names.txt") do io
+            # Supports both `=` and `:=` as property syntax since literal strings
+            # raise warnings in LSPs, but we want to use the string syntax to support
+            # property names that are not valid Julia syntax.
+            @render io @div {"data-custom-prop" := true, hidden_prop = false}
+        end
+        render_test("references/basics/attribute-escaping.txt") do io
+            # Literal strings are always marked as safe and are not
+            # escaped. Anything that is added to an element as a variable,
+            # that is potentially user-provided is escaped.
+            class = "<script></script>"
+            pre_escaped = SafeString("<script></script>")
+            unsafe = "\"'"
+            @render io @div {
+                unsafe,
+                class,
+                unescaped = "<script></script>",
+                pre = pre_escaped,
+                interpolated = "\"$("\"")",
+            }
+        end
+        render_test("references/basics/custom-elements.txt") do io
+            @render io @div begin
+                @custom_element {prop = "value"} begin
+                    @strong "content"
+                end
+            end
+        end
+        render_test("references/basics/looping.txt") do io
+            @render io @ul begin
+                for each in [1, 2, 3, 4]
+                    @li {id = each} @text each
+                end
+            end
+        end
+        render_test("references/basics/custom-components.txt") do io
+            @render io @custom_component {prop = "class-name"}
+        end
+        render_test("references/basics/nested-custom-components.txt") do io
+            @render io @nested_component {prop = "class-name", captured = "captured"}
+        end
+        render_test("references/basics/component-slots.txt") do io
+            @render io @slot_component begin
+                named := @p "named slot content"
+                @p "slot content"
+            end
+        end
+        render_test("references/basics/conditional-component.txt") do io
+            @render io @div begin
+                @conditional_component {show = true}
+                @conditional_component {show = false}
+            end
+        end
+        render_test("references/basics/commonmark-component.txt") do io
+            @render io @commonmark_component
+        end
+        render_test("references/basics/non-standard-prop-names.txt") do io
+            @render io @div {"x-data" := "{ open: false }"} begin
+                @button {"@click" := "open = true"} "Expand"
+                @span {"x-show" := "open"} "Content..."
+            end
+        end
     end
-    @testset "complex" begin
-        complex = joinpath(templates, "complex")
-        TC = Templates.Complex
-
-        @test_reference joinpath(complex, "app.1.txt") render(TC.var"app";)
-
-        @test_reference joinpath(complex, "help.1.txt") render(TC.var"help";)
-
-        @test_reference joinpath(complex, "tutorials.1.txt") render(TC.var"tutorials";)
-
-        @test_reference joinpath(complex, "home.1.txt") render(TC.var"home";)
+    @testset "Markdown" begin
+        render_test("references/markdown/markdown.txt") do io
+            @render io @markdown_component {x = 1}
+        end
     end
-
-    @testset "keywords" begin
-        keywords = joinpath(templates, "keywords")
-        TK = Templates.Keywords
-
-        @test_reference joinpath(keywords, "default-props.1.txt") render(
-            TK.var"default-props";
-        )
-        @test_reference joinpath(keywords, "default-props.2.txt") render(
-            TK.var"default-props";
-            props = "string",
-        )
-        @test_reference joinpath(keywords, "default-props.3.txt") render(
-            TK.var"default-props";
-            props = 1:3:10,
-        )
-
-        @test_reference joinpath(keywords, "default-typed-props.1.txt") render(
-            TK.var"default-typed-props";
-        )
-        @test_reference joinpath(keywords, "default-typed-props.2.txt") render(
-            TK.var"default-typed-props";
-            props = [4, 5, 6],
-        )
-        @test_throws TypeError render(TK.var"default-typed-props"; props = "string")
-
-        @test_reference joinpath(keywords, "typed-props.1.txt") render(
-            TK.var"typed-props";
-            props = [1, 2, 3],
-        )
-        @test_throws UndefKeywordError render(TK.var"typed-props";)
-        @test_throws TypeError render(TK.var"typed-props"; props = "string")
+    @testset "Render Root" begin
+        function render_function()
+            @__LINE__, @render @div begin
+                @conditional_component {show = true}
+                @conditional_component {show = false}
+            end
+        end
+        line, html = render_function()
+        @test contains(html, "data-htroot=\"$(@__FILE__):$(line)")
+        @test contains(html, "data-htloc=\"$(@__FILE__):$(line)")
     end
-
-    @testset "markdown" begin
-        markdown = joinpath(templates, "markdown")
-        TM = Templates.Markdown
-
-        @test_reference joinpath(markdown, "markdown.1.txt") render(
-            TM.var"custom-markdown-name";
-            prop = "prop-value",
-        )
+    @testset "Output Types" begin
+        result = @render @p "content"
+        @test isa(result, String)
+        result_bytes = @render Vector{UInt8} @p "content"
+        @test isa(result_bytes, Vector{UInt8})
     end
-
-    @testset "data-htloc" begin
-        HypertextTemplates._DATA_FILENAME_ATTR[] = true
-        html = render(Templates.Complex.app)
-        @test contains(html, "data-htloc")
-
-        # Since the filenames are encoded as an integer counter in the order
-        # they are encountered, we need to map them back to the original
-        # filename for the test to be easily readable.
-        mapping = Dict(
-            basename(file) => line for
-            (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
-        )
-        @test contains(html, "$(mapping["base-layout.html"]):6")
-        @test contains(html, "$(mapping["sidebar.html"]):2")
-        @test contains(html, "$(mapping["app.html"]):4")
-        @test contains(html, "$(mapping["button.html"]):2")
-        @test contains(html, "$(mapping["dropdown.html"]):2")
-        @test contains(html, "$(mapping["dropdown.html"]):3")
-
-        html = render(Templates.Markdown.var"custom-markdown-name"; prop = "prop-value")
-        @test contains(html, "data-htloc")
-
-        mapping = Dict(
-            basename(file) => line for
-            (file, line) in HypertextTemplates.DATA_FILENAME_MAPPING
-        )
-        @test contains(html, "$(mapping["markdown.md"]):8")
-        @test contains(html, "$(mapping["markdown.md"]):10")
-        @test contains(html, "$(mapping["markdown.md"]):12")
-
-        HypertextTemplates._DATA_FILENAME_ATTR[] = false
-    end
-
-    @testset "composed templates" begin
-        template = Templates.Complex.var"base-layout"(
-            slots(Templates.Markdown.var"custom-markdown-name"(; prop = "prop-value"));
-            title = "title",
-        )
-        html = render(template)
-        @test contains(html, "<!DOCTYPE")
-        @test contains(html, "language-julia")
+    @testset "Source Information" begin
+        line = @__LINE__
+        file = @__FILE__
+        result = @render @p "content"
+        @test contains(result, "data-htloc=\"$file:$(line + 2)\"")
     end
 end

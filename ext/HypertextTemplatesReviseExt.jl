@@ -1,38 +1,41 @@
 module HypertextTemplatesReviseExt
 
-import HypertextTemplates
-import InteractiveUtils
+import HypertextTemplates as HTT
 import Revise
 
-function HypertextTemplates.is_stale_template(file::AbstractString, previous_mtime::Float64)
-    if isfile(file)
-        current_mtime = mtime(file)
-        if current_mtime > previous_mtime
-            # If the file exists and has been modified since the last time we
-            # checked, it's stale.
-            @debug "Template file has been modified, recompiling." file current_mtime previous_mtime
-            return true
-        else
-            # If the file exists and hasn't been modified since the last time we
-            # checked, it's not stale.
-            return false
-        end
-    else
-        # If the file doesn't exist, it's not stale.
-        return false
-    end
-end
+HTT.__is_revise_loaded(::HTT.ReviseIsLoaded) = true
 
-function HypertextTemplates._data_filename_attr(file::String, line::Int)
-    # Skip the `data-htloc` attribute if the line is invalid. The way that the
-    # browser lookup handles this is that it will look to the parent element for
-    # the `data-htloc` attribute if it doesn't exist on the current element.
-    if HypertextTemplates._DATA_FILENAME_ATTR[] && line > 0
-        filekey = HypertextTemplates._register_filename_mapping!(file)
-        return [Symbol("data-htloc") => "$filekey:$line"]
-    else
-        return Pair{Symbol,String}[]
+function Revise.parse_source!(
+    mod_exprs_sigs::Revise.ModuleExprsSigs,
+    file::HTT.CMFile,
+    mod::Module;
+    kwargs...,
+)
+    ex = HTT.cm_file_expr(mod, file)
+    Revise.process_source!(mod_exprs_sigs, ex, file, mod; kwargs...)
+end
+Revise.is_same_file(a::HTT.CMFile, b::String) = a.file == b
+
+function HTT._includet(mod::Module, cmfile::HTT.CMFile, ::Nothing)
+    Base.moduleroot(mod) === Main && return nothing
+
+    mode = :eval
+    id = Base.PkgId(mod)
+    fm = Revise.parse_source(cmfile, mod; mode)
+    Revise.instantiate_sigs!(fm; mode)
+    Timer(1) do timer
+        pkgdata = Revise.pkgdatas[id]
+        rcmfile = HTT.CMFile(
+            relpath(cmfile.file, pkgdata),
+            cmfile.mod,
+            cmfile.name,
+            cmfile.parameters,
+        )
+        push!(pkgdata, rcmfile => Revise.FileInfo(fm))
+        Revise.init_watching(pkgdata, (String(rcmfile)::String,))
+        Revise.pkgdatas[id] = pkgdata
     end
+    return nothing
 end
 
 end
