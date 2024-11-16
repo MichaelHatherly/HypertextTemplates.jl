@@ -5,5 +5,11 @@
 
 _Hypertext templating DSL for Julia_
 
-Define HTML-like templates that compile to plain Julia functions. Use looping,
-pattern matching, conditions, interpolation, slots, and composition.
+## Installation
+
+```julia
+pkg> add HypertextTemplates
+
+julia> using HypertextTemplates
+```
+

@@ -1,1 +1,0 @@
-<p>&amp;&#x3D;&#x27;&grave;&lt;&gt;&#x2F;</p><a href="/api/&quot;&gt;&lt;&#x2F;a&gt;&lt;script&gt;alert(&#x27;xss&#x27;)&lt;&#x2F;script&gt;&lt;a href&#x3D;&quot;">Link</a>

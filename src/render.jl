@@ -1,11 +1,8 @@
 """
-    render(template, args...; kws...)
+    render([dst], component; properties...)
 
-Render a template to a string. `args` and `kws` are passed to the template
-function and a `String` is returned.
+Render the `component` with the given `properties` to the optional `dst`.
+This is the functional version of `@render`.
 """
-function render(func, args...; kws...)
-    buffer = IOBuffer()
-    func(buffer, args...; kws...)
-    return String(take!(buffer))
-end
+render(component::Function; properties...) = @render @<component {properties...}
+render(dst, component::Function; properties...) = @render dst @<component {properties...}

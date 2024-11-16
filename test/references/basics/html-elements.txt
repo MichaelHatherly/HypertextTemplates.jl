@@ -1,0 +1,1 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>Document title</title></head><body><header><a href="#" class="logo">Page Header</a></header><article><header><h1>Article Title</h1><time>01/01/2000</time></header><p>Content goes here.</p></article></body></html>

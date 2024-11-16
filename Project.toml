@@ -4,15 +4,12 @@ authors = ["Michael Hatherly <michaelhatherly@gmail.com>"]
 version = "1.3.1"
 
 [deps]
-AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
-CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+CodeTracking = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
-Match = "7eb4fadd-790c-5f42-8a69-bfa0b872bfbf"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
-lexbor_jll = "be8d7a73-1782-5ce7-96ff-8fff21e5e970"
 
 [weakdeps]
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
@@ -21,16 +18,13 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [extensions]
 HypertextTemplatesCommonMarkExt = "CommonMark"
-HypertextTemplatesHTTPReviseExt = ["HTTP", "Revise"]
+HypertextTemplatesHTTPExt = "HTTP"
 HypertextTemplatesReviseExt = "Revise"
 
 [compat]
-AbstractTrees = "0.4"
-CEnum = "0.5"
+CodeTracking = "1.3"
 InteractiveUtils = "1.6"
 MacroTools = "0.5"
-Match = "2"
 PackageExtensionCompat = "1"
 TOML = "1"
-lexbor_jll = "= 2.3.0"
 julia = "1.6"

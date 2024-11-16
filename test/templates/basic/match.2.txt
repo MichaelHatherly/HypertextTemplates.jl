@@ -1,1 +1,0 @@
-<div><div>Value is a string.</div></div>
