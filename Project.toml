@@ -12,11 +12,13 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [weakdeps]
+Bonito = "824d6782-a2ef-11e9-3a09-e5662e0c26f8"
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [extensions]
+HypertextTemplatesBonitoExt = "Bonito"
 HypertextTemplatesCommonMarkExt = "CommonMark"
 HypertextTemplatesHTTPExt = "HTTP"
 HypertextTemplatesReviseExt = "Revise"
