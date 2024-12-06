@@ -5,7 +5,8 @@ _Hypertext templating DSL for Julia_
 This package provides a collection of macros for building and rendering HTML
 from Julia code using all the normal control flow syntax of the language, such
 as loops and conditional. No intermediate "virtual" DOM is constructed during
-rendering process, which reduces memory allocations.
+rendering process, which reduces memory allocations. Supports streaming renders
+of templates via a `StreamingRender` iterator.
 
 When rendered in "development" mode source locations of all elements within the
 rendered within the DOM are preserved, which allows for lookup from the browser
@@ -172,6 +173,23 @@ are supported in markdown components, expression interpolation included. This
 means that any keyword props provided in the component definition, such as
 `prop` above can be interpolated into the markdown file and will be rendered
 into the final HTML output that the component generates.
+
+## `StreamingRender`
+
+A `StreamingRender` is an iterator that handles asynchronous execution of
+`@render` calls. This is useful if your `@component` potentially takes a long
+time to render completely and you wish to begin streaming the HTML to the
+browser as it becomes available.
+
+```julia
+for bytes in StreamingRender(io -> @render io @slow_component {args...})
+    write(http_stream, bytes)
+end
+```
+
+`do`-block syntax is also, naturally, supported by the `StreamingRender`
+constructor. All `@component` definitions support streaming out-of-the-box. Be
+aware that rendering happens in a `Threads.@spawn`ed task.
 
 ## Docstrings
 
