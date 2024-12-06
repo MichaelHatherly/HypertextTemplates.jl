@@ -5,6 +5,7 @@ module HypertextTemplates
 import CodeTracking
 import PackageExtensionCompat
 import MacroTools
+import SimpleBufferStream
 
 # Exports:
 
@@ -18,6 +19,7 @@ export @esc_str
 export @render
 export @text
 export SafeString
+export StreamingRender
 
 # Includes:
 
@@ -36,6 +38,7 @@ include("deftag.jl")
 include("Elements.jl")
 include("template-source-lookup.jl")
 include("render.jl")
+include("stream.jl")
 include("cmfile.jl")
 
 # Initialization:

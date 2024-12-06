@@ -68,6 +68,17 @@ end
 @cm_component markdown_component(; x) = joinpath(@__DIR__, "markdown.md")
 @deftag macro markdown_component end
 
+@component function streaming(; n::Integer)
+    @div {class = "streamed"} begin
+        @ul begin
+            for id = 1:n
+                @li {id} "This is item $id."
+            end
+        end
+    end
+end
+@deftag macro streaming end
+
 @testset "HypertestTemplates" begin
     @testset "Basics" begin
         render_test("references/basics/html-elements.txt") do io
@@ -183,5 +194,15 @@ end
         file = @__FILE__
         result = @render @p "content"
         @test contains(result, "data-htloc=\"$file:$(line + 2)\"")
+    end
+    @testset "Streaming" begin
+        func(io = Vector{UInt8}) = @render io @streaming {n = 10000}
+        output = UInt8[]
+        for bytes in StreamingRender(func)
+            @assert !isempty(bytes)
+            append!(output, bytes)
+        end
+        @test length(output) > 1
+        @test output == func()
     end
 end
