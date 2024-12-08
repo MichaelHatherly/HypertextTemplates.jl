@@ -10,6 +10,7 @@ import SimpleBufferStream
 # Exports:
 
 export @<
+export @__once__
 export @__slot__
 export @cm_component
 export @component
@@ -40,6 +41,7 @@ include("template-source-lookup.jl")
 include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
+include("once.jl")
 
 # Initialization:
 

@@ -69,15 +69,18 @@ end
 
 function _render(dst, dom_thunk::Function, source::Tuple{String,Integer})
     io = _render_dst(dst)
-    ctx = IOContext(io, :__root__ => source)
+    ctx = IOContext(io, :__root__ => source, _once_ref())
     dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
 function _render(dst, dom_thunk::Function, source::Nothing)
     io = _render_dst(dst)
-    dom_thunk(io, nothing)
+    ctx = IOContext(io, _once_ref())
+    dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
+
+_once_ref() = :__once__ => Ref{Set{Symbol}}()
 
 _render_dst(io::IO) = io
 _render_dst(::Type{String}) = IOBuffer()
