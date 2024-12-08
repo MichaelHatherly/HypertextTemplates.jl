@@ -79,6 +79,32 @@ end
 end
 @deftag macro streaming end
 
+@component function once_jquery()
+    @__once__ begin
+        @script {src = "https://code.jquery.com/jquery-3.6.0.min.js"}
+    end
+end
+@deftag macro once_jquery end
+
+@component function once_button()
+    @once_jquery
+    @button "Click Me"
+end
+@deftag macro once_button end
+
+@component function once_page()
+    @html begin
+        @head begin
+            @once_jquery
+        end
+        @body begin
+            @h1 "Hello, World!"
+            @once_button
+        end
+    end
+end
+@deftag macro once_page end
+
 @testset "HypertestTemplates" begin
     @testset "Basics" begin
         render_test("references/basics/html-elements.txt") do io
@@ -165,6 +191,18 @@ end
                 @button {"@click" := "open = true"} "Expand"
                 @span {"x-show" := "open"} "Content..."
             end
+        end
+        render_test("references/basics/once-button-1.txt") do io
+            @render io @once_button
+        end
+        render_test("references/basics/once-button-2.txt") do io
+            @render io begin
+                @once_button
+                @once_button
+            end
+        end
+        render_test("references/basics/once-page.txt") do io
+            @render io @once_page
         end
     end
     @testset "Markdown" begin

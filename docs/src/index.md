@@ -127,6 +127,44 @@ end
 end
 ```
 
+## `@__once__`
+
+When you need to render HTML to a page only once per page, for example a JS
+dependency that only needs including once via `<script>`, you can use this
+macro to do that. It ensures that during a single `@render` call the contents
+of each `@__once__` are only evaluated once even if the rendered components are
+called more that once.
+
+Most common use cases are for including `@link`, `@style`, or `@script` tags.
+
+```julia
+@component function jquery()
+    @__once__ begin
+        @script {src = "https://code.jquery.com/jquery-3.6.0.min.js"}
+    end
+end
+@deftag macro jquery end
+
+@component function jq_button()
+    @jquery
+    @button "Click Me"
+end
+@deftag macro jq_button end
+
+@component function page()
+    @html begin
+        @head begin
+            @jquery
+        end
+        @body begin
+            @h1 "Hello, World!"
+            @jq_button
+        end
+    end
+end
+@deftag macro page end
+```
+
 ## Property Names
 
 Typically property names, which are defined between `{}`s are written as Julia
