@@ -7,6 +7,15 @@ import HypertextTemplates.Elements: @time
 using ReferenceTests
 using Test
 
+module ExternalDefs
+
+using HypertextTemplates
+
+function markdown_component_ext end
+@deftag macro markdown_component_ext end
+
+end
+
 # Turns off source locations in the rendered HTML such that the reference
 # testing does not need to account for that variablity.
 function render_test(f, file)
@@ -67,6 +76,8 @@ end
 
 @cm_component markdown_component(; x) = joinpath(@__DIR__, "markdown.md")
 @deftag macro markdown_component end
+
+@cm_component ExternalDefs.markdown_component_ext(; x) = joinpath(@__DIR__, "markdown.md")
 
 @component function streaming(; n::Integer)
     @div {class = "streamed"} begin
@@ -208,6 +219,9 @@ end
     @testset "Markdown" begin
         render_test("references/markdown/markdown.txt") do io
             @render io @markdown_component {x = 1}
+        end
+        render_test("references/markdown/markdown-ext.txt") do io
+            @render io ExternalDefs.@markdown_component_ext {x = 1}
         end
     end
     @testset "Render Root" begin
