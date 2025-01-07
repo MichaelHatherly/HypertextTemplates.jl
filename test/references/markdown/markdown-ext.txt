@@ -1,0 +1,2 @@
+<h1 id="header"><a href="#header" class="anchor"></a>Header</h1>
+<p>Interpolated value: <span class="julia-value">1</span>.</p>

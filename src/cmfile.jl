@@ -31,7 +31,7 @@ macro cm_component(expr)
             $(CMFile)(
                 joinpath($(dir), $(esc(path))),
                 $(__module__),
-                $(QuoteNode(Symbol(name))),
+                $(QuoteNode(name)),
                 $(QuoteNode(parameters)),
             ),
         )
@@ -50,7 +50,7 @@ macro cm_component(expr)
                                 $(CMFile)(
                                     joinpath($(dir), $(path)),
                                     $(__module__),
-                                    $(QuoteNode(Symbol(name))),
+                                    $(QuoteNode(name)),
                                     $(QuoteNode(parameters)),
                                 ),
                             )
@@ -65,7 +65,7 @@ end
 struct CMFile
     file::String
     mod::Module
-    name::Symbol
+    name::Union{Expr,Symbol}
     parameters::Vector
 end
 
