@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v2.2.2] - 2025-01-08
+
+### Fixed
+
+- Fix `Revise`-related error due to missing `convert` for `@cm_component` [#35]
+
 ## [v2.2.1] - 2025-01-07
 
 ### Fixed
@@ -106,6 +112,7 @@ Initial release.
 [v2.1.0]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.1.0
 [v2.2.0]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.0
 [v2.2.1]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.1
+[v2.2.2]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.2
 [#8]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/8
 [#10]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/10
 [#11]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/11
@@ -125,3 +132,4 @@ Initial release.
 [#29]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/29
 [#30]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/30
 [#34]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/34
+[#35]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/35
