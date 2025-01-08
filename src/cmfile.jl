@@ -70,6 +70,7 @@ struct CMFile
 end
 
 Base.String(vaf::CMFile) = vaf.file
+Base.convert(::Type{String}, file::CMFile) = String(file)
 Base.abspath(file::CMFile) =
     CMFile(Base.abspath(file.file), file.mod, file.name, file.parameters)
 Base.isfile(file::CMFile) = Base.isfile(file.file)
