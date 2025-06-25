@@ -5,7 +5,6 @@ module HypertextTemplates
 import CodeTracking
 import PackageExtensionCompat
 import MacroTools
-import SimpleBufferStream
 
 # Exports:
 

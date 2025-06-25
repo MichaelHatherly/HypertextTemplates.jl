@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add documentation for `@__slot__` and `$` shorthand `@text` syntax [#37]
 - Fix broken `@cm_component` macro caused by changes to `Revise` APIs [#37]
+- Fix `StreamingRender` iterator on Julia 1.12+ [#37]
 
 ## [v2.2.2] - 2025-01-08
 
