@@ -35,7 +35,7 @@ jobs:
         version:
           - "1.6"
           - "1.11"
-          - "nightly"
+          - "1.12"
         os:
           - ubuntu-latest
           - macOS-13
@@ -53,6 +53,7 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
+          include-all-prereleases: true
 
       - uses: julia-actions/cache@v2
 

@@ -31,6 +31,7 @@ end
 @component function custom_component(; prop)
     @div {class = prop, id = 1} begin
         @p @text "component content"
+        @p "The prop value is: " $prop
     end
 end
 @deftag macro custom_component end

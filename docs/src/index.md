@@ -50,6 +50,32 @@ provide their own control flow macros, such as pattern matching.
 The `@text` macro is used when the argument to an element macro is not a simple
 string literal and marks the expression for rendering into the output.
 
+### String Interpolation with `$`
+
+For convenience, you can use `$` interpolation syntax instead of `@text` when
+you need to render non-string expressions:
+
+```julia
+@component function user_profile(; name, age, score)
+    @div {class = "profile"} begin
+        @h2 "User: " $name                    # Same as: @h2 "User: " @text name
+        @p "Age: " $age " years old"          # Same as: @p "Age: " @text age " years old"
+        @p "Score: " $(score * 100) "%"       # Same as: @p "Score: " @text (score * 100) "%"
+    end
+end
+
+# In loops
+@ul for (i, item) in enumerate(items)
+    @li "Item $i: " $item                     # Same as: @li "Item " @text i ": " @text item
+end
+```
+
+The `$` syntax is particularly useful when mixing string literals with
+variables or expressions, making templates more readable and closer to Julia's
+string interpolation syntax. Note that unlike Julia's string interpolation, the
+`$` here doesn't create a single interpolated string—it marks each expression
+for rendering while maintaining proper HTML escaping.
+
 ## Custom Elements
 
 The `HypertextTemplates.Elements` module exports all valid HTML element names and
@@ -107,6 +133,76 @@ invoked with the macro syntax rather than with `@<my_component` syntax.
 The keywords defined for the function are the equivalent of "properties" that
 you might fine in other component systems within frontend development
 technologies. They operate in the exact same way as normal Julia keywords.
+
+## Component Slots with `@__slot__`
+
+Components often need to accept content from their parent component. This is
+accomplished using slots, which are placeholders for content projection.
+HypertextTemplates supports both default (unnamed) slots and named slots.
+
+### Default Slots
+
+The simplest form is a default slot using `@__slot__` without any name:
+
+```julia
+@component function card(; title = "")
+    @div {class = "card"} begin
+        @div {class = "card-header"} @text title
+        @div {class = "card-body"} begin
+            @__slot__  # Default slot for content
+        end
+    end
+end
+@deftag macro card end
+
+# Usage
+@render @card {title = "My Card"} begin
+    @p "This content goes into the default slot"
+    @p "Multiple elements can be passed"
+end
+```
+
+### Named Slots
+
+For more complex layouts, you can use named slots to accept content in multiple locations:
+
+```julia
+@component function modal(; show = false)
+    @div {class = "modal", style = show ? "" : "display: none"} begin
+        @div {class = "modal-content"} begin
+            @div {class = "modal-header"} begin
+                @__slot__ header  # Named slot
+            end
+            @div {class = "modal-body"} begin
+                @__slot__  # Default slot
+            end
+            @div {class = "modal-footer"} begin
+                @__slot__ footer  # Named slot
+            end
+        end
+    end
+end
+@deftag macro modal end
+
+# Usage with named slots
+@render @modal {show = true} begin
+    header := begin  # Named slot content uses :=
+        @h2 "Confirm Action"
+        @button {class = "close"} "×"
+    end
+
+    @p "Are you sure you want to proceed?"  # Default slot content
+
+    footer := begin
+        @button {class = "btn-primary"} "Confirm"
+        @button {class = "btn-secondary"} "Cancel"
+    end
+end
+```
+
+Slots provide a clean way to create flexible, reusable components that can
+accept structured content from their consumers while maintaining clear
+separation of concerns.
 
 ## `@<`
 

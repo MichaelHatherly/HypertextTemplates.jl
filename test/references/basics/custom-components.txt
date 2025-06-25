@@ -1,1 +1,1 @@
-<div class="class-name" id="1"><p>component content</p></div>
+<div class="class-name" id="1"><p>component content</p><p>The prop value is: class-name</p></div>
