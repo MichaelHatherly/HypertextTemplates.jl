@@ -1,7 +1,7 @@
 name = "HypertextTemplates"
 uuid = "c7d46f9d-34c3-4420-bf57-257f25aec718"
 authors = ["Michael Hatherly <michaelhatherly@gmail.com>"]
-version = "2.2.2"
+version = "2.2.3"
 
 [deps]
 CodeTracking = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
