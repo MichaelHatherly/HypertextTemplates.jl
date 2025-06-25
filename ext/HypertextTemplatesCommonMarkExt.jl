@@ -27,21 +27,19 @@ function HypertextTemplates.escape_html(io::IO, md::CM.Node, revise)
     print(io, strip(html))
 end
 
-function HypertextTemplates._cm_file_expr(
+function HypertextTemplates._parse_cm_content(
     mod::Module,
-    file::HypertextTemplates.CMFile,
-    ::Nothing,
+    content::Symbol,
+    file::AbstractString,
 )
     ji = CM.JuliaInterpolationRule()
-    parser = CM._init_parser(file.mod, "jmd")
+    parser = CM._init_parser(mod, "jmd")
     CM.enable!(parser, ji)
 
     CM.enable!(parser, CM.FrontMatterRule(toml = TOML.parse))
 
-    text = read(file.file, String)
-    ast = parser(text; source = file.file, line = 1)
-
-    parameters = file.parameters
+    text = String(content)
+    ast = parser(text; source = file, line = 1)
 
     expr = Expr(:block, :(values = []))
     for v in ji.captured
@@ -53,25 +51,7 @@ function HypertextTemplates._cm_file_expr(
     end
     push!(expr.args, :($(CM)._interp!($ast, $(ji.captured), values)))
 
-    line, component_expr = @__LINE__() + 2,
-    quote
-        $(HypertextTemplates).@component function $(file.name)(; $(parameters...))
-            $(HypertextTemplates).@text $(expr)
-        end
-    end
-
-    # Rewrite line numbers within the function expression such that the
-    # `functionloc` of this function matches the definition location rather
-    # than the `quote` location.
-    return MacroTools.postwalk(component_expr) do each
-        if isa(each, LineNumberNode) &&
-           String(each.file) == @__FILE__() &&
-           each.line == line
-            return LineNumberNode(1, file.file)
-        else
-            return each
-        end
-    end
+    return expr
 end
 
 end
