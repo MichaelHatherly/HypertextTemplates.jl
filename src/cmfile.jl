@@ -36,6 +36,35 @@ macro cm_component(expr)
 
     parameter_names = _extract_parameter_name.(parameters)
 
+    # Adjust the source information of the component definition such that
+    # `functionloc` returns the correct location for the `@cm_component` call
+    # site.
+    line, component_expr = @__LINE__() + 2,
+    quote
+        $(HypertextTemplates).@component function $(name)(; $(parameters...))
+            ast = if $(_is_revise_loaded)()
+                text = Symbol(read($path_const, String))
+                # This results in a dynamic dispatch since `text` is a runtime value.
+                $(gen_func_name)(Val{text}(); $(parameter_names...))
+            else
+                # Ideally this should be fully inferrable since
+                # `text_const` is a global constant.
+                $(gen_func_name)(Val{$text_const}(); $(parameter_names...))
+            end
+            $(HypertextTemplates).@text ast
+        end
+    end
+    component_expr = MacroTools.postwalk(component_expr) do each
+        file = String(__source__.file)
+        if isa(each, LineNumberNode) &&
+           String(each.file) == @__FILE__() &&
+           each.line == line
+            return LineNumberNode(__source__.line, file)
+        else
+            return each
+        end
+    end
+
     return esc(
         quote
             const $(path_const) = joinpath($dir, $(path))
@@ -63,18 +92,7 @@ macro cm_component(expr)
                 )
             end
 
-            $(HypertextTemplates).@component function $(name)(; $(parameters...))
-                ast = if $(_is_revise_loaded)()
-                    text = Symbol(read($path_const, String))
-                    # This results in a dynamic dispatch since `text` is a runtime value.
-                    $(gen_func_name)(Val{text}(); $(parameter_names...))
-                else
-                    # Ideally this should be fully inferrable since
-                    # `text_const` is a global constant.
-                    $(gen_func_name)(Val{$text_const}(); $(parameter_names...))
-                end
-                $(HypertextTemplates).@text ast
-            end
+            $component_expr
         end,
     )
 end
