@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Add documentation for `@__slot__` and `$` shorthand `@text` syntax [#37]
+
 ## [v2.2.2] - 2025-01-08
 
 ### Fixed
@@ -133,3 +135,4 @@ Initial release.
 [#30]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/30
 [#34]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/34
 [#35]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/35
+[#37]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/37

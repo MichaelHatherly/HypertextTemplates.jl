@@ -37,4 +37,3 @@ function Base.iterate(s::StreamingRender, state = nothing)
 end
 Base.eltype(::Type{StreamingRender}) = Vector{UInt8}
 Base.IteratorSize(::Type{StreamingRender}) = Base.SizeUnknown()
-
