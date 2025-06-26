@@ -70,42 +70,33 @@ end
 
 ## Building a Simple Page
 
-Let's create a complete HTML page:
+Let's create a complete HTML page structure:
 
 ```@example complete-page
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-@component function page(; title, content)
-    @html begin
-        @head begin
-            @meta {charset = "UTF-8"}
-            @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
-            @title $title
-        end
-        @body begin
-            @div {class = "container"} begin
-                @h1 $title
-                @main $content
+# Build a complete page
+html = @render @html begin
+    @head begin
+        @meta {charset = "UTF-8"}
+        @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
+        @title "My First Page"
+    end
+    @body begin
+        @div {class = "container"} begin
+            @h1 "My First Page"
+            @section begin
+                @p "Welcome to my website built with HypertextTemplates.jl!"
+                @ul begin
+                    @li "Fast rendering"
+                    @li "Type-safe templates"
+                    @li "Julia-native syntax"
+                end
             end
         end
     end
 end
-
-@deftag macro page end
-
-# Use the page component
-html = @render @page {
-    title = "My First Page",
-    content = @div begin
-        @p "Welcome to my website built with HypertextTemplates.jl!"
-        @ul begin
-            @li "Fast rendering"
-            @li "Type-safe templates"
-            @li "Julia-native syntax"
-        end
-    end
-}
 println(html)
 ```
 
@@ -203,10 +194,52 @@ println(html)
 
 When you define a component with `@component`, you're creating a special function that:
 1. Accepts keyword arguments as props
-2. Returns renderable HTML content
+2. Generates HTML content
 3. Can be used with `@<component_name` or with a macro after using `@deftag`
 
 The `@deftag` macro is important for ergonomics - it creates a macro version of your component so you can use `@card` instead of the more verbose `@<card`.
+
+## Components with Slots
+
+Now that you understand basic components, let's explore slots - a powerful feature for passing content to components:
+
+```@example page-with-slots
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function page(; title)
+    @html begin
+        @head begin
+            @meta {charset = "UTF-8"}
+            @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
+            @title $title
+        end
+        @body begin
+            @div {class = "container"} begin
+                @h1 $title
+                @section begin
+                    @__slot__
+                end
+            end
+        end
+    end
+end
+
+@deftag macro page end
+
+# Use the page component with slot content
+html = @render @page {title = "My First Page"} begin
+    @p "Welcome to my website built with HypertextTemplates.jl!"
+    @ul begin
+        @li "Fast rendering"
+        @li "Type-safe templates"
+        @li "Julia-native syntax"
+    end
+end
+println(html)
+```
+
+The `@__slot__` marker indicates where child content should be rendered. This is essential when you need to pass complex HTML structures to components - unlike props which are meant for data values, slots handle component trees correctly.
 
 ## Rendering to Different Outputs
 

@@ -37,11 +37,14 @@ using HypertextTemplates.Elements
 
 ### Complete Example
 
-```julia
-@render @article begin
+```@example complete-article
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @article begin
     @header begin
         @h1 "Article Title"
-        @p {class = "meta"} "Published on " @time {datetime = "2024-01-01"} "January 1, 2024"
+        @p {class = "meta"} "Published on " Elements.@time {datetime = "2024-01-01"} "January 1, 2024"
     end
     
     @section begin
@@ -56,6 +59,8 @@ using HypertextTemplates.Elements
         @p "Article footer with " @a {href = "/more"} "related links"
     end
 end
+
+println(html)
 ```
 
 ## Attribute Syntax
@@ -91,34 +96,54 @@ height = 200
 
 For valid Julia identifiers, use simple syntax:
 
-```julia
-@input {type = "text", name = "username", placeholder = "Enter username"}
+```@example standard-ids
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @input {type = "text", name = "username", placeholder = "Enter username"}
+println(html)
 ```
 
 #### Non-Standard Names
 
 For attributes with special characters, use string literals with `:=`:
 
-```julia
+```@example alpine-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Alpine.js attributes
-@div {"x-data" := "{ open: false }"} begin
+html = @render @div {"x-data" := "{ open: false }"} begin
     @button {"@click" := "open = !open"} "Toggle"
     @div {"x-show" := "open"} "Hidden content"
 end
+println(html)
+```
+
+```@example htmx-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # HTMX attributes
-@button {
+html = @render @button {
     "hx-post" := "/api/click",
     "hx-target" := "#result",
     "hx-swap" := "innerHTML"
 } "Click me"
+println(html)
+```
+
+```@example data-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Custom data attributes
-@div {
+html = @render @div {
     "data-user-id" := "123",
     "data-role" := "admin",
     "aria-label" := "User profile"
-}
+} "Content"
+println(html)
 ```
 
 ### Attribute Value Types
@@ -164,11 +189,21 @@ println(@render @button {disabled = is_loading} "Submit")
 
 `nothing` values are omitted:
 
-```julia
+```@example nothing-values
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Test with false condition
+condition = false
 optional_class = condition ? "active" : nothing
-@div {class = optional_class} "Content"
-# If condition is false: <div>Content</div>
-# If condition is true: <div class="active">Content</div>
+html1 = @render @div {class = optional_class} "Content"
+println("With condition=false: ", html1)
+
+# Test with true condition
+condition = true
+optional_class = condition ? "active" : nothing
+html2 = @render @div {class = optional_class} "Content"
+println("With condition=true: ", html2)
 ```
 
 ### Attribute Shortcuts
@@ -207,7 +242,7 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # From Dict
-attrs = Dict("data-value" => "123", "data-label" => "test")
+attrs = Dict(Symbol("data-value") => "123", Symbol("data-label") => "test")
 println(@render @div {class = "widget", attrs...} "Content")
 ```
 
@@ -216,8 +251,8 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # Combining multiple sources
-base = (class = "card")
-extra = (id = "main", role = "region")
+base = (; class = "card")
+extra = (; id = "main", role = "region")
 @render @article {base..., extra..., class = "card featured"} "Content"
 # Note: Later values override earlier ones
 ```
@@ -226,26 +261,48 @@ extra = (id = "main", role = "region")
 
 Common patterns for conditional attributes:
 
-```julia
+```@example conditional-ternary
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Using ternary operator
-@div {class = isactive ? "active" : "inactive"} "Status"
+isactive = true
+html = @render @div {class = isactive ? "active" : "inactive"} "Status"
+println(html)
+```
+
+```@example conditional-optional
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Using nothing for optional attributes
-@a {
+external = true
+html = @render @a {
     href = "/page",
     target = external ? "_blank" : nothing,
     rel = external ? "noopener" : nothing
-} "Link"
+} "External Link"
+println(html)
+```
+
+```@example conditional-classes
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Building class lists
+size = :large
+variant = :primary
+disabled = true
+
 classes = [
     "btn",
     size == :large ? "btn-lg" : "btn-sm",
     variant == :primary ? "btn-primary" : "btn-secondary",
     disabled ? "disabled" : nothing
-] |> filter(!isnothing) |> join(" ")
+] |> x -> filter(!isnothing, x) |> x -> join(x, " ")
 
-@button {class = classes, disabled} "Click"
+html = @render @button {class = classes, disabled} "Click"
+println(html)
 ```
 
 ## Custom Elements
@@ -254,20 +311,27 @@ classes = [
 
 Use `@element` to define custom HTML elements:
 
-```julia
+```@example custom-element
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Define a web component
 @element "my-component" my_component
 
 # Use it
-@render @<my_component {prop = "value"} "Content"
-# <my-component prop="value">Content</my-component>
+html = @render @<my_component {prop = "value"} "Content"
+println(html)
+# Output: <my-component prop="value">Content</my-component>
 ```
 
 ### Creating Element Macros
 
 Use `@deftag` to create macro shortcuts:
 
-```julia
+```@example element-macros
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Define the element
 @element "custom-button" custom_button
 
@@ -275,12 +339,16 @@ Use `@deftag` to create macro shortcuts:
 @deftag macro custom_button end
 
 # Now use as a regular macro
-@render @custom_button {variant = "primary"} "Click me"
+html = @render @custom_button {variant = "primary"} "Click me"
+println(html)
 ```
 
 ### Web Components Example
 
-```julia
+```@example web-components
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Define common web components
 @element "sl-button" sl_button
 @element "sl-input" sl_input
@@ -291,13 +359,15 @@ Use `@deftag` to create macro shortcuts:
 @deftag macro sl_card end
 
 # Use Shoelace components
-@render @sl_card begin
+html = @render @sl_card begin
     @div {slot = "header"} "Card Title"
     @p "Card content"
     @div {slot = "footer"} begin
         @sl_button {variant = "primary"} "Save"
     end
 end
+
+println(html)
 ```
 
 ## Special Elements
@@ -306,42 +376,71 @@ end
 
 Self-closing elements work automatically:
 
-```julia
-@img {src = "/photo.jpg", alt = ""}
-@br
-@hr {class = "divider"}
-@input {type = "text", name = "field"}
-@meta {charset = "UTF-8"}
+```@example void-elements
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div begin
+    @img {src = "/photo.jpg", alt = ""}
+    @br
+    @hr {class = "divider"}
+    @input {type = "text", name = "field"}
+    @meta {charset = "UTF-8"}
+end
+
+println(html)
 ```
 
 ### Raw HTML with Script and Style
 
 Script and style elements preserve their content:
 
-```julia
-@script {type = "text/javascript"} """
-    console.log("This is preserved as-is");
-    const data = { value: 123 };
-"""
+```@example script-style
+using HypertextTemplates
+using HypertextTemplates.Elements
 
-@style """
-    .custom-class {
-        color: blue;
-        font-size: 16px;
-    }
-"""
+html = @render @div begin
+    @script {type = "text/javascript"} """
+        console.log("This is preserved as-is");
+        const data = { value: 123 };
+    """
+    
+    @style """
+        .custom-class {
+            color: blue;
+            font-size: 16px;
+        }
+    """
+end
+
+println(html)
 ```
 
 ### SVG Elements
 
 SVG elements work like regular elements:
 
-```julia
-@svg {width = "100", height = "100", viewBox = "0 0 100 100"} begin
+```@example svg-elements
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@element "svg" svg
+@element "circle" circle
+@element "rect" rect
+@element "path" path
+
+@deftag macro svg end
+@deftag macro circle end
+@deftag macro rect end
+@deftag macro path end
+
+html = @render @svg {width = "100", height = "100", viewBox = "0 0 100 100"} begin
     @circle {cx = "50", cy = "50", r = "40", fill = "blue"}
     @rect {x = "10", y = "10", width = "30", height = "30", fill = "red"}
     @path {d = "M 10 10 L 90 90", stroke = "black", "stroke-width" := "2"}
 end
+
+println(html)
 ```
 
 ## Escaping and Security
@@ -350,29 +449,27 @@ end
 
 Attribute values from variables are automatically escaped:
 
-```julia
+```@example auto-escaping
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 user_input = "\" onclick=\"alert('xss')\""
-@div {title = user_input} "Safe"
-# <div title="&quot; onclick=&quot;alert('xss')&quot;">Safe</div>
-```
-
-### Literal Values
-
-String literals in the template are NOT escaped:
-
-```julia
-# This is trusted content, not escaped
-@div {class = "foo&bar"} "Content"
-# <div class="foo&bar">Content</div>
+html = @render @div {title = user_input} "Safe"
+println(html)
+# Output shows escaped attributes
 ```
 
 ### Pre-escaped Content
 
 Use `SafeString` for pre-escaped attribute values:
 
-```julia
+```@example pre-escaped
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 safe_attr = SafeString("complex&value")
-@div {data = safe_attr}
+html = @render @div {"data-value" := safe_attr} "Content"
+println(html)
 ```
 
 ## Advanced Patterns
@@ -381,42 +478,38 @@ safe_attr = SafeString("complex&value")
 
 Build attributes programmatically:
 
-```julia
+```@example dynamic-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function dynamic_attrs(; prefix = "data", values = Dict())
     attrs = Dict()
     for (key, value) in values
-        attrs["$prefix-$key"] = value
+        attrs[Symbol("$prefix-$key")] = value
     end
     
     @div {attrs...} @__slot__
 end
-```
 
-### Attribute Builders
+@deftag macro dynamic_attrs end
 
-Create reusable attribute sets:
+# Usage example
+html = @render @dynamic_attrs {
+    prefix = "data",
+    values = Dict("id" => "123", "name" => "test")
+} "Content with dynamic attributes"
 
-```julia
-function button_attrs(; variant = "primary", size = "md", disabled = false)
-    classes = ["btn", "btn-$variant", "btn-$size"]
-    disabled && push!(classes, "disabled")
-    
-    return (
-        class = join(classes, " "),
-        disabled = disabled,
-        type = "button"
-    )
-end
-
-# Usage
-@button {button_attrs(variant = "danger", size = "lg")...} "Delete"
+println(html)
 ```
 
 ### ARIA Attributes
 
 Accessibility attributes using proper patterns:
 
-```julia
+```@example aria-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function accessible_modal(; open = false, title_id = "modal-title")
     @div {
         role = "dialog",
@@ -424,17 +517,34 @@ Accessibility attributes using proper patterns:
         "aria-labelledby" := title_id,
         "aria-hidden" := !open
     } begin
-        @h2 {id = title_id} @__slot__ title
-        @div @__slot__
+        @h2 {id = title_id} begin
+            @__slot__ title
+        end
+        @div begin
+            @__slot__
+        end
     end
 end
+
+@deftag macro accessible_modal end
+
+# Usage example
+html = @render @accessible_modal {open = true} begin
+    title := "Important Dialog"
+    @p "This is the modal content."
+end
+
+println(html)
 ```
 
 ### Style Objects
 
 Building inline styles:
 
-```julia
+```@example style-objects
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 function style_string(; styles...)
     parts = String[]
     for (prop, value) in pairs(styles)
@@ -445,43 +555,15 @@ function style_string(; styles...)
 end
 
 # Usage
-@div {
+html = @render @div {
     style = style_string(
         background_color = "blue",
         padding = "1rem",
         border_radius = "0.5rem"
     )
 } "Styled div"
-```
 
-### Complex Data Attributes
-
-Working with structured data attributes:
-
-```julia
-# For complex data, use JSON serialization
-using JSON
-
-@component function interactive_widget(; config)
-    @div {
-        class = "widget",
-        "data-config" := JSON.json(config),
-        "data-initialized" := "false"
-    } begin
-        @__slot__
-    end
-end
-
-# Usage
-@render @interactive_widget {
-    config = Dict(
-        "theme" => "dark",
-        "features" => ["search", "filter"],
-        "maxItems" => 50
-    )
-} begin
-    @p "Widget content"
-end
+println(html)
 ```
 
 ## Best Practices
@@ -490,24 +572,46 @@ end
 
 Choose elements that convey meaning:
 
-```julia
-# Good: Semantic elements
-@nav @ul @li @a {href = "/"} "Home"
-@article @header @h1 "Title"
-@button {type = "submit"} "Submit"
+```@example semantic-html
+using HypertextTemplates
+using HypertextTemplates.Elements
 
-# Avoid: Non-semantic elements for structure
-@div {onclick = "handleClick()"} "Click me"  # Use @button instead
+# Good: Semantic elements
+html = @render @nav begin
+    @ul begin
+        @li @a {href = "/"} "Home"
+        @li @a {href = "/about"} "About"
+    end
+end
+println("Semantic navigation:")
+println(html)
+
+# Article with semantic structure
+html2 = @render @article begin
+    @header @h1 "Article Title"
+    @section @p "Content..."
+    @footer @button {type = "submit"} "Submit"
+end
+println("\nSemantic article:")
+println(html2)
 ```
 
 ### 2. Accessibility First
 
 Always include accessibility attributes:
 
-```julia
-@img {src = "/logo.png", alt = "Company logo"}
-@button {type = "button", "aria-label" := "Close dialog"} "×"
-@input {type = "email", id = "email", "aria-describedby" := "email-error"}
+```@example accessibility
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div begin
+    @img {src = "/logo.png", alt = "Company logo"}
+    @button {type = "button", "aria-label" := "Close dialog"} "×"
+    @input {type = "email", id = "email", "aria-describedby" := "email-error"}
+    @span {id = "email-error", class = "error"} "Please enter a valid email"
+end
+
+println(html)
 ```
 
 ### 3. Consistent Naming
@@ -539,13 +643,18 @@ Prefer classes over inline styles:
 
 Use data attributes for JavaScript hooks:
 
-```julia
-@button {
+```@example data-js-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @button {
     class = "btn btn-primary",
     "data-action" := "submit-form",
     "data-form-id" := "user-form",
     "data-confirm" := "true"
 } "Submit"
+
+println(html)
 ```
 
 ## Summary

@@ -58,7 +58,7 @@ println(html)
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-@component function button(; 
+@component function my_button(; 
     text = "Click me",
     type = "button",
     variant = "primary",
@@ -68,16 +68,16 @@ using HypertextTemplates.Elements
     @button {type, class = classes, disabled} $text
 end
 
-@deftag macro button end
+@deftag macro my_button end
 
 # Use with defaults
-println(@render @button {})
+println(@render @my_button {})
 
 # Override specific props
-println(@render @button {text = "Submit", variant = "success"})
+println(@render @my_button {text = "Submit", variant = "success"})
 
 # With disabled state
-println(@render @button {text = "Loading...", disabled = true})
+println(@render @my_button {text = "Loading...", disabled = true})
 ```
 
 ### Typed Props
@@ -142,13 +142,16 @@ println(html)
 
 For more complex layouts with multiple content areas:
 
-```julia
+```@example named-slots
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function layout()
     @div {class = "layout"} begin
         @header {class = "layout-header"} begin
             @__slot__ header  # Named slot: header
         end
-        @main {class = "layout-main"} begin
+        @article {class = "layout-main"} begin
             @__slot__  # Default slot
         end
         @footer {class = "layout-footer"} begin
@@ -160,7 +163,7 @@ end
 @deftag macro layout end
 
 # Usage with named slots
-@render @layout begin
+html = @render @layout begin
     # Named slot content uses := syntax
     header := begin
         @h1 "My Application"
@@ -178,17 +181,22 @@ end
     
     footer := @p "© 2024 My Company"
 end
+
+println(html)
 ```
 
 ### Conditional Slots
 
 Slots can be conditionally rendered:
 
-```julia
+```@example conditional-slots
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function message(; type = "info", dismissible = false)
     @div {class = "message message-$type"} begin
         @__slot__  # Message content
-        
+
         if dismissible
             @button {class = "message-close"} begin
                 @__slot__ close_button  # Optional slot
@@ -197,37 +205,58 @@ Slots can be conditionally rendered:
     end
 end
 
+@deftag macro message end
+
 # Without close button content
-@render @message {type = "warning"} begin
+html1 = @render @message {type = "warning"} begin
     @p "This is a warning"
 end
+println("Without close button:")
+println(html1)
 
 # With custom close button
-@render @message {type = "error", dismissible = true} begin
+html2 = @render @message {type = "error", dismissible = true} begin
     @p "An error occurred"
     close_button := @span "×"
 end
+println("\nWith custom close button:")
+println(html2)
 ```
 
 ### Slot Fallbacks
 
 Provide default content when slots are empty:
 
-```julia
+```@example slot-fallbacks
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function avatar(; src = nothing, alt = "")
     @div {class = "avatar"} begin
         if !isnothing(src)
             @img {src, alt}
         else
             @div {class = "avatar-placeholder"} begin
-                # Show slot content or default
+                # Show slot content (initials)
                 @__slot__
-                # Note: You'll need to check if slot was provided
-                # This is a simplified example
             end
         end
     end
 end
+
+@deftag macro avatar end
+
+# With image
+html1 = @render @avatar {src = "/user.jpg", alt = "User"}
+println("With image:")
+println(html1)
+
+# With placeholder (slot content)
+html2 = @render @avatar {alt = "John Doe"} begin
+    @span "JD"  # Initials as fallback
+end
+println("\nWith placeholder:")
+println(html2)
 ```
 
 ## Component Composition
@@ -256,7 +285,7 @@ end
                         href = link.href,
                         active = link.href == current_path
                     } begin
-                        $link.text
+                        @text link.text
                     end
                 end
             end
@@ -281,7 +310,10 @@ println(html)
 
 Create components that modify behavior of other components:
 
-```julia
+```@example higher-order
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function with_tooltip(; tooltip, position = "top")
     @div {
         class = "tooltip-wrapper",
@@ -292,23 +324,31 @@ Create components that modify behavior of other components:
     end
 end
 
+@deftag macro with_tooltip end
+
 # Wrap any content with tooltip
-@render @with_tooltip {tooltip = "Click to submit"} begin
+html = @render @with_tooltip {tooltip = "Click to submit"} begin
     @button "Submit"
 end
+println(html)
 ```
 
 ### Component Arrays
 
 Render collections of components:
 
-```julia
+```@example component-arrays
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function todo_item(; task, completed = false)
     @li {class = completed ? "completed" : ""} begin
         @input {type = "checkbox", checked = completed}
-        @span $task
+        @span " " $task
     end
 end
+
+@deftag macro todo_item end
 
 @component function todo_list(; items)
     @ul {class = "todo-list"} begin
@@ -317,6 +357,18 @@ end
         end
     end
 end
+
+@deftag macro todo_list end
+
+# Example usage
+items = [
+    (task = "Write documentation", completed = true),
+    (task = "Add tests", completed = false),
+    (task = "Deploy to production", completed = false)
+]
+
+html = @render @todo_list {items}
+println(html)
 ```
 
 ## Dynamic Components
@@ -325,7 +377,10 @@ Use the `@<` macro to render components dynamically:
 
 ### Component as Props
 
-```julia
+```@example component-props
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function flexible_layout(; 
     header_component = nothing,
     main_component = article,
@@ -348,6 +403,8 @@ Use the `@<` macro to render components dynamically:
     end
 end
 
+@deftag macro flexible_layout end
+
 # Custom header component
 @component function custom_header()
     @header {class = "fancy-header"} begin
@@ -356,18 +413,36 @@ end
 end
 
 # Usage
-@render @flexible_layout {
+html = @render @flexible_layout {
     header_component = custom_header,
     main_component = section
 } begin
     @p "Main content here"
     sidebar := @p "Sidebar content"
 end
+
+println(html)
 ```
 
 ### Conditional Component Selection
 
-```julia
+```@example conditional-components
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define icon components
+@component function error_icon()
+    @span {class = "icon icon-error"} "❌"
+end
+
+@component function warning_icon()
+    @span {class = "icon icon-warning"} "⚠️"
+end
+
+@component function info_icon()
+    @span {class = "icon icon-info"} "ℹ️"
+end
+
 @component function alert(; type = "info", message)
     # Select icon based on type
     icon_component = if type == "error"
@@ -380,62 +455,91 @@ end
     
     @div {class = "alert alert-$type"} begin
         @<icon_component
-        @p $message
+        @span " "
+        @span $message
     end
 end
+
+@deftag macro alert end
+
+# Test different alert types
+println("Info alert:")
+println(@render @alert {type = "info", message = "This is information"})
+
+println("\nWarning alert:")
+println(@render @alert {type = "warning", message = "This is a warning"})
+
+println("\nError alert:")
+println(@render @alert {type = "error", message = "This is an error"})
 ```
 
 ## Module-Qualified Components
 
 Components can be organized in modules and referenced with qualification:
 
-```julia
+```@example module-qualified
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 module UI
     using HypertextTemplates
+    using HypertextTemplates.Elements
     
-    @component function button(; variant = "primary")
+    @component function my_button(; variant = "primary")
         @button {class = "ui-button ui-button-$variant"} @__slot__
     end
+
+    @deftag macro my_button end
     
     @component function card()
         @div {class = "ui-card"} @__slot__
     end
+
+    @deftag macro card end
 end
 
 # Usage with module qualification
-@render @div begin
+html = @render @div begin
     @UI.card begin
         @h2 "Card Title"
-        @UI.button {variant = "secondary"} "Click me"
+        @UI.my_button {variant = "secondary"} "Click me"
     end
 end
+
+println(html)
 ```
 
 ## Creating Component Macros
 
 Use `@deftag` to create macro shortcuts for components:
 
-```julia
-@component function icon(; name, size = 16)
-    @svg {
-        class = "icon icon-$name",
-        width = size,
-        height = size,
-        viewBox = "0 0 24 24"
-    } begin
-        # SVG content would go here
-        @use {href = "#icon-$name"}
-    end
+```@example component-macros
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function badge(; text, variant = "primary", size = "normal")
+    size_class = size == "small" ? "badge-sm" : "badge-normal"
+    @span {
+        class = "badge badge-$variant $size_class"
+    } $text
 end
 
 # Create a macro for easier use
-@deftag macro icon end
+@deftag macro badge end
 
-# Now can use as @icon instead of @<icon
-@render @button begin
-    @icon {name = "save", size = 20}
-    " Save"
+# Now can use as @badge instead of @<badge
+html = @render @div begin
+    @h3 begin
+        @text "Products "
+        @badge {text = "New", variant = "success", size = "small"}
+    end
+    @p begin
+        @text "Status: "
+        @badge {text = "In Stock", variant = "primary"}
+    end
 end
+
+println(html)
 ```
 
 ## Component Patterns
@@ -444,59 +548,63 @@ end
 
 Separate logic from presentation:
 
-```julia
+```@example container-presenter
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Presenter component (pure UI)
 @component function user_list_view(; users)
     @div {class = "user-list"} begin
         for user in users
             # Use data attributes for JavaScript interaction
             @div {class = "user-item", "data-user-id" := user.id} begin
-                @img {src = user.avatar, alt = user.name}
-                @span $user.name
+                @img {src = user.avatar, alt = user.name, width = 32, height = 32}
+                @span " " $(user.name)
             end
         end
     end
 end
 
-# Container component (with logic)
-@component function user_list_container()
-    users = fetch_users()  # Get data
-    
-    @div begin
-        @user_list_view {users}
-        
-        # Add JavaScript for interaction
-        @script """
-        document.querySelectorAll('.user-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const userId = item.dataset.userId;
-                // Handle user selection
-            });
-        });
-        """
-    end
-end
+@deftag macro user_list_view end
+
+# Example usage with mock data
+users = [
+    (id = 1, name = "Alice Johnson", avatar = "/avatars/alice.jpg"),
+    (id = 2, name = "Bob Smith", avatar = "/avatars/bob.jpg"),
+    (id = 3, name = "Charlie Brown", avatar = "/avatars/charlie.jpg")
+]
+
+html = @render @user_list_view {users}
+println(html)
 ```
 
 ### Compound Components
 
 Related components that work together:
 
-```julia
+```@example compound-components
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 module Tabs
     using HypertextTemplates
+    using HypertextTemplates.Elements
     
     @component function container(; active_tab = 1)
         @div {class = "tabs", "data-active" := active_tab} begin
             @__slot__
         end
     end
+
+    @deftag macro container end
     
     @component function list()
         @ul {class = "tab-list", role = "tablist"} begin
             @__slot__
         end
     end
+
+    @deftag macro list end
     
     @component function tab(; index, active = false)
         @li {role = "presentation"} begin
@@ -509,12 +617,16 @@ module Tabs
             end
         end
     end
+
+    @deftag macro tab end
     
     @component function panels()
         @div {class = "tab-panels"} begin
             @__slot__
         end
     end
+
+    @deftag macro panels end
     
     @component function panel(; index, active = false)
         @div {
@@ -525,10 +637,12 @@ module Tabs
             @__slot__
         end
     end
+
+    @deftag macro panel end
 end
 
 # Usage
-@render @Tabs.container {active_tab = 2} begin
+html = @render @Tabs.container {active_tab = 2} begin
     @Tabs.list begin
         @Tabs.tab {index = 1, active = false} "Tab 1"
         @Tabs.tab {index = 2, active = true} "Tab 2"
@@ -547,36 +661,62 @@ end
         end
     end
 end
+
+println(html)
 ```
 
 ### Provider Components
 
 Components that provide context or wrapper functionality:
 
-```julia
-@component function error_boundary(; children)
+```@example error-boundary
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define a component that might fail
+@component function risky_component(; data)
+    @div begin
+        @h3 "Data Display"
+        # This will error if data is nothing
+        @p "Value: " $(data.value)
+    end
+end
+
+@deftag macro risky_component end
+
+# Error boundary component
+@component function error_boundary()
     try
-        @<children
+        @__slot__
     catch e
         @div {class = "error-boundary"} begin
             @h2 "Something went wrong"
             @p "We encountered an error while rendering this section."
-            if isdefined(Main, :DEBUG) && Main.DEBUG
-                @details begin
-                    @summary "Error details"
-                    @pre $(sprint(showerror, e))
-                end
+            @details begin
+                @summary "Error details"
+                @pre $(sprint(showerror, e))
             end
         end
     end
 end
 
-# Usage - wrap components that might fail
-@render @error_boundary {
-    children = @component() begin
-        @risky_component {data = potentially_missing_data}
-    end
-}
+@deftag macro error_boundary end
+
+# Example 1: Working case
+println("Working case:")
+working_data = (value = 42,)
+html1 = @render @error_boundary begin
+    @risky_component {data = working_data}
+end
+println(html1)
+
+# Example 2: Error case
+println("\nError case:")
+html2 = @render @error_boundary begin
+    @risky_component {data = nothing}  # This will cause an error
+end
+println(html2)
+```
 
 ## Best Practices
 
@@ -584,25 +724,40 @@ end
 
 Each component should have a single, clear purpose:
 
-```julia
+```@example focused-components
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Good: Focused components
 @component function price_display(; amount, currency = "USD")
     @span {class = "price"} $currency " " $amount
 end
 
+@deftag macro price_display end
+
 @component function product_card(; product)
     @div {class = "product"} begin
-        @h3 $product.name
+        @h3 $(product.name)
         @price_display {amount = product.price, currency = product.currency}
     end
 end
+
+@deftag macro product_card end
+
+# Example usage
+product = (name = "Laptop", price = 999.99, currency = "USD")
+html = @render @product_card {product}
+println(html)
 ```
 
 ### 2. Use Props for Configuration
 
 Make components flexible through props:
 
-```julia
+```@example props-configuration
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function data_table(;
     data,
     columns,
@@ -615,12 +770,40 @@ Make components flexible through props:
         striped ? "table-striped" : nothing,
         hoverable ? "table-hover" : nothing,
         bordered ? "table-bordered" : nothing
-    ] |> filter(!isnothing) |> join(_, " ")
+    ] |> x -> filter(!isnothing, x) |> x -> join(x, " ")
     
     @table {class = classes} begin
-        # Table implementation
+        @thead begin
+            @tr begin
+                for col in columns
+                    @th $col
+                end
+            end
+        end
+        @tbody begin
+            for row in data
+                @tr begin
+                    for value in row
+                        @td $value
+                    end
+                end
+            end
+        end
     end
 end
+
+@deftag macro data_table end
+
+# Example usage
+columns = ["Name", "Age", "City"]
+data = [
+    ["Alice", 25, "New York"],
+    ["Bob", 30, "London"],
+    ["Charlie", 35, "Tokyo"]
+]
+
+html = @render @data_table {data, columns, striped = true, bordered = true}
+println(html)
 ```
 
 ### 3. Document Components
@@ -648,7 +831,10 @@ end
 
 For frequently rendered components, optimize:
 
-```julia
+```@example performance-optimization
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Precompute static values
 const BUTTON_CLASSES = Dict(
     :primary => "btn btn-primary",
@@ -656,20 +842,41 @@ const BUTTON_CLASSES = Dict(
     :danger => "btn btn-danger"
 )
 
-@component function button(; variant = :primary)
+@component function my_button(; variant = :primary)
     @button {class = BUTTON_CLASSES[variant]} @__slot__
 end
+
+@deftag macro my_button end
+
+# Example usage
+println("Primary button:")
+println(@render @my_button {variant = :primary} "Click me")
+
+println("\nDanger button:")
+println(@render @my_button {variant = :danger} "Delete")
 ```
 
 ### 5. Error Handling
 
 Handle edge cases gracefully:
 
-```julia
+```@example error-handling
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function safe_image(; src, alt = "", fallback = "/placeholder.png")
     image_src = isempty(src) ? fallback : src
     @img {src = image_src, alt, onerror = "this.src='$fallback'"}
 end
+
+@deftag macro safe_image end
+
+# Example usage
+println("With valid source:")
+println(@render @safe_image {src = "/user.jpg", alt = "User avatar"})
+
+println("\nWith empty source (uses fallback):")
+println(@render @safe_image {src = "", alt = "User avatar"})
 ```
 
 ## Summary

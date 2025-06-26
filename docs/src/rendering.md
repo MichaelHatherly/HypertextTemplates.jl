@@ -8,16 +8,21 @@ The `@render` macro is the primary way to convert templates into output. It supp
 
 ### Basic Rendering
 
-```julia
+```@example basic-rendering
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Render to String (default)
 html = @render @div "Hello, World!"
-# Returns: "<div>Hello, World!</div>"
+println(html)
 
 # Render multiple elements
-html = @render begin
+html2 = @render begin
     @h1 "Title"
     @p "Paragraph"
 end
+println("\nMultiple elements:")
+println(html2)
 ```
 
 ### Rendering to IO
@@ -65,8 +70,15 @@ HypertextTemplates is designed to minimize memory allocations during rendering.
 
 Instead of building intermediate representations, content streams directly:
 
-```julia
+```@example direct-streaming
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # This creates no intermediate strings or DOM objects
+title = "My Article"
+paragraphs = ["First paragraph.", "Second paragraph.", "Third paragraph."]
+
+io = IOBuffer()
 @render io @article begin
     @h1 $title
     for paragraph in paragraphs
@@ -74,7 +86,10 @@ Instead of building intermediate representations, content streams directly:
     end
 end
 
-# Equivalent to manual IO operations:
+result = String(take!(io))
+println(result)
+
+# This is equivalent to manual IO operations:
 # write(io, "<article>")
 # write(io, "<h1>")
 # write(io, escaped_title)
@@ -86,7 +101,10 @@ end
 
 Static parts of templates are optimized at compile time:
 
-```julia
+```@example precompiled
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function static_heavy()
     # All static HTML is precompiled
     @div {class = "container"} begin
@@ -96,20 +114,30 @@ Static parts of templates are optimized at compile time:
                 @a {href = "/about"} "About"
             end
         end
-        @main {class = "content"} begin
+        @article {class = "content"} begin
             @__slot__  # Only dynamic part
         end
     end
 end
 
+@deftag macro static_heavy end
+
 # When rendered, only the slot content is processed at runtime
+html = @render @static_heavy begin
+    @p "This is the dynamic content that goes in the slot."
+end
+
+println(html)
 ```
 
 ### Efficient String Handling
 
 The rendering system uses efficient string operations:
 
-```julia
+```@example efficient-strings
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Strings are written directly, not concatenated
 @component function efficient_list(; items)
     @ul begin
@@ -120,6 +148,12 @@ The rendering system uses efficient string operations:
         end
     end
 end
+
+@deftag macro efficient_list end
+
+items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
+html = @render @efficient_list {items}
+println(html)
 ```
 
 ## StreamingRender
@@ -164,27 +198,36 @@ end
 
 With HTTP.jl:
 
-```julia
-using HTTP
+```@example http-streaming
+using HypertextTemplates
+using HypertextTemplates.Elements
 
-function handle_request(req)
-    HTTP.Response(200, ["Content-Type" => "text/html"]) do io
-        for chunk in StreamingRender() do render_io
-            @render render_io @html begin
-                @head @title "Streaming Page"
-                @body begin
-                    @h1 "Live Data"
-                    for i in 1:100
-                        @p "Item $i"
-                        # Simulate slow processing
-                        sleep(0.01)
-                    end
+# Simulated streaming example (without actual HTTP.jl dependency)
+function simulate_streaming_response()
+    chunks = String[]
+    
+    for chunk in StreamingRender() do render_io
+        @render render_io @html begin
+            @head @title "Streaming Page"
+            @body begin
+                @h1 "Live Data"
+                for i in 1:5  # Reduced for example
+                    @p "Item $i"
                 end
             end
         end
-            write(io, chunk)
-        end
     end
+        push!(chunks, String(chunk))
+    end
+    
+    return chunks
+end
+
+# Show how the content would be streamed
+chunks = simulate_streaming_response()
+println("Streamed $(length(chunks)) chunks")
+for (i, chunk) in enumerate(chunks[1:min(3, length(chunks))])
+    println("\nChunk $i preview: ", first(chunk, 100), "...")
 end
 ```
 
@@ -192,231 +235,74 @@ end
 
 StreamingRender uses intelligent micro-batching for optimal performance:
 
-```julia
+```@example micro-batching
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Internal behavior:
 # - Large writes (≥64 bytes): Sent immediately
 # - Small writes: Batched up to 256 bytes or 1ms timeout
-# - Configurable via IOContext
+# - Configurable via keyword arguments to `StreamingRender`
 
 # This results in efficient chunking
-stream = StreamingRender() do io
+chunks = String[]
+for chunk in StreamingRender() do io
     @render io @ul begin
-        for i in 1:1000
+        for i in 1:20  # Reduced for example
             @li "Item $i"  # Small writes are batched
         end
     end
+end
+    push!(chunks, String(chunk))
+end
+
+println("Total chunks: ", length(chunks))
+if !isempty(chunks)
+    println("First chunk size: ", length(chunks[1]), " bytes")
+    println("First chunk preview: ", first(chunks[1], 100), "...")
 end
 ```
 
 ### StreamingRender Configuration
 
-Configure streaming behavior through IOContext:
+Configure streaming behavior:
 
-```julia
-# Custom buffering settings
-io = IOContext(
-    stdout,
-    :stream_buffer_size => 512,      # Larger buffer (default: 256)
-    :stream_timeout_ms => 5,          # Longer timeout (default: 1)
-    :stream_threshold => 128          # Higher immediate send threshold (default: 64)
-)
-
-stream = StreamingRender() do render_io
-    @render IOContext(render_io, io) @large_document
-end
-```
-
-### Error Handling in Streams
-
-Handle errors gracefully in streaming contexts:
-
-```julia
-stream = StreamingRender() do io
-    try
-        @render io @div begin
-            @h1 "Results"
-            risky_data = fetch_data()  # Might fail
-            @section render_data(risky_data)
-        end
-    catch e
-        @render io @div {class = "error"} begin
-            @h2 "Error Loading Data"
-            @p "Please try again later."
-        end
-    end
-end
-```
-
-## Performance Optimization
-
-### 1. Use IO Rendering
-
-For best performance, always render to IO when possible:
-
-```julia
-# Good: Direct IO rendering
-function render_page(io::IO, data)
-    @render io @html begin
-        @body render_content(data)
-    end
-end
-
-# Less efficient: String concatenation
-function render_page_string(data)
-    html = @render @html begin
-        @body render_content(data)
-    end
-    return html
-end
-```
-
-### 2. Precompute Static Content
-
-Move computations outside of render loops:
-
-```@example optimize-precompute
+```@example streaming-config
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-@component function optimized_table(; rows, columns)
-    # Precompute column headers
-    headers = [col.title for col in columns]
-    col_count = length(columns)
-    
-    @table begin
-        @thead @tr begin
-            for header in headers
-                @th $header
-            end
-        end
-        @tbody begin
-            for row in rows
-                @tr begin
-                    for i in 1:col_count
-                        @td $row[i]
-                    end
-                end
+# Example showing configuration (without actual large document)
+@component function sample_document()
+    @div begin
+        @h1 "Document Title"
+        for i in 1:10
+            @section begin
+                @h2 "Section $i"
+                @p "Content for section $i"
             end
         end
     end
 end
 
-@deftag macro optimized_table end
+@deftag macro sample_document end
 
-# Example usage
-columns = [(title = "ID",), (title = "Name",), (title = "Score",)]
-rows = [
-    ["1", "Alice", "95"],
-    ["2", "Bob", "87"],
-    ["3", "Charlie", "92"]
-]
+# Custom buffering settings
+io_buffer = IOBuffer()
+io = IOContext(
+    io_buffer,
+)
 
-html = @render @optimized_table {rows, columns}
-println(html)
-```
-
-### 3. Avoid Repeated Allocations
-
-Cache computed values:
-
-```julia
-# Cache formatter functions
-const DATE_FORMATTER = dateformat"yyyy-mm-dd"
-
-@component function date_list(; dates)
-    @ul begin
-        for date in dates
-            # Reuse formatter instead of creating new one
-            formatted = Dates.format(date, DATE_FORMATTER)
-            @li $formatted
-        end
-    end
+chunks = String[]
+for chunk in StreamingRender(;
+    buffer_size = 512,
+    immediate_threshold = 128,
+) do render_io
+    @render IOContext(render_io, io) @sample_document
 end
-```
-
-### 4. Stream Large Collections
-
-For large datasets, use streaming:
-
-```julia
-@component function huge_list(; items)
-    @div {class = "list-container"} begin
-        # Process in chunks to allow streaming
-        for chunk in Iterators.partition(items, 100)
-            @section {class = "list-chunk"} begin
-                for item in chunk
-                    @div {class = "item"} render_item(item)
-                end
-            end
-        end
-    end
-end
-```
-
-### 5. Conditional Rendering
-
-Avoid rendering hidden content:
-
-```julia
-@component function conditional_section(; show_details = false, data)
-    @article begin
-        @h1 $data.title
-        @p $data.summary
-        
-        # Don't render if not needed
-        if show_details && !isempty(data.details)
-            @section {class = "details"} begin
-                for detail in data.details
-                    @p $detail
-                end
-            end
-        end
-    end
-end
-```
-
-## Benchmarking
-
-### Measuring Performance
-
-```julia
-using BenchmarkTools
-
-# Benchmark rendering performance
-data = generate_test_data(1000)
-
-# Measure String rendering
-@benchmark @render @div render_items($data)
-
-# Measure IO rendering
-@benchmark begin
-    io = IOBuffer()
-    @render io @div render_items($data)
-    take!(io)
+    push!(chunks, String(chunk))
 end
 
-# Measure streaming
-@benchmark begin
-    chunks = collect(StreamingRender() do io
-        @render io @div render_items($data)
-    end)
-end
-```
-
-### Memory Profiling
-
-```julia
-using Profile
-
-# Profile allocations
-Profile.Allocs.@profile @render io @div begin
-    for i in 1:10000
-        @p "Item $i"
-    end
-end
-
-# Analyze results
-Profile.Allocs.print()
+println("Configured streaming produced ", length(chunks), " chunks")
 ```
 
 ## Advanced Patterns
@@ -425,28 +311,70 @@ Profile.Allocs.print()
 
 For complex layouts, use intermediate buffers:
 
-```julia
+```@example buffered-rendering
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function left_content()
+    @nav begin
+        @h3 "Navigation"
+        @ul begin
+            @li @a {href = "/"} "Home"
+            @li @a {href = "/about"} "About"
+            @li @a {href = "/contact"} "Contact"
+        end
+    end
+end
+
+@component function right_content()
+    @article begin
+        @h2 "Main Content"
+        @p "This is the main content area."
+        @p "It contains the primary information."
+    end
+end
+
 @component function two_column_layout(; left_content, right_content)
     # Render columns in parallel (conceptually)
     left_buffer = IOBuffer()
     right_buffer = IOBuffer()
-    
-    @render left_buffer @div {class = "column-left"} left_content
-    @render right_buffer @div {class = "column-right"} right_content
-    
+
+    @render left_buffer @div {class = "column-left"} left_content()
+    @render right_buffer @div {class = "column-right"} right_content()
+
     # Combine results
     @div {class = "two-column"} begin
         @text SafeString(String(take!(left_buffer)))
         @text SafeString(String(take!(right_buffer)))
     end
 end
+
+@deftag macro two_column_layout end
+
+# Example usage
+html = @render @two_column_layout {left_content, right_content}
+println(html)
 ```
 
 ### Lazy Rendering
 
 Defer expensive computations:
 
-```julia
+```@example lazy-rendering
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function render_data(; data)
+    @div begin
+        @h3 $(data.title)
+        @ul begin
+            for item in data.items
+                @li $item
+            end
+        end
+    end
+end
+
 @component function lazy_section(; data_loader)
     @div {class = "lazy-load"} begin
         # Only load data when actually rendering
@@ -455,22 +383,46 @@ Defer expensive computations:
         if isnothing(data)
             @p "No data available"
         else
-            render_data(data)
+            render_data(; data)
         end
     end
 end
 
-# Usage
-@lazy_section {
+@deftag macro lazy_section end
+
+# Simulate expensive operations
+function expensive_database_query()
+    # In real code, this would be a database call
+    return (title = "Query Results", items = ["Result 1", "Result 2", "Result 3"])
+end
+
+function empty_query()
+    return nothing
+end
+
+# Example with data
+println("With data:")
+html1 = @render @lazy_section {
     data_loader = () -> expensive_database_query()
 }
+println(html1)
+
+# Example without data
+println("\nWithout data:")
+html2 = @render @lazy_section {
+    data_loader = () -> empty_query()
+}
+println(html2)
 ```
 
 ### Progressive Enhancement
 
 Render basic content first, enhance later:
 
-```julia
+```@example progressive-enhancement
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function progressive_gallery(; images)
     @div {class = "gallery"} begin
         # Basic version (fast)
@@ -492,26 +444,18 @@ Render basic content first, enhance later:
         """
     end
 end
-```
 
-### Render Caching
+@deftag macro progressive_gallery end
 
-Cache rendered components:
+# Example usage
+images = [
+    (thumbnail = "/thumb1.jpg", full_size = "/full1.jpg", alt = "Image 1"),
+    (thumbnail = "/thumb2.jpg", full_size = "/full2.jpg", alt = "Image 2"),
+    (thumbnail = "/thumb3.jpg", full_size = "/full3.jpg", alt = "Image 3")
+]
 
-```julia
-const RENDER_CACHE = Dict{Any, String}()
-
-@component function cached_expensive(; cache_key, compute_content)
-    if haskey(RENDER_CACHE, cache_key)
-        @text SafeString(RENDER_CACHE[cache_key])
-    else
-        buffer = IOBuffer()
-        @render buffer compute_content()
-        result = String(take!(buffer))
-        RENDER_CACHE[cache_key] = result
-        @text SafeString(result)
-    end
-end
+html = @render @progressive_gallery {images}
+println(html)
 ```
 
 ## Best Practices
@@ -524,7 +468,10 @@ end
 
 ### 2. Minimize Dynamic Content
 
-```julia
+```@example minimize-dynamic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Good: Static structure, dynamic content
 @component function good_list(; items)
     @ul {class = "static-class"} begin
@@ -534,48 +481,35 @@ end
     end
 end
 
+@deftag macro good_list end
+
 # Less optimal: Dynamic structure
-@component function suboptimal_list(; items, compute_class)
+function compute_class(items)
+    length(items) > 5 ? "long-list" : "short-list"
+end
+
+function compute_item_class(item)
+    startswith(item, "A") ? "a-item" : "other-item"
+end
+
+@component function suboptimal_list(; items)
     @ul {class = compute_class(items)} begin  # Computed every render
         for item in items
             @li {class = compute_item_class(item)} $item
         end
     end
 end
-```
 
-### 3. Use Streaming for Real-time
+@deftag macro suboptimal_list end
 
-```julia
-@component function real_time_dashboard()
-    StreamingRender() do io
-        @render io @div {id = "dashboard"} begin
-            while keep_running()
-                data = fetch_latest_data()
-                @render io @section {class = "update"} begin
-                    @time {datetime = now()} $(Dates.now())
-                    render_metrics(data)
-                end
-                sleep(1)  # Update every second
-            end
-        end
-    end
-end
-```
+# Example usage
+items = ["Apple", "Banana", "Cherry"]
 
-### 4. Profile Before Optimizing
+println("Good (static structure):")
+println(@render @good_list {items})
 
-Always measure before optimizing:
-
-```julia
-# Simple timing
-@time @render io large_template()
-
-# Detailed benchmarking
-@benchmark @render io template() samples=100
-
-# Memory tracking
-@allocated @render io template()
+println("\nLess optimal (dynamic structure):")
+println(@render @suboptimal_list {items})
 ```
 
 ## Summary

@@ -212,17 +212,17 @@ println(html)
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-@component function price_display(; amount, currency = "$")
-    @span {class = "price"} begin
-        $currency $(round(amount, digits=2))
-    end
+@component function price_display(; amount, currency = "\$")
+    @span {class = "price"} $currency $(round(amount, digits=2))
 end
 
 @deftag macro price_display end
 
 html = @render @div begin
-    "Total: " @price_display {amount = 99.999}
-    " (Tax included: " @price_display {amount = 99.999 * 1.1} ")"
+    @text "Total: "
+    @price_display {amount = 99.999}
+    @text " (Tax included: "
+    @price_display {amount = 99.999 * 1.1} ")"
 end
 println(html)
 ```
@@ -238,15 +238,15 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # Define the specific components first
-@component error_message(; content)
+@component function error_message(; content)
     @div {class = "error"} @strong "Error: " $content
 end
 
-@component warning_message(; content)
+@component function warning_message(; content)
     @div {class = "warning"} @strong "Warning: " $content
 end
 
-@component info_message(; content)
+@component function info_message(; content)
     @div {class = "info"} @strong "Info: " $content
 end
 
@@ -259,7 +259,7 @@ end
     else
         info_message
     end
-    
+
     @<component {content}
 end
 

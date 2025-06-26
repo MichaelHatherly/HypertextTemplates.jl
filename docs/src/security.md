@@ -10,33 +10,16 @@ The most important security feature is automatic HTML escaping of dynamic conten
 
 All dynamic content is automatically escaped:
 
-```julia
+```@example default-escaping
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # User input is automatically escaped
 user_input = "<script>alert('XSS')</script>"
 html = @render @p "User said: " $user_input
 
-# Output: <p>User said: &lt;script&gt;alert('XSS')&lt;/script&gt;</p>
-# The script tag is rendered as visible text, not executed
-```
-
-### What Gets Escaped
-
-The escaping system handles these special characters:
-
-```@example special-chars
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-# These characters are escaped in dynamic content:
-# & becomes &amp;
-# < becomes &lt;
-# > becomes &gt;
-# " becomes &quot;
-# ' becomes &#39;
-
-malicious = """<img src="x" onerror="alert('xss')">"""
-html = @render @div $malicious
 println(html)
+# The script tag is rendered as visible text, not executed
 ```
 
 ### Escaping in Attributes
@@ -84,38 +67,25 @@ println(html2)
 
 Only use `SafeString` when you're certain the content is safe:
 
-```julia
-# GOOD: Content from trusted markdown processor
-function render_markdown(markdown_text)
-    # CommonMark escapes user content appropriately
-    html = CommonMark.html(markdown_text)
-    @div {class = "markdown"} $(SafeString(html))
+```@example when-safestring
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# GOOD: Content from a trusted source (simulated)
+function render_trusted_html()
+    # Simulating trusted HTML from a markdown processor or similar
+    trusted_html = "<em>This is emphasized</em> and <strong>this is bold</strong>"
+    html = @render @div {class = "markdown"} $(SafeString(trusted_html))
+    println(html)
 end
 
-# GOOD: Pre-escaped content from your own escaping
-escaped = html_escape(user_input)
-processed = process_escaped_content(escaped)
-@div $(SafeString(processed))
+render_trusted_html()
 
 # BAD: Never use with raw user input!
+# Example of what NOT to do:
+user_input = "<script>alert('XSS')</script>"
 # @div $(SafeString(user_input))  # DANGER: XSS vulnerability!
-```
-
-## The @esc_str Macro
-
-For compile-time escaping of string literals:
-
-```julia
-# Escape at compile time
-const ESCAPED_SNIPPET = @esc_str """
-<div class="example">
-    Code: <script>console.log("hi")</script>
-</div>
-"""
-
-# Use in templates
-@render @pre {class = "code-example"} $(SafeString(ESCAPED_SNIPPET))
-# The script tag will be visible, not executed
+println("\nNever use SafeString with user input!")
 ```
 
 ## String Literals vs Dynamic Content
@@ -126,32 +96,39 @@ Understanding the distinction is crucial for security:
 
 String literals in templates are trusted and not escaped:
 
-```julia
+```@example string-literals-trusted
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # This is trusted developer content - NOT escaped
-@render @div """
+html = @render @div """
 <strong>This is bold</strong>
 <script>console.log("Trusted script")</script>
 """
-# Output: <div>
-# <strong>This is bold</strong>
-# <script>console.log("Trusted script")</script>
-# </div>
+
+println(html)
+# String literals are treated as trusted HTML
 ```
 
 ### Dynamic Content (Escaped)
 
 Variables and expressions are always escaped:
 
-```julia
+```@example dynamic-escaped
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # This is dynamic content - ESCAPED
 content = "<strong>User content</strong>"
-@render @div $content
-# Output: <div>&lt;strong&gt;User content&lt;/strong&gt;</div>
+html1 = @render @div $content
+println("Variable content:")
+println(html1)
 
 # Expressions are also escaped
 user_name = "<script>alert('xss')</script>"
-@render @p "Welcome, " $(uppercase(user_name)) "!"
-# Output: <p>Welcome, &LT;SCRIPT&GT;ALERT('XSS')&LT;/SCRIPT&GT;!</p>
+html2 = @render @p "Welcome, " $(uppercase(user_name)) "!"
+println("\nExpression content:")
+println(html2)
 ```
 
 ## Common Security Patterns
@@ -194,7 +171,7 @@ println(html)
 
 # Unsafe input handled
 html2 = @render @user_profile {
-    username = "bob@#$%",  # Special chars removed
+    username = "bob@#\$%",  # Special chars removed
     bio = "<script>alert('xss')</script>",  # Escaped
     website = "javascript:alert('xss')"  # Rejected
 }
@@ -205,7 +182,10 @@ println(html2)
 
 Use CSP headers for defense in depth:
 
-```julia
+```@example csp-example
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function page_with_csp()
     @html begin
         @head begin
@@ -219,13 +199,26 @@ Use CSP headers for defense in depth:
         @body @__slot__
     end
 end
+
+@deftag macro page_with_csp end
+
+# Example usage
+html = @render @page_with_csp begin
+    @h1 "Content protected by CSP"
+    @p "This page has Content Security Policy headers."
+end
+
+println(html)
 ```
 
 ### Safe URL Handling
 
 Validate URLs before use:
 
-```julia
+```@example safe-urls
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 function safe_url(url)
     # Only allow http(s) and relative URLs
     if startswith(url, "/") || 
@@ -237,99 +230,96 @@ function safe_url(url)
     end
 end
 
-# More comprehensive URL validation
-function validate_url(url; allowed_schemes = ["http", "https", "mailto"])
-    try
-        parsed = URI(url)
-        if parsed.scheme in allowed_schemes || isempty(parsed.scheme)
-            return url
-        end
-    catch
-        # Invalid URL
-    end
-    return "#"  # Safe fallback
-end
-
 @component function link_list(; links)
     @ul begin
         for link in links
-            @li @a {href = safe_url(link.url)} $link.text
+            @li @a {href = safe_url(link.url)} $(link.text)
         end
     end
 end
+
+@deftag macro link_list end
+
+# Example with various URLs
+links = [
+    (url = "https://example.com", text = "Safe HTTPS link"),
+    (url = "/about", text = "Safe relative link"),
+    (url = "javascript:alert('xss')", text = "Dangerous JS link"),
+    (url = "data:text/html,<script>alert('xss')</script>", text = "Dangerous data URL")
+]
+
+html = @render @link_list {links}
+println(html)
 ```
 
 ### Form Handling
 
 Protect forms with CSRF tokens:
 
-```julia
+```@example form-csrf
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function secure_form(; csrf_token, action)
     @form {method = "POST", action} begin
         # Include CSRF token
         @input {type = "hidden", name = "csrf_token", value = csrf_token}
         
-        @label {for = "email"} "Email:"
+        Elements.@label {"for" := "email"} "Email:"
         @input {type = "email", id = "email", name = "email", required = true}
         
         @button {type = "submit"} "Submit"
     end
 end
+
+@deftag macro secure_form end
+
+# Example usage with a mock CSRF token
+csrf_token = "abc123def456"  # In practice, generate securely
+html = @render @secure_form {csrf_token, action = "/submit"}
+println(html)
 ```
 
 ## Dangerous Patterns to Avoid
 
 ### Never Trust User Input
 
-```julia
+```@example never-trust
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Simulate getting user input
+function get_user_input()
+    return "<script>alert('XSS attempt')</script>"
+end
+
 # DANGEROUS: Direct HTML injection
 # user_html = get_user_input()
 # @div $(SafeString(user_html))  # NO! XSS vulnerability
 
 # SAFE: Let auto-escaping work
 user_html = get_user_input()
-@div $user_html  # Automatically escaped
+html = @render @div $user_html  # Automatically escaped
+println("Safe rendering:")
+println(html)
 ```
 
 ### Avoid Building HTML Strings
 
-```julia
+```@example avoid-concat
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Example user input that tries to break out
+user_class = "normal\" onclick=\"alert('xss')"
+
 # DANGEROUS: String concatenation
 # html = "<div class=\"" * user_class * "\">"  # NO!
 
 # SAFE: Use the DSL
-@div {class = user_class}  # Automatically escaped
-```
-
-### Be Careful with JavaScript
-
-```julia
-# DANGEROUS: Injecting into JavaScript
-# @script """
-# var username = "$(user_name)";  // NO! Code injection
-# """
-
-# SAFER: Use data attributes and read from DOM
-@div {id = "app", "data-username" := user_name}
-@script """
-const app = document.getElementById('app');
-const username = app.dataset.username;  // Safely encoded
-"""
-
-# For complex data, use JSON in data attributes
-using JSON
-@component function data_component(; config)
-    @div {
-        id = "widget",
-        "data-config" := JSON.json(config)  # JSON is safely encoded
-    } begin
-        @script """
-        const widget = document.getElementById('widget');
-        const config = JSON.parse(widget.dataset.config);
-        // Now config is safely loaded
-        """
-    end
-end
+html = @render @div {class = user_class} "Content"  # Automatically escaped
+println("Safe DSL rendering:")
+println(html)
 ```
 
 ## Security Best Practices
@@ -338,37 +328,74 @@ end
 
 The default behavior is secure. Don't bypass it without good reason:
 
-```julia
+```@example trust-escaping
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Default is secure
 @component function comment(; author, content, timestamp)
     @article {class = "comment"} begin
         @header begin
             @strong $author  # Escaped
-            @time $timestamp  # Escaped
+            Elements.@time $timestamp  # Escaped
         end
         @p $content  # Escaped
     end
 end
+
+@deftag macro comment end
+
+# Example with potentially malicious content
+html = @render @comment {
+    author = "<script>alert('xss')</script>",
+    content = "Great article! <img src=x onerror=alert('xss')>",
+    timestamp = "2024-01-01 <script>alert('xss')</script>"
+}
+
+println(html)
+# All content is safely escaped
 ```
 
 ### 2. Validate at the Boundary
 
 Validate input when it enters your system:
 
-```julia
+```@example validate-boundary
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 function create_comment(author, content)
     # Validate length
     if length(author) > 100 || length(content) > 1000
         error("Input too long")
     end
-    
+
     # Validate content (example)
     if contains(content, r"<script"i)
         error("Invalid content")
     end
-    
-    # Store validated data
-    save_comment(author, content)
+
+    # Return validated data
+    return (author = author, content = content)
+end
+
+# Test validation
+try
+    comment = create_comment("Alice", "Great post!")
+    println("Valid comment created: ", comment)
+catch e
+end
+
+try
+    create_comment("Bob", "Nice <script>alert('xss')</script>")
+catch e
+    println("\nBlocked invalid content: ", e)
+end
+
+try
+    create_comment("A" ^ 200, "Too long")
+catch e
+    println("\nBlocked too long input: ", e)
 end
 ```
 
@@ -376,13 +403,16 @@ end
 
 Leverage Julia's type system for validation:
 
-```julia
+```@example type-safety
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 struct Username
     value::String
-    
+
     function Username(str)
         # Validate on construction
-        if !match(r"^[a-zA-Z0-9_-]{3,20}$", str)
+        if isnothing(match(r"^[a-zA-Z0-9_-]{3,20}$", str))
             error("Invalid username format")
         end
         new(str)
@@ -392,22 +422,56 @@ end
 @component function user_badge(; user::Username)
     @span {class = "username"} $(user.value)
 end
+
+@deftag macro user_badge end
+
+# Valid username
+try
+    valid_user = Username("alice_123")
+    html = @render @user_badge {user = valid_user}
+    println("Valid username: ", html)
+catch e
+    println("Error: ", e)
+end
+
+# Invalid username with special characters
+try
+    invalid_user = Username("alice<script>")
+    html = @render @user_badge {user = invalid_user}
+catch e
+    println("\nBlocked invalid username: ", e)
+end
 ```
 
 ### 4. Escape in Context
 
 Different contexts need different escaping:
 
-```julia
+```@example escape-context
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Simple URL encoding function
+function url_encode(str)
+    # Basic URL encoding for demonstration
+    replace(str, 
+        ' ' => "%20",
+        '<' => "%3C",
+        '>' => "%3E",
+        '"' => "%22",
+        '&' => "%26"
+    )
+end
+
 @component function multi_context(; user_input)
     @div begin
         # HTML context - auto-escaped
         @p $user_input
-        
-        # URL context - validate first
-        safe_param = URIEncode(user_input)
+
+        # URL context - encode for URL
+        safe_param = url_encode(user_input)
         @a {href = "/search?q=" * safe_param} "Search"
-        
+
         # JavaScript context - use data attributes
         @button {
             "data-value" := user_input,
@@ -415,60 +479,13 @@ Different contexts need different escaping:
         } "Click"
     end
 end
-```
 
-### 5. Regular Security Audits
+@deftag macro multi_context end
 
-Review your templates for security:
-
-```julia
-# Check for SafeString usage
-# grep -r "SafeString" src/
-
-# Check for string literal HTML
-# grep -r '@[a-z]* """' src/
-
-# Review dynamic attributes
-# grep -r '{.*:=' src/
-```
-
-## Testing Security
-
-### Unit Tests for Escaping
-
-```julia
-using Test
-
-@testset "Security Tests" begin
-    # Test XSS prevention
-    malicious = "<script>alert('xss')</script>"
-    result = @render @div $malicious
-    @test !contains(result, "<script>")
-    @test contains(result, "&lt;script&gt;")
-    
-    # Test attribute escaping
-    bad_attr = "\" onclick=\"alert('xss')"
-    result = @render @div {class = bad_attr} "Test"
-    @test !contains(result, "onclick=")
-    @test contains(result, "&quot;")
-end
-```
-
-### Integration Tests
-
-```julia
-@testset "Form Security" begin
-    # Test CSRF protection
-    token = generate_csrf_token()
-    html = @render @secure_form {csrf_token = token, action = "/submit"}
-    @test contains(html, token)
-    
-    # Test form validation
-    @test_throws ErrorException @render @secure_form {
-        csrf_token = "",  # Empty token should fail
-        action = "/submit"
-    }
-end
+# Example with potentially malicious input
+user_input = "test & <script>alert('xss')</script>"
+html = @render @multi_context {user_input}
+println(html)
 ```
 
 ## Summary

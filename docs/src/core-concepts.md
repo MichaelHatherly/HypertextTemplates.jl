@@ -8,12 +8,15 @@ HypertextTemplates.jl uses Julia's macro system to create a domain-specific lang
 
 ### Compile-Time Optimization
 
-```julia
-# This macro call...
-@div {class = "container"} @p "Hello"
+```@example compile-time
+using HypertextTemplates
+using HypertextTemplates.Elements
 
-# ...is transformed at compile time into efficient rendering code
-# No runtime parsing or interpretation needed!
+# This macro call...
+html = @render @div {class = "container"} @p "Hello"
+println(html)
+
+# The structure is analyzed at compile time - no runtime parsing needed!
 ```
 
 ### Native Julia Integration
@@ -40,14 +43,24 @@ end
 
 Julia's type system helps catch errors at compile time:
 
-```julia
-@component function typed_list(items::Vector{T}) where T
+```@example type-safety
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function typed_list(; items::Vector{String})
     @ul begin
         for item in items
-            @li $(string(item))  # Type-safe conversion
+            @li $item
         end
     end
 end
+
+@deftag macro typed_list end
+
+# Julia's type system helps catch errors
+items = ["Apple", "Banana", "Cherry"]
+html = @render @typed_list {items}
+println(html)
 ```
 
 ## The `{}` Attribute Syntax
@@ -123,45 +136,69 @@ HypertextTemplates provides multiple ways to render text content:
 
 String literals are rendered directly without escaping:
 
-```julia
-@p "This is <b>bold</b> text"
-# Renders: <p>This is <b>bold</b> text</p>
+```@example string-literals
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @p "This is <b>bold</b> text"
+println(html)
+# String literals are trusted content - HTML is preserved
 ```
 
 ### Variable Interpolation with `$`
 
 The `$` syntax marks expressions for rendering with automatic escaping:
 
-```julia
+```@example interpolation
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 user_input = "<script>alert('xss')</script>"
-@p "User said: " $user_input
-# Renders: <p>User said: &lt;script&gt;alert('xss')&lt;/script&gt;</p>
+html = @render @p "User said: " $user_input
+println(html)
+# Variables are automatically escaped for safety
 ```
 
 ### The `@text` Macro
 
 The `$` syntax is actually shorthand for `@text`:
 
-```julia
+```@example text-macro
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+value = 42
+a, b = 10, 20
+
 # These are equivalent
-@p "Value: " $value
-@p "Value: " @text value
+html1 = @render @p "Value: " $value
+html2 = @render @p "Value: " @text value
+
+println("Using \$: ", html1)
+println("Using @text: ", html2)
 
 # @text can handle complex expressions
-@p @text "The sum is $(a + b)"
+html3 = @render @p @text "The sum is $(a + b)"
+println("Complex expression: ", html3)
 ```
 
 ### Mixed Content
 
 You can mix different content types:
 
-```julia
-@div begin
-    "Static text "        # String literal
-    $dynamic_var         # Escaped variable
-    @b "bold"           # Nested element
-    " more text"        # Another literal
+```@example mixed-content
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+dynamic_var = "dynamic content"
+
+html = @render @div begin
+    @span "Static text "   # String literal
+    @code $dynamic_var     # Escaped variable
+    @p "bold"              # Nested element
+    @strong " more text"   # Another literal
 end
+println(html)
 ```
 
 ## Zero-Allocation Design
@@ -172,28 +209,38 @@ HypertextTemplates is designed for maximum performance with zero intermediate al
 
 Instead of building a DOM tree, content streams directly to IO:
 
-```julia
+```@example io-streaming
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # No intermediate string allocations
 io = IOBuffer()
 @render io @div begin
-    for i in 1:1000
+    for i in 1:5
         @p "Paragraph " $i
     end
 end
+
+result = String(take!(io))
+println(result)
 ```
 
 ### Efficient String Building
 
 The rendering process uses Julia's efficient IO system:
 
-```julia
+```@example efficient-building
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Internally uses write() calls, not string concatenation
-@render @div begin
+html = @render @div begin
     @h1 "Title"
     @p "Content"
 end
+println(html)
 
-# Equivalent to:
+# This is equivalent to direct write() calls:
 # write(io, "<div>")
 # write(io, "<h1>")
 # write(io, "Title")
@@ -222,49 +269,71 @@ This design means:
 
 Any Julia loop construct works:
 
-```julia
+```@example loops-examples
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # for loops
-@ul for item in collection
+collection = ["Apple", "Banana", "Cherry"]
+html1 = @render @ul for item in collection
     @li $item
 end
+println("For loop:")
+println(html1)
 
 # while loops
 count = 0
-@div begin
-    while count < 5
+html2 = @render @div begin
+    while count < 3
         @p "Count: " $count
-        count += 1
+        global count += 1
     end
 end
+println("\nWhile loop:")
+println(html2)
 
 # comprehensions
-@select begin
-    [@option {value = i} "Option " $i for i in 1:10]
+html3 = @render @select begin
+    [@option {value = i} "Option " $i for i in 1:5]
 end
+println("\nComprehension:")
+println(html3)
 ```
 
 ### Conditionals
 
 All conditional forms are supported:
 
-```julia
+```@example conditionals
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # if-else
-@div begin
+condition = true
+html1 = @render @div begin
     if condition
         @p "True branch"
     else
         @p "False branch"
     end
 end
+println("If-else:")
+println(html1)
 
 # ternary operator
-@p {class = isactive ? "active" : "inactive"} "Status"
+isactive = false
+html2 = @render @p {class = isactive ? "active" : "inactive"} "Status"
+println("\nTernary operator:")
+println(html2)
 
 # short-circuit evaluation
-@div begin
-    hasdata && @table render_data(data)
+hasdata = false
+html3 = @render @div begin
+    hasdata && @p "Data is available"
     !hasdata && @p "No data available"
 end
+println("\nShort-circuit:")
+println(html3)
 ```
 
 ### Pattern Matching
@@ -288,18 +357,38 @@ Components in HypertextTemplates are just Julia functions with special handling:
 
 ### Function-Based Components
 
-```julia
+```@example function-components
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function alert(; type = "info", message)
     classes = "alert alert-" * type
     @div {class = classes, role = "alert"} $message
 end
+
+@deftag macro alert end
+
+# Use the component
+html = @render @alert {type = "warning", message = "This is a warning!"}
+println(html)
 ```
 
 ### Composition
 
 Components compose naturally:
 
-```julia
+```@example composition
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Reuse the alert component from above
+@component function alert(; type = "info", message)
+    classes = "alert alert-" * type
+    @div {class = classes, role = "alert"} $message
+end
+
+@deftag macro alert end
+
 @component function alert_list(; alerts)
     @div {class = "alert-container"} begin
         for alert in alerts
@@ -307,6 +396,18 @@ Components compose naturally:
         end
     end
 end
+
+@deftag macro alert_list end
+
+# Use the composed component
+alerts = [
+    (type = "info", message = "Information message"),
+    (type = "warning", message = "Warning message"),
+    (type = "error", message = "Error message")
+]
+
+html = @render @alert_list {alerts}
+println(html)
 ```
 
 ### Component Transformation
@@ -336,7 +437,10 @@ Is transformed into a function that:
 
 Much work happens at compile time:
 
-```julia
+```@example compile-time-work
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # This template structure is analyzed at compile time
 @component function static_heavy()
     @div {class = "wrapper"} begin
@@ -350,13 +454,22 @@ Much work happens at compile time:
         end
     end
 end
+
+@deftag macro static_heavy end
+
+# The structure is compiled, not interpreted at runtime
+html = @render @static_heavy
+println(html)
 ```
 
 ### Runtime Efficiency
 
 Only dynamic parts are computed at runtime:
 
-```julia
+```@example runtime-efficiency
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function dynamic_list(; items)
     # Static structure compiled, only loop runs at runtime
     @ul {class = "list"} begin
@@ -365,6 +478,13 @@ Only dynamic parts are computed at runtime:
         end
     end
 end
+
+@deftag macro dynamic_list end
+
+# Only the loop execution is runtime work
+items = ["Dynamic 1", "Dynamic 2", "Dynamic 3"]
+html = @render @dynamic_list {items}
+println(html)
 ```
 
 ## HTML Escaping Strategy
@@ -375,10 +495,14 @@ Security is built into the rendering process:
 
 All dynamic content is escaped by default:
 
-```julia
+```@example auto-escaping
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 unsafe = "<script>alert('xss')</script>"
-@p $unsafe
-# Renders: <p>&lt;script&gt;alert('xss')&lt;/script&gt;</p>
+html = @render @p $unsafe
+println(html)
+# Dynamic content is automatically escaped for safety
 ```
 
 ### Escape Rules
