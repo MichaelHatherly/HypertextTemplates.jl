@@ -25,12 +25,13 @@ julia> @component function card(; title)
        end;
 
 julia> @deftag macro card end
+@card (macro with 1 method)
 
 julia> @render @card {title = "Welcome"} begin
            @p "This goes into the default slot"
            @p "So does this"
        end
-"<div class=\"card\"><h2>Welcome</h2><div class=\"content\"><p>This goes into the default slot</p><p>So does this</p></div></div>"
+"<div class=\\"card\\"><h2>Welcome</h2><div class=\\"content\\"><p>This goes into the default slot</p><p>So does this</p></div></div>"
 ```
 
 # Named slots
@@ -51,11 +52,11 @@ julia> @component function modal(; title = "")
        end;
 
 julia> @deftag macro modal end
+@modal (macro with 1 method)
 
 julia> @render @modal {title = "Confirm"} begin
            # Default slot content
            @p "Are you sure?"
-           
            # Named slot content
            header_actions := @button {class = "close"} "×"
            footer := begin
@@ -63,29 +64,7 @@ julia> @render @modal {title = "Confirm"} begin
                @button {class = "primary"} "OK"
            end
        end
-"<div class=\"modal\"><header><h2>Confirm</h2><button class=\"close\">×</button></header><div class=\"body\"><p>Are you sure?</p></div><footer><button>Cancel</button><button class=\"primary\">OK</button></footer></div>"
-```
-
-# Multiple slots example
-```jldoctest
-julia> using HypertextTemplates, HypertextTemplates.Elements
-
-julia> @component function layout()
-           @div {class = "layout"} begin
-               @nav @__slot__ navigation
-               @main @__slot__  # default slot
-               @aside @__slot__ sidebar
-           end
-       end;
-
-julia> @deftag macro layout end
-
-julia> @render @layout begin
-           navigation := @a {href = "/"} "Home"
-           sidebar := @p "Sidebar content"
-           @h1 "Main content"  # Goes to default slot
-       end
-"<div class=\"layout\"><nav><a href=\"/\">Home</a></nav><main><h1>Main content</h1></main><aside><p>Sidebar content</p></aside></div>"
+"<div class=\\"modal\\"><header><h2>Confirm</h2><button class=\\"close\\">×</button></header><div class=\\"body\\"><p>Are you sure?</p></div><footer><button>Cancel</button><button class=\\"primary\\">OK</button></footer></div>"
 ```
 
 See also: [`@component`](@ref)

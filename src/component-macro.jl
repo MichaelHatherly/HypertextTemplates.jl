@@ -27,6 +27,7 @@ julia> @component function greeting(; name = "World")
 greeting (generic function with 1 method)
 
 julia> @deftag macro greeting end
+@greeting (macro with 1 method)
 
 julia> @render @greeting {name = "Julia"}
 "<h1>Hello, Julia!</h1>"
@@ -48,11 +49,12 @@ julia> @component function card(; title)
 card (generic function with 1 method)
 
 julia> @deftag macro card end
+@card (macro with 1 method)
 
 julia> @render @card {title = "Info"} begin
            @p "Card content goes here"
        end
-"<div class=\"card\"><h2>Info</h2><div class=\"body\"><p>Card content goes here</p></div></div>"
+"<div class=\\"card\\"><h2>Info</h2><div class=\\"body\\"><p>Card content goes here</p></div></div>"
 ```
 
 # Typed props for safety
@@ -65,9 +67,10 @@ julia> @component function price(; amount::Number, currency::String = "USD")
 price (generic function with 1 method)
 
 julia> @deftag macro price end
+@price (macro with 1 method)
 
 julia> @render @price {amount = 19.999}
-"<span class=\"price\">USD 20.0</span>"
+"<span class=\\"price\\">USD 20.0</span>"
 ```
 
 See also: [`@deftag`](@ref), [`@__slot__`](@ref), [`@render`](@ref)

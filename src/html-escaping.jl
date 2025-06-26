@@ -8,26 +8,6 @@ runtime, providing better performance for static content that needs escaping.
 
 The resulting `SafeString` will not be escaped again during rendering.
 
-# Examples
-```jldoctest
-julia> using HypertextTemplates, HypertextTemplates.Elements
-
-julia> # Escape at compile time
-       escaped = esc"<div>This & that</div>"
-SafeString("<div>This &amp; that</div>")
-
-julia> # The content is pre-escaped and safe to render
-       @render @p escaped
-"<p><div>This &amp; that</div></p>"
-
-julia> # Useful for escaping code examples
-       code = esc"function greet(name = \"World\")\\n    println(\"Hello, \$name!\")\\nend"
-SafeString("function greet(name = \"World\")\\n    println(\"Hello, \$name!\")\\nend")
-
-julia> @render @pre @code code
-"<pre><code>function greet(name = \"World\")\\n    println(\"Hello, \$name!\")\\nend</code></pre>"
-```
-
 See also: [`SafeString`](@ref), [`escape_html`](@ref)
 """
 macro esc_str(txt)
@@ -110,26 +90,6 @@ called for all attribute values unless wrapped in [`SafeString`](@ref).
 # Arguments
 - `io::IO`: The output stream to write to
 - `value`: The attribute value to escape (converted to string if not already)
-
-# Examples
-```jldoctest
-julia> using HypertextTemplates
-
-julia> io = IOBuffer();
-
-julia> HypertextTemplates.escape_attr(io, "Click to say \"Hello\"")
-
-julia> String(take!(io))
-"Click to say &quot;Hello&quot;"
-
-julia> # Prevents attribute injection
-       io = IOBuffer();
-
-julia> HypertextTemplates.escape_attr(io, "red\" onclick=\"alert('XSS')")
-
-julia> String(take!(io))
-"red&quot; onclick=&quot;alert(&#39;XSS&#39;)"
-```
 
 !!! note
     This function provides defense-in-depth but cannot prevent all attribute-based

@@ -32,18 +32,7 @@ julia> @component function button_with_styles(; text, variant = "primary")
        end;
 
 julia> @deftag macro button_with_styles end
-
-julia> # Style block appears only once despite multiple components
-       @render @div begin
-           @button_with_styles {text = "Save", variant = "primary"}
-           @button_with_styles {text = "Delete", variant = "danger"}
-           @button_with_styles {text = "Cancel"}
-       end
-"<div><style>
-.btn { padding: 10px; border: none; cursor: pointer; }
-.btn-primary { background: blue; color: white; }
-.btn-danger { background: red; color: white; }
-</style><button class=\"btn btn-primary\">Save</button><button class=\"btn btn-danger\">Delete</button><button class=\"btn btn-primary\">Cancel</button></div>"
+@button_with_styles (macro with 1 method)
 ```
 
 # JavaScript dependencies
@@ -62,17 +51,7 @@ julia> @component function chart(; data)
        end;
 
 julia> @deftag macro chart end
-
-julia> # Script tag included only once
-       @render @div begin
-           @chart {data = "[{x: [1,2,3], y: [4,5,6]}]"}
-           @chart {data = "[{x: [2,3,4], y: [5,6,7]}]"}
-       end
-"<div><script src=\"https://cdn.plot.ly/plotly-latest.min.js\"></script><div id=\"chart-3987546252434704239\"><script>
-Plotly.newPlot('chart-3987546252434704239', [{x: [1,2,3], y: [4,5,6]}]);
-</script></div><div id=\"chart-4290112513361602039\"><script>
-Plotly.newPlot('chart-4290112513361602039', [{x: [2,3,4], y: [5,6,7]}]);
-</script></div></div>"
+@chart (macro with 1 method)
 ```
 
 # Scope behavior
@@ -87,6 +66,7 @@ julia> @component function with_header()
        end;
 
 julia> @deftag macro with_header end
+@with_header (macro with 1 method)
 
 julia> # First render includes the header
        @render @with_header

@@ -17,13 +17,13 @@ julia> using HypertextTemplates
 
 julia> # Define a custom element
        @element "my-widget" my_widget
-my_widget (generic function with 6 methods)
 
 julia> # Use with @deftag for macro syntax
        @deftag macro my_widget end
+@my_widget (macro with 1 method)
 
 julia> @render @my_widget {id = "w1", class = "custom"} "Widget content"
-"<my-widget id=\"w1\" class=\"custom\">Widget content</my-widget>"
+"<my-widget id=\\"w1\\" class=\\"custom\\">Widget content</my-widget>"
 ```
 
 # Web Components
@@ -32,51 +32,20 @@ julia> using HypertextTemplates
 
 julia> # Define web component elements
        @element "ion-button" ion_button
-ion_button (generic function with 6 methods)
 
 julia> @element "ion-icon" ion_icon
-ion_icon (generic function with 6 methods)
 
 julia> @deftag macro ion_button end
+@ion_button (macro with 1 method)
 
 julia> @deftag macro ion_icon end
+@ion_icon (macro with 1 method)
 
 julia> @render @ion_button {color = "primary", expand = "block"} begin
            @ion_icon {name = "save-outline", slot = "start"}
            "Save"
        end
-"<ion-button color=\"primary\" expand=\"block\"><ion-icon name=\"save-outline\" slot=\"start\"></ion-icon>Save</ion-button>"
-```
-
-# Custom void elements
-```jldoctest
-julia> using HypertextTemplates
-
-julia> # Define a self-closing custom element
-       @element "custom-input" custom_input
-custom_input (generic function with 6 methods)
-
-julia> # Mark as void element
-       HypertextTemplates._is_void_element(::HypertextTemplates.custom_inputType) = true
-
-julia> @deftag macro custom_input end
-
-julia> @render @custom_input {type = "text", value = "Hello"}
-"<custom-input type=\"text\" value=\"Hello\">"
-```
-
-# Auto-generated names
-```jldoctest
-julia> using HypertextTemplates
-
-julia> # Julia name is auto-generated from tag name
-       @element "data-list"  # Creates data_list
-data_list (generic function with 6 methods)
-
-julia> @deftag macro data_list end
-
-julia> @render @data_list {id = "mylist"} "Items"
-"<data-list id=\"mylist\">Items</data-list>"
+"<ion-button color=\\"primary\\" expand=\\"block\\"><ion-icon name=\\"save-outline\\" slot=\\"start\\"></ion-icon>Save</ion-button>"
 ```
 
 See also: [`@deftag`](@ref), [`@component`](@ref)

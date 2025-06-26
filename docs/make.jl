@@ -5,7 +5,7 @@ makedocs(
     sitename="HypertextTemplates",
     format=Documenter.HTML(),
     modules=[HypertextTemplates],
-    doctest=false,
+    doctest=true,
     pages=[
         "Home" => "index.md",
         "Getting Started" => "getting-started.md",

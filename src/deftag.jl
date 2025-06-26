@@ -30,10 +30,11 @@ alert (generic function with 1 method)
 
 julia> # Create macro (preferred syntax for LSP support)
        @deftag macro alert end
+@alert (macro with 1 method)
 
 julia> # Now use like an HTML element
        @render @alert {type = "warning"} "Watch out!"
-"<div class=\"alert alert-warning\">Watch out!</div>"
+"<div class=\\"alert alert-warning\\">Watch out!</div>"
 
 julia> # Alternative syntax (works but no LSP support)
        @component function message(; text)
@@ -42,9 +43,10 @@ julia> # Alternative syntax (works but no LSP support)
 message (generic function with 1 method)
 
 julia> @deftag message
+@message (macro with 1 method)
 
 julia> @render @message {text = "Hello"}
-"<p class=\"message\">Hello</p>"
+"<p class=\\"message\\">Hello</p>"
 ```
 
 # Custom elements
@@ -53,12 +55,12 @@ julia> using HypertextTemplates, HypertextTemplates.Elements
 
 julia> # Define a custom HTML element
        @element "my-widget" my_widget
-my_widget (generic function with 6 methods)
 
 julia> @deftag macro my_widget end
+@my_widget (macro with 1 method)
 
 julia> @render @my_widget {id = "w1"} "Custom element"
-"<my-widget id=\"w1\">Custom element</my-widget>"
+"<my-widget id=\\"w1\\">Custom element</my-widget>"
 ```
 
 See also: [`@component`](@ref), [`@element`](@ref), [`@<`](@ref)

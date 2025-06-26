@@ -23,13 +23,13 @@ julia> # Normal strings are escaped
 "<div>&lt;b&gt;Bold&lt;/b&gt;</div>"
 
 julia> # SafeString content is not escaped
-       @render @div SafeString("<b>Bold</b>")
+       @render @div \$(SafeString("<b>Bold</b>"))
 "<div><b>Bold</b></div>"
 
 julia> # Common use case: pre-rendered markdown
        markdown_html = "<p>Already <em>escaped</em> content</p>";
 
-julia> @render @article SafeString(markdown_html)
+julia> @render @article \$(SafeString(markdown_html))
 "<article><p>Already <em>escaped</em> content</p></article>"
 ```
 

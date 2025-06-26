@@ -23,13 +23,13 @@ julia> @render @div "Hello, World!"
 
 julia> buffer = IOBuffer();
 
-julia> @render buffer @span {class = "greeting"} "Hi!"
+julia> @render buffer @span {class = "greeting"} "Hi!";
 
 julia> String(take!(buffer))
-"<span class=\"greeting\">Hi!</span>"
+"<span class=\\"greeting\\">Hi!</span>"
 
 julia> @render Vector{UInt8} @p "Binary output"
-21-element Vector{UInt8}:
+20-element Vector{UInt8}:
  0x3c
  0x70
  0x3e

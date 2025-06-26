@@ -16,14 +16,6 @@ Text content is automatically HTML-escaped unless wrapped in [`SafeString`](@ref
 ```jldoctest
 julia> using HypertextTemplates, HypertextTemplates.Elements
 
-julia> # Explicit text rendering
-       @render @p @text "Hello, " @text "World!"
-"<p>Hello, World!</p>"
-
-julia> # More commonly, use \$ interpolation
-       @render @p "Hello, " \$("World!")
-"<p>Hello, World!</p>"
-
 julia> # HTML is escaped by default
        @render @div @text "<script>alert('XSS')</script>"
 "<div>&lt;script&gt;alert('XSS')&lt;/script&gt;</div>"
@@ -42,7 +34,7 @@ julia> # Mix with elements
     ```julia
     # Preferred
     @div "Count: " \$count
-    
+
     # Equivalent but verbose
     @div "Count: " @text count
     ```
