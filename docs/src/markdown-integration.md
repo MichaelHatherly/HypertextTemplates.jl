@@ -4,7 +4,7 @@ HypertextTemplates.jl provides seamless integration with CommonMark.jl, allowing
 
 ## Prerequisites
 
-To use Markdown features, you need CommonMark.jl in your project:
+The Markdown integration features are provided through Julia's package extension system, which means they become available automatically when CommonMark.jl is present in your environment. This design keeps HypertextTemplates lightweight for users who don't need Markdown support while providing seamless integration for those who do. Simply adding CommonMark.jl to your project enables all the Markdown-related functionality described in this guide.
 
 ```julia
 using Pkg
@@ -17,7 +17,7 @@ The integration is provided through Julia's package extension system, so feature
 
 ### Basic Usage
 
-Use CommonMark's `cm` string macro within templates:
+CommonMark.jl's `cm` string macro allows you to embed Markdown content directly within your HypertextTemplates components. The macro processes the Markdown at compile time and converts it to HTML, which is then wrapped in a `SafeString` to preserve the formatting. This approach combines the simplicity of Markdown for content authoring with the power of HypertextTemplates for structure and interactivity, making it ideal for documentation sites, blogs, or any content-heavy application.
 
 ```julia
 using HypertextTemplates
@@ -73,6 +73,8 @@ end
 The `@cm_component` macro creates components from Markdown files.
 
 ### Basic File Component
+
+The `@cm_component` macro transforms Markdown files into reusable HypertextTemplates components. This powerful feature allows you to maintain content in Markdown format while seamlessly integrating it into your component-based architecture. The macro reads the specified Markdown file, processes it with CommonMark, and creates a component that can be used just like any other HypertextTemplates component. This is particularly useful for static content pages, documentation, or any scenario where non-technical users need to contribute content.
 
 ```julia
 # Create a component from a Markdown file

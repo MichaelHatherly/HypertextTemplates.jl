@@ -8,6 +8,8 @@ The `@__once__` macro ensures content is rendered only once per `@render` call, 
 
 ### Basic Usage
 
+The `@__once__` macro is a powerful deduplication tool that ensures specific content (like CSS styles, JavaScript libraries, or initialization code) is only rendered once within a single `@render` call, even if the component containing it is used multiple times. This is essential for preventing duplicate script tags, style definitions, or other resources that should only appear once in your HTML output. The macro tracks what has been rendered and automatically skips subsequent occurrences within the same rendering context.
+
 ```@example once-basic
 using HypertextTemplates
 using HypertextTemplates.Elements
@@ -163,6 +165,8 @@ Create custom macros for components and elements for cleaner syntax.
 
 ### Basic Definition
 
+The `@deftag` macro transforms your components and custom elements into first-class DSL elements that can be used with the same clean syntax as built-in HTML elements. Instead of calling components as functions, `@deftag` creates a macro that integrates seamlessly with the template syntax, supporting attributes in `{}` blocks and content blocks just like `@div` or `@p`. This makes your custom components feel native to the templating language and improves code readability.
+
 ```@example deftag-basic
 using HypertextTemplates
 using HypertextTemplates.Elements
@@ -253,6 +257,8 @@ The `$` syntax provides convenient text interpolation, similar to string interpo
 
 ### Basic Interpolation
 
+Text interpolation with `$` provides a concise way to embed dynamic values directly within your templates, eliminating the need for explicit `@text` calls. This syntax works just like Julia's string interpolation but is HTML-aware, automatically escaping values for security. You can interpolate variables, expressions, and even complex computations, making your templates more readable and maintainable while maintaining the same performance and safety guarantees as explicit text nodes.
+
 ```@example basic-interp
 using HypertextTemplates
 using HypertextTemplates.Elements
@@ -310,6 +316,8 @@ println(html)
 The `@<` macro enables dynamic component rendering.
 
 ### Component as Variable
+
+The `@<` macro enables dynamic component selection at runtime, allowing you to choose which component to render based on data or conditions. This pattern is essential for building flexible UIs where the component type needs to be determined programmatically - such as rendering different message types, form fields, or content blocks based on configuration. The syntax `@<component_var {props}` treats the component as a first-class value that can be stored in variables, passed as arguments, or selected from dictionaries.
 
 ```@example dynamic-component
 using HypertextTemplates

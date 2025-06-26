@@ -8,7 +8,7 @@ The most important security feature is automatic HTML escaping of dynamic conten
 
 ### Default Escaping Behavior
 
-All dynamic content is automatically escaped:
+HypertextTemplates automatically escapes all dynamic content (variables, expressions, and interpolations) to prevent malicious code injection. This means that any HTML special characters like `<`, `>`, `&`, and quotes are converted to their safe HTML entity equivalents. This protection is applied transparently without any action required from developers, ensuring that user-provided data cannot execute as HTML or JavaScript code, effectively preventing XSS attacks by default.
 
 ```@example default-escaping
 using HypertextTemplates
@@ -47,6 +47,8 @@ println(html2)
 When you have pre-escaped or trusted HTML content, use `SafeString`:
 
 ### Creating Safe Content
+
+`SafeString` is a special type that bypasses the automatic escaping system, telling HypertextTemplates that the content has already been properly escaped or is from a trusted source. This is necessary when you need to include pre-rendered HTML content, such as output from a Markdown processor, syntax highlighter, or sanitized rich text editor. However, using `SafeString` incorrectly can introduce serious security vulnerabilities, so it should only be used when you have complete confidence in the safety of the content - never with raw user input.
 
 ```@example safestring-basic
 using HypertextTemplates
@@ -254,7 +256,7 @@ println(html)
 
 ### Form Handling
 
-Protect forms with CSRF tokens:
+Cross-Site Request Forgery (CSRF) protection is essential for any form that performs state-changing operations. CSRF tokens ensure that form submissions come from your own application rather than malicious third-party sites. The token should be unique per session or per request, validated server-side, and included as a hidden field in every form. This pattern, combined with proper session management and same-origin checks, provides robust protection against CSRF attacks.
 
 ```@example form-csrf
 using HypertextTemplates

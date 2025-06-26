@@ -34,6 +34,8 @@ Props are passed as keyword arguments to component functions:
 
 ### Required Props
 
+Components can enforce required props by omitting default values in their function signature. This leverages Julia's keyword argument system to provide compile-time guarantees that all necessary data is provided. When a required prop is missing, Julia will throw a clear error message indicating which argument was not supplied. This pattern is particularly useful for components that cannot function without certain data, such as user information, IDs, or critical configuration values.
+
 ```@example required-props
 using HypertextTemplates
 using HypertextTemplates.Elements

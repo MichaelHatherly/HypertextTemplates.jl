@@ -21,7 +21,7 @@ pkg> add HypertextTemplates
 
 ### Basic Usage
 
-HypertextTemplates provides HTML elements as macros. Here's a simple example:
+HypertextTemplates transforms HTML authoring by exposing every HTML element as a Julia macro. This approach leverages Julia's metaprogramming capabilities to create a natural, type-safe templating language that feels like writing HTML but with the full power of Julia. The `@render` macro is your entry point - it takes your template expressions and efficiently converts them into properly formatted HTML strings. Elements are nested using Julia's familiar `begin...end` blocks, making the structure visually clear and easy to follow.
 
 ```@example basic
 using HypertextTemplates
@@ -38,7 +38,7 @@ println(html)
 
 ### Adding Attributes
 
-Attributes are specified using `{}` syntax:
+The `{}` syntax for attributes is a distinctive feature of HypertextTemplates that mimics Julia's NamedTuple syntax while providing a clean separation between attributes and content. This design choice makes templates highly readable - attributes are visually distinct from the element's children, and the syntax supports all the conveniences you'd expect from Julia, including computed values, shorthand property notation, and spreading. The curly braces immediately follow the element macro and contain comma-separated key-value pairs.
 
 ```@example attributes
 using HypertextTemplates
@@ -52,7 +52,7 @@ end
 
 ### Using Variables and Expressions
 
-Variables and expressions can be included using the `$` syntax:
+Dynamic content in HypertextTemplates uses the familiar `$` interpolation syntax from Julia strings, but with an important difference: all interpolated values are automatically HTML-escaped for security. This means you can safely include user-provided data without worrying about XSS attacks. The interpolation works with any Julia expression - from simple variables to complex computations - and the results are seamlessly integrated into your HTML output. This design provides both convenience and safety by default.
 
 ```@example variables
 using HypertextTemplates
@@ -272,6 +272,8 @@ Now that you understand the basics:
 4. Discover [Advanced Features](advanced-features.md) for complex applications
 
 ## Common Pitfalls
+
+When starting with HypertextTemplates, there are several common mistakes that trip up newcomers. These pitfalls arise from the unique syntax choices that make HypertextTemplates powerful but differ from traditional templating systems. Understanding these patterns early will save you debugging time and help you write cleaner, more idiomatic code. The examples below show the most frequent errors along with their corrections, helping you recognize and avoid these issues in your own templates.
 
 ### 1. Forgetting `$` for Variables
 ```julia

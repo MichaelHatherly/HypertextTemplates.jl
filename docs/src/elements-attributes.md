@@ -13,6 +13,8 @@ using HypertextTemplates.Elements
 
 ### Common Elements
 
+HypertextTemplates provides macros for every standard HTML element, allowing you to write HTML using Julia's native macro syntax. Each element is exposed as a macro (prefixed with `@`) that mirrors its HTML counterpart. These macros handle proper tag generation, nesting, attribute handling, and automatic escaping. The element macros are organized into logical groups based on their semantic purpose in HTML, making it easy to find and use the elements you need for structuring documents, creating forms, embedding media, or building complex layouts.
+
 ```julia
 # Structural elements
 @div @section @article @aside @header @footer @main @nav
@@ -461,7 +463,7 @@ println(html)
 
 ### Pre-escaped Content
 
-Use `SafeString` for pre-escaped attribute values:
+In rare cases where you need to include pre-escaped or specially formatted attribute values that should bypass the automatic escaping system, you can use `SafeString`. This is typically needed when working with attribute values that have already been processed by another system or contain special formatting that must be preserved exactly. However, this should be used with extreme caution and only with trusted content, as it bypasses the security protections that prevent XSS attacks through attribute injection.
 
 ```@example pre-escaped
 using HypertextTemplates

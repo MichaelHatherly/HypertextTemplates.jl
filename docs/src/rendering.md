@@ -8,6 +8,8 @@ The `@render` macro is the primary way to convert templates into output. It supp
 
 ### Basic Rendering
 
+The `@render` macro converts your template expressions into HTML output. By default, it returns a String containing the rendered HTML. You can render single elements or multiple elements in a block, and the macro handles all the necessary HTML generation including proper escaping and tag structure.
+
 ```@example basic-rendering
 using HypertextTemplates
 using HypertextTemplates.Elements
@@ -27,7 +29,7 @@ println(html2)
 
 ### Rendering to IO
 
-Render directly to an IO stream for better performance:
+When building web applications or generating large documents, rendering directly to an IO stream avoids the memory overhead of creating intermediate strings. This approach is particularly beneficial for server responses where you can write directly to the network socket, or when generating files where you can stream directly to disk. The syntax is identical to string rendering - just pass an IO object as the first argument.
 
 ```@example iobuffer-render
 using HypertextTemplates
@@ -99,7 +101,7 @@ println(result)
 
 ### Precompiled Templates
 
-Static parts of templates are optimized at compile time:
+HypertextTemplates performs compile-time optimization on your templates by identifying static HTML content and precompiling it. This means that any HTML structure that doesn't contain dynamic values (interpolations with `$`) is transformed into efficient string literals at compile time. When you render the template, only the dynamic parts need processing, while static HTML is emitted directly. This optimization happens automatically and can dramatically improve performance for templates with mostly static content.
 
 ```@example precompiled
 using HypertextTemplates
