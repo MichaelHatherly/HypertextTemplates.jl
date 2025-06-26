@@ -77,6 +77,7 @@ The `@cm_component` macro creates components from Markdown files.
 ```julia
 # Create a component from a Markdown file
 @cm_component about_page() = "content/about.md"
+@deftag macro about_page end
 
 # Use it like any other component
 @render @div {class = "page"} begin
@@ -91,6 +92,7 @@ Pass props to Markdown files for dynamic content:
 ```julia
 # Define component with props
 @cm_component product_description(; name, price, features) = "templates/product.md"
+@deftag macro product_description end
 
 # product.md content:
 # # $(name)
@@ -123,10 +125,19 @@ module MarkdownComponents
     @cm_component home() = "content/home.md"
     @cm_component about() = "content/about.md"
     @cm_component contact() = "content/contact.md"
+    
+    # Export tags if you want to use without qualification
+    @deftag export macro home end
+    @deftag export macro about end
+    @deftag export macro contact end
 end
 
 # Use with module qualification
 @render @MarkdownComponents.home
+
+# Or if exported
+using .MarkdownComponents
+@render @home
 ```
 
 ## Live Reloading with Revise.jl

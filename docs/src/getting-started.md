@@ -154,7 +154,10 @@ Components are reusable template functions:
     end
 end
 
-# Use the component
+# Important: Create a macro shortcut for easier use
+@deftag macro card end
+
+# Now you can use @card instead of @<card
 html = @render @div {class = "card-grid"} begin
     @card {
         title = "Getting Started",
@@ -168,6 +171,15 @@ html = @render @div {class = "card-grid"} begin
     }
 end
 ```
+
+### Understanding the Component System
+
+When you define a component with `@component`, you're creating a special function that:
+1. Accepts keyword arguments as props
+2. Returns renderable HTML content
+3. Can be used with `@<component_name` or with a macro after using `@deftag`
+
+The `@deftag` macro is important for ergonomics - it creates a macro version of your component so you can use `@card` instead of the more verbose `@<card`.
 
 ## Rendering to Different Outputs
 
@@ -209,9 +221,65 @@ Now that you understand the basics:
 
 ## Common Pitfalls
 
-- **Forgetting `$` for variables**: Use `$` before variables in element content
-- **Missing `begin...end`**: Multi-line content needs `begin...end` blocks
-- **Attribute syntax**: Use `{}` for attributes, not `()`
-- **String vs expressions**: String literals render as-is, expressions need `$`
+### 1. Forgetting `$` for Variables
+```julia
+# Wrong - variable not interpolated
+name = "Julia"
+@render @p "Hello, name"  # Output: <p>Hello, name</p>
+
+# Correct - use $ to interpolate
+@render @p "Hello, " $name  # Output: <p>Hello, Julia</p>
+```
+
+### 2. Missing `begin...end` Blocks
+```julia
+# Wrong - syntax error
+@render @div
+    @h1 "Title"
+    @p "Content"
+
+# Correct - use begin...end for multiple elements
+@render @div begin
+    @h1 "Title"
+    @p "Content"
+end
+```
+
+### 3. Wrong Attribute Syntax
+```julia
+# Wrong - using parentheses
+@render @div(class="container") "Content"  # Syntax error!
+
+# Correct - use curly braces
+@render @div {class = "container"} "Content"
+```
+
+### 4. String Literals vs Expressions
+```julia
+# String literals are NOT escaped (trusted content)
+@render @p "<b>Bold</b>"  # Output: <p><b>Bold</b></p>
+
+# Variables ARE escaped (safe from XSS)
+text = "<b>Bold</b>"
+@render @p $text  # Output: <p>&lt;b&gt;Bold&lt;/b&gt;</p>
+```
+
+### 5. Component Usage Without @deftag
+```julia
+# Define component
+@component function my_button(; text = "Click")
+    @button {class = "btn"} $text
+end
+
+# Wrong - can't use as macro without @deftag
+@render @my_button {text = "Submit"}  # Error!
+
+# Correct - either use @< or define a tag
+@render @<my_button {text = "Submit"}  # Works
+
+# Or better, define the tag
+@deftag macro my_button end
+@render @my_button {text = "Submit"}  # Now works!
+```
 
 Happy templating with HypertextTemplates.jl!

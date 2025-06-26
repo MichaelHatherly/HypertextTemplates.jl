@@ -37,6 +37,7 @@ end
         @div {class = "card-body"} $content
     end
 end
+@deftag macro card end
 
 # Use the component
 @render @card {

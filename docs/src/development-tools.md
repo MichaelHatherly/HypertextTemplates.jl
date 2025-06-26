@@ -82,7 +82,7 @@ HTTP.serve() do request
         end
     end
     
-    return HTTP.Response(200, String(take!(io)))
+    return HTTP.Response(200, ["Content-Type" => "text/html"], String(take!(io)))
 end
 ```
 
@@ -441,17 +441,28 @@ end
 ### Render Timing
 
 ```julia
-@component function timed_section(; name)
-    start_time = time()
-    
-    @div {"data-section" := name} begin
-        @__slot__
+# Track render times externally
+const RENDER_TIMES = Dict{String, Float64}()
+
+function measure_render(name, f)
+    start_time = time_ns()
+    result = f()
+    elapsed = (time_ns() - start_time) / 1e9  # Convert to seconds
+    RENDER_TIMES[name] = elapsed
+    if elapsed > 0.1  # Log slow renders
+        @warn "Slow render" name elapsed
     end
-    
-    elapsed = time() - start_time
-    if elapsed > 0.1  # Log slow sections
-        @warn "Slow section" name elapsed
-    end
+    return result
+end
+
+# Usage
+html = measure_render("homepage") do
+    @render @homepage_component
+end
+
+# View all render times
+for (name, time) in sort(collect(RENDER_TIMES), by=last, rev=true)
+    println("$name: $(round(time * 1000, digits=2))ms")
 end
 ```
 

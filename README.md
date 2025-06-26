@@ -33,6 +33,7 @@ using HypertextTemplates.Elements
         @div {class = "content"} $content
     end
 end
+@deftag macro article_card end
 
 # Render HTML
 html = @render @div {class = "container"} begin

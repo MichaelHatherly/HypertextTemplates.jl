@@ -39,6 +39,8 @@ A complete blog implementation showcasing components, layouts, and data handling
         end
     end
 end
+
+@deftag macro blog_layout end
 ```
 
 ### Blog Post Component
@@ -89,6 +91,8 @@ end
         end
     end
 end
+
+@deftag macro blog_post_card end
 ```
 
 ### Blog Home Page
@@ -330,6 +334,11 @@ end
         end
     end
 end
+
+@deftag macro product_gallery end
+@deftag macro product_details end
+@deftag macro product_card end
+@deftag macro product_page end
 ```
 
 ## Dashboard with Streaming Data
@@ -430,12 +439,11 @@ function stream_dashboard_data(io)
                     # Fetch and render data asynchronously
                     metrics = fetch_metrics()
                     
-                    # Replace loading with actual content
-                    @script """
-                    document.getElementById('metrics-container').innerHTML = `
-                        $(render_metrics_html(metrics))
-                    `;
-                    """
+                    # Replace loading state with actual metrics
+                    # Note: In real streaming, this would be sent as a separate chunk
+                    @div {id = "metrics-actual"} begin
+                        render_metrics_component(metrics)
+                    end
                     
                     # Activity log that streams
                     @section {class = "activity-log"} begin

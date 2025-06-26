@@ -129,76 +129,101 @@ HTTP.serve(template_middleware(my_handler), "0.0.0.0", 8080)
 
 ## Bonito.jl Integration
 
-Bonito.jl integration enables interactive web applications with client-server communication.
+Bonito.jl integration enables using HypertextTemplates within Bonito applications for building interactive web apps.
 
-### Basic Bonito App
+### Basic Bonito App with HypertextTemplates
 
 ```julia
 using Bonito
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Create an interactive component
-@component function counter_app()
-    count = Observable(0)
-    
-    @div begin
-        @h1 "Counter: " $(count)
-        @button {
-            onclick = js"() => { $(count)[] = $(count)[] + 1 }"
-        } "Increment"
-        @button {
-            onclick = js"() => { $(count)[] = 0 }"
-        } "Reset"
+# HypertextTemplates renders static HTML that Bonito can enhance
+@component function app_layout(; content)
+    @div {class = "app"} begin
+        @header begin
+            @h1 "My Bonito App"
+        end
+        @main begin
+            @<content
+        end
     end
 end
 
-# Serve the app
+# Use within Bonito
 App() do session
-    return @render @counter_app
+    # Render static structure with HypertextTemplates
+    html_content = @render @app_layout {
+        content = @component() begin
+            @div {id = "counter"} "0"
+            @button {id = "increment"} "Increment"
+        end
+    }
+    
+    # Bonito adds interactivity
+    return DOM.div(
+        Bonito.jsrender(session, html_content),
+        js"""
+        document.getElementById('increment').onclick = function() {
+            const counter = document.getElementById('counter');
+            counter.textContent = parseInt(counter.textContent) + 1;
+        }
+        """
+    )
 end
 ```
 
-### Reactive Components
+### Using HypertextTemplates for Bonito UI Structure
 
-Build reactive UIs with Observables:
+HypertextTemplates can provide the HTML structure that Bonito makes interactive:
 
 ```julia
-@component function todo_app()
-    todos = Observable(String[])
-    new_todo = Observable("")
-    
+# Define UI structure with HypertextTemplates
+@component function todo_list_template(; items = String[])
     @div {class = "todo-app"} begin
         @h1 "Todo List"
-        
-        @input {
-            type = "text",
-            value = new_todo,
-            placeholder = "Add a todo...",
-            onchange = js"(e) => { $(new_todo)[] = e.target.value }"
-        }
-        
-        @button {
-            onclick = js"""() => {
-                if ($(new_todo)[].trim() !== '') {
-                    $(todos)[] = [...$(todos)[], $(new_todo)[]]
-                    $(new_todo)[] = ''
-                }
-            }"""
-        } "Add"
-        
-        @ul begin
-            map(enumerate(todos[])) do (i, todo)
-                @li begin
-                    $todo
-                    @button {
-                        onclick = js"""() => {
-                            $(todos)[] = $(todos)[].filter((_, idx) => idx !== $(i-1))
-                        }"""
-                    } "Delete"
+        @div {class = "todo-form"} begin
+            @input {
+                type = "text",
+                id = "new-todo",
+                placeholder = "Add a todo..."
+            }
+            @button {id = "add-todo"} "Add"
+        end
+        @ul {id = "todo-list"} begin
+            for (i, item) in enumerate(items)
+                @li {"data-index" := i} begin
+                    @span $item
+                    @button {class = "delete-btn"} "Delete"
                 end
             end
         end
+    end
+end
+
+# Use in Bonito with reactivity
+function create_todo_app()
+    todos = Observable(String[])
+    
+    App() do session
+        # Render initial HTML
+        html = @render @todo_list_template {items = todos[]}
+        
+        # Bonito handles the reactive updates
+        return DOM.div(
+            html,
+            # JavaScript for interactivity
+            js"""
+            // Add todo logic
+            document.getElementById('add-todo').onclick = function() {
+                const input = document.getElementById('new-todo');
+                if (input.value.trim()) {
+                    // Bonito would handle updating the Observable
+                    input.value = '';
+                }
+            }
+            """
+        )
     end
 end
 ```
@@ -347,26 +372,28 @@ using HypertextTemplates
 end
 ```
 
-#### 2. Render Methods
+#### 2. Component Wrappers for Custom Types
 
-Add render methods for custom types:
+Create components that wrap custom types:
 
 ```julia
-import HypertextTemplates: render
-
-# Define how to render your custom type
-function render(io::IO, ::Type{MyCustomType}, obj::MyCustomType)
-    @render io @div {class = "my-custom-type"} begin
+# Define a component for your custom type
+@component function render_custom_type(; obj::MyCustomType)
+    @div {class = "my-custom-type"} begin
         @h3 $(obj.title)
         @p $(obj.description)
     end
 end
+@deftag macro render_custom_type end
 
-# Now can use directly in templates
+# Helper function for convenience
+render_custom(obj::MyCustomType) = @render_custom_type {obj}
+
+# Usage in templates
 obj = MyCustomType("Title", "Description")
 @render @div begin
     @h1 "Page"
-    $(obj)  # Automatically rendered
+    @render_custom_type {obj}
 end
 ```
 

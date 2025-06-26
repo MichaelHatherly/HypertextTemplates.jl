@@ -424,6 +424,36 @@ end
 } "Styled div"
 ```
 
+### Complex Data Attributes
+
+Working with structured data attributes:
+
+```julia
+# For complex data, use JSON serialization
+using JSON
+
+@component function interactive_widget(; config)
+    @div {
+        class = "widget",
+        "data-config" := JSON.json(config),
+        "data-initialized" := "false"
+    } begin
+        @__slot__
+    end
+end
+
+# Usage
+@render @interactive_widget {
+    config = Dict(
+        "theme" => "dark",
+        "features" => ["search", "filter"],
+        "maxItems" => 50
+    )
+} begin
+    @p "Widget content"
+end
+```
+
 ## Best Practices
 
 ### 1. Use Semantic HTML

@@ -184,6 +184,21 @@ end
 # ...
 ```
 
+### Rendering Pipeline
+
+The rendering pipeline works as follows:
+
+1. **Macro Expansion**: Templates are transformed into Julia code at compile time
+2. **IO Target**: All output goes to an IO stream (provided or created)
+3. **Direct Writing**: HTML strings and escaped content are written directly
+4. **No Buffering**: Content flows straight through without intermediate storage
+
+This design means:
+- Memory usage is constant regardless of output size
+- First byte is written immediately (no buffering)
+- Suitable for very large documents
+- Optimal for streaming responses
+
 ## Control Flow Integration
 
 ### Loops
@@ -280,10 +295,23 @@ end
 ### Component Transformation
 
 The `@component` macro transforms the function to:
-1. Accept rendering context
-2. Handle slot content
-3. Manage source location tracking
-4. Support streaming render
+1. Accept rendering context (IO stream)
+2. Handle slot content (both default and named slots)
+3. Manage source location tracking (in development mode)
+4. Support streaming render (for async operations)
+
+For example, this component:
+```julia
+@component function example(; prop)
+    @div $prop
+end
+```
+
+Is transformed into a function that:
+- Accepts an internal `__io__` parameter for rendering
+- Can receive slot content via hidden parameters
+- Tracks its definition location for debugging
+- Works seamlessly with `StreamingRender`
 
 ## Performance Considerations
 

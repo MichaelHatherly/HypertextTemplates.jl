@@ -206,6 +206,19 @@ function safe_url(url)
     end
 end
 
+# More comprehensive URL validation
+function validate_url(url; allowed_schemes = ["http", "https", "mailto"])
+    try
+        parsed = URI(url)
+        if parsed.scheme in allowed_schemes || isempty(parsed.scheme)
+            return url
+        end
+    catch
+        # Invalid URL
+    end
+    return "#"  # Safe fallback
+end
+
 @component function link_list(; links)
     @ul begin
         for link in links
@@ -271,6 +284,21 @@ user_html = get_user_input()
 const app = document.getElementById('app');
 const username = app.dataset.username;  // Safely encoded
 """
+
+# For complex data, use JSON in data attributes
+using JSON
+@component function data_component(; config)
+    @div {
+        id = "widget",
+        "data-config" := JSON.json(config)  # JSON is safely encoded
+    } begin
+        @script """
+        const widget = document.getElementById('widget');
+        const config = JSON.parse(widget.dataset.config);
+        // Now config is safely loaded
+        """
+    end
+end
 ```
 
 ## Security Best Practices

@@ -13,7 +13,10 @@ Components are defined using the `@component` macro applied to a function:
     end
 end
 
-# Usage
+# Important: Define a macro for the component
+@deftag macro greeting end
+
+# Now you can use it
 html = @render @greeting {name = "Julia"}
 ```
 
@@ -31,6 +34,8 @@ Props are passed as keyword arguments to component functions:
     end
 end
 
+@deftag macro user_card end
+
 # Must provide both props
 @render @user_card {username = "julia_dev", email = "julia@example.com"}
 ```
@@ -47,6 +52,8 @@ end
     classes = "btn btn-" * variant
     @button {type, class = classes, disabled} $text
 end
+
+@deftag macro button end
 
 # Use with defaults
 @render @button {}
@@ -91,6 +98,8 @@ The simplest form - a single content area:
     end
 end
 
+@deftag macro card end
+
 # Usage with content
 @render @card {title = "User Profile"} begin
     @p "Name: Alice"
@@ -116,6 +125,8 @@ For more complex layouts with multiple content areas:
         end
     end
 end
+
+@deftag macro layout end
 
 # Usage with named slots
 @render @layout begin
@@ -396,11 +407,11 @@ Separate logic from presentation:
 
 ```julia
 # Presenter component (pure UI)
-@component function user_list_view(; users, onUserClick = nothing)
+@component function user_list_view(; users)
     @div {class = "user-list"} begin
         for user in users
-            onclick = isnothing(onUserClick) ? nothing : () -> onUserClick(user.id)
-            @div {class = "user-item", "data-id" := user.id} begin
+            # Use data attributes for JavaScript interaction
+            @div {class = "user-item", "data-user-id" := user.id} begin
                 @img {src = user.avatar, alt = user.name}
                 @span $user.name
             end
@@ -412,10 +423,19 @@ end
 @component function user_list_container()
     users = fetch_users()  # Get data
     
-    @user_list_view {
-        users = users,
-        onUserClick = id -> select_user(id)
-    }
+    @div begin
+        @user_list_view {users}
+        
+        # Add JavaScript for interaction
+        @script """
+        document.querySelectorAll('.user-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const userId = item.dataset.userId;
+                // Handle user selection
+            });
+        });
+        """
+    end
 end
 ```
 
@@ -490,27 +510,34 @@ end
 end
 ```
 
-### Renderless Components
+### Provider Components
 
-Components that provide functionality without specific markup:
+Components that provide context or wrapper functionality:
 
 ```julia
-@component function mouse_tracker(; render)
-    # This is a conceptual example
-    # In practice, you'd need client-side JS
-    mouse_position = (x = 0, y = 0)
-    
-    # Render prop pattern
-    @<render {position = mouse_position}
+@component function error_boundary(; children)
+    try
+        @<children
+    catch e
+        @div {class = "error-boundary"} begin
+            @h2 "Something went wrong"
+            @p "We encountered an error while rendering this section."
+            if isdefined(Main, :DEBUG) && Main.DEBUG
+                @details begin
+                    @summary "Error details"
+                    @pre $(sprint(showerror, e))
+                end
+            end
+        end
+    end
 end
 
-# Usage
-@render @mouse_tracker {
-    render = @component function(; position)
-        @div "Mouse at: $(position.x), $(position.y)"
+# Usage - wrap components that might fail
+@render @error_boundary {
+    children = @component() begin
+        @risky_component {data = potentially_missing_data}
     end
 }
-```
 
 ## Best Practices
 

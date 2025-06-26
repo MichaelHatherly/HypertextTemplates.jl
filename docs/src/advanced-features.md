@@ -395,27 +395,25 @@ end
 
 ### Portal Pattern
 
-Render content outside the current DOM hierarchy:
+Render content outside the current DOM hierarchy (note: this is a conceptual example - in practice, portals require client-side JavaScript):
 
 ```julia
-# Global portal targets
-const PORTALS = Dict{Symbol,Vector{Any}}()
+# This shows the pattern, but real implementation would need
+# client-side JavaScript to move DOM nodes
 
-@component function portal(; to, content)
-    # Register content for rendering elsewhere
-    push!(get!(PORTALS, to, []), content)
-    # Return nothing in current position
-    @text ""
-end
-
-@component function portal_target(; name)
-    contents = get(PORTALS, name, [])
-    @div {id = "portal-$name"} begin
-        for content in contents
-            @<content
+@component function modal_portal(; show = false, content)
+    if show
+        # In a real app, this would be rendered at body level
+        # and positioned with CSS
+        @div {
+            class = "modal-backdrop",
+            style = "position: fixed; inset: 0; background: rgba(0,0,0,0.5);"
+        } begin
+            @div {class = "modal-content"} begin
+                @<content
+            end
         end
     end
-    empty!(contents)  # Clear after rendering
 end
 
 # Usage
@@ -471,25 +469,39 @@ end
 end
 ```
 
-### Async Component Pattern
+### Lazy Loading Pattern
 
-Handle async operations in components:
+Load data on-demand during rendering:
 
 ```julia
-@component function async_data(; loader, fallback = nothing)
-    # This is a simplified example
-    # In practice, you'd need proper async handling
-    task = @async loader()
-    
-    if istaskdone(task)
-        data = fetch(task)
-        @div {class = "loaded"} @__slot__ data
+@component function lazy_data(; data_loader, cache_key = nothing)
+    # Load data during render (blocking)
+    data = if !isnothing(cache_key) && haskey(DATA_CACHE, cache_key)
+        DATA_CACHE[cache_key]
     else
-        if !isnothing(fallback)
-            @<fallback
-        else
-            @div {class = "loading"} "Loading..."
+        result = data_loader()
+        if !isnothing(cache_key)
+            DATA_CACHE[cache_key] = result
         end
+        result
+    end
+    
+    @div {class = "data-container"} begin
+        if isempty(data)
+            @p {class = "empty"} "No data available"
+        else
+            @__slot__ data
+        end
+    end
+end
+
+# Usage
+@render @lazy_data {
+    cache_key = "users",
+    data_loader = () -> fetch_users_from_db()
+} begin
+    data -> @ul for user in data
+        @li $user.name
     end
 end
 ```

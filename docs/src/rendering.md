@@ -207,6 +207,24 @@ stream = StreamingRender() do io
 end
 ```
 
+### StreamingRender Configuration
+
+Configure streaming behavior through IOContext:
+
+```julia
+# Custom buffering settings
+io = IOContext(
+    stdout,
+    :stream_buffer_size => 512,      # Larger buffer (default: 256)
+    :stream_timeout_ms => 5,          # Longer timeout (default: 1)
+    :stream_threshold => 128          # Higher immediate send threshold (default: 64)
+)
+
+stream = StreamingRender() do render_io
+    @render IOContext(render_io, io) @large_document
+end
+```
+
 ### Error Handling in Streams
 
 Handle errors gracefully in streaming contexts:
