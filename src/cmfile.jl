@@ -1,21 +1,101 @@
 """
     @cm_component component_name(; props...) = "file_name.md"
 
-Creates a new `@component` definition from a markdown file. The `CommonMark.jl`
-package is used to parsed and render the contents of the file hence that
-package must be installed as a dependency, since this features is provided via
-the package extension mechanism.
+Create a component from a Markdown file.
 
-Just as with a regular `@component` you can provide `props` to a markdown
-component that will be used in any interpolated values (using the `CommonMark`
-`\$` syntax for interpolation).
+This macro creates a component that renders Markdown content from a file. The
+Markdown is parsed using CommonMark.jl and can include interpolated values using
+`\$variable` syntax.
 
-When `Revise.jl` is active and tracking the package which contains a
-`@cm_component` definition updates to the source markdown file are tracked and
-will cause the rendered component to be updated without the need to redefine
-the component manually. If `Revise.jl` is not active then the component
-definition's markdown AST is generated at compile-time and reused on each
-render.
+!!! note
+    This feature requires CommonMark.jl to be installed as it's provided via
+    Julia's package extension mechanism.
+
+# Arguments
+- `component_name`: Name for the component function
+- `props...`: Optional keyword arguments that can be interpolated in the Markdown
+- `file_name.md`: Path to the Markdown file (relative to the current file)
+
+# Features
+- **Interpolation**: Use `\$prop_name` in Markdown to insert prop values
+- **Live reload**: With Revise.jl, changes to the Markdown file auto-update
+- **Compile-time parsing**: Without Revise.jl, Markdown is parsed at compile time for performance
+
+# Examples
+
+## Basic usage
+```julia
+# In article.md:
+# # \$title
+# 
+# By \$author on \$date
+# 
+# \$content
+
+# In your Julia code:
+using HypertextTemplates, HypertextTemplates.Elements
+using CommonMark
+
+@cm_component article(; title, author, date, content) = "article.md"
+@deftag macro article end
+
+@render @article {
+    title = "Hello World",
+    author = "Jane Doe",
+    date = "2024-01-15",
+    content = "This is my first post!"
+}
+```
+
+## Directory structure
+```julia
+# components/header.md contains:
+# # \$site_name
+# 
+# *\$tagline*
+
+# In components/components.jl:
+@cm_component header(; site_name, tagline = "Welcome") = "header.md"
+
+# Path is relative to the file containing @cm_component
+```
+
+## With default values
+```julia
+@cm_component footer(; copyright_year = 2024, company = "Acme Corp") = "footer.md"
+@deftag macro footer end
+
+# Uses defaults
+@render @footer
+
+# Override defaults
+@render @footer {copyright_year = 2025}
+```
+
+## Complex content interpolation
+```julia
+# In template.md:
+# # Product: \$name
+# 
+# Price: \$\$\$price
+# 
+# \$description
+
+@cm_component product_card(; name, price, description) = "template.md"
+@deftag macro product_card end
+
+@render @product_card {
+    name = "Widget",
+    price = 19.99,
+    description = "A **fantastic** widget with _many_ features!"
+}
+```
+
+!!! tip "Development workflow"
+    When using Revise.jl, you can edit the Markdown file and see changes
+    immediately without restarting Julia or redefining the component.
+
+See also: [`@component`](@ref), [`SafeString`](@ref)
 """
 macro cm_component(expr)
     name, parameters, path = if MacroTools.@capture(expr, name_(; parameters__) = path_)

@@ -1,12 +1,68 @@
 """
     @render [destination] dom
 
-Renders the `dom` tree to the `destination` object.
-When no `destination` is provided then the `dom` is rendered
-directly to `String` and returned as the value of the expression.
+Render a template to the given destination.
 
-This is only needed for rendering the root of the DOM tree, not for the
+If no destination is provided, renders to a `String` and returns it. The destination 
+can be any IO object (e.g., `stdout`, `IOBuffer`, file handle) or a type like 
+`String` or `Vector{UInt8}`.
+
+This macro is only needed for rendering the root of the DOM tree, not for the
 output of each individual component that is defined.
+
+# Arguments
+- `destination`: Optional IO object or type to render to (default: `String`)
+- `dom`: The template expression to render
+
+# Examples
+```jldoctest
+julia> using HypertextTemplates, HypertextTemplates.Elements
+
+julia> @render @div "Hello, World!"
+"<div>Hello, World!</div>"
+
+julia> buffer = IOBuffer();
+
+julia> @render buffer @span {class = "greeting"} "Hi!"
+
+julia> String(take!(buffer))
+"<span class=\"greeting\">Hi!</span>"
+
+julia> @render Vector{UInt8} @p "Binary output"
+21-element Vector{UInt8}:
+ 0x3c
+ 0x70
+ 0x3e
+ 0x42
+ 0x69
+ 0x6e
+ 0x61
+ 0x72
+ 0x79
+ 0x20
+ 0x6f
+ 0x75
+ 0x74
+ 0x70
+ 0x75
+ 0x74
+ 0x3c
+ 0x2f
+ 0x70
+ 0x3e
+```
+
+# Rendering to files
+```julia
+open("output.html", "w") do file
+    @render file @html begin
+        @head @title "My Page"
+        @body @h1 "Hello!"
+    end
+end
+```
+
+See also: [`StreamingRender`](@ref), [`@component`](@ref)
 """
 macro render(destination, dom)
     thunk = Expr(:->, Expr(:tuple, S"io", S"revise"), dom)
