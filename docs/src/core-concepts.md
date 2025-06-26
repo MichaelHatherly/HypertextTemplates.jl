@@ -20,9 +20,12 @@ HypertextTemplates.jl uses Julia's macro system to create a domain-specific lang
 
 The DSL feels like natural Julia code because it *is* Julia code:
 
-```julia
+```@example control-flow
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Regular Julia control flow works seamlessly
-@ul begin
+@render @ul begin
     for i in 1:5
         if isodd(i)
             @li {class = "odd"} "Item " $i
@@ -53,49 +56,63 @@ Attributes in HypertextTemplates use a special `{}` syntax that resembles Julia'
 
 ### Basic Attributes
 
-```julia
+```@example attributes-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Simple attributes
-@div {id = "main", class = "container"}
+@render @div {id = "main", class = "container"} "Content"
+```
+
+```@example attributes-computed
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Computed attributes
 width = 100
-@img {src = "/logo.png", width = width * 2}
+@render @img {src = "/logo.png", width = width * 2}
 ```
 
 ### Attribute Name Shortcuts
 
 When variable names match attribute names:
 
-```julia
+```@example shortcuts
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 class = "active"
 disabled = true
 
 # Instead of {class = class, disabled = disabled}
-@button {class, disabled} "Click me"
+@render @button {class, disabled} "Click me"
 ```
 
 ### Attribute Spreading
 
 Spread multiple attributes from a collection:
 
-```julia
+```@example spreading
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 common_attrs = (class = "btn", type = "button")
-@button {id = "submit", common_attrs...} "Submit"
-# Renders: <button id="submit" class="btn" type="button">Submit</button>
+@render @button {id = "submit", common_attrs...} "Submit"
 ```
 
 ### Boolean Attributes
 
 Boolean handling follows HTML5 semantics:
 
-```julia
+```@example booleans
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # true renders the attribute name only
-@input {type = "checkbox", checked = true}
-# Renders: <input type="checkbox" checked>
+println(@render @input {type = "checkbox", checked = true})
 
 # false omits the attribute entirely
-@input {type = "checkbox", checked = false}
-# Renders: <input type="checkbox">
+println(@render @input {type = "checkbox", checked = false})
 ```
 
 ## Text Rendering and Interpolation

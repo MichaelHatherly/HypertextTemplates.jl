@@ -23,7 +23,7 @@ pkg> add HypertextTemplates
 
 HypertextTemplates provides HTML elements as macros. Here's a simple example:
 
-```julia
+```@example basic
 using HypertextTemplates
 using HypertextTemplates.Elements
 
@@ -34,15 +34,16 @@ html = @render @div begin
 end
 
 println(html)
-# Output:
-# <div><h1>Welcome to HypertextTemplates!</h1><p>This is a simple example.</p></div>
 ```
 
 ### Adding Attributes
 
 Attributes are specified using `{}` syntax:
 
-```julia
+```@example attributes
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 html = @render @div {id = "main", class = "container"} begin
     @h1 {class = "title"} "Styled Heading"
     @p {style = "color: blue;"} "Blue text"
@@ -53,7 +54,10 @@ end
 
 Variables and expressions can be included using the `$` syntax:
 
-```julia
+```@example variables
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 name = "Julia"
 count = 42
 
@@ -68,7 +72,10 @@ end
 
 Let's create a complete HTML page:
 
-```julia
+```@example complete-page
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function page(; title, content)
     @html begin
         @head begin
@@ -85,6 +92,8 @@ Let's create a complete HTML page:
     end
 end
 
+@deftag macro page end
+
 # Use the page component
 html = @render @page {
     title = "My First Page",
@@ -97,13 +106,17 @@ html = @render @page {
         end
     end
 }
+println(html)
 ```
 
 ## Working with Loops
 
 Julia's control flow integrates naturally:
 
-```julia
+```@example loops
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 items = ["Apple", "Banana", "Cherry"]
 
 html = @render @ul begin
@@ -111,8 +124,15 @@ html = @render @ul begin
         @li $item
     end
 end
+```
 
-# Or with enumeration
+```@example loops2
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+items = ["Apple", "Banana", "Cherry"]
+
+# With enumeration
 html = @render @ol begin
     for (i, item) in enumerate(items)
         @li {value = i * 10} "Item " $i ": " $item
@@ -124,7 +144,10 @@ end
 
 Use standard Julia conditionals:
 
-```julia
+```@example conditional
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 user_logged_in = true
 username = "julia_dev"
 
@@ -143,7 +166,10 @@ end
 
 Components are reusable template functions:
 
-```julia
+```@example first-component
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function card(; title, description, link_url = nothing, link_text = "Learn more")
     @div {class = "card"} begin
         @h3 {class = "card-title"} $title
@@ -170,6 +196,7 @@ html = @render @div {class = "card-grid"} begin
         link_text = "Explore"
     }
 end
+println(html)
 ```
 
 ### Understanding the Component System

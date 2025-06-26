@@ -28,7 +28,10 @@ end
 
 #### CSS Dependencies
 
-```julia
+```@example once-css
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function styled_button(; text, variant = "primary")
     @__once__ begin
         @style """
@@ -46,12 +49,16 @@ end
     @button {class = "btn btn-$variant"} $text
 end
 
+@deftag macro styled_button end
+
 # Style block rendered once, buttons rendered multiple times
-@render @div begin
+html = @render @div begin
     @styled_button {text = "Save", variant = "primary"}
     @styled_button {text = "Delete", variant = "danger"}
     @styled_button {text = "Cancel"}
 end
+println(html)
+# Note: The <style> block appears only once at the beginning!
 ```
 
 #### JavaScript Initialization
@@ -103,7 +110,10 @@ Create custom macros for components and elements for cleaner syntax.
 
 ### Basic Definition
 
-```julia
+```@example deftag-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Define a component
 @component function alert(; type = "info", dismissible = false)
     @div {class = "alert alert-$type"} begin
@@ -118,9 +128,14 @@ end
 @deftag macro alert end
 
 # Now use as a regular element macro
-@render @alert {type = "warning", dismissible = true} begin
+html = @render @alert {type = "warning", dismissible = true} begin
     @strong "Warning!" " Something went wrong."
 end
+println(html)
+
+# Also works without dismissible
+html2 = @render @alert {type = "info"} "This is an info message."
+println(html2)
 ```
 
 ### Custom Element Tags
@@ -160,42 +175,56 @@ The `$` syntax provides convenient text interpolation, similar to string interpo
 
 ### Basic Interpolation
 
-```julia
+```@example basic-interp
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 name = "Julia"
 version = 1.9
 
-@render @div begin
+html = @render @div begin
     @h1 "Welcome to " $name " v" $version
 end
+println(html)
 # Equivalent to:
 # @h1 "Welcome to " @text name " v" @text version
 ```
 
 ### Expression Interpolation
 
-```julia
+```@example expr-interp
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 items = ["apple", "banana", "cherry"]
 
-@render @ul begin
+html = @render @ul begin
     for (i, item) in enumerate(items)
         @li "Item " $i ": " $(uppercase(item))
     end
 end
+println(html)
 ```
 
 ### Nested Interpolation
 
-```julia
+```@example nested-interp
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function price_display(; amount, currency = "$")
     @span {class = "price"} begin
         $currency $(round(amount, digits=2))
     end
 end
 
-@render @div begin
+@deftag macro price_display end
+
+html = @render @div begin
     "Total: " @price_display {amount = 99.999}
+    " (Tax included: " @price_display {amount = 99.999 * 1.1} ")"
 end
-# Output: <div>Total: <span class="price">$100.0</span></div>
+println(html)
 ```
 
 ## Dynamic Component Selection
@@ -204,7 +233,23 @@ The `@<` macro enables dynamic component rendering.
 
 ### Component as Variable
 
-```julia
+```@example dynamic-component
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define the specific components first
+@component error_message(; content)
+    @div {class = "error"} @strong "Error: " $content
+end
+
+@component warning_message(; content)
+    @div {class = "warning"} @strong "Warning: " $content
+end
+
+@component info_message(; content)
+    @div {class = "info"} @strong "Info: " $content
+end
+
 # Select component based on condition
 @component function message(; type, content)
     component = if type == "error"
@@ -218,18 +263,15 @@ The `@<` macro enables dynamic component rendering.
     @<component {content}
 end
 
-# Define the specific components
-@component error_message(; content)
-    @div {class = "error"} @strong "Error: " $content
-end
+@deftag macro message end
 
-@component warning_message(; content)
-    @div {class = "warning"} @strong "Warning: " $content
+# Usage
+html = @render @div begin
+    @message {type = "error", content = "File not found"}
+    @message {type = "warning", content = "Disk space low"}
+    @message {type = "info", content = "Process completed"}
 end
-
-@component info_message(; content)
-    @div {class = "info"} @strong "Info: " $content
-end
+println(html)
 ```
 
 ### Polymorphic Components

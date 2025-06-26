@@ -6,7 +6,10 @@ Components are the building blocks for creating reusable, maintainable templates
 
 Components are defined using the `@component` macro applied to a function:
 
-```julia
+```@example basic-component
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function greeting(; name = "World")
     @div {class = "greeting"} begin
         @h1 "Hello, " $name "!"
@@ -18,6 +21,11 @@ end
 
 # Now you can use it
 html = @render @greeting {name = "Julia"}
+println(html)
+
+# Also works with default value
+html2 = @render @greeting
+println(html2)
 ```
 
 ## Component Properties (Props)
@@ -26,7 +34,10 @@ Props are passed as keyword arguments to component functions:
 
 ### Required Props
 
-```julia
+```@example required-props
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function user_card(; username, email)  # Both required
     @div {class = "user-card"} begin
         @h3 $username
@@ -37,12 +48,16 @@ end
 @deftag macro user_card end
 
 # Must provide both props
-@render @user_card {username = "julia_dev", email = "julia@example.com"}
+html = @render @user_card {username = "julia_dev", email = "julia@example.com"}
+println(html)
 ```
 
 ### Optional Props with Defaults
 
-```julia
+```@example optional-props
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function button(; 
     text = "Click me",
     type = "button",
@@ -56,17 +71,23 @@ end
 @deftag macro button end
 
 # Use with defaults
-@render @button {}
+println(@render @button {})
 
 # Override specific props
-@render @button {text = "Submit", variant = "success"}
+println(@render @button {text = "Submit", variant = "success"})
+
+# With disabled state
+println(@render @button {text = "Loading...", disabled = true})
 ```
 
 ### Typed Props
 
 Leverage Julia's type system for safer components:
 
-```julia
+```@example typed-props
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function product_price(; 
     amount::Number,
     currency::String = "USD",
@@ -78,6 +99,12 @@ Leverage Julia's type system for safer components:
         @span {class = "amount"} $formatted
     end
 end
+
+@deftag macro product_price end
+
+# Usage with different types
+println(@render @product_price {amount = 29.99})
+println(@render @product_price {amount = 100, currency = "EUR", decimal_places = 0})
 ```
 
 ## Slots System
@@ -88,7 +115,10 @@ Slots allow components to accept content from their parent, enabling flexible co
 
 The simplest form - a single content area:
 
-```julia
+```@example default-slot
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function card(; title)
     @div {class = "card"} begin
         @div {class = "card-header"} @h3 $title
@@ -101,10 +131,11 @@ end
 @deftag macro card end
 
 # Usage with content
-@render @card {title = "User Profile"} begin
+html = @render @card {title = "User Profile"} begin
     @p "Name: Alice"
     @p "Role: Developer"
 end
+println(html)
 ```
 
 ### Named Slots
@@ -205,11 +236,16 @@ Components can use other components, enabling powerful composition patterns:
 
 ### Basic Composition
 
-```julia
+```@example component-composition
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function nav_link(; href, active = false)
     class = active ? "nav-link active" : "nav-link"
     @a {href, class} @__slot__
 end
+
+@deftag macro nav_link end
 
 @component function navbar(; links, current_path = "/")
     @nav {class = "navbar"} begin
@@ -228,6 +264,8 @@ end
     end
 end
 
+@deftag macro navbar end
+
 # Usage
 links = [
     (href = "/", text = "Home"),
@@ -235,7 +273,8 @@ links = [
     (href = "/contact", text = "Contact")
 ]
 
-@render @navbar {links, current_path = "/about"}
+html = @render @navbar {links, current_path = "/about"}
+println(html)
 ```
 
 ### Higher-Order Components

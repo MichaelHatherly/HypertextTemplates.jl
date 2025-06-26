@@ -23,7 +23,10 @@ html = @render @p "User said: " $user_input
 
 The escaping system handles these special characters:
 
-```julia
+```@example special-chars
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # These characters are escaped in dynamic content:
 # & becomes &amp;
 # < becomes &lt;
@@ -32,24 +35,27 @@ The escaping system handles these special characters:
 # ' becomes &#39;
 
 malicious = """<img src="x" onerror="alert('xss')">"""
-@render @div $malicious
-# Output: <div>&lt;img src=&quot;x&quot; onerror=&quot;alert('xss')&quot;&gt;</div>
+html = @render @div $malicious
+println(html)
 ```
 
 ### Escaping in Attributes
 
 Attribute values from variables are also escaped:
 
-```julia
+```@example attr-escape
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Attribute injection attempt
 user_class = "normal\" onclick=\"alert('xss')"
-@render @div {class = user_class} "Content"
-# Output: <div class="normal&quot; onclick=&quot;alert('xss')">Content</div>
+html = @render @div {class = user_class} "Content"
+println(html)
 
 # URL injection protection  
 user_url = "javascript:alert('xss')"
-@render @a {href = user_url} "Click"
-# Output: <a href="javascript:alert('xss')">Click</a>
+html2 = @render @a {href = user_url} "Click"
+println(html2)
 # Note: URL sanitization should be done at application level
 ```
 
@@ -59,15 +65,19 @@ When you have pre-escaped or trusted HTML content, use `SafeString`:
 
 ### Creating Safe Content
 
-```julia
+```@example safestring-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Mark content as safe (already escaped)
 safe_html = SafeString("<strong>Bold text</strong>")
-@render @div $safe_html
-# Output: <div><strong>Bold text</strong></div>
+html = @render @div $safe_html
+println(html)
 
-# Useful for pre-rendered content
-markdown_html = markdown_to_html(user_markdown)
-@render @article $(SafeString(markdown_html))
+# Compare with regular string (gets escaped)
+regular_html = "<strong>Bold text</strong>"
+html2 = @render @div $regular_html
+println(html2)
 ```
 
 ### When to Use SafeString
@@ -150,7 +160,10 @@ user_name = "<script>alert('xss')</script>"
 
 Always validate and sanitize user input at the application level:
 
-```julia
+```@example sanitize-input
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function user_profile(; username, bio, website)
     # Validate username (alphanumeric only)
     clean_username = replace(username, r"[^a-zA-Z0-9_-]" => "")
@@ -168,6 +181,24 @@ Always validate and sanitize user input at the application level:
         @a {href = safe_website, rel = "noopener"} "Website"
     end
 end
+
+@deftag macro user_profile end
+
+# Safe usage
+html = @render @user_profile {
+    username = "alice_dev<script>",  # Script tag removed
+    bio = "I love <b>coding</b>!",   # HTML escaped
+    website = "https://example.com"
+}
+println(html)
+
+# Unsafe input handled
+html2 = @render @user_profile {
+    username = "bob@#$%",  # Special chars removed
+    bio = "<script>alert('xss')</script>",  # Escaped
+    website = "javascript:alert('xss')"  # Rejected
+}
+println(html2)
 ```
 
 ### Content Security Policy

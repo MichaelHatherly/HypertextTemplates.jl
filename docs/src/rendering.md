@@ -24,43 +24,37 @@ end
 
 Render directly to an IO stream for better performance:
 
-```julia
+```@example iobuffer-render
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Render to IOBuffer
 buffer = IOBuffer()
 @render buffer @div begin
-    @h1 "Large Document"
-    for i in 1:1000
+    @h1 "Small Document"
+    for i in 1:3
         @p "Paragraph $i"
     end
 end
 result = String(take!(buffer))
-
-# Render to file
-open("output.html", "w") do file
-    @render file @html begin
-        @head @title "My Page"
-        @body @h1 "Content"
-    end
-end
-
-# Render to stdout
-@render stdout @div "Prints directly to console"
+println(result)
 ```
 
 ### Output Type Control
 
 Specify the desired output type:
 
-```julia
+```@example output-types
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Render to String (explicit)
 str = @render String @div "Content"
+println(typeof(str), ": ", str)
 
 # Render to Vector{UInt8}
 bytes = @render Vector{UInt8} @div "Binary content"
-
-# Custom types (if supported)
-# The type must have an appropriate method defined
-custom = @render MyCustomType @div "Content"
+println(typeof(bytes), ": ", String(bytes))
 ```
 
 ## Zero-Allocation Design
@@ -134,28 +128,35 @@ For large documents or slow-loading content, use `StreamingRender` to send conte
 
 ### Basic Streaming
 
-```julia
+```@example streaming-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Create a streaming render iterator
+buffer = IOBuffer()
 stream = StreamingRender() do io
     @render io @div begin
-        @h1 "Instant content"
+        @h1 "Streaming Example"
         
-        # Simulate slow data loading
-        sleep(1)
-        data = load_data()
-        
-        @section begin
-            for item in data
-                @article process_item(item)
+        # Render multiple sections
+        for i in 1:3
+            @section begin
+                @h2 "Section $i"
+                @p "This is paragraph $i"
             end
         end
     end
 end
 
 # Consume the stream
+chunks = String[]
 for chunk in stream
-    write(output, chunk)
-    flush(output)  # Send immediately to client
+    push!(chunks, String(chunk))
+end
+
+println("Streamed $(length(chunks)) chunks:")
+for (i, chunk) in enumerate(chunks)
+    println("Chunk $i: ", repr(chunk))
 end
 ```
 
@@ -273,7 +274,10 @@ end
 
 Move computations outside of render loops:
 
-```julia
+```@example optimize-precompute
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function optimized_table(; rows, columns)
     # Precompute column headers
     headers = [col.title for col in columns]
@@ -296,6 +300,19 @@ Move computations outside of render loops:
         end
     end
 end
+
+@deftag macro optimized_table end
+
+# Example usage
+columns = [(title = "ID",), (title = "Name",), (title = "Score",)]
+rows = [
+    ["1", "Alice", "95"],
+    ["2", "Bob", "87"],
+    ["3", "Charlie", "92"]
+]
+
+html = @render @optimized_table {rows, columns}
+println(html)
 ```
 
 ### 3. Avoid Repeated Allocations

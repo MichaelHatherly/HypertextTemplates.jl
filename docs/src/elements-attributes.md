@@ -64,17 +64,25 @@ end
 
 Attributes are specified using `{}` with key-value pairs:
 
-```julia
+```@example basic-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Single attribute
-@div {id = "main"} "Content"
+println(@render @div {id = "main"} "Content")
 
 # Multiple attributes
-@a {href = "/home", class = "nav-link", target = "_blank"} "Home"
+println(@render @a {href = "/home", class = "nav-link", target = "_blank"} "Home")
+```
+
+```@example computed-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Computed attributes
 width = 300
 height = 200
-@img {src = "/photo.jpg", width, height, alt = "Photo"}
+@render @img {src = "/photo.jpg", width, height, alt = "Photo"}
 ```
 
 ### Attribute Name Variations
@@ -125,25 +133,31 @@ end
 
 Numbers are automatically converted to strings:
 
-```julia
-@img {width = 640, height = 480}
-@input {type = "range", min = 0, max = 100, step = 5}
+```@example numbers
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+println(@render @img {width = 640, height = 480})
+println(@render @input {type = "range", min = 0, max = 100, step = 5})
 ```
 
 #### Booleans
 
 Boolean attributes follow HTML5 semantics:
 
-```julia
+```@example booleans-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # true renders just the attribute name
-@input {type = "checkbox", checked = true}
-# <input type="checkbox" checked>
+println(@render @input {type = "checkbox", checked = true})
 
 # false omits the attribute entirely  
-@input {type = "checkbox", checked = false}
-# <input type="checkbox">
+println(@render @input {type = "checkbox", checked = false})
 
-@button {disabled = is_loading} "Submit"
+# Dynamic boolean
+is_loading = true
+println(@render @button {disabled = is_loading} "Submit")
 ```
 
 #### Nothing/Missing
@@ -163,32 +177,48 @@ optional_class = condition ? "active" : nothing
 
 When variable names match attribute names:
 
-```julia
+```@example shortcuts-vars
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 id = "user-123"
 class = "profile-card"
 role = "article"
 
 # Instead of {id = id, class = class, role = role}
-@div {id, class, role} "Content"
+@render @div {id, class, role} "Content"
 ```
 
 #### Spreading Attributes
 
 Use `...` to spread attributes from collections:
 
-```julia
+```@example spreading-attrs
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # From NamedTuple
 common_attrs = (class = "btn", type = "button")
-@button {id = "submit", common_attrs...} "Submit"
+println(@render @button {id = "submit", common_attrs...} "Submit")
+```
+
+```@example spreading-dict
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # From Dict
 attrs = Dict("data-value" => "123", "data-label" => "test")
-@div {class = "widget", attrs...} "Content"
+println(@render @div {class = "widget", attrs...} "Content")
+```
+
+```@example spreading-combine
+using HypertextTemplates
+using HypertextTemplates.Elements
 
 # Combining multiple sources
 base = (class = "card")
 extra = (id = "main", role = "region")
-@article {base..., extra..., class = "card featured"} "Content"
+@render @article {base..., extra..., class = "card featured"} "Content"
 # Note: Later values override earlier ones
 ```
 
