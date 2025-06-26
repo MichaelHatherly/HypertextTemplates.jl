@@ -8,20 +8,27 @@ The `@__once__` macro ensures content is rendered only once per `@render` call, 
 
 ### Basic Usage
 
-```julia
+```@example once-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function include_jquery()
     @__once__ begin
         @script {src = "https://code.jquery.com/jquery-3.6.0.min.js"}
     end
 end
 
+@deftag macro include_jquery end
+
 # The script tag appears only once in the output
-@render @div begin
+html = @render @div begin
     @include_jquery  # Renders script
     @include_jquery  # Skips script (already rendered)
     @include_jquery  # Skips script (already rendered)
 end
-# Output: <div><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script></div>
+
+println(html)
+# Note: Only one script tag appears!
 ```
 
 ### Common Use Cases
@@ -63,7 +70,10 @@ println(html)
 
 #### JavaScript Initialization
 
-```julia
+```@example once-js
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function data_table(; id, data)
     @__once__ begin
         @script """
@@ -75,33 +85,76 @@ println(html)
     end
     
     @table {id} begin
-        # Table content...
+        @thead @tr begin
+            @th "Name"
+            @th "Value"
+        end
+        @tbody begin
+            for item in data
+                @tr begin
+                    @td $(item.name)
+                    @td $(item.value)
+                end
+            end
+        end
     end
     
     @script "initDataTable('$id');"
 end
+
+@deftag macro data_table end
+
+# Multiple tables, but init function defined once
+data1 = [(name = "A", value = 1), (name = "B", value = 2)]
+data2 = [(name = "X", value = 10), (name = "Y", value = 20)]
+
+html = @render @div begin
+    @data_table {id = "table1", data = data1}
+    @data_table {id = "table2", data = data2}
+end
+
+println(html)
+# Note: initDataTable function defined once, but called twice
 ```
 
 ### Scoping Behavior
 
 `@__once__` is scoped to the current render context:
 
-```julia
+```@example once-scoping
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function scoped_script()
+    @__once__ begin
+        @script "console.log('Script loaded');"
+    end
+    @p "Component rendered"
+end
+
+@deftag macro scoped_script end
+
 # First render - includes script
 html1 = @render @div begin
-    @include_jquery
+    @scoped_script
 end
+println("First render:")
+println(html1)
 
 # Second render - includes script again (different render context)
 html2 = @render @div begin
-    @include_jquery  
+    @scoped_script  
 end
+println("\nSecond render (new context):")
+println(html2)
 
 # Within same render - deduplication works
 html3 = @render @div begin
-    @section @include_jquery  # Included
-    @section @include_jquery  # Skipped
+    @section @scoped_script  # Included
+    @section @scoped_script  # Skipped
 end
+println("\nSame render context (deduplication):")
+println(html3)
 ```
 
 ## The `@deftag` Macro
@@ -140,33 +193,58 @@ println(html2)
 
 ### Custom Element Tags
 
-```julia
+```@example custom-element-tags
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Define custom elements with macros
 @element "my-custom-element" my_custom_element
 @deftag macro my_custom_element end
 
 # Use the custom element
-@render @my_custom_element {prop = "value"} "Content"
-# Output: <my-custom-element prop="value">Content</my-custom-element>
+html = @render @my_custom_element {prop = "value"} "Content"
+println(html)
+
+# Also works with nested content
+@element "custom-card" custom_card
+@deftag macro custom_card end
+
+html2 = @render @custom_card {variant = "primary"} begin
+    @h3 "Card Title"
+    @p "Card content goes here"
+end
+println("\nNested custom element:")
+println(html2)
 ```
 
 ### Module-Scoped Tags
 
-```julia
+```@example module-tags
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 module UI
     using HypertextTemplates
+    using HypertextTemplates.Elements
     
     @component function button(; variant = "default")
-        @button {class = "ui-btn ui-btn-$variant"} @__slot__
+        Elements.@button {class = "ui-btn ui-btn-$variant"} @__slot__
     end
     
-    # Export the macro
-    @deftag export macro button end
+    # Create and export the macro
+    @deftag macro button end
+    export @button
 end
 
-# Use from another module
-using .UI
-@render @UI.button {variant = "primary"} "Click me"
+# Use from outside the module
+html = @render @UI.button {variant = "primary"} "Click me"
+println(html)
+
+# Also can import and use directly
+using .UI: @button
+html2 = @render @button {variant = "success"} "Save"
+println("\nImported usage:")
+println(html2)
 ```
 
 ## Text Interpolation with `$`
@@ -276,111 +354,92 @@ println(html)
 
 ### Polymorphic Components
 
-```julia
-@component function flexible_container(; tag = div, children)
-    @<tag {class = "container"} begin
-        for child in children
-            @<child
-        end
+```@example polymorphic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function flexible_container(; tag = div, class_name = "container")
+    @<tag {class = class_name} begin
+        @__slot__
     end
 end
 
-# Use with different tags
-@render @flexible_container {tag = section, children = [
-    @component() @h1 "Title",
-    @component() @p "Content"
-]}
+@deftag macro flexible_container end
+
+# Use with different HTML elements
+html1 = @render @flexible_container {tag = section} begin
+    @h1 "Section Title"
+    @p "Section content"
+end
+println("As section:")
+println(html1)
+
+html2 = @render @flexible_container {tag = article, class_name = "article-container"} begin
+    @h2 "Article Title"
+    @p "Article content"
+end
+println("\nAs article:")
+println(html2)
 ```
 
 ### Component Maps
 
-```julia
+```@example component-maps
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define field components
+@component function text_field(; name, options = nothing)
+    @input {type = "text", name, id = name}
+end
+
+@component function email_field(; name, options = nothing)
+    @input {type = "email", name, id = name}
+end
+
+@component function select_field(; name, options = [])
+    @select {name, id = name} begin
+        for opt in options
+            @option {value = opt.value} $(opt.label)
+        end
+    end
+end
+
+# Map of field types to components
 const FIELD_COMPONENTS = Dict(
     :text => text_field,
     :email => email_field,
-    :select => select_field,
-    :checkbox => checkbox_field
+    :select => select_field
 )
 
 @component function form_field(; type, name, label, options = nothing)
     component = get(FIELD_COMPONENTS, type, text_field)
     
     @div {class = "form-field"} begin
-        @label {for = name} $label
+        Elements.@label {"for" := name} $label
         @<component {name, options}
     end
 end
-```
 
-## Hidden Variable Management
+@deftag macro form_field end
 
-HypertextTemplates uses hidden variables to manage internal state without polluting your namespace.
-
-### Automatic Variable Hygiene
-
-```julia
-@component function no_conflicts()
-    # These don't conflict with internal variables
-    io = "my io value"
-    slot = "my slot value"
-    
-    @div begin
-        @p $io
-        @p $slot
-    end
-end
-```
-
-### Understanding Macro Expansion
-
-```julia
-# See what the macro generates
-@macroexpand @div {class = "test"} "content"
-
-# The expansion uses gensym'd variables to avoid conflicts
-# Internal variables like __io__, __slot__, etc. are hidden
-```
-
-## Source Location Tracking
-
-Development mode includes source location information for debugging.
-
-### Automatic Tracking
-
-```julia
-# In development, elements include data attributes
-@render IOContext(stdout, :mode => :development) @div begin
-    @h1 "Title"  # Includes data-htloc attribute
-    @p "Content" # Includes data-htloc attribute
-end
-```
-
-### Controlling Source Tracking
-
-```julia
-# Global toggle
-HypertextTemplates.SOURCE_TRACKING[] = false  # Disable
-HypertextTemplates.SOURCE_TRACKING[] = true   # Enable
-
-# Per-render control
-io_dev = IOContext(io, :mode => :development)  # Include source
-io_prod = IOContext(io, :mode => :production)  # Exclude source
-
-@render io_prod @div "No source tracking"
-```
-
-### Custom Source Information
-
-```julia
-@component function tracked_component()
-    # Source location automatically captured
-    @div {class = "tracked"} begin
-        @__slot__
-    end
+# Usage examples
+html = @render @form begin
+    @form_field {type = :text, name = "username", label = "Username:"}
+    @form_field {type = :email, name = "email", label = "Email:"}
+    @form_field {
+        type = :select,
+        name = "country",
+        label = "Country:",
+        options = [
+            (value = "us", label = "United States"),
+            (value = "uk", label = "United Kingdom"),
+            (value = "ca", label = "Canada")
+        ]
+    }
 end
 
-# The component definition location is preserved
-# Useful for debugging which component rendered what
+println(html)
 ```
 
 ## Advanced Patterns
@@ -389,7 +448,10 @@ end
 
 Cache expensive computations:
 
-```julia
+```@example memoization
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 const COMPUTED_CACHE = Dict{Any,Any}()
 
 @component function memoized(; key, compute)
@@ -400,85 +462,115 @@ const COMPUTED_CACHE = Dict{Any,Any}()
     @div {class = "memoized"} $value
 end
 
-# Usage
-@memoized {
-    key = "expensive-$id",
-    compute = () -> expensive_calculation(id)
+@deftag macro memoized end
+
+# Simulate expensive calculation
+function expensive_calculation(id)
+    println("Computing for id=$id...")
+    return "Result for $id"
+end
+
+# First call computes
+html1 = @render @memoized {
+    key = "expensive-42",
+    compute = () -> expensive_calculation(42)
 }
+println("First render: ", html1)
+
+# Second call uses cache (no "Computing..." message)
+html2 = @render @memoized {
+    key = "expensive-42",
+    compute = () -> expensive_calculation(42)
+}
+println("Second render (cached): ", html2)
+
+# Different key computes again
+html3 = @render @memoized {
+    key = "expensive-99",
+    compute = () -> expensive_calculation(99)
+}
+println("Different key: ", html3)
 ```
 
 ### Render Props Pattern
 
 Pass rendering functions as props:
 
-```julia
-@component function data_fetcher(; url, render_loading, render_error, render_success)
-    data, error, loading = fetch_data(url)  # Simplified
-    
-    if loading
-        @<render_loading
-    elseif !isnothing(error)
-        @<render_error {error}
+```@example render-props
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Simulate data fetching
+function fetch_data(url)
+    if url == "/api/users"
+        # Simulate successful fetch
+        data = [(name = "Alice",), (name = "Bob",), (name = "Charlie",)]
+        return (data = data, error = nothing, loading = false)
+    elseif url == "/api/error"
+        return (data = nothing, error = "Network error", loading = false)
     else
-        @<render_success {data}
+        return (data = nothing, error = nothing, loading = true)
     end
 end
 
-# Usage
-@data_fetcher {
+@component function data_fetcher(; url, render_loading, render_error, render_success)
+    result = fetch_data(url)
+
+    if result.loading
+        @<render_loading
+    elseif !isnothing(result.error)
+        @<render_error {error = result.error}
+    else
+        @<render_success {data = result.data}
+    end
+end
+
+@deftag macro data_fetcher end
+
+# Define render components
+@component function loading_comp()
+    @p {class = "loading"} "Loading..."
+end
+@component function error_comp(; error)
+    @p {class = "error"} "Error: " $error
+end
+@component function success_comp(; data)
+    @ul begin
+        for user in data
+            @li $(user.name)
+        end
+    end
+end
+
+# Success case
+println("Success case:")
+html1 = @render @data_fetcher {
     url = "/api/users",
-    render_loading = @component() @p "Loading...",
-    render_error = @component(; error) @p {class="error"} "Error: " $error,
-    render_success = @component(; data) @ul for user in data
-        @li $user.name
-    end
+    render_loading = loading_comp,
+    render_error = error_comp,
+    render_success = success_comp
 }
-```
+println(html1)
 
-### Portal Pattern
-
-Render content outside the current DOM hierarchy (note: this is a conceptual example - in practice, portals require client-side JavaScript):
-
-```julia
-# This shows the pattern, but real implementation would need
-# client-side JavaScript to move DOM nodes
-
-@component function modal_portal(; show = false, content)
-    if show
-        # In a real app, this would be rendered at body level
-        # and positioned with CSS
-        @div {
-            class = "modal-backdrop",
-            style = "position: fixed; inset: 0; background: rgba(0,0,0,0.5);"
-        } begin
-            @div {class = "modal-content"} begin
-                @<content
-            end
-        end
-    end
-end
-
-# Usage
-@render @html begin
-    @body begin
-        @div begin
-            @h1 "Page content"
-            @portal {to = :modals, content = @component() begin
-                @div {class = "modal"} "Modal content"
-            end}
-        end
-        
-        # Modals render at body end
-        @portal_target {name = :modals}
-    end
-end
+# Error case
+println("\nError case:")
+html2 = @render @data_fetcher {
+    url = "/api/error",
+    render_loading = loading_comp,
+    render_error = error_comp,
+    render_success = success_comp
+}
+println(html2)
 ```
 
 ### Template Inheritance
 
 Build template inheritance systems:
 
-```julia
+```@example template-inheritance
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 @component function base_layout(; title = "Default Title")
     @html begin
         @head begin
@@ -487,38 +579,69 @@ Build template inheritance systems:
         end
         @body begin
             @header @__slot__ header
-            @main @__slot__     # Default slot for main content
+            Elements.@main @__slot__     # Default slot for main content
             @footer @__slot__ footer
         end
     end
 end
 
+@deftag macro base_layout end
+
 @component function blog_layout(; post)
     @base_layout {title = post.title} begin
         # Main content
         @article begin
-            @h1 $post.title
+            @h1 $(post.title)
             @div {class = "content"} $(SafeString(post.html))
         end
-        
+
         # Named slots
         head := @meta {name = "author", content = post.author}
-        
+
         header := @nav @a {href = "/blog"} "← Back to Blog"
-        
-        footer := @p "Published: " $post.date
+
+        footer := @p "Published: " $(post.date)
     end
 end
+
+@deftag macro blog_layout end
+
+# Example blog post
+post = (
+    title = "Understanding Julia Macros",
+    author = "Jane Developer",
+    date = "2024-01-15",
+    html = "<p>Julia macros are powerful metaprogramming tools...</p>"
+)
+
+html = @render @blog_layout {post}
+println(html)
 ```
 
 ### Lazy Loading Pattern
 
 Load data on-demand during rendering:
 
-```julia
+```@example lazy-loading
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+const DATA_CACHE = Dict{Any,Any}()
+
+# Simulate database fetch
+function fetch_users_from_db()
+    println("Fetching from database...")
+    return [
+        (name = "Alice", id = 1),
+        (name = "Bob", id = 2),
+        (name = "Charlie", id = 3)
+    ]
+end
+
 @component function lazy_data(; data_loader, cache_key = nothing)
     # Load data during render (blocking)
     data = if !isnothing(cache_key) && haskey(DATA_CACHE, cache_key)
+        println("Using cached data for key: $cache_key")
         DATA_CACHE[cache_key]
     else
         result = data_loader()
@@ -527,53 +650,37 @@ Load data on-demand during rendering:
         end
         result
     end
-    
+
     @div {class = "data-container"} begin
         if isempty(data)
             @p {class = "empty"} "No data available"
         else
-            @__slot__ data
+            @ul begin
+                for item in data
+                    @li "$(item.name) (ID: $(item.id))"
+                end
+            end
         end
     end
 end
 
-# Usage
-@render @lazy_data {
+@deftag macro lazy_data end
+
+# First render - fetches data
+println("First render:")
+html1 = @render @lazy_data {
     cache_key = "users",
     data_loader = () -> fetch_users_from_db()
-} begin
-    data -> @ul for user in data
-        @li $user.name
-    end
-end
-```
+}
+println(html1)
 
-## Performance Optimizations
-
-### Compile-Time Optimization
-
-```julia
-# Constants are embedded at compile time
-const STATIC_CLASSES = "btn btn-primary"
-
-@component function optimized_button()
-    # This is faster than computing at runtime
-    @button {class = STATIC_CLASSES} @__slot__
-end
-```
-
-### Reducing Allocations
-
-```julia
-# Pre-allocate buffers for repeated rendering
-const BUFFER_POOL = [IOBuffer() for _ in 1:Threads.nthreads()]
-
-function render_with_pooled_buffer(component)
-    buffer = BUFFER_POOL[Threads.threadid()]
-    truncate(buffer, 0)  # Reset buffer
-    @render buffer component
-    String(take!(buffer))
-end
+# Second render - uses cache
+println("\nSecond render:")
+html2 = @render @lazy_data {
+    cache_key = "users",
+    data_loader = () -> fetch_users_from_db()
+}
+println(html2)
 ```
 
 ## Best Practices
@@ -582,8 +689,6 @@ end
 2. **Create domain-specific tags** - Use `@deftag` for common patterns
 3. **Leverage `$` interpolation** - Cleaner than multiple `@text` calls
 4. **Cache expensive operations** - Use memoization for complex computations
-5. **Profile macro expansions** - Use `@macroexpand` to understand generated code
-6. **Manage global state carefully** - Portal and once patterns need coordination
 
 ## Summary
 
@@ -592,8 +697,6 @@ Advanced features in HypertextTemplates.jl enable:
 - **Dependency management** with `@__once__`
 - **Custom DSLs** via `@deftag`
 - **Dynamic rendering** with `@<`
-- **Clean interpolation** with `$`
-- **Sophisticated patterns** like portals and render props
-- **Performance optimizations** through compile-time computation
+- **Sophisticated patterns** like render props
 
 These features combine to support complex application architectures while maintaining the simplicity and performance that makes HypertextTemplates.jl powerful.

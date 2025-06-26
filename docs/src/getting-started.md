@@ -271,14 +271,6 @@ Now that you understand the basics:
 3. Understand [HTML Elements & Attributes](elements-attributes.md) in detail
 4. Discover [Advanced Features](advanced-features.md) for complex applications
 
-## Tips for Beginners
-
-1. **Start Simple**: Begin with basic HTML structures before moving to components
-2. **Use the REPL**: Test small snippets interactively to understand the syntax
-3. **Leverage Type Safety**: Let Julia's type system help catch errors early
-4. **Read Error Messages**: The macro system provides helpful error messages
-5. **Explore Examples**: Check the [Examples](examples.md) section for real-world patterns
-
 ## Common Pitfalls
 
 ### 1. Forgetting `$` for Variables
