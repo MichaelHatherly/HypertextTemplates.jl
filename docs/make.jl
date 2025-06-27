@@ -12,7 +12,14 @@ function display_html(html::AbstractString)
             # Run deno fmt and capture output
             output = IOBuffer()
             Deno_jll.deno() do deno_path
-                run(pipeline(`$deno_path fmt --ext html -`, stdin=IOBuffer(html), stdout=output, stderr=devnull))
+                run(
+                    pipeline(
+                        `$deno_path fmt --ext html -`,
+                        stdin = IOBuffer(html),
+                        stdout = output,
+                        stderr = devnull,
+                    ),
+                )
             end
             String(take!(output))
         catch e
@@ -33,11 +40,11 @@ function display_html(html::AbstractString)
 end
 
 makedocs(
-    sitename="HypertextTemplates",
-    format=Documenter.HTML(),
-    modules=[HypertextTemplates],
-    doctest=true,
-    pages=[
+    sitename = "HypertextTemplates",
+    format = Documenter.HTML(),
+    modules = [HypertextTemplates],
+    doctest = true,
+    pages = [
         "Home" => "index.md",
         "Getting Started" => "getting-started.md",
         "Guides" => [
@@ -55,6 +62,6 @@ makedocs(
 )
 
 deploydocs(
-    repo="github.com/MichaelHatherly/HypertextTemplates.jl.git",
-    push_preview=true,
+    repo = "github.com/MichaelHatherly/HypertextTemplates.jl.git",
+    push_preview = true,
 )
