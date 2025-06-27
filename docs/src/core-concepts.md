@@ -203,7 +203,7 @@ println(html)
 
 ## Zero-Allocation Design
 
-HypertextTemplates is designed for maximum performance with zero intermediate allocations:
+HypertextTemplates is designed for maximum performance with zero-allocation rendering:
 
 ### Direct IO Streaming
 

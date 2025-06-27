@@ -667,57 +667,54 @@ end
 println(html)
 ```
 
-### Provider Components
+### Safe Rendering Pattern
 
-Components that provide context or wrapper functionality:
+While HypertextTemplates renders directly to IO (making traditional try-catch error boundaries impossible), you can implement safe rendering patterns:
 
-```@example error-boundary
+```@example safe-rendering
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Define a component that might fail
-@component function risky_component(; data)
-    @div begin
-        @h3 "Data Display"
-        # This will error if data is nothing
-        @p "Value: " $(data.value)
-    end
+# Helper function to safely access nested data
+safe_get(obj, field, default="N/A") = try
+    getfield(obj, field)
+catch
+    default
 end
 
-@deftag macro risky_component end
-
-# Error boundary component
-@component function error_boundary()
-    try
-        @__slot__
-    catch e
-        @div {class = "error-boundary"} begin
-            @h2 "Something went wrong"
-            @p "We encountered an error while rendering this section."
-            @details begin
-                @summary "Error details"
-                @pre $(sprint(showerror, e))
+# Component that handles potentially missing data
+@component function user_card(; user=nothing)
+    @div {class = "user-card"} begin
+        if user !== nothing
+            @h3 safe_get(user, :name, "Unknown User")
+            @p "Email: " safe_get(user, :email)
+            @p "Role: " safe_get(user, :role, "Guest")
+        else
+            @div {class = "empty-state"} begin
+                @p "No user data available"
             end
         end
     end
 end
 
-@deftag macro error_boundary end
+@deftag macro user_card end
 
-# Example 1: Working case
-println("Working case:")
-working_data = (value = 42,)
-html1 = @render @error_boundary begin
-    @risky_component {data = working_data}
-end
+# Example with valid user
+user = (name = "Alice", email = "alice@example.com", role = "Admin")
+html1 = @render @user_card {user}
+println("With user data:")
 println(html1)
 
-# Example 2: Error case
-println("\nError case:")
-html2 = @render @error_boundary begin
-    @risky_component {data = nothing}  # This will cause an error
-end
+# Example with missing user
+html2 = @render @user_card {}
+println("\nWithout user data:")
 println(html2)
+
+# Example with partial data
+partial_user = (name = "Bob")  # Missing email and role
+html3 = @render @user_card {user = partial_user}
+println("\nWith partial data:")
+println(html3)
 ```
 
 ## Best Practices

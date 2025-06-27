@@ -175,9 +175,9 @@ immediately for low latency, while smaller writes are batched for efficiency.
 - `func`: Function that takes an `io` argument to pass to `@render`
 
 # Keywords
-- `buffer_size::Int=32`: Number of chunks the channel can buffer
-- `chunk_size::Int=4096`: Maximum size of buffered chunks (for compatibility)
-- `immediate_threshold::Int=64`: Bytes above which to send immediately
+- `buffer_size::Int=32`: Number of chunks the channel can buffer before blocking
+- `chunk_size::Int=4096`: Legacy parameter (kept for compatibility, no longer used)
+- `immediate_threshold::Int=64`: Bytes above which writes bypass buffering for low latency
 
 # Examples
 ```jldoctest

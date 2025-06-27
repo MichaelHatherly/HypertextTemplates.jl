@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to HypertextTemplates.jl! This guide will help you get up and running with Julia's hypertext templating DSL.
+Welcome to HypertextTemplates.jl! This guide will help you get up and running with Julia's HTML templating system.
 
 ## Installation
 
