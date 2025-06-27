@@ -7,11 +7,13 @@ A responsive container component with proper max-widths and padding.
 - `size::Union{Symbol,String}`: Container size (`:sm`, `:md`, `:lg`, `:xl`, `"2xl"`) (default: `:xl`)
 - `padding::Bool`: Whether to include horizontal padding (default: `true`)
 - `centered::Bool`: Whether to center the container (default: `true`)
+- `role::Union{String,Nothing}`: ARIA role for the container (e.g., "main") (optional)
 """
 @component function Container(;
     size::Union{Symbol,String} = :xl,
     padding::Bool = true,
     centered::Bool = true,
+    role::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbol
@@ -29,7 +31,7 @@ A responsive container component with proper max-widths and padding.
     padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
     centered_class = centered ? "mx-auto" : ""
 
-    @div {class="$size_class $padding_class $centered_class", attrs...} begin
+    @div {class="$size_class $padding_class $centered_class", role=role, attrs...} begin
         @__slot__()
     end
 end

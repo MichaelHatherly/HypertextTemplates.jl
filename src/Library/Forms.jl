@@ -13,6 +13,8 @@ A styled text input field.
 - `value::Union{String,Nothing}`: Input value (optional)
 - `required::Bool`: Whether input is required (default: `false`)
 - `disabled::Bool`: Whether input is disabled (default: `false`)
+- `id::Union{String,Nothing}`: Input ID for label association (optional)
+- `aria_describedby::Union{String,Nothing}`: ID of element describing the input (optional)
 """
 @component function Input(;
     type::String = "text",
@@ -24,6 +26,8 @@ A styled text input field.
     value::Union{String,Nothing} = nothing,
     required::Bool = false,
     disabled::Bool = false,
+    id::Union{String,Nothing} = nothing,
+    aria_describedby::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols
@@ -47,6 +51,7 @@ A styled text input field.
     disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
 
     base_classes = "w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors $size_class $state_class $disabled_class"
+    aria_invalid = state_sym == :error ? "true" : nothing
 
     if !isnothing(icon)
         @div {class = "relative"} begin
@@ -63,6 +68,9 @@ A styled text input field.
                 value = value,
                 required = required,
                 disabled = disabled,
+                id = id,
+                "aria-invalid" = aria_invalid,
+                "aria-describedby" = aria_describedby,
                 attrs...,
             }
         end
@@ -75,6 +83,9 @@ A styled text input field.
             value = value,
             required = required,
             disabled = disabled,
+            id = id,
+            "aria-invalid" = aria_invalid,
+            "aria-describedby" = aria_describedby,
             attrs...,
         }
     end
@@ -96,6 +107,8 @@ A multi-line text input component.
 - `value::Union{String,Nothing}`: Textarea value (optional)
 - `required::Bool`: Whether textarea is required (default: `false`)
 - `disabled::Bool`: Whether textarea is disabled (default: `false`)
+- `id::Union{String,Nothing}`: Textarea ID for label association (optional)
+- `aria_describedby::Union{String,Nothing}`: ID of element describing the textarea (optional)
 """
 @component function Textarea(;
     rows::Int = 4,
@@ -106,6 +119,8 @@ A multi-line text input component.
     value::Union{String,Nothing} = nothing,
     required::Bool = false,
     disabled::Bool = false,
+    id::Union{String,Nothing} = nothing,
+    aria_describedby::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols
@@ -128,6 +143,7 @@ A multi-line text input component.
     resize_class = get(resize_classes, resize_sym, "resize-y")
     state_class = get(state_classes, state_sym, state_classes[:default])
     disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    aria_invalid = state_sym == :error ? "true" : nothing
 
     @textarea {
         rows = rows,
@@ -136,6 +152,9 @@ A multi-line text input component.
         name = name,
         required = required,
         disabled = disabled,
+        id = id,
+        "aria-invalid" = aria_invalid,
+        "aria-describedby" = aria_describedby,
         attrs...,
     } begin
         if !isnothing(value)
@@ -160,6 +179,8 @@ A dropdown select element.
 - `value::Union{String,Nothing}`: Selected value (optional)
 - `required::Bool`: Whether select is required (default: `false`)
 - `disabled::Bool`: Whether select is disabled (default: `false`)
+- `id::Union{String,Nothing}`: Select ID for label association (optional)
+- `aria_describedby::Union{String,Nothing}`: ID of element describing the select (optional)
 """
 @component function Select(;
     size::Union{Symbol,String} = :md,
@@ -170,6 +191,8 @@ A dropdown select element.
     value::Union{String,Nothing} = nothing,
     required::Bool = false,
     disabled::Bool = false,
+    id::Union{String,Nothing} = nothing,
+    aria_describedby::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols
@@ -191,12 +214,16 @@ A dropdown select element.
     size_class = get(size_classes, size_sym, size_classes[:md])
     state_class = get(state_classes, state_sym, state_classes[:default])
     disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    aria_invalid = state_sym == :error ? "true" : nothing
 
     @select {
         class = "w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpolyline points=\"6 9 12 15 18 9\"%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat $size_class $state_class $disabled_class",
         name = name,
         required = required,
         disabled = disabled,
+        id = id,
+        "aria-invalid" = aria_invalid,
+        "aria-describedby" = aria_describedby,
         attrs...,
     } begin
         if !isnothing(placeholder)
@@ -325,7 +352,7 @@ Radio button component for single selection.
     color_class = get(color_classes, color_sym, color_classes[:primary])
     disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
 
-    @div {class = "space-y-2", attrs...} begin
+    @div {class = "space-y-2", role = "radiogroup", attrs...} begin
         for (opt_value, opt_label) in options
             Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
                 @input {
@@ -355,18 +382,28 @@ Form field wrapper with label and help text.
 - `help::Union{String,Nothing}`: Help text (optional)
 - `error::Union{String,Nothing}`: Error message (optional)
 - `required::Bool`: Whether field is required (default: `false`)
+- `id::Union{String,Nothing}`: ID for the form field (will be auto-generated if not provided) (optional)
 """
 @component function FormGroup(;
     label::Union{String,Nothing} = nothing,
     help::Union{String,Nothing} = nothing,
     error::Union{String,Nothing} = nothing,
     required::Bool = false,
+    id::Union{String,Nothing} = nothing,
+    _hash = hash(time_ns()),
     attrs...,
 )
+    # Generate unique ID if not provided
+    field_id = isnothing(id) ? "form-field-$(_hash)" : id
+    error_id = !isnothing(error) ? "$(field_id)-error" : nothing
+    help_id = !isnothing(help) && isnothing(error) ? "$(field_id)-help" : nothing
+    describedby_id = !isnothing(error_id) ? error_id : help_id
+
     @div {class = "space-y-1", attrs...} begin
         if !isnothing(label)
             Elements.@label {
                 class = "block text-sm font-medium text-slate-700 dark:text-slate-300",
+                "for" = field_id,
             } begin
                 @text label
                 if required
@@ -375,12 +412,14 @@ Form field wrapper with label and help text.
             end
         end
 
-        @__slot__()
+        # TODO:
+        # Pass the generated IDs to child components
+        @__slot__ #(field_id, describedby_id)
 
         if !isnothing(error)
-            @p {class = "text-sm text-red-600 dark:text-red-400"} error
+            @p {class = "text-sm text-red-600 dark:text-red-400", id = error_id} error
         elseif !isnothing(help)
-            @p {class = "text-sm text-slate-500 dark:text-slate-400"} help
+            @p {class = "text-sm text-slate-500 dark:text-slate-400", id = help_id} help
         end
     end
 end

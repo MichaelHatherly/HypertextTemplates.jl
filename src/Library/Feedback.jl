@@ -69,6 +69,7 @@ Progress bar component.
 - `color::Union{Symbol,String}`: Progress bar color (`:slate`, `:primary`, `:success`) (default: `:primary`)
 - `striped::Bool`: Whether to show striped pattern (default: `false`)
 - `label::Union{String,Nothing}`: Label to display (optional)
+- `aria_label::Union{String,Nothing}`: ARIA label for screen readers (optional)
 """
 @component function Progress(;
     value::Int = 0,
@@ -77,6 +78,7 @@ Progress bar component.
     color::Union{Symbol,String} = :primary,
     striped::Bool = false,
     label::Union{String,Nothing} = nothing,
+    aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols
@@ -115,6 +117,9 @@ Progress bar component.
             "aria-valuenow" = value,
             "aria-valuemin" = "0",
             "aria-valuemax" = max,
+            "aria-label" =
+                isnothing(aria_label) && isnothing(label) ? "Progress: $percentage%" :
+                aria_label,
         } begin
             @div {
                 class = "transition-all duration-300 ease-out rounded-full $color_class $striped_class $size_class",
@@ -155,9 +160,14 @@ Loading spinner component.
     size_class = get(size_classes, size_sym, size_classes[:md])
     color_class = get(color_classes, color_sym, color_classes[:primary])
 
-    @div {class = "inline-flex items-center", attrs...} begin
+    @div {
+        class = "inline-flex items-center",
+        role = "status",
+        "aria-label" = "Loading",
+        attrs...,
+    } begin
         HypertextTemplates.SafeString(
-            """<svg class="animate-spin $size_class $color_class" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            """<svg class="animate-spin $size_class $color_class" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 </svg>""",

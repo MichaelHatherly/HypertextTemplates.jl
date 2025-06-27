@@ -1,1 +1,1 @@
-<a href="https://example.com" target="_blank" rel="noopener noreferrer" class="transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300">External link</a>
+<a href="https://example.com" target="_blank" rel="noopener noreferrer" class="transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300" aria-label="nothing">External link</a>

@@ -8,12 +8,14 @@ A responsive data table component.
 - `bordered::Bool`: Whether to show borders (default: `true`)
 - `hover::Bool`: Whether to show hover effect on rows (default: `true`)
 - `compact::Bool`: Whether to use compact spacing (default: `false`)
+- `caption::Union{String,Nothing}`: Table caption/description (optional)
 """
 @component function Table(;
     striped::Bool = false,
     bordered::Bool = true,
     hover::Bool = true,
     compact::Bool = false,
+    caption::Union{String,Nothing} = nothing,
     attrs...,
 )
     striped_class =
@@ -38,6 +40,9 @@ A responsive data table component.
             class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 $striped_class $hover_class $spacing_class $border_classes",
             attrs...,
         } begin
+            if !isnothing(caption)
+                @caption {class="sr-only"} $caption
+            end
             @__slot__()
         end
     end

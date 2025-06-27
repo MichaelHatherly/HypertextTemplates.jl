@@ -52,10 +52,12 @@ Small status indicator component.
 # Props
 - `variant::Union{Symbol,String}`: Badge variant (`:default`, `:primary`, `:success`, `:warning`, `:danger`) (default: `:default`)
 - `size::Union{Symbol,String}`: Badge size (`:sm`, `:md`, `:lg`) (default: `:md`)
+- `role::Union{String,Nothing}`: ARIA role (e.g., "status" for dynamic updates) (optional)
 """
 @component function Badge(;
     variant::Union{Symbol,String} = :default,
     size::Union{Symbol,String} = :md,
+    role::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols
@@ -81,6 +83,7 @@ Small status indicator component.
 
     @span {
         class = "inline-flex items-center font-medium rounded-full $variant_class $size_class",
+        role = role,
         attrs...,
     } begin
         @__slot__()

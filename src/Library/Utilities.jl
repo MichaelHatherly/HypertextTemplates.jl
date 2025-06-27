@@ -22,10 +22,12 @@ Horizontal or vertical separator component.
     color_class = isnothing(color) ? "border-slate-200 dark:border-slate-800" : color
 
     if orientation_sym == :horizontal
-        @hr {class = "border-t $color_class $spacing_class", attrs...}
+        @hr {class = "border-t $color_class $spacing_class", role = "separator", attrs...}
     else
         @div {
             class = "inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 $spacing_class",
+            role = "separator",
+            "aria-orientation" = "vertical",
             attrs...,
         }
     end
@@ -40,14 +42,14 @@ User profile image component.
 
 # Props
 - `src::Union{String,Nothing}`: Image source URL (optional)
-- `alt::String`: Alternative text (default: `"Avatar"`)
+- `alt::String`: Alternative text (required when src is provided, ignored otherwise)
 - `size::Union{Symbol,String}`: Avatar size (`:xs`, `:sm`, `:md`, `:lg`, `:xl`) (default: `:md`)
 - `shape::Union{Symbol,String}`: Avatar shape (`:circle`, `:square`) (default: `:circle`)
 - `fallback::Union{String,Nothing}`: Fallback content when no src provided (optional)
 """
 @component function Avatar(;
     src::Union{String,Nothing} = nothing,
-    alt::String = "Avatar",
+    alt::Union{String,Nothing} = nothing,
     size::Union{Symbol,String} = :md,
     shape::Union{Symbol,String} = :circle,
     fallback::Union{String,Nothing} = nothing,
@@ -73,6 +75,10 @@ User profile image component.
         attrs...,
     } begin
         if !isnothing(src)
+            # Require meaningful alt text for images
+            if isnothing(alt)
+                error("Avatar: alt text is required when src is provided")
+            end
             @img {src = src, alt = alt, class = "h-full w-full object-cover"}
         else
             # Fallback content
@@ -103,11 +109,15 @@ Icon wrapper component for consistent sizing and styling.
 - `size::Union{Symbol,String}`: Icon size (`:xs`, `:sm`, `:md`, `:lg`, `:xl`) (default: `:md`)
 - `color::Union{String,Nothing}`: Icon color class (optional)
 - `name::Union{String,Nothing}`: Icon name for built-in icons (optional)
+- `aria_label::Union{String,Nothing}`: ARIA label for interactive icons (optional)
+- `decorative::Bool`: Whether icon is purely decorative (default: `true`)
 """
 @component function Icon(;
     size::Union{Symbol,String} = :md,
     color::Union{String,Nothing} = nothing,
     name::Union{String,Nothing} = nothing,
+    aria_label::Union{String,Nothing} = nothing,
+    decorative::Bool = true,
     attrs...,
 )
     # Convert to symbol
@@ -138,8 +148,13 @@ Icon wrapper component for consistent sizing and styling.
         "minus" => """<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" /></svg>""",
     )
 
+    # Set aria-hidden for decorative icons, or aria-label for interactive ones
+    aria_hidden = decorative && isnothing(aria_label) ? "true" : nothing
+
     @span {
         class = "inline-flex items-center justify-center $size_class $color_class",
+        "aria-hidden" = aria_hidden,
+        "aria-label" = aria_label,
         attrs...,
     } begin
         if !isnothing(name) && haskey(icons, name)

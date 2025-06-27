@@ -152,12 +152,14 @@ Styled anchor element with hover effects.
 - `variant::Union{Symbol,String}`: Link variant (`:default`, `:underline`, `:hover_underline`) (default: `:default`)
 - `color::Union{String,Nothing}`: Text color class (optional)
 - `external::Bool`: Whether this is an external link (adds target="_blank") (default: `false`)
+- `aria_label::Union{String,Nothing}`: ARIA label for additional context (optional)
 """
 @component function Link(;
     href::String,
     variant::Union{Symbol,String} = :default,
     color::Union{String,Nothing} = nothing,
     external::Bool = false,
+    aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbol
@@ -181,12 +183,18 @@ Styled anchor element with hover effects.
             target = "_blank",
             rel = "noopener noreferrer",
             class = "$variant_class $color_class",
+            "aria-label" = aria_label,
             attrs...,
         } begin
             @__slot__()
         end
     else
-        @a {href = href, class = "$variant_class $color_class", attrs...} begin
+        @a {
+            href = href,
+            class = "$variant_class $color_class",
+            "aria-label" = aria_label,
+            attrs...,
+        } begin
             @__slot__()
         end
     end

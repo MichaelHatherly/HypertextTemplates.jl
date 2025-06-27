@@ -100,6 +100,7 @@ Page navigation component.
                     @a {
                         href = "$base_url$(current-1)",
                         class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-l-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800",
+                        "aria-label" = "Go to previous page",
                     } begin
                         @text HypertextTemplates.SafeString(
                             """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>""",
@@ -108,6 +109,8 @@ Page navigation component.
                 else
                     @span {
                         class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-l-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700",
+                        "aria-label" = "Previous page (disabled)",
+                        "aria-disabled" = "true",
                     } begin
                         @text HypertextTemplates.SafeString(
                             """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>""",
@@ -146,6 +149,7 @@ Page navigation component.
                     @a {
                         href = "$base_url$(current+1)",
                         class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800",
+                        "aria-label" = "Go to next page",
                     } begin
                         @text HypertextTemplates.SafeString(
                             """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>""",
@@ -154,6 +158,8 @@ Page navigation component.
                 else
                     @span {
                         class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-r-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700",
+                        "aria-label" = "Next page (disabled)",
+                        "aria-disabled" = "true",
                     } begin
                         @text HypertextTemplates.SafeString(
                             """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>""",
@@ -175,10 +181,12 @@ Tab navigation component (visual only, no JavaScript).
 # Props
 - `items::Vector{Tuple{String,String}}`: Tab items as (id, label) tuples
 - `active::String`: ID of the active tab (default: first item's ID)
+- `aria_label::Union{String,Nothing}`: ARIA label for the tab list (optional)
 """
 @component function Tabs(;
     items::Vector{Tuple{String,String}} = Tuple{String,String}[],
     active::String = "",
+    aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
     # Use first item as active if not specified
@@ -187,7 +195,8 @@ Tab navigation component (visual only, no JavaScript).
     @div {attrs...} begin
         @nav {
             class = "flex space-x-1 border-b border-slate-200 dark:border-slate-700",
-            "aria-label" = "Tabs",
+            "aria-label" = isnothing(aria_label) ? "Tabs" : aria_label,
+            role = "tablist",
         } begin
             for (id, label) in items
                 is_active = id == active_id
@@ -197,13 +206,19 @@ Tab navigation component (visual only, no JavaScript).
                         type = "button",
                         class = "px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 border-b-2 border-slate-900 dark:border-slate-100 transition-colors",
                         "aria-current" = "page",
+                        "aria-selected" = "true",
+                        role = "tab",
                         id = "tab-$id",
+                        "aria-controls" = "tabpanel-$id",
                     } $label
                 else
                     @button {
                         type = "button",
                         class = "px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors",
+                        "aria-selected" = "false",
+                        role = "tab",
                         id = "tab-$id",
+                        "aria-controls" = "tabpanel-$id",
                     } $label
                 end
             end

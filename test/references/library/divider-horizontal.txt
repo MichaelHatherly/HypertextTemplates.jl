@@ -1,1 +1,1 @@
-<div>Content above</div><hr class="border-t border-slate-200 dark:border-slate-800 my-4"><div>Content below</div>
+<div>Content above</div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div>Content below</div>

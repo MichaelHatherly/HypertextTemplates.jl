@@ -749,7 +749,7 @@ html = @render @Section {spacing=:lg} begin
                     @Stack {gap=4} begin
                         @Heading {level=2} "Profile"
                         @Stack {direction=:horizontal, gap=4, align=:center} begin
-                            @Avatar {src="/user.jpg", size=:lg}
+                            @Avatar {src="/user.jpg", alt="Avatar", size=:lg}
                             @Stack {gap=1} begin
                                 @Text {weight=:semibold} "John Doe"
                                 @Badge {variant=:success} "Pro User"

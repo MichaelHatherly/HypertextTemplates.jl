@@ -1,1 +1,1 @@
-<div class="inline-flex items-center"></div>
+<div class="inline-flex items-center" role="status" aria-label="Loading"></div>
