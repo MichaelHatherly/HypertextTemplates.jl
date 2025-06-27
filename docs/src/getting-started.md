@@ -21,7 +21,7 @@ pkg> add HypertextTemplates
 
 ### Basic Usage
 
-HypertextTemplates transforms HTML authoring by exposing every HTML element as a Julia macro. This approach leverages Julia's metaprogramming capabilities to create a natural, type-safe templating language that feels like writing HTML but with the full power of Julia. The `@render` macro is your entry point - it takes your template expressions and efficiently converts them into properly formatted HTML strings. Elements are nested using Julia's familiar `begin...end` blocks, making the structure visually clear and easy to follow.
+Every HTML element is a Julia macro. Use `@render` to convert templates to HTML strings:
 
 ```@example basic
 using HypertextTemplates
@@ -38,7 +38,7 @@ println(html)
 
 ### Adding Attributes
 
-The `{}` syntax for attributes is a distinctive feature of HypertextTemplates that mimics Julia's NamedTuple syntax while providing a clean separation between attributes and content. This design choice makes templates highly readable - attributes are visually distinct from the element's children, and the syntax supports all the conveniences you'd expect from Julia, including computed values, shorthand property notation, and spreading. The curly braces immediately follow the element macro and contain comma-separated key-value pairs.
+Attributes use `{}` syntax, similar to Julia NamedTuples:
 
 ```@example attributes
 using HypertextTemplates
@@ -52,7 +52,7 @@ end
 
 ### Using Variables and Expressions
 
-Dynamic content in HypertextTemplates uses the familiar `$` interpolation syntax from Julia strings, but with an important difference: all interpolated values are automatically HTML-escaped for security. This means you can safely include user-provided data without worrying about XSS attacks. The interpolation works with any Julia expression - from simple variables to complex computations - and the results are seamlessly integrated into your HTML output. This design provides both convenience and safety by default.
+Use `$` to interpolate variables and expressions. All values are automatically HTML-escaped for security:
 
 ```@example variables
 using HypertextTemplates
@@ -190,18 +190,13 @@ end
 println(html)
 ```
 
-### Understanding the Component System
+### Understanding Components
 
-When you define a component with `@component`, you're creating a special function that:
-1. Accepts keyword arguments as props
-2. Generates HTML content
-3. Can be used with `@<component_name` or with a macro after using `@deftag`
-
-The `@deftag` macro is important for ergonomics - it creates a macro version of your component so you can use `@card` instead of the more verbose `@<card`.
+Components are functions that accept props and generate HTML. Use `@deftag` to create a convenient macro shortcut:
 
 ## Components with Slots
 
-Now that you understand basic components, let's explore slots - a powerful feature for passing content to components:
+Slots allow components to accept child content:
 
 ```@example page-with-slots
 using HypertextTemplates
@@ -239,7 +234,7 @@ end
 println(html)
 ```
 
-The `@__slot__` marker indicates where child content should be rendered. This is essential when you need to pass complex HTML structures to components - unlike props which are meant for data values, slots handle component trees correctly.
+The `@__slot__` marker shows where child content renders inside the component.
 
 ## Rendering to Different Outputs
 
@@ -273,7 +268,7 @@ Now that you understand the basics:
 
 ## Common Pitfalls
 
-When starting with HypertextTemplates, there are several common mistakes that trip up newcomers. These pitfalls arise from the unique syntax choices that make HypertextTemplates powerful but differ from traditional templating systems. Understanding these patterns early will save you debugging time and help you write cleaner, more idiomatic code. The examples below show the most frequent errors along with their corrections, helping you recognize and avoid these issues in your own templates.
+Avoid these common mistakes when starting with HypertextTemplates:
 
 ### 1. Forgetting `$` for Variables
 ```julia

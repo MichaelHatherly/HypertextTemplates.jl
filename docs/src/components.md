@@ -34,7 +34,7 @@ Props are passed as keyword arguments to component functions:
 
 ### Required Props
 
-Components can enforce required props by omitting default values in their function signature. This leverages Julia's keyword argument system to provide compile-time guarantees that all necessary data is provided. When a required prop is missing, Julia will throw a clear error message indicating which argument was not supplied. This pattern is particularly useful for components that cannot function without certain data, such as user information, IDs, or critical configuration values.
+Omit default values to make props required:
 
 ```@example required-props
 using HypertextTemplates
@@ -880,12 +880,4 @@ println(@render @safe_image {src = "", alt = "User avatar"})
 
 ## Summary
 
-Components in HypertextTemplates.jl provide:
-
-- **Reusability** through parameterized templates
-- **Composition** via nesting and slots
-- **Type safety** with Julia's type system
-- **Flexibility** through props and dynamic rendering
-- **Organization** via modules and namespaces
-
-Master these patterns to build maintainable, scalable web applications with HypertextTemplates.jl.
+Components combine reusability, composition through slots, type safety, and flexible rendering to create maintainable templates. Use these patterns to structure your applications effectively.

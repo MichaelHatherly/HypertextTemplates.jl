@@ -65,7 +65,7 @@ println(html)
 
 ## The `{}` Attribute Syntax
 
-Attributes in HypertextTemplates use a special `{}` syntax that resembles Julia's NamedTuple syntax:
+Building on the macro foundation, attributes use a special `{}` syntax that resembles Julia's NamedTuple syntax:
 
 ### Basic Attributes
 
@@ -130,7 +130,7 @@ println(@render @input {type = "checkbox", checked = false})
 
 ## Text Rendering and Interpolation
 
-HypertextTemplates provides multiple ways to render text content:
+Beyond structural elements and attributes, HypertextTemplates provides flexible text rendering:
 
 ### String Literals
 
@@ -203,7 +203,7 @@ println(html)
 
 ## Zero-Allocation Design
 
-HypertextTemplates is designed for maximum performance with zero-allocation rendering:
+The performance benefits of the macro system extend to the rendering pipeline through zero-allocation design:
 
 ### Direct IO Streaming
 
@@ -265,9 +265,9 @@ This design means:
 
 ## Control Flow Integration
 
-### Loops
+Since templates are Julia code, all control flow constructs work naturally:
 
-Any Julia loop construct works:
+### Loops
 
 ```@example loops-examples
 using HypertextTemplates
@@ -353,7 +353,7 @@ end
 
 ## Component Architecture
 
-Components in HypertextTemplates are just Julia functions with special handling:
+The macro system and control flow integration come together in HypertextTemplates' component architecture:
 
 ### Function-Based Components
 
@@ -433,9 +433,9 @@ Is transformed into a function that:
 
 ## Performance Considerations
 
-### Compile-Time Work
+The zero-allocation design and macro system combine to optimize performance at multiple levels:
 
-Much work happens at compile time:
+### Compile-Time Work
 
 ```@example compile-time-work
 using HypertextTemplates
@@ -489,7 +489,7 @@ println(html)
 
 ## HTML Escaping Strategy
 
-Security is built into the rendering process:
+Complementing the performance features, HypertextTemplates provides automatic security through its escaping strategy:
 
 ### Automatic Escaping
 
@@ -521,13 +521,13 @@ Escaping uses optimized routines:
 
 ## Summary
 
-These core concepts work together to create a powerful, efficient, and safe templating system:
+These core concepts build on each other:
 
-1. **Macros** provide compile-time optimization and natural syntax
-2. **`{}` attributes** offer flexible, Julia-like property handling  
-3. **Direct IO streaming** ensures maximum performance
-4. **Native control flow** integration makes templates feel like regular Julia code
-5. **Automatic escaping** provides security by default
-6. **Component architecture** enables code reuse and composition
+1. **Macros** provide the foundation with compile-time optimization
+2. **`{}` attributes** extend the macro syntax for properties
+3. **Text rendering** handles content with automatic security
+4. **Zero-allocation design** ensures performance at scale
+5. **Control flow** integration leverages Julia's expressiveness
+6. **Components** combine all concepts for reusable templates
 
-Understanding these concepts will help you write better templates and troubleshoot issues effectively.
+Each concept reinforces the others, creating a cohesive system that's fast, safe, and natural to use.
