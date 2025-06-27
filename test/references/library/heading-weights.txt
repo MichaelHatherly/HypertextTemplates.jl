@@ -1,0 +1,1 @@
+<h1 class="text-4xl sm:text-5xl font-normal text-slate-900 dark:text-slate-100">Normal weight</h1><h1 class="text-4xl sm:text-5xl font-medium text-slate-900 dark:text-slate-100">Medium weight</h1><h1 class="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-slate-100">Bold weight</h1>

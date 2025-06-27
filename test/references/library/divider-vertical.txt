@@ -1,0 +1,1 @@
+<div class="flex items-center"><span>Left</span><div class="inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 mx-4"></div><span>Right</span></div>

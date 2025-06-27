@@ -1,0 +1,1 @@
+<div class="relative inline-block h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="/user.jpg" alt="User profile" class="h-full w-full object-cover"></div>

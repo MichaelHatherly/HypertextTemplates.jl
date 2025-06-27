@@ -1,0 +1,1 @@
+<div class="bg-white dark:bg-slate-900 p-6 shadow-sm  rounded-lg">No border</div><div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 ">No rounded corners</div><div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded">Small rounded corners</div>

@@ -1,0 +1,1 @@
+<div class="w-full overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700   [&amp;_th]:px-3 [&amp;_th]:py-2 [&amp;_td]:px-3 [&amp;_td]:py-2 "><tbody><tr><td>Compact table</td></tr></tbody></table></div>

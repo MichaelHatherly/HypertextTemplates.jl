@@ -1,73 +1,57 @@
 using Test
 using HypertextTemplates
+using HypertextTemplates.Elements
 using HypertextTemplates.Library
-using ReferenceTests
 
 @testset "Navigation Components" begin
     @testset "Breadcrumb" begin
-        @test_reference "references/library/breadcrumb-default.txt" begin
-            @renderhtml begin
-                @Breadcrumb {
-                    items=[
-                        ("/", "Home"),
-                        ("/products", "Products"),
-                        ("/products/shoes", "Shoes"),
-                    ],
-                }
-            end
+        render_test("references/library/breadcrumb-default.txt") do io
+            @render io @Breadcrumb {
+                items=[
+                    ("/", "Home"),
+                    ("/products", "Products"),
+                    ("/products/shoes", "Shoes"),
+                ],
+            }
         end
 
-        @test_reference "references/library/breadcrumb-separator.txt" begin
-            @renderhtml begin
-                @Breadcrumb {items=[("/", "Home"), ("/about", "About")], separator=">"}
-            end
+        render_test("references/library/breadcrumb-separator.txt") do io
+            @render io @Breadcrumb {items=[("/", "Home"), ("/about", "About")], separator=">"}
         end
     end
 
     @testset "Pagination" begin
-        @test_reference "references/library/pagination-default.txt" begin
-            @renderhtml begin
-                @Pagination {current=1, total=5}
-            end
+        render_test("references/library/pagination-default.txt") do io
+            @render io @Pagination {current=1, total=5}
         end
 
-        @test_reference "references/library/pagination-middle.txt" begin
-            @renderhtml begin
-                @Pagination {current=5, total=10}
-            end
+        render_test("references/library/pagination-middle.txt") do io
+            @render io @Pagination {current=5, total=10}
         end
 
-        @test_reference "references/library/pagination-siblings.txt" begin
-            @renderhtml begin
-                @Pagination {current=10, total=20, siblings=2}
-            end
+        render_test("references/library/pagination-siblings.txt") do io
+            @render io @Pagination {current=10, total=20, siblings=2}
         end
 
-        @test_reference "references/library/pagination-custom-url.txt" begin
-            @renderhtml begin
-                @Pagination {current=3, total=5, base_url="/page/"}
-            end
+        render_test("references/library/pagination-custom-url.txt") do io
+            @render io @Pagination {current=3, total=5, base_url="/page/"}
         end
     end
 
     @testset "Tabs" begin
-        @test_reference "references/library/tabs-default.txt" begin
-            @renderhtml begin
-                @Tabs {items=[("tab1", "Tab 1"), ("tab2", "Tab 2"), ("tab3", "Tab 3")]}
-            end
+        render_test("references/library/tabs-default.txt") do io
+            @render io @Tabs {items=[("tab1", "Tab 1"), ("tab2", "Tab 2"), ("tab3", "Tab 3")]}
         end
 
-        @test_reference "references/library/tabs-active.txt" begin
-            @renderhtml begin
-                @Tabs {
-                    items=[
-                        ("overview", "Overview"),
-                        ("details", "Details"),
-                        ("reviews", "Reviews"),
-                    ],
-                    active="details",
-                }
-            end
+        render_test("references/library/tabs-active.txt") do io
+            @render io @Tabs {
+                items=[
+                    ("overview", "Overview"),
+                    ("details", "Details"),
+                    ("reviews", "Reviews"),
+                ],
+                active="details",
+            }
         end
     end
 end

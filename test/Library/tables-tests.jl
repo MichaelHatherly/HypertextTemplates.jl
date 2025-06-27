@@ -1,58 +1,52 @@
 using Test
 using HypertextTemplates
+using HypertextTemplates.Elements
 using HypertextTemplates.Library
-using ReferenceTests
 
 @testset "Table Components" begin
     @testset "Table" begin
-        @test_reference "references/library/table-default.txt" begin
-            @renderhtml begin
-                @Table begin
-                    @thead begin
-                        @tr begin
-                            @th "Name"
-                            @th "Age"
-                        end
+        render_test("references/library/table-default.txt") do io
+            @render io @Table begin
+                @thead begin
+                    @tr begin
+                        @th "Name"
+                        @th "Age"
                     end
-                    @tbody begin
-                        @tr begin
-                            @td "John"
-                            @td "30"
-                        end
-                        @tr begin
-                            @td "Jane"
-                            @td "25"
-                        end
+                end
+                @tbody begin
+                    @tr begin
+                        @td "John"
+                        @td "30"
+                    end
+                    @tr begin
+                        @td "Jane"
+                        @td "25"
                     end
                 end
             end
         end
 
-        @test_reference "references/library/table-striped.txt" begin
-            @renderhtml begin
-                @Table {striped=true} begin
-                    @tbody begin
-                        @tr begin
-                            @td "Row 1"
-                        end
-                        @tr begin
-                            @td "Row 2"
-                        end
-                        @tr begin
-                            @td "Row 3"
-                        end
+        render_test("references/library/table-striped.txt") do io
+            @render io @Table {striped=true} begin
+                @tbody begin
+                    @tr begin
+                        @td "Row 1"
+                    end
+                    @tr begin
+                        @td "Row 2"
+                    end
+                    @tr begin
+                        @td "Row 3"
                     end
                 end
             end
         end
 
-        @test_reference "references/library/table-options.txt" begin
-            @renderhtml begin
-                @Table {bordered=false, hover=false, compact=true} begin
-                    @tbody begin
-                        @tr begin
-                            @td "Compact table"
-                        end
+        render_test("references/library/table-options.txt") do io
+            @render io @Table {bordered=false, hover=false, compact=true} begin
+                @tbody begin
+                    @tr begin
+                        @td "Compact table"
                     end
                 end
             end
@@ -60,8 +54,8 @@ using ReferenceTests
     end
 
     @testset "List" begin
-        @test_reference "references/library/list-variants.txt" begin
-            @renderhtml begin
+        render_test("references/library/list-variants.txt") do io
+            @render io begin
                 @List {variant=:bullet} begin
                     @li "Bullet item 1"
                     @li "Bullet item 2"
@@ -81,8 +75,8 @@ using ReferenceTests
             end
         end
 
-        @test_reference "references/library/list-spacing.txt" begin
-            @renderhtml begin
+        render_test("references/library/list-spacing.txt") do io
+            @render io begin
                 @List {spacing=:tight} begin
                     @li "Tight spacing"
                     @li "Item 2"

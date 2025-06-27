@@ -1,36 +1,34 @@
 using Test
 using HypertextTemplates
+using HypertextTemplates.Elements
 using HypertextTemplates.Library
-using ReferenceTests
 
 @testset "Card Components" begin
     @testset "Card" begin
-        @test_reference "references/library/card-default.txt" begin
-            @renderhtml begin
-                @Card begin
-                    "Card content"
-                end
+        render_test("references/library/card-default.txt") do io
+            @render io @Card begin
+                "Card content"
             end
         end
 
-        @test_reference "references/library/card-padding.txt" begin
-            @renderhtml begin
+        render_test("references/library/card-padding.txt") do io
+            @render io begin
                 @Card {padding=:none} "No padding"
                 @Card {padding=:sm} "Small padding"
                 @Card {padding=:lg} "Large padding"
             end
         end
 
-        @test_reference "references/library/card-shadow.txt" begin
-            @renderhtml begin
+        render_test("references/library/card-shadow.txt") do io
+            @render io begin
                 @Card {shadow=:none} "No shadow"
                 @Card {shadow=:md} "Medium shadow"
                 @Card {shadow=:lg} "Large shadow"
             end
         end
 
-        @test_reference "references/library/card-options.txt" begin
-            @renderhtml begin
+        render_test("references/library/card-options.txt") do io
+            @render io begin
                 @Card {border=false} "No border"
                 @Card {rounded=:none} "No rounded corners"
                 @Card {rounded=:sm} "Small rounded corners"
@@ -39,8 +37,8 @@ using ReferenceTests
     end
 
     @testset "Badge" begin
-        @test_reference "references/library/badge-variants.txt" begin
-            @renderhtml begin
+        render_test("references/library/badge-variants.txt") do io
+            @render io begin
                 @Badge {variant=:default} "Default"
                 @Badge {variant=:primary} "Primary"
                 @Badge {variant=:success} "Success"
@@ -49,18 +47,16 @@ using ReferenceTests
             end
         end
 
-        @test_reference "references/library/badge-sizes.txt" begin
-            @renderhtml begin
+        render_test("references/library/badge-sizes.txt") do io
+            @render io begin
                 @Badge {size=:sm} "Small"
                 @Badge {size=:md} "Medium"
                 @Badge {size=:lg} "Large"
             end
         end
 
-        @test_reference "references/library/badge-custom.txt" begin
-            @renderhtml begin
-                @Badge {class="custom-class", id="my-badge"} "Custom Badge"
-            end
+        render_test("references/library/badge-custom.txt") do io
+            @render io @Badge {class="custom-class", id="my-badge"} "Custom Badge"
         end
     end
 end

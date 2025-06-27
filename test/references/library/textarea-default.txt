@@ -1,0 +1,1 @@
+<textarea rows="4" class="w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-y border-slate-300 focus:border-slate-900 focus:ring-slate-900/10 " placeholder="Enter text..." name="nothing"></textarea>

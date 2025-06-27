@@ -1,0 +1,1 @@
+<span class="inline-flex items-center justify-center h-5 w-5 text-green-600"></span><span class="inline-flex items-center justify-center h-5 w-5 text-red-600"></span>
