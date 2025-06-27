@@ -22,10 +22,10 @@ Horizontal or vertical separator component.
     color_class = isnothing(color) ? "border-slate-200 dark:border-slate-800" : color
 
     if orientation_sym == :horizontal
-        @hr {class="border-t $color_class $spacing_class", attrs...}
+        @hr {class = "border-t $color_class $spacing_class", attrs...}
     else
         @div {
-            class="inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 $spacing_class",
+            class = "inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 $spacing_class",
             attrs...,
         }
     end
@@ -69,21 +69,21 @@ User profile image component.
     shape_class = shape_sym == :circle ? "rounded-full" : "rounded-lg"
 
     @div {
-        class="relative inline-block $size_class $shape_class overflow-hidden bg-slate-100 dark:bg-slate-800",
+        class = "relative inline-block $size_class $shape_class overflow-hidden bg-slate-100 dark:bg-slate-800",
         attrs...,
     } begin
         if !isnothing(src)
-            @img {src=src, alt=alt, class="h-full w-full object-cover"}
+            @img {src = src, alt = alt, class = "h-full w-full object-cover"}
         else
             # Fallback content
             @div {
-                class="flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400",
+                class = "flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400",
             } begin
                 if !isnothing(fallback)
-                    fallback
+                    @text fallback
                 else
                     # Default user icon
-                    HypertextTemplates.SafeString(
+                    @text HypertextTemplates.SafeString(
                         """<svg class="h-1/2 w-1/2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>""",
                     )
                 end
@@ -139,11 +139,11 @@ Icon wrapper component for consistent sizing and styling.
     )
 
     @span {
-        class="inline-flex items-center justify-center $size_class $color_class",
+        class = "inline-flex items-center justify-center $size_class $color_class",
         attrs...,
     } begin
         if !isnothing(name) && haskey(icons, name)
-            HypertextTemplates.SafeString(icons[name])
+            @text HypertextTemplates.SafeString(icons[name])
         else
             # Slot for custom icon content
             @__slot__()

@@ -139,7 +139,7 @@ A multi-line text input component.
         attrs...,
     } begin
         if !isnothing(value)
-            value
+            @text value
         end
     end
 end
@@ -200,13 +200,13 @@ A dropdown select element.
         attrs...,
     } begin
         if !isnothing(placeholder)
-            @option {value = "", selected = isnothing(value)} placeholder
+            @option {value = "", selected = isnothing(value)} $placeholder
         end
         for (opt_value, opt_label) in options
             @option {
                 value = opt_value,
                 selected = (!isnothing(value) && value == opt_value),
-            } opt_label
+            } $opt_label
         end
     end
 end
@@ -267,7 +267,7 @@ A styled checkbox input.
                 disabled = disabled,
                 attrs...,
             }
-            @span {class = "text-sm text-slate-700 dark:text-slate-300"} label
+            @span {class = "text-sm text-slate-700 dark:text-slate-300"} $label
         end
     else
         @input {
@@ -337,7 +337,7 @@ Radio button component for single selection.
                     required = required,
                     disabled = disabled,
                 }
-                @span {class = "text-sm text-slate-700 dark:text-slate-300"} opt_label
+                @span {class = "text-sm text-slate-700 dark:text-slate-300"} $opt_label
             end
         end
     end
@@ -368,7 +368,7 @@ Form field wrapper with label and help text.
             Elements.@label {
                 class = "block text-sm font-medium text-slate-700 dark:text-slate-300",
             } begin
-                label
+                @text label
                 if required
                     @span {class = "text-red-500 ml-1"} "*"
                 end
