@@ -53,7 +53,11 @@ Small status indicator component.
 - `variant::Union{Symbol,String}`: Badge variant (`:default`, `:primary`, `:success`, `:warning`, `:danger`) (default: `:default`)
 - `size::Union{Symbol,String}`: Badge size (`:sm`, `:md`, `:lg`) (default: `:md`)
 """
-@component function Badge(; variant::Union{Symbol,String} = :default, size::Union{Symbol,String} = :md, attrs...)
+@component function Badge(;
+    variant::Union{Symbol,String} = :default,
+    size::Union{Symbol,String} = :md,
+    attrs...,
+)
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)

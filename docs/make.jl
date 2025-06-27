@@ -39,6 +39,8 @@ function display_html(html::AbstractString)
     end
 end
 
+include("generate_examples.jl")
+
 makedocs(
     sitename = "HypertextTemplates",
     format = Documenter.HTML(),

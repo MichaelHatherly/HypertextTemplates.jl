@@ -16,7 +16,10 @@ using HypertextTemplates.Library
         end
 
         render_test("references/library/breadcrumb-separator.txt") do io
-            @render io @Breadcrumb {items=[("/", "Home"), ("/about", "About")], separator=">"}
+            @render io @Breadcrumb {
+                items=[("/", "Home"), ("/about", "About")],
+                separator=">",
+            }
         end
     end
 
@@ -40,7 +43,9 @@ using HypertextTemplates.Library
 
     @testset "Tabs" begin
         render_test("references/library/tabs-default.txt") do io
-            @render io @Tabs {items=[("tab1", "Tab 1"), ("tab2", "Tab 2"), ("tab3", "Tab 3")]}
+            @render io @Tabs {
+                items=[("tab1", "Tab 1"), ("tab2", "Tab 2"), ("tab3", "Tab 3")],
+            }
         end
 
         render_test("references/library/tabs-active.txt") do io

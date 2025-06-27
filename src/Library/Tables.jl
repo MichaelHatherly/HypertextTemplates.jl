@@ -54,7 +54,11 @@ A styled list component with various markers.
 - `variant::Union{Symbol,String}`: List variant (`:bullet`, `:number`, `:check`, `:none`) (default: `:bullet`)
 - `spacing::Union{Symbol,String}`: Item spacing (`:tight`, `:normal`, `:loose`) (default: `:normal`)
 """
-@component function List(; variant::Union{Symbol,String} = :bullet, spacing::Union{Symbol,String} = :normal, attrs...)
+@component function List(;
+    variant::Union{Symbol,String} = :bullet,
+    spacing::Union{Symbol,String} = :normal,
+    attrs...,
+)
     # Convert to symbols
     variant_sym = Symbol(variant)
     spacing_sym = Symbol(spacing)

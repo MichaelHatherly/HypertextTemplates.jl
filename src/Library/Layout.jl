@@ -16,7 +16,7 @@ A responsive container component with proper max-widths and padding.
 )
     # Convert to symbol
     size_sym = Symbol(size)
-    
+
     size_classes = Dict(
         :sm => "max-w-screen-sm",
         :md => "max-w-screen-md",

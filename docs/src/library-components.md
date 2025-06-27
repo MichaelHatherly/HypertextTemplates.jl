@@ -2,6 +2,19 @@
 
 HypertextTemplates.jl includes a comprehensive library of pre-built, accessible UI components styled with Tailwind CSS v4. These components follow modern design principles and include dark mode support by default.
 
+## Live Examples
+
+View complete, interactive examples of all components:
+
+- [Layout Components](examples/layout-components.html) - Container, Stack, Grid, and Section examples
+- [Typography Components](examples/typography-components.html) - Headings, Text, and Links
+- [Form Components](examples/form-components.html) - Complete form with all input types
+- [Feedback Components](examples/feedback-components.html) - Alerts, Progress bars, Spinners, and Badges
+- [Navigation Components](examples/navigation-components.html) - Breadcrumbs, Tabs, and Pagination
+- [Table & List Components](examples/table-list-components.html) - Data tables and styled lists
+- [Utility Components](examples/utility-components.html) - Dividers, Avatars, and Icons
+- [Complete Application](examples/complete-app.html) - Full dashboard example using multiple components
+
 ## Getting Started
 
 To use the library components, you need to import the Library submodule:

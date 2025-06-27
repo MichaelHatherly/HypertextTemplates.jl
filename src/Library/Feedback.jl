@@ -7,7 +7,11 @@ Notification message component.
 - `variant::Union{Symbol,String}`: Alert variant (`:info`, `:success`, `:warning`, `:error`) (default: `:info`)
 - `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: `false`)
 """
-@component function Alert(; variant::Union{Symbol,String} = :info, dismissible::Bool = false, attrs...)
+@component function Alert(;
+    variant::Union{Symbol,String} = :info,
+    dismissible::Bool = false,
+    attrs...,
+)
     # Convert to symbol
     variant_sym = Symbol(variant)
 
@@ -131,7 +135,11 @@ Loading spinner component.
 - `size::Union{Symbol,String}`: Spinner size (`:sm`, `:md`, `:lg`) (default: `:md`)
 - `color::Union{Symbol,String}`: Spinner color (`:slate`, `:primary`, `:white`) (default: `:primary`)
 """
-@component function Spinner(; size::Union{Symbol,String} = :md, color::Union{Symbol,String} = :primary, attrs...)
+@component function Spinner(;
+    size::Union{Symbol,String} = :md,
+    color::Union{Symbol,String} = :primary,
+    attrs...,
+)
     # Convert to symbols
     size_sym = Symbol(size)
     color_sym = Symbol(color)
