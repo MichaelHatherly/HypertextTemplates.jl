@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Library Components · HypertextTemplates</title><meta name="title" content="Library Components · HypertextTemplates"/><meta property="og:title" content="Library Components · HypertextTemplates"/><meta property="twitter:title" content="Library Components · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li class="is-active"><a class="tocitem" href>Library Components</a><ul class="internal"><li><a class="tocitem" href="#Live-Examples"><span>Live Examples</span></a></li><li><a class="tocitem" href="#Getting-Started"><span>Getting Started</span></a></li><li><a class="tocitem" href="#Component-Categories"><span>Component Categories</span></a></li><li><a class="tocitem" href="#Complete-Example"><span>Complete Example</span></a></li><li><a class="tocitem" href="#Styling-Notes"><span>Styling Notes</span></a></li><li><a class="tocitem" href="#Custom-Styling"><span>Custom Styling</span></a></li></ul></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><a class="tocitem" href="../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Library Components</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Library Components</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/library-components.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Library-Components"><a class="docs-heading-anchor" href="#Library-Components">Library Components</a><a id="Library-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Library-Components" title="Permalink"></a></h1><p>HypertextTemplates.jl includes a comprehensive library of pre-built, accessible UI components styled with Tailwind CSS v4. These components follow modern design principles and include dark mode support by default.</p><h2 id="Live-Examples"><a class="docs-heading-anchor" href="#Live-Examples">Live Examples</a><a id="Live-Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Live-Examples" title="Permalink"></a></h2><p>View complete, interactive examples of all components:</p><ul><li><a href="../examples/layout-components.html">Layout Components</a> - Container, Stack, Grid, and Section examples</li><li><a href="../examples/typography-components.html">Typography Components</a> - Headings, Text, and Links</li><li><a href="../examples/form-components.html">Form Components</a> - Complete form with all input types</li><li><a href="../examples/feedback-components.html">Feedback Components</a> - Alerts, Progress bars, Spinners, and Badges</li><li><a href="../examples/navigation-components.html">Navigation Components</a> - Breadcrumbs, Tabs, and Pagination</li><li><a href="../examples/table-list-components.html">Table &amp; List Components</a> - Data tables and styled lists</li><li><a href="../examples/utility-components.html">Utility Components</a> - Dividers, Avatars, and Icons</li><li><a href="../examples/complete-app.html">Complete Application</a> - Full dashboard example using multiple components</li></ul><h2 id="Getting-Started"><a class="docs-heading-anchor" href="#Getting-Started">Getting Started</a><a id="Getting-Started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-Started" title="Permalink"></a></h2><p>To use the library components, you need to import the Library submodule:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+# Example usage
+html = @render @Card {padding=:lg, shadow=:md} begin
+    @Heading {level=2} &quot;Welcome&quot;
+    @Text &quot;This is a card component with a heading and text.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div
+  class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+&gt;
+  &lt;h2
+    class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
+  &gt;
+    Welcome
+  &lt;/h2&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    This is a card component with a heading and text.
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Component-Categories"><a class="docs-heading-anchor" href="#Component-Categories">Component Categories</a><a id="Component-Categories-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Categories" title="Permalink"></a></h2><h3 id="Layout-Components"><a class="docs-heading-anchor" href="#Layout-Components">Layout Components</a><a id="Layout-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Layout-Components" title="Permalink"></a></h3><p>These components help structure your page layout and organize content.</p><h4 id="Container"><a class="docs-heading-anchor" href="#Container">Container</a><a id="Container-1"></a><a class="docs-heading-anchor-permalink" href="#Container" title="Permalink"></a></h4><p>A responsive container with configurable max-widths and padding.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Container {size=:xl, padding=true, centered=true} begin
+    @Text &quot;This content is in a centered container with padding.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    This content is in a centered container with padding.
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Container size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>, <code>:xl</code>, <code>&quot;2xl&quot;</code>) - default: <code>:xl</code></li><li><code>padding::Bool</code> - Include horizontal padding - default: <code>true</code></li><li><code>centered::Bool</code> - Center the container - default: <code>true</code></li></ul><h4 id="Stack"><a class="docs-heading-anchor" href="#Stack">Stack</a><a id="Stack-1"></a><a class="docs-heading-anchor-permalink" href="#Stack" title="Permalink"></a></h4><p>Layout children vertically or horizontally with consistent spacing.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {direction=:vertical, gap=4, align=:center} begin
+    @Text &quot;Item 1&quot;
+    @Text &quot;Item 2&quot;
+    @Text &quot;Item 3&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-4 items-center justify-start&quot;&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Item 1
+  &lt;/p&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Item 2
+  &lt;/p&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Item 3
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>direction::Symbol</code> - Stack direction (<code>:vertical</code>, <code>:horizontal</code>) - default: <code>:vertical</code></li><li><code>gap::Int</code> - Gap size using Tailwind spacing scale - default: <code>4</code></li><li><code>align::Symbol</code> - Alignment (<code>:start</code>, <code>:center</code>, <code>:end</code>, <code>:stretch</code>) - default: <code>:stretch</code></li><li><code>justify::Symbol</code> - Justification (<code>:start</code>, <code>:center</code>, <code>:end</code>, <code>:between</code>, <code>:around</code>, <code>:evenly</code>) - default: <code>:start</code></li></ul><h4 id="Grid"><a class="docs-heading-anchor" href="#Grid">Grid</a><a id="Grid-1"></a><a class="docs-heading-anchor-permalink" href="#Grid" title="Permalink"></a></h4><p>Responsive grid layout with configurable columns.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Grid {cols=1, sm=2, md=3, lg=4, gap=4} begin
+    @Card {padding=:sm} &quot;Cell 1&quot;
+    @Card {padding=:sm} &quot;Cell 2&quot;
+    @Card {padding=:sm} &quot;Cell 3&quot;
+    @Card {padding=:sm} &quot;Cell 4&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div
+  class&#61;&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4&quot;
+&gt;
+  &lt;div
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  &gt;
+    Cell 1
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  &gt;
+    Cell 2
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  &gt;
+    Cell 3
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  &gt;
+    Cell 4
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>cols::Int</code> - Default number of columns - default: <code>1</code></li><li><code>sm::Int</code> - Columns on small screens (optional)</li><li><code>md::Int</code> - Columns on medium screens (optional)</li><li><code>lg::Int</code> - Columns on large screens (optional)</li><li><code>xl::Int</code> - Columns on extra large screens (optional)</li><li><code>gap::Int</code> - Gap size - default: <code>4</code></li></ul><h4 id="Section"><a class="docs-heading-anchor" href="#Section">Section</a><a id="Section-1"></a><a class="docs-heading-anchor-permalink" href="#Section" title="Permalink"></a></h4><p>Page section with consistent vertical spacing.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Section {spacing=:md, background=&quot;bg-slate-50&quot;} begin
+    @Container begin
+        @Heading {level=2} &quot;Section Title&quot;
+        @Text &quot;This section has consistent vertical spacing and a background color.&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;section class&#61;&quot;py-12 sm:py-16 md:py-20 bg-slate-50&quot;&gt;
+  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+    &lt;h2
+      class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
+    &gt;
+      Section Title
+    &lt;/h2&gt;
+    &lt;p
+      class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+    &gt;
+      This section has consistent vertical spacing and a background color.
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>spacing::Symbol</code> - Vertical spacing (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>background::String</code> - Background color class (optional)</li></ul><h3 id="Typography-Components"><a class="docs-heading-anchor" href="#Typography-Components">Typography Components</a><a id="Typography-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Typography-Components" title="Permalink"></a></h3><p>Components for displaying text with consistent styling.</p><h4 id="Heading"><a class="docs-heading-anchor" href="#Heading">Heading</a><a id="Heading-1"></a><a class="docs-heading-anchor-permalink" href="#Heading" title="Permalink"></a></h4><p>Styled headings with multiple levels and sizes.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Heading {level=1} &quot;Page Title&quot;
+    @Heading {level=2, size=:xl, weight=:bold} &quot;Custom Heading&quot;
+    @Heading {level=3, color=&quot;text-blue-600&quot;} &quot;Colored Heading&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1
+    class&#61;&quot;text-4xl sm:text-5xl font-semibold text-slate-900 dark:text-slate-100&quot;
+  &gt;
+    Page Title
+  &lt;/h1&gt;
+  &lt;h2 class&#61;&quot;text-xl font-bold text-slate-900 dark:text-slate-100&quot;&gt;
+    Custom Heading
+  &lt;/h2&gt;
+  &lt;h3 class&#61;&quot;text-2xl sm:text-3xl font-semibold text-blue-600&quot;&gt;
+    Colored Heading
+  &lt;/h3&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>level::Int</code> - Heading level (<code>1</code>-<code>6</code>) - default: <code>1</code></li><li><code>size::Symbol</code> - Override size (<code>:xs</code>, <code>:sm</code>, <code>:base</code>, <code>:lg</code>, <code>:xl</code>, <code>&quot;2xl&quot;</code>, <code>&quot;3xl&quot;</code>, <code>&quot;4xl&quot;</code>, <code>&quot;5xl&quot;</code>) (optional)</li><li><code>weight::Symbol</code> - Font weight (<code>:normal</code>, <code>:medium</code>, <code>:semibold</code>, <code>:bold</code>) - default: <code>:semibold</code></li><li><code>color::String</code> - Text color class (optional)</li></ul><h4 id="Text"><a class="docs-heading-anchor" href="#Text">Text</a><a id="Text-1"></a><a class="docs-heading-anchor-permalink" href="#Text" title="Permalink"></a></h4><p>Body text with various styles and alignments.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Text {variant=:body} &quot;Regular paragraph text&quot;
+    @Text {variant=:lead, align=:center} &quot;Lead paragraph with center alignment&quot;
+    @Text {variant=:small, color=&quot;text-slate-500&quot;} &quot;Small helper text&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Regular paragraph text
+  &lt;/p&gt;
+  &lt;p
+    class&#61;&quot;text-lg sm:text-xl leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-center&quot;
+  &gt;
+    Lead paragraph with center alignment
+  &lt;/p&gt;
+  &lt;p class&#61;&quot;text-sm leading-normal font-normal text-slate-500 text-left&quot;&gt;
+    Small helper text
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>variant::Symbol</code> - Text variant (<code>:body</code>, <code>:lead</code>, <code>:small</code>) - default: <code>:body</code></li><li><code>size::Symbol</code> - Override size (optional)</li><li><code>weight::Symbol</code> - Font weight - default: <code>:normal</code></li><li><code>color::String</code> - Text color class (optional)</li><li><code>align::Symbol</code> - Text alignment (<code>:left</code>, <code>:center</code>, <code>:right</code>, <code>:justify</code>) - default: <code>:left</code></li></ul><h4 id="Link"><a class="docs-heading-anchor" href="#Link">Link</a><a id="Link-1"></a><a class="docs-heading-anchor-permalink" href="#Link" title="Permalink"></a></h4><p>Styled anchor elements with hover effects.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Link {href=&quot;/about&quot;} &quot;About Us&quot;
+    @text &quot; | &quot;
+    @Link {href=&quot;https://example.com&quot;, external=true} &quot;External Link&quot;
+    @text &quot; | &quot;
+    @Link {href=&quot;#&quot;, variant=:underline} &quot;Underlined Link&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;a
+    href&#61;&quot;/about&quot;
+    class&#61;&quot;transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+  &gt;About Us&lt;/a&gt; | &lt;a
+    href&#61;&quot;https://example.com&quot;
+    target&#61;&quot;_blank&quot;
+    rel&#61;&quot;noopener noreferrer&quot;
+    class&#61;&quot;transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+  &gt;External Link&lt;/a&gt; | &lt;a
+    href&#61;&quot;#&quot;
+    class&#61;&quot;underline transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+  &gt;Underlined Link&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>href::String</code> - Link destination (required)</li><li><code>variant::Symbol</code> - Link variant (<code>:default</code>, <code>:underline</code>, <code>:hover_underline</code>) - default: <code>:default</code></li><li><code>color::String</code> - Text color class (optional)</li><li><code>external::Bool</code> - Opens in new tab with security attributes - default: <code>false</code></li></ul><h3 id="Card-Components"><a class="docs-heading-anchor" href="#Card-Components">Card Components</a><a id="Card-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Card-Components" title="Permalink"></a></h3><p>Components for displaying content in cards and badges.</p><h4 id="Card"><a class="docs-heading-anchor" href="#Card">Card</a><a id="Card-1"></a><a class="docs-heading-anchor-permalink" href="#Card" title="Permalink"></a></h4><p>Content container with border and shadow.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Card {padding=:md, shadow=:sm, rounded=:lg} begin
+    @Heading {level=3} &quot;Card Title&quot;
+    @Text &quot;Card content goes here&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div
+  class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+&gt;
+  &lt;h3
+    class&#61;&quot;text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100&quot;
+  &gt;
+    Card Title
+  &lt;/h3&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Card content goes here
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>padding::Symbol</code> - Padding size (<code>:none</code>, <code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>shadow::Symbol</code> - Shadow size (<code>:none</code>, <code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:sm</code></li><li><code>border::Bool</code> - Show border - default: <code>true</code></li><li><code>rounded::Symbol</code> - Border radius (<code>:none</code>, <code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:lg</code></li></ul><h4 id="Badge"><a class="docs-heading-anchor" href="#Badge">Badge</a><a id="Badge-1"></a><a class="docs-heading-anchor-permalink" href="#Badge" title="Permalink"></a></h4><p>Small status indicators for labels and tags.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Badge {variant=:primary} &quot;New&quot;
+    @text &quot; &quot;
+    @Badge {variant=:success, size=:sm} &quot;Active&quot;
+    @text &quot; &quot;
+    @Badge {variant=:danger, size=:lg} &quot;Critical&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center font-medium rounded-full bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 text-sm&quot;
+  &gt;New&lt;/span&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-0.5 text-xs&quot;
+  &gt;Active&lt;/span&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-3 py-1.5 text-base&quot;
+  &gt;Critical&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>variant::Symbol</code> - Badge variant (<code>:default</code>, <code>:primary</code>, <code>:success</code>, <code>:warning</code>, <code>:danger</code>) - default: <code>:default</code></li><li><code>size::Symbol</code> - Badge size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li></ul><h3 id="Table-and-List-Components"><a class="docs-heading-anchor" href="#Table-and-List-Components">Table &amp; List Components</a><a id="Table-and-List-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Table-and-List-Components" title="Permalink"></a></h3><p>Components for displaying structured data.</p><h4 id="Table"><a class="docs-heading-anchor" href="#Table">Table</a><a id="Table-1"></a><a class="docs-heading-anchor-permalink" href="#Table" title="Permalink"></a></h4><p>Responsive data tables with optional styling.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Table {striped=true, hover=true} begin
+    @thead begin
+        @tr begin
+            @th &quot;Name&quot;
+            @th &quot;Email&quot;
+            @th &quot;Status&quot;
+        end
+    end
+    @tbody begin
+        @tr begin
+            @td &quot;John Doe&quot;
+            @td &quot;john@example.com&quot;
+            @td begin
+                @Badge {variant=:success} &quot;Active&quot;
+            end
+        end
+        @tr begin
+            @td &quot;Jane Smith&quot;
+            @td &quot;jane@example.com&quot;
+            @td begin
+                @Badge {variant=:warning} &quot;Pending&quot;
+            end
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;w-full overflow-x-auto&quot;&gt;
+  &lt;table
+    class&#61;&quot;min-w-full divide-y divide-slate-200 dark:divide-slate-700 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-800/50 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-slate-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-slate-800/50 &#91;&amp;amp;_th&#93;:px-6 &#91;&amp;amp;_th&#93;:py-3 &#91;&amp;amp;_td&#93;:px-6 &#91;&amp;amp;_td&#93;:py-4 border border-slate-200 dark:border-slate-800 &#91;&amp;amp;_th&#93;:border-b &#91;&amp;amp;_th&#93;:border-slate-200 dark:&#91;&amp;amp;_th&#93;:border-slate-700 &#91;&amp;amp;_td&#93;:border-b &#91;&amp;amp;_td&#93;:border-slate-200 dark:&#91;&amp;amp;_td&#93;:border-slate-700&quot;
+  &gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt;Status&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;John Doe&lt;/td&gt;
+        &lt;td&gt;john@example.com&lt;/td&gt;
+        &lt;td&gt;
+          &lt;span
+            class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2.5 py-1 text-sm&quot;
+          &gt;Active&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Jane Smith&lt;/td&gt;
+        &lt;td&gt;jane@example.com&lt;/td&gt;
+        &lt;td&gt;
+          &lt;span
+            class&#61;&quot;inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-2.5 py-1 text-sm&quot;
+          &gt;Pending&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>striped::Bool</code> - Striped rows - default: <code>false</code></li><li><code>bordered::Bool</code> - Show borders - default: <code>true</code></li><li><code>hover::Bool</code> - Hover effect on rows - default: <code>true</code></li><li><code>compact::Bool</code> - Compact spacing - default: <code>false</code></li></ul><h4 id="List"><a class="docs-heading-anchor" href="#List">List</a><a id="List-1"></a><a class="docs-heading-anchor-permalink" href="#List" title="Permalink"></a></h4><p>Styled lists with various markers.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @List {variant=:bullet} begin
+        @li &quot;First item&quot;
+        @li &quot;Second item&quot;
+        @li &quot;Third item&quot;
+    end
+
+    @List {variant=:check, spacing=:loose} begin
+        @li &quot;Completed task&quot;
+        @li &quot;Another completed task&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;ul
+    class&#61;&quot;list-disc list-inside text-slate-600 dark:text-slate-400 space-y-2&quot;
+  &gt;
+    &lt;li&gt;First item&lt;/li&gt;
+    &lt;li&gt;Second item&lt;/li&gt;
+    &lt;li&gt;Third item&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;ul
+    class&#61;&quot;&#91;&amp;amp;&amp;gt;li&#93;:relative &#91;&amp;amp;&amp;gt;li&#93;:pl-6 &#91;&amp;amp;&amp;gt;li:before&#93;:content-&#91;&amp;#39;✓&amp;#39;&#93; &#91;&amp;amp;&amp;gt;li:before&#93;:absolute &#91;&amp;amp;&amp;gt;li:before&#93;:left-0 &#91;&amp;amp;&amp;gt;li:before&#93;:text-green-600 dark:&#91;&amp;amp;&amp;gt;li:before&#93;:text-green-400 &#91;&amp;amp;&amp;gt;li:before&#93;:font-bold text-slate-600 dark:text-slate-400 space-y-4&quot;
+  &gt;
+    &lt;li&gt;Completed task&lt;/li&gt;
+    &lt;li&gt;Another completed task&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>variant::Symbol</code> - List variant (<code>:bullet</code>, <code>:number</code>, <code>:check</code>, <code>:none</code>) - default: <code>:bullet</code></li><li><code>spacing::Symbol</code> - Item spacing (<code>:tight</code>, <code>:normal</code>, <code>:loose</code>) - default: <code>:normal</code></li></ul><h3 id="Form-Components"><a class="docs-heading-anchor" href="#Form-Components">Form Components</a><a id="Form-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Form-Components" title="Permalink"></a></h3><p>A comprehensive set of form controls with consistent styling.</p><h4 id="Input"><a class="docs-heading-anchor" href="#Input">Input</a><a id="Input-1"></a><a class="docs-heading-anchor-permalink" href="#Input" title="Permalink"></a></h4><p>Text input fields with various states and options.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=3} begin
+    @Input {type=&quot;text&quot;, placeholder=&quot;Enter your name&quot;}
+    @Input {type=&quot;email&quot;, state=:error, placeholder=&quot;Email address&quot;}
+    @Input {type=&quot;password&quot;, icon=&quot;&lt;svg class=&#39;h-4 w-4&#39; fill=&#39;currentColor&#39; viewBox=&#39;0 0 20 20&#39;&gt;&lt;path d=&#39;M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 016 0v2a1 1 0 102 0V7a5 5 0 00-5-5z&#39;/&gt;&lt;/svg&gt;&quot;, placeholder=&quot;Password&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
+  &lt;input
+    type&#61;&quot;text&quot;
+    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+    placeholder&#61;&quot;Enter your name&quot;
+    name&#61;&quot;nothing&quot;
+    value&#61;&quot;nothing&quot;
+  &gt;
+  &lt;input
+    type&#61;&quot;email&quot;
+    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
+    placeholder&#61;&quot;Email address&quot;
+    name&#61;&quot;nothing&quot;
+    value&#61;&quot;nothing&quot;
+  &gt;
+  &lt;div class&#61;&quot;relative&quot;&gt;
+    &lt;div
+      class&#61;&quot;pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3&quot;
+    &gt;
+    &lt;/div&gt;
+    &lt;input
+      type&#61;&quot;password&quot;
+      class&#61;&quot;pl-10 w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+      placeholder&#61;&quot;Password&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+    &gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>type::String</code> - Input type - default: <code>&quot;text&quot;</code></li><li><code>size::Symbol</code> - Input size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>state::Symbol</code> - Input state (<code>:default</code>, <code>:error</code>, <code>:success</code>) - default: <code>:default</code></li><li><code>icon::String</code> - Icon HTML to display (optional)</li><li><code>placeholder::String</code> - Placeholder text (optional)</li><li><code>name::String</code> - Input name attribute (optional)</li><li><code>value::String</code> - Input value (optional)</li><li><code>required::Bool</code> - Required field - default: <code>false</code></li><li><code>disabled::Bool</code> - Disabled state - default: <code>false</code></li></ul><h4 id="Textarea"><a class="docs-heading-anchor" href="#Textarea">Textarea</a><a id="Textarea-1"></a><a class="docs-heading-anchor-permalink" href="#Textarea" title="Permalink"></a></h4><p>Multi-line text input.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=3} begin
+    @Textarea {rows=4, placeholder=&quot;Enter your message...&quot;}
+    @Textarea {rows=6, resize=:none, state=:success, value=&quot;Message sent successfully!&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
+  &lt;textarea
+    rows&#61;&quot;4&quot;
+    class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-y border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+    placeholder&#61;&quot;Enter your message...&quot;
+    name&#61;&quot;nothing&quot;
+  &gt;&lt;/textarea&gt;
+  &lt;textarea
+    rows&#61;&quot;6&quot;
+    class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-none border-green-300 focus:border-green-500 focus:ring-green-500/10&quot;
+    placeholder&#61;&quot;nothing&quot;
+    name&#61;&quot;nothing&quot;
+  &gt;&lt;/textarea&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>rows::Int</code> - Number of visible rows - default: <code>4</code></li><li><code>resize::Symbol</code> - Resize behavior (<code>:none</code>, <code>:vertical</code>, <code>:horizontal</code>, <code>:both</code>) - default: <code>:vertical</code></li><li><code>state::Symbol</code> - Input state - default: <code>:default</code></li><li>Plus all text input props (placeholder, name, value, etc.)</li></ul><h4 id="Select"><a class="docs-heading-anchor" href="#Select">Select</a><a id="Select-1"></a><a class="docs-heading-anchor-permalink" href="#Select" title="Permalink"></a></h4><p>Dropdown select element.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Select {
+    options=[(&quot;us&quot;, &quot;United States&quot;), (&quot;uk&quot;, &quot;United Kingdom&quot;), (&quot;ca&quot;, &quot;Canada&quot;)],
+    placeholder=&quot;Choose a country&quot;,
+    value=&quot;us&quot;
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;select
+  class&#61;&quot;w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-&#91;url&#40;&amp;#39;data:image/svg&#43;xml;charset&#61;UTF-8,&#37;3csvg xmlns&#61;&amp;quot;http://www.w3.org/2000/svg&amp;quot; viewBox&#61;&amp;quot;0 0 24 24&amp;quot; fill&#61;&amp;quot;none&amp;quot; stroke&#61;&amp;quot;currentColor&amp;quot; stroke-width&#61;&amp;quot;2&amp;quot; stroke-linecap&#61;&amp;quot;round&amp;quot; stroke-linejoin&#61;&amp;quot;round&amp;quot;&#37;3e&#37;3cpolyline points&#61;&amp;quot;6 9 12 15 18 9&amp;quot;&#37;3e&#37;3c/polyline&#37;3e&#37;3c/svg&#37;3e&amp;#39;&#41;&#93; bg-&#91;length:1.5em_1.5em&#93; bg-&#91;right_0.5rem_center&#93; bg-no-repeat px-4 py-2 pr-10 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+  name&#61;&quot;nothing&quot;
+&gt;
+  &lt;option value&#61;&quot;&quot;&gt;&lt;/option&gt;
+  &lt;option value&#61;&quot;us&quot; selected&gt;&lt;/option&gt;
+  &lt;option value&#61;&quot;uk&quot;&gt;&lt;/option&gt;
+  &lt;option value&#61;&quot;ca&quot;&gt;&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>options::Vector{Tuple{String,String}}</code> - Options as (value, label) tuples</li><li><code>size::Symbol</code> - Select size - default: <code>:md</code></li><li><code>state::Symbol</code> - Select state - default: <code>:default</code></li><li>Plus standard form props</li></ul><h4 id="Checkbox"><a class="docs-heading-anchor" href="#Checkbox">Checkbox</a><a id="Checkbox-1"></a><a class="docs-heading-anchor-permalink" href="#Checkbox" title="Permalink"></a></h4><p>Styled checkbox inputs.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=3} begin
+    @Checkbox {label=&quot;I agree to the terms&quot;}
+    @Checkbox {label=&quot;Subscribe to newsletter&quot;, checked=true}
+    @Checkbox {size=:lg, color=:success, label=&quot;Confirmed&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
+  &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;checkbox&quot;
+      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
+  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;checkbox&quot;
+      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+      checked
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
+  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;checkbox&quot;
+      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-5 w-5 text-green-600 focus:ring-green-500&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Checkbox size - default: <code>:md</code></li><li><code>color::Symbol</code> - Checkbox color (<code>:slate</code>, <code>:primary</code>, <code>:success</code>) - default: <code>:primary</code></li><li><code>label::String</code> - Label text (optional)</li><li><code>checked::Bool</code> - Checked state - default: <code>false</code></li><li>Plus standard form props</li></ul><h4 id="Radio"><a class="docs-heading-anchor" href="#Radio">Radio</a><a id="Radio-1"></a><a class="docs-heading-anchor-permalink" href="#Radio" title="Permalink"></a></h4><p>Radio button groups.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Radio {
+    name=&quot;plan&quot;,
+    options=[(&quot;basic&quot;, &quot;Basic Plan&quot;), (&quot;pro&quot;, &quot;Pro Plan&quot;), (&quot;enterprise&quot;, &quot;Enterprise&quot;)],
+    value=&quot;pro&quot;
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;space-y-2&quot;&gt;
+  &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;radio&quot;
+      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      name&#61;&quot;plan&quot;
+      value&#61;&quot;basic&quot;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
+  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;radio&quot;
+      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      name&#61;&quot;plan&quot;
+      value&#61;&quot;pro&quot;
+      checked
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
+  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+      type&#61;&quot;radio&quot;
+      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      name&#61;&quot;plan&quot;
+      value&#61;&quot;enterprise&quot;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>options::Vector{Tuple{String,String}}</code> - Options as (value, label) tuples</li><li><code>name::String</code> - Radio group name (required)</li><li><code>value::String</code> - Selected value (optional)</li><li><code>size::Symbol</code> - Radio size - default: <code>:md</code></li><li><code>color::Symbol</code> - Radio color - default: <code>:primary</code></li><li>Plus standard form props</li></ul><h4 id="FormGroup"><a class="docs-heading-anchor" href="#FormGroup">FormGroup</a><a id="FormGroup-1"></a><a class="docs-heading-anchor-permalink" href="#FormGroup" title="Permalink"></a></h4><p>Form field wrapper with label and help text.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=4} begin
+    @FormGroup {label=&quot;Email Address&quot;, help=&quot;We&#39;ll never share your email&quot;, required=true} begin
+        @Input {type=&quot;email&quot;, placeholder=&quot;you@example.com&quot;}
+    end
+
+    @FormGroup {label=&quot;Password&quot;, error=&quot;Password must be at least 8 characters&quot;} begin
+        @Input {type=&quot;password&quot;, state=:error}
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+  &lt;div class&#61;&quot;space-y-1&quot;&gt;
+    &lt;label
+      class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+    &gt;&lt;span class&#61;&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;&lt;/label&gt;&lt;input
+      type&#61;&quot;email&quot;
+      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+      placeholder&#61;&quot;you@example.com&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+    &gt;
+    &lt;p class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;&gt;&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;space-y-1&quot;&gt;
+    &lt;label
+      class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+    &gt;&lt;/label&gt;&lt;input
+      type&#61;&quot;password&quot;
+      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
+      placeholder&#61;&quot;nothing&quot;
+      name&#61;&quot;nothing&quot;
+      value&#61;&quot;nothing&quot;
+    &gt;
+    &lt;p class&#61;&quot;text-sm text-red-600 dark:text-red-400&quot;&gt;&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>label::String</code> - Field label (optional)</li><li><code>help::String</code> - Help text (optional)</li><li><code>error::String</code> - Error message (optional)</li><li><code>required::Bool</code> - Show required indicator - default: <code>false</code></li></ul><h3 id="Feedback-Components"><a class="docs-heading-anchor" href="#Feedback-Components">Feedback Components</a><a id="Feedback-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Feedback-Components" title="Permalink"></a></h3><p>Components for user feedback and loading states.</p><h4 id="Alert"><a class="docs-heading-anchor" href="#Alert">Alert</a><a id="Alert-1"></a><a class="docs-heading-anchor-permalink" href="#Alert" title="Permalink"></a></h4><p>Notification messages with various severity levels.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=3} begin
+    @Alert {variant=:info} &quot;This is an informational message&quot;
+    @Alert {variant=:success, dismissible=true} &quot;Operation completed successfully!&quot;
+    @Alert {variant=:warning} begin
+        @strong &quot;Warning:&quot;
+        @text &quot; Please review before proceeding&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
+  &lt;div
+    class&#61;&quot;rounded-lg border p-4 bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200&quot;
+    role&#61;&quot;alert&quot;
+  &gt;
+    &lt;div class&#61;&quot;flex&quot;&gt;
+      &lt;div class&#61;&quot;flex-shrink-0&quot;&gt;&lt;/div&gt;
+      &lt;div class&#61;&quot;ml-3 flex-1&quot;&gt;This is an informational message&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;rounded-lg border p-4 bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200&quot;
+    role&#61;&quot;alert&quot;
+  &gt;
+    &lt;div class&#61;&quot;flex&quot;&gt;
+      &lt;div class&#61;&quot;flex-shrink-0&quot;&gt;&lt;/div&gt;
+      &lt;div class&#61;&quot;ml-3 flex-1&quot;&gt;Operation completed successfully&#33;&lt;/div&gt;
+      &lt;button
+        type&#61;&quot;button&quot;
+        class&#61;&quot;ml-3 inline-flex flex-shrink-0 rounded-md p-1.5 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current&quot;
+        aria-label&#61;&quot;Dismiss&quot;
+      &gt;
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;rounded-lg border p-4 bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200&quot;
+    role&#61;&quot;alert&quot;
+  &gt;
+    &lt;div class&#61;&quot;flex&quot;&gt;
+      &lt;div class&#61;&quot;flex-shrink-0&quot;&gt;&lt;/div&gt;
+      &lt;div class&#61;&quot;ml-3 flex-1&quot;&gt;
+        &lt;strong&gt;Warning:&lt;/strong&gt; Please review before proceeding
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>variant::Symbol</code> - Alert variant (<code>:info</code>, <code>:success</code>, <code>:warning</code>, <code>:error</code>) - default: <code>:info</code></li><li><code>dismissible::Bool</code> - Shows close button - default: <code>false</code></li></ul><h4 id="Progress"><a class="docs-heading-anchor" href="#Progress">Progress</a><a id="Progress-1"></a><a class="docs-heading-anchor-permalink" href="#Progress" title="Permalink"></a></h4><p>Progress bars for loading and completion states.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=4} begin
+    @Progress {value=75}
+    @Progress {value=50, max=100, label=&quot;Upload Progress&quot;, striped=true}
+    @Progress {value=30, color=:success, size=:lg}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+  &lt;div&gt;
+    &lt;div
+      class&#61;&quot;w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden h-3&quot;
+      role&#61;&quot;progressbar&quot;
+      aria-valuenow&#61;&quot;75&quot;
+      aria-valuemin&#61;&quot;0&quot;
+      aria-valuemax&#61;&quot;100&quot;
+    &gt;
+      &lt;div
+        class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-slate-900 dark:bg-slate-100 h-3&quot;
+        style&#61;&quot;width: 75&#37;&quot;
+      &gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div
+      class&#61;&quot;mb-1 flex justify-between text-sm text-slate-600 dark:text-slate-400&quot;
+    &gt;
+      &lt;span&gt;&lt;/span&gt;
+      &lt;span&gt;50&#37;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div
+      class&#61;&quot;w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden h-3&quot;
+      role&#61;&quot;progressbar&quot;
+      aria-valuenow&#61;&quot;50&quot;
+      aria-valuemin&#61;&quot;0&quot;
+      aria-valuemax&#61;&quot;100&quot;
+    &gt;
+      &lt;div
+        class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-slate-900 dark:bg-slate-100 bg-&#91;length:1rem_1rem&#93; bg-gradient-to-r from-transparent via-white/20 to-transparent animate-&#91;progress-stripes_1s_linear_infinite&#93; h-3&quot;
+        style&#61;&quot;width: 50&#37;&quot;
+      &gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div
+      class&#61;&quot;w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden h-4&quot;
+      role&#61;&quot;progressbar&quot;
+      aria-valuenow&#61;&quot;30&quot;
+      aria-valuemin&#61;&quot;0&quot;
+      aria-valuemax&#61;&quot;100&quot;
+    &gt;
+      &lt;div
+        class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-green-600 dark:bg-green-400 h-4&quot;
+        style&#61;&quot;width: 30&#37;&quot;
+      &gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>value::Int</code> - Current progress value - default: <code>0</code></li><li><code>max::Int</code> - Maximum progress value - default: <code>100</code></li><li><code>size::Symbol</code> - Progress bar size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>color::Symbol</code> - Progress bar color (<code>:slate</code>, <code>:primary</code>, <code>:success</code>) - default: <code>:primary</code></li><li><code>striped::Bool</code> - Show striped pattern - default: <code>false</code></li><li><code>label::String</code> - Label to display (optional)</li></ul><h4 id="Spinner"><a class="docs-heading-anchor" href="#Spinner">Spinner</a><a id="Spinner-1"></a><a class="docs-heading-anchor-permalink" href="#Spinner" title="Permalink"></a></h4><p>Loading spinner animations.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Spinner {}
+    @text &quot; &quot;
+    @Spinner {size=:lg, color=:primary}
+    @text &quot; &quot;
+    @Spinner {size=:sm, color=:white}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Spinner size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>color::Symbol</code> - Spinner color (<code>:slate</code>, <code>:primary</code>, <code>:white</code>) - default: <code>:primary</code></li></ul><h3 id="Navigation-Components"><a class="docs-heading-anchor" href="#Navigation-Components">Navigation Components</a><a id="Navigation-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Navigation-Components" title="Permalink"></a></h3><p>Components for site navigation and wayfinding.</p><h4 id="Breadcrumb"><a class="docs-heading-anchor" href="#Breadcrumb">Breadcrumb</a><a id="Breadcrumb-1"></a><a class="docs-heading-anchor-permalink" href="#Breadcrumb" title="Permalink"></a></h4><p>Navigation breadcrumbs for hierarchical pages.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Breadcrumb {
+    items=[
+        (&quot;/&quot;, &quot;Home&quot;),
+        (&quot;/products&quot;, &quot;Products&quot;),
+        (&quot;/products/electronics&quot;, &quot;Electronics&quot;),
+        (&quot;/products/electronics/phones&quot;, &quot;Phones&quot;)
+    ]
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;nav aria-label&#61;&quot;Breadcrumb&quot;&gt;
+  &lt;ol class&#61;&quot;flex items-center space-x-2 text-sm&quot;&gt;
+    &lt;li class&#61;&quot;flex items-center&quot;&gt;
+      &lt;a
+        href&#61;&quot;/&quot;
+        class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
+      &gt;&lt;/a&gt;
+      &lt;span
+        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
+        aria-hidden&#61;&quot;true&quot;
+      &gt;&lt;/span&gt;
+    &lt;/li&gt;
+    &lt;li class&#61;&quot;flex items-center&quot;&gt;
+      &lt;a
+        href&#61;&quot;/products&quot;
+        class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
+      &gt;&lt;/a&gt;
+      &lt;span
+        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
+        aria-hidden&#61;&quot;true&quot;
+      &gt;&lt;/span&gt;
+    &lt;/li&gt;
+    &lt;li class&#61;&quot;flex items-center&quot;&gt;
+      &lt;a
+        href&#61;&quot;/products/electronics&quot;
+        class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
+      &gt;&lt;/a&gt;
+      &lt;span
+        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
+        aria-hidden&#61;&quot;true&quot;
+      &gt;&lt;/span&gt;
+    &lt;/li&gt;
+    &lt;li class&#61;&quot;flex items-center&quot;&gt;
+      &lt;span
+        class&#61;&quot;text-slate-500 dark:text-slate-400&quot;
+        aria-current&#61;&quot;page&quot;
+      &gt;&lt;/span&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>items::Vector{Tuple{String,String}}</code> - Breadcrumb items as (href, label) tuples</li><li><code>separator::String</code> - Separator character - default: <code>&quot;/&quot;</code></li></ul><h4 id="Pagination"><a class="docs-heading-anchor" href="#Pagination">Pagination</a><a id="Pagination-1"></a><a class="docs-heading-anchor-permalink" href="#Pagination" title="Permalink"></a></h4><p>Page navigation for multi-page content.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {gap=4} begin
+    @Pagination {current=5, total=10}
+    @Pagination {current=1, total=20, siblings=2, base_url=&quot;/posts/page/&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+  &lt;nav class&#61;&quot;flex items-center justify-center&quot; aria-label&#61;&quot;Pagination&quot;&gt;
+    &lt;ul class&#61;&quot;flex items-center -space-x-px&quot;&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#4&quot;
+          class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-l-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#1&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;span
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300&quot;
+        &gt;...&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#4&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;span
+          aria-current&#61;&quot;page&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 border border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100&quot;
+        &gt;&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#6&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;span
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300&quot;
+        &gt;...&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#10&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;#6&quot;
+          class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+  &lt;nav class&#61;&quot;flex items-center justify-center&quot; aria-label&#61;&quot;Pagination&quot;&gt;
+    &lt;ul class&#61;&quot;flex items-center -space-x-px&quot;&gt;
+      &lt;li&gt;
+        &lt;span
+          class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-l-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700&quot;
+        &gt;&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;span
+          aria-current&#61;&quot;page&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 border border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100&quot;
+        &gt;&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;/posts/page/2&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;/posts/page/3&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;span
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300&quot;
+        &gt;...&lt;/span&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;/posts/page/20&quot;
+          class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;a
+          href&#61;&quot;/posts/page/2&quot;
+          class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+        &gt;&lt;/a&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>current::Int</code> - Current page number - default: <code>1</code></li><li><code>total::Int</code> - Total number of pages - default: <code>1</code></li><li><code>siblings::Int</code> - Number of sibling pages to show - default: <code>1</code></li><li><code>base_url::String</code> - Base URL for page links - default: <code>&quot;#&quot;</code></li></ul><h4 id="Tabs"><a class="docs-heading-anchor" href="#Tabs">Tabs</a><a id="Tabs-1"></a><a class="docs-heading-anchor-permalink" href="#Tabs" title="Permalink"></a></h4><p>Tab navigation (visual only, no JavaScript).</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Tabs {
+    items=[
+        (&quot;overview&quot;, &quot;Overview&quot;),
+        (&quot;features&quot;, &quot;Features&quot;),
+        (&quot;pricing&quot;, &quot;Pricing&quot;),
+        (&quot;support&quot;, &quot;Support&quot;)
+    ],
+    active=&quot;features&quot;
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;nav
+    class&#61;&quot;flex space-x-1 border-b border-slate-200 dark:border-slate-700&quot;
+    aria-label&#61;&quot;Tabs&quot;
+  &gt;
+    &lt;button
+      type&#61;&quot;button&quot;
+      class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      id&#61;&quot;tab-overview&quot;
+    &gt;
+    &lt;/button&gt;
+    &lt;button
+      type&#61;&quot;button&quot;
+      class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 border-b-2 border-slate-900 dark:border-slate-100 transition-colors&quot;
+      aria-current&#61;&quot;page&quot;
+      id&#61;&quot;tab-features&quot;
+    &gt;
+    &lt;/button&gt;
+    &lt;button
+      type&#61;&quot;button&quot;
+      class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      id&#61;&quot;tab-pricing&quot;
+    &gt;
+    &lt;/button&gt;
+    &lt;button
+      type&#61;&quot;button&quot;
+      class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      id&#61;&quot;tab-support&quot;
+    &gt;
+    &lt;/button&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>items::Vector{Tuple{String,String}}</code> - Tab items as (id, label) tuples</li><li><code>active::String</code> - ID of the active tab - default: first item&#39;s ID</li></ul><h3 id="Utility-Components"><a class="docs-heading-anchor" href="#Utility-Components">Utility Components</a><a id="Utility-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Utility-Components" title="Permalink"></a></h3><p>Miscellaneous utility components.</p><h4 id="Divider"><a class="docs-heading-anchor" href="#Divider">Divider</a><a id="Divider-1"></a><a class="docs-heading-anchor-permalink" href="#Divider" title="Permalink"></a></h4><p>Horizontal or vertical separators.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @div begin
+    @Text &quot;Section 1&quot;
+    @Divider {}
+    @Text &quot;Section 2&quot;
+    @Divider {color=&quot;border-blue-500&quot;}
+    @Text &quot;Section 3&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Section 1
+  &lt;/p&gt;
+  &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Section 2
+  &lt;/p&gt;
+  &lt;hr class&#61;&quot;border-t border-blue-500 my-4&quot;&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    Section 3
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>orientation::Symbol</code> - Divider orientation (<code>:horizontal</code>, <code>:vertical</code>) - default: <code>:horizontal</code></li><li><code>spacing::String</code> - Custom spacing class (optional)</li><li><code>color::String</code> - Border color class (optional)</li></ul><h4 id="Avatar"><a class="docs-heading-anchor" href="#Avatar">Avatar</a><a id="Avatar-1"></a><a class="docs-heading-anchor-permalink" href="#Avatar" title="Permalink"></a></h4><p>User profile images with fallbacks.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {direction=:horizontal, gap=3} begin
+    @Avatar {src=&quot;/user.jpg&quot;, alt=&quot;John Doe&quot;}
+    @Avatar {size=:lg, fallback=&quot;JD&quot;}
+    @Avatar {shape=:square, fallback=&quot;👤&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-row gap-3 items-stretch justify-start&quot;&gt;
+  &lt;div
+    class&#61;&quot;relative inline-block h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800&quot;
+  &gt;
+    &lt;img src&#61;&quot;/user.jpg&quot; alt&#61;&quot;John Doe&quot; class&#61;&quot;h-full w-full object-cover&quot;&gt;
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;relative inline-block h-12 w-12 text-lg rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800&quot;
+  &gt;
+    &lt;div
+      class&#61;&quot;flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400&quot;
+    &gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div
+    class&#61;&quot;relative inline-block h-10 w-10 text-base rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800&quot;
+  &gt;
+    &lt;div
+      class&#61;&quot;flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400&quot;
+    &gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>src::String</code> - Image source URL (optional)</li><li><code>alt::String</code> - Alternative text - default: <code>&quot;Avatar&quot;</code></li><li><code>size::Symbol</code> - Avatar size (<code>:xs</code>, <code>:sm</code>, <code>:md</code>, <code>:lg</code>, <code>:xl</code>) - default: <code>:md</code></li><li><code>shape::Symbol</code> - Avatar shape (<code>:circle</code>, <code>:square</code>) - default: <code>:circle</code></li><li><code>fallback::String</code> - Fallback content when no src provided (optional)</li></ul><h4 id="Icon"><a class="docs-heading-anchor" href="#Icon">Icon</a><a id="Icon-1"></a><a class="docs-heading-anchor-permalink" href="#Icon" title="Permalink"></a></h4><p>Icon wrapper for consistent sizing.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Stack {direction=:horizontal, gap=3} begin
+    @Icon {name=&quot;check&quot;}
+    @Icon {name=&quot;search&quot;, size=:lg, color=&quot;text-blue-600&quot;}
+    @Icon {size=:xl} begin
+        # Custom SVG content
+        HypertextTemplates.SafeString(&quot;&lt;svg fill=&#39;currentColor&#39; viewBox=&#39;0 0 20 20&#39;&gt;&lt;path d=&#39;M10 12a2 2 0 100-4 2 2 0 000 4z&#39;/&gt;&lt;path d=&#39;M10 4a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z&#39;/&gt;&lt;/svg&gt;&quot;)
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;flex flex-row gap-3 items-stretch justify-start&quot;&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center justify-center h-5 w-5 text-current&quot;
+  &gt;&lt;/span&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center justify-center h-6 w-6 text-blue-600&quot;
+  &gt;&lt;/span&gt;
+  &lt;span
+    class&#61;&quot;inline-flex items-center justify-center h-8 w-8 text-current&quot;
+  &gt;&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Icon size (<code>:xs</code>, <code>:sm</code>, <code>:md</code>, <code>:lg</code>, <code>:xl</code>) - default: <code>:md</code></li><li><code>color::String</code> - Icon color class (optional)</li><li><code>name::String</code> - Built-in icon name (optional)</li></ul><p><strong>Built-in icons:</strong> <code>check</code>, <code>x</code>, <code>arrow-right</code>, <code>arrow-left</code>, <code>chevron-down</code>, <code>chevron-up</code>, <code>menu</code>, <code>search</code>, <code>plus</code>, <code>minus</code></p><h2 id="Complete-Example"><a class="docs-heading-anchor" href="#Complete-Example">Complete Example</a><a id="Complete-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Complete-Example" title="Permalink"></a></h2><p>Here&#39;s a complete example combining multiple library components:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Section {spacing=:lg} begin
+    @Container begin
+        @Stack {gap=6} begin
+            # Header
+            @Card {padding=:lg, shadow=:md} begin
+                @Stack {gap=4} begin
+                    @Heading {level=1} &quot;User Dashboard&quot;
+                    @Text {variant=:lead} &quot;Manage your account settings and preferences&quot;
+                end
+            end
+
+            # Navigation
+            @Breadcrumb {
+                items=[
+                    (&quot;/&quot;, &quot;Home&quot;),
+                    (&quot;/account&quot;, &quot;Account&quot;),
+                    (&quot;/account/settings&quot;, &quot;Settings&quot;)
+                ]
+            }
+
+            # Content Grid
+            @Grid {cols=1, md=2, gap=6} begin
+                # Profile Section
+                @Card begin
+                    @Stack {gap=4} begin
+                        @Heading {level=2} &quot;Profile&quot;
+                        @Stack {direction=:horizontal, gap=4, align=:center} begin
+                            @Avatar {src=&quot;/user.jpg&quot;, size=:lg}
+                            @Stack {gap=1} begin
+                                @Text {weight=:semibold} &quot;John Doe&quot;
+                                @Badge {variant=:success} &quot;Pro User&quot;
+                            end
+                        end
+                        @Divider {}
+                        @FormGroup {label=&quot;Display Name&quot;} begin
+                            @Input {value=&quot;John Doe&quot;}
+                        end
+                        @FormGroup {label=&quot;Email&quot;, help=&quot;Used for notifications&quot;} begin
+                            @Input {type=&quot;email&quot;, value=&quot;john@example.com&quot;}
+                        end
+                    end
+                end
+
+                # Settings Section
+                @Card begin
+                    @Stack {gap=4} begin
+                        @Heading {level=2} &quot;Preferences&quot;
+                        @FormGroup {label=&quot;Theme&quot;} begin
+                            @Radio {
+                                name=&quot;theme&quot;,
+                                options=[
+                                    (&quot;light&quot;, &quot;Light&quot;),
+                                    (&quot;dark&quot;, &quot;Dark&quot;),
+                                    (&quot;system&quot;, &quot;System&quot;)
+                                ],
+                                value=&quot;system&quot;
+                            }
+                        end
+                        @Divider {}
+                        @Stack {gap=3} begin
+                            @Checkbox {label=&quot;Email notifications&quot;, checked=true}
+                            @Checkbox {label=&quot;Marketing emails&quot;}
+                            @Checkbox {label=&quot;Security alerts&quot;, checked=true}
+                        end
+                    end
+                end
+            end
+
+            # Actions
+            @Alert {variant=:info} begin
+                @text &quot;Changes are saved automatically&quot;
+            end
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;section class&#61;&quot;py-16 sm:py-20 md:py-24 lg:py-32&quot;&gt;
+  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+    &lt;div class&#61;&quot;flex flex-col gap-6 items-stretch justify-start&quot;&gt;
+      &lt;div
+        class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+      &gt;
+        &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+          &lt;h1
+            class&#61;&quot;text-4xl sm:text-5xl font-semibold text-slate-900 dark:text-slate-100&quot;
+          &gt;
+            User Dashboard
+          &lt;/h1&gt;
+          &lt;p
+            class&#61;&quot;text-lg sm:text-xl leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+          &gt;
+            Manage your account settings and preferences
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;nav aria-label&#61;&quot;Breadcrumb&quot;&gt;
+        &lt;ol class&#61;&quot;flex items-center space-x-2 text-sm&quot;&gt;
+          &lt;li class&#61;&quot;flex items-center&quot;&gt;
+            &lt;a
+              href&#61;&quot;/&quot;
+              class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
+            &gt;&lt;/a&gt;
+            &lt;span
+              class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
+              aria-hidden&#61;&quot;true&quot;
+            &gt;&lt;/span&gt;
+          &lt;/li&gt;
+          &lt;li class&#61;&quot;flex items-center&quot;&gt;
+            &lt;a
+              href&#61;&quot;/account&quot;
+              class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
+            &gt;&lt;/a&gt;
+            &lt;span
+              class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
+              aria-hidden&#61;&quot;true&quot;
+            &gt;&lt;/span&gt;
+          &lt;/li&gt;
+          &lt;li class&#61;&quot;flex items-center&quot;&gt;
+            &lt;span
+              class&#61;&quot;text-slate-500 dark:text-slate-400&quot;
+              aria-current&#61;&quot;page&quot;
+            &gt;&lt;/span&gt;
+          &lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/nav&gt;
+      &lt;div class&#61;&quot;grid grid-cols-1 md:grid-cols-2 gap-6&quot;&gt;
+        &lt;div
+          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+        &gt;
+          &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+            &lt;h2
+              class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
+            &gt;
+              Profile
+            &lt;/h2&gt;
+            &lt;div class&#61;&quot;flex flex-row gap-4 items-center justify-start&quot;&gt;
+              &lt;div
+                class&#61;&quot;relative inline-block h-12 w-12 text-lg rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800&quot;
+              &gt;
+                &lt;img
+                  src&#61;&quot;/user.jpg&quot;
+                  alt&#61;&quot;Avatar&quot;
+                  class&#61;&quot;h-full w-full object-cover&quot;
+                &gt;
+              &lt;/div&gt;
+              &lt;div class&#61;&quot;flex flex-col gap-1 items-stretch justify-start&quot;&gt;
+                &lt;p
+                  class&#61;&quot;text-base leading-relaxed font-semibold text-slate-600 dark:text-slate-400 text-left&quot;
+                &gt;
+                  John Doe
+                &lt;/p&gt;
+                &lt;span
+                  class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2.5 py-1 text-sm&quot;
+                &gt;Pro User&lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+            &lt;div class&#61;&quot;space-y-1&quot;&gt;
+              &lt;label
+                class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+              &gt;&lt;/label&gt;&lt;input
+                type&#61;&quot;text&quot;
+                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+                placeholder&#61;&quot;nothing&quot;
+                name&#61;&quot;nothing&quot;
+                value&#61;&quot;John Doe&quot;
+              &gt;
+            &lt;/div&gt;
+            &lt;div class&#61;&quot;space-y-1&quot;&gt;
+              &lt;label
+                class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+              &gt;&lt;/label&gt;&lt;input
+                type&#61;&quot;email&quot;
+                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+                placeholder&#61;&quot;nothing&quot;
+                name&#61;&quot;nothing&quot;
+                value&#61;&quot;john@example.com&quot;
+              &gt;
+              &lt;p class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;&gt;&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+        &gt;
+          &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
+            &lt;h2
+              class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
+            &gt;
+              Preferences
+            &lt;/h2&gt;
+            &lt;div class&#61;&quot;space-y-1&quot;&gt;
+              &lt;label
+                class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+              &gt;&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot;&gt;
+                &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                    type&#61;&quot;radio&quot;
+                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    name&#61;&quot;theme&quot;
+                    value&#61;&quot;light&quot;
+                  &gt;&lt;span
+                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;&lt;/span&gt;&lt;/label&gt;&lt;label
+                  class&#61;&quot;inline-flex items-center gap-2&quot;
+                &gt;&lt;input
+                    type&#61;&quot;radio&quot;
+                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    name&#61;&quot;theme&quot;
+                    value&#61;&quot;dark&quot;
+                  &gt;&lt;span
+                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;&lt;/span&gt;&lt;/label&gt;&lt;label
+                  class&#61;&quot;inline-flex items-center gap-2&quot;
+                &gt;&lt;input
+                    type&#61;&quot;radio&quot;
+                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    name&#61;&quot;theme&quot;
+                    value&#61;&quot;system&quot;
+                    checked
+                  &gt;&lt;span
+                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;&lt;/span&gt;&lt;/label&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+            &lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
+              &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                  type&#61;&quot;checkbox&quot;
+                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  name&#61;&quot;nothing&quot;
+                  value&#61;&quot;nothing&quot;
+                  checked
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
+                &gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                  type&#61;&quot;checkbox&quot;
+                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  name&#61;&quot;nothing&quot;
+                  value&#61;&quot;nothing&quot;
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
+                &gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                  type&#61;&quot;checkbox&quot;
+                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  name&#61;&quot;nothing&quot;
+                  value&#61;&quot;nothing&quot;
+                  checked
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
+                &gt;&lt;/label&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div
+        class&#61;&quot;rounded-lg border p-4 bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200&quot;
+        role&#61;&quot;alert&quot;
+      &gt;
+        &lt;div class&#61;&quot;flex&quot;&gt;
+          &lt;div class&#61;&quot;flex-shrink-0&quot;&gt;&lt;/div&gt;
+          &lt;div class&#61;&quot;ml-3 flex-1&quot;&gt;Changes are saved automatically&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<hr />
+</div><h2 id="Styling-Notes"><a class="docs-heading-anchor" href="#Styling-Notes">Styling Notes</a><a id="Styling-Notes-1"></a><a class="docs-heading-anchor-permalink" href="#Styling-Notes" title="Permalink"></a></h2><p>All components are styled with Tailwind CSS v4 classes and include:</p><ul><li>Dark mode support by default</li><li>Responsive design considerations</li><li>Accessibility attributes where appropriate</li><li>Consistent spacing and sizing scales</li><li>Modern, clean aesthetic similar to shadcn/ui</li></ul><p>To use these components effectively, ensure your project includes Tailwind CSS v4 with the default configuration.</p><h2 id="Custom-Styling"><a class="docs-heading-anchor" href="#Custom-Styling">Custom Styling</a><a id="Custom-Styling-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Styling" title="Permalink"></a></h2><p>While components come with sensible defaults, you can customize them using the <code>attrs...</code> parameter that all components accept:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
+html = @render @Card {class=&quot;custom-class&quot;, id=&quot;my-card&quot;, &quot;data-testid&quot;=&quot;card-1&quot;} begin
+    @Text &quot;This card has custom attributes&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;custom-class&quot; id&#61;&quot;my-card&quot; data-testid&#61;&quot;card-1&quot;&gt;
+  &lt;p
+    class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
+  &gt;
+    This card has custom attributes
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 19:55">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
