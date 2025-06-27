@@ -140,22 +140,23 @@ end
 html1 = @render @div begin
     @scoped_script
 end
-println("First render:")
 Main.display_html(html1) #hide
+```
 
+```@example once-scoping
 # Second render - includes script again (different render context)
 html2 = @render @div begin
     @scoped_script  
 end
-println("\nSecond render (new context):")
 Main.display_html(html2) #hide
+```
 
+```@example once-scoping
 # Within same render - deduplication works
 html3 = @render @div begin
     @section @scoped_script  # Included
     @section @scoped_script  # Skipped
 end
-println("\nSame render context (deduplication):")
 Main.display_html(html3) #hide
 ```
 
@@ -189,7 +190,9 @@ html = @render @alert {type = "warning", dismissible = true} begin
     @strong "Warning!" " Something went wrong."
 end
 Main.display_html(html) #hide
+```
 
+```@example deftag-basic
 # Also works without dismissible
 html2 = @render @alert {type = "info"} "This is an info message."
 Main.display_html(html2) #hide
@@ -208,7 +211,9 @@ using HypertextTemplates.Elements
 # Use the custom element
 html = @render @my_custom_element {prop = "value"} "Content"
 Main.display_html(html) #hide
+```
 
+```@example custom-element-tags
 # Also works with nested content
 @element "custom-card" custom_card
 @deftag macro custom_card end
@@ -217,7 +222,6 @@ html2 = @render @custom_card {variant = "primary"} begin
     @h3 "Card Title"
     @p "Card content goes here"
 end
-println("\nNested custom element:")
 Main.display_html(html2) #hide
 ```
 
@@ -230,11 +234,11 @@ using HypertextTemplates.Elements
 module UI
     using HypertextTemplates
     using HypertextTemplates.Elements
-    
+
     @component function button(; variant = "default")
         Elements.@button {class = "ui-btn ui-btn-$variant"} @__slot__
     end
-    
+
     # Create and export the macro
     @deftag macro button end
     export @button
@@ -243,11 +247,12 @@ end
 # Use from outside the module
 html = @render @UI.button {variant = "primary"} "Click me"
 Main.display_html(html) #hide
+```
 
+```@example module-tags
 # Also can import and use directly
 using .UI: @button
 html2 = @render @button {variant = "success"} "Save"
-println("\nImported usage:")
 Main.display_html(html2) #hide
 ```
 
@@ -379,14 +384,14 @@ html1 = @render @flexible_container {tag = section} begin
     @h1 "Section Title"
     @p "Section content"
 end
-println("As section:")
 Main.display_html(html1) #hide
+```
 
+```@example polymorphic
 html2 = @render @flexible_container {tag = article, class_name = "article-container"} begin
     @h2 "Article Title"
     @p "Article content"
 end
-println("\nAs article:")
 Main.display_html(html2) #hide
 ```
 
@@ -422,7 +427,7 @@ const FIELD_COMPONENTS = Dict(
 
 @component function form_field(; type, name, label, options = nothing)
     component = get(FIELD_COMPONENTS, type, text_field)
-    
+
     @div {class = "form-field"} begin
         Elements.@label {"for" := name} $label
         @<component {name, options}
@@ -466,7 +471,7 @@ const COMPUTED_CACHE = Dict{Any,Any}()
     value = get!(COMPUTED_CACHE, key) do
         compute()
     end
-    
+
     @div {class = "memoized"} $value
 end
 
@@ -559,7 +564,9 @@ html1 = @render @data_fetcher {
     render_success = success_comp
 }
 Main.display_html(html1) #hide
+```
 
+```@example render-props
 # Error case
 println("\nError case:")
 html2 = @render @data_fetcher {
@@ -681,7 +688,9 @@ html1 = @render @lazy_data {
     data_loader = () -> fetch_users_from_db()
 }
 Main.display_html(html1) #hide
+```
 
+```@example lazy-loading
 # Second render - uses cache
 println("\nSecond render:")
 html2 = @render @lazy_data {
