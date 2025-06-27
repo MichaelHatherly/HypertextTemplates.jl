@@ -139,7 +139,7 @@ Main.display_html(html) #hide
 ```
 
 **Props:**
-- `level::Int` - Heading level (1-6) - default: `1`
+- `level::Int` - Heading level (`1`-`6`) - default: `1`
 - `size::Symbol` - Override size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`, `"2xl"`, `"3xl"`, `"4xl"`, `"5xl"`) (optional)
 - `weight::Symbol` - Font weight (`:normal`, `:medium`, `:semibold`, `:bold`) - default: `:semibold`
 - `color::String` - Text color class (optional)
@@ -303,7 +303,7 @@ html = @render @div begin
         @li "Second item"
         @li "Third item"
     end
-    
+
     @List {variant=:check, spacing=:loose} begin
         @li "Completed task"
         @li "Another completed task"
@@ -719,7 +719,7 @@ html = @render @Section {spacing=:lg} begin
                     @Text {variant=:lead} "Manage your account settings and preferences"
                 end
             end
-            
+
             # Navigation
             @Breadcrumb {
                 items=[
@@ -728,7 +728,7 @@ html = @render @Section {spacing=:lg} begin
                     ("/account/settings", "Settings")
                 ]
             }
-            
+
             # Content Grid
             @Grid {cols=1, md=2, gap=6} begin
                 # Profile Section
@@ -751,7 +751,7 @@ html = @render @Section {spacing=:lg} begin
                         end
                     end
                 end
-                
+
                 # Settings Section
                 @Card begin
                     @Stack {gap=4} begin
@@ -776,7 +776,7 @@ html = @render @Section {spacing=:lg} begin
                     end
                 end
             end
-            
+
             # Actions
             @Alert {variant=:info} begin
                 @text "Changes are saved automatically"

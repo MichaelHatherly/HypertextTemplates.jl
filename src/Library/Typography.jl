@@ -4,7 +4,7 @@
 A styled heading component with consistent sizing and weight.
 
 # Props
-- `level::Int`: Heading level (1-6) (default: 1)
+- `level::Int`: Heading level (`1`-`6`) (default: `1`)
 - `size::Union{Symbol,String,Nothing}`: Override size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`, `"2xl"`, `"3xl"`, `"4xl"`, `"5xl"`) (optional)
 - `weight::Union{Symbol,String}`: Font weight (`:normal`, `:medium`, `:semibold`, `:bold`) (default: `:semibold`)
 - `color::Union{String,Nothing}`: Text color class (optional)
@@ -149,7 +149,7 @@ Styled anchor element with hover effects.
 - `href::String`: Link destination (required)
 - `variant::Union{Symbol,String}`: Link variant (`:default`, `:underline`, `:hover_underline`) (default: `:default`)
 - `color::Union{String,Nothing}`: Text color class (optional)
-- `external::Bool`: Whether this is an external link (adds target="_blank") (default: false)
+- `external::Bool`: Whether this is an external link (adds target="_blank") (default: `false`)
 """
 @component function Link(;
     href::String,

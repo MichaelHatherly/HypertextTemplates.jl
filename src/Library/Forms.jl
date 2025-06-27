@@ -4,15 +4,15 @@
 A styled text input field.
 
 # Props
-- `type::String`: Input type (default: "text")
+- `type::String`: Input type (default: `"text"`)
 - `size::Union{Symbol,String}`: Input size (`:sm`, `:md`, `:lg`) (default: `:md`)
 - `state::Union{Symbol,String}`: Input state (`:default`, `:error`, `:success`) (default: `:default`)
 - `icon::Union{String,Nothing}`: Icon HTML to display (optional)
 - `placeholder::Union{String,Nothing}`: Placeholder text (optional)
 - `name::Union{String,Nothing}`: Input name attribute (optional)
 - `value::Union{String,Nothing}`: Input value (optional)
-- `required::Bool`: Whether input is required (default: false)
-- `disabled::Bool`: Whether input is disabled (default: false)
+- `required::Bool`: Whether input is required (default: `false`)
+- `disabled::Bool`: Whether input is disabled (default: `false`)
 """
 @component function Input(;
     type::String = "text",
@@ -88,14 +88,14 @@ end
 A multi-line text input component.
 
 # Props
-- `rows::Int`: Number of visible rows (default: 4)
+- `rows::Int`: Number of visible rows (default: `4`)
 - `resize::Union{Symbol,String}`: Resize behavior (`:none`, `:vertical`, `:horizontal`, `:both`) (default: `:vertical`)
 - `state::Union{Symbol,String}`: Input state (`:default`, `:error`, `:success`) (default: `:default`)
 - `placeholder::Union{String,Nothing}`: Placeholder text (optional)
 - `name::Union{String,Nothing}`: Textarea name attribute (optional)
 - `value::Union{String,Nothing}`: Textarea value (optional)
-- `required::Bool`: Whether textarea is required (default: false)
-- `disabled::Bool`: Whether textarea is disabled (default: false)
+- `required::Bool`: Whether textarea is required (default: `false`)
+- `disabled::Bool`: Whether textarea is disabled (default: `false`)
 """
 @component function Textarea(;
     rows::Int = 4,
@@ -158,8 +158,8 @@ A dropdown select element.
 - `placeholder::Union{String,Nothing}`: Placeholder option text (optional)
 - `name::Union{String,Nothing}`: Select name attribute (optional)
 - `value::Union{String,Nothing}`: Selected value (optional)
-- `required::Bool`: Whether select is required (default: false)
-- `disabled::Bool`: Whether select is disabled (default: false)
+- `required::Bool`: Whether select is required (default: `false`)
+- `disabled::Bool`: Whether select is disabled (default: `false`)
 """
 @component function Select(;
     size::Union{Symbol,String} = :md,
@@ -224,9 +224,9 @@ A styled checkbox input.
 - `label::Union{String,Nothing}`: Label text (optional)
 - `name::Union{String,Nothing}`: Checkbox name attribute (optional)
 - `value::Union{String,Nothing}`: Checkbox value (optional)
-- `checked::Bool`: Whether checkbox is checked (default: false)
-- `required::Bool`: Whether checkbox is required (default: false)
-- `disabled::Bool`: Whether checkbox is disabled (default: false)
+- `checked::Bool`: Whether checkbox is checked (default: `false`)
+- `required::Bool`: Whether checkbox is required (default: `false`)
+- `disabled::Bool`: Whether checkbox is disabled (default: `false`)
 """
 @component function Checkbox(;
     size::Union{Symbol,String} = :md,
@@ -296,8 +296,8 @@ Radio button component for single selection.
 - `options::Vector{Tuple{String,String}}`: Options as (value, label) tuples
 - `name::String`: Radio group name (required)
 - `value::Union{String,Nothing}`: Selected value (optional)
-- `required::Bool`: Whether radio group is required (default: false)
-- `disabled::Bool`: Whether radio group is disabled (default: false)
+- `required::Bool`: Whether radio group is required (default: `false`)
+- `disabled::Bool`: Whether radio group is disabled (default: `false`)
 """
 @component function Radio(;
     size::Union{Symbol,String} = :md,
@@ -354,7 +354,7 @@ Form field wrapper with label and help text.
 - `label::Union{String,Nothing}`: Field label (optional)
 - `help::Union{String,Nothing}`: Help text (optional)
 - `error::Union{String,Nothing}`: Error message (optional)
-- `required::Bool`: Whether field is required (default: false)
+- `required::Bool`: Whether field is required (default: `false`)
 """
 @component function FormGroup(;
     label::Union{String,Nothing} = nothing,

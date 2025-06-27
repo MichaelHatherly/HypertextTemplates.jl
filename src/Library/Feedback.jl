@@ -5,7 +5,7 @@ Notification message component.
 
 # Props
 - `variant::Union{Symbol,String}`: Alert variant (`:info`, `:success`, `:warning`, `:error`) (default: `:info`)
-- `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: false)
+- `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: `false`)
 """
 @component function Alert(; variant::Union{Symbol,String} = :info, dismissible::Bool = false, attrs...)
     # Convert to symbol
@@ -59,11 +59,11 @@ end
 Progress bar component.
 
 # Props
-- `value::Int`: Current progress value (default: 0)
-- `max::Int`: Maximum progress value (default: 100)
+- `value::Int`: Current progress value (default: `0`)
+- `max::Int`: Maximum progress value (default: `100`)
 - `size::Union{Symbol,String}`: Progress bar size (`:sm`, `:md`, `:lg`) (default: `:md`)
 - `color::Union{Symbol,String}`: Progress bar color (`:slate`, `:primary`, `:success`) (default: `:primary`)
-- `striped::Bool`: Whether to show striped pattern (default: false)
+- `striped::Bool`: Whether to show striped pattern (default: `false`)
 - `label::Union{String,Nothing}`: Label to display (optional)
 """
 @component function Progress(;

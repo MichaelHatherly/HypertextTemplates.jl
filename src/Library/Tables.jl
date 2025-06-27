@@ -4,10 +4,10 @@
 A responsive data table component.
 
 # Props
-- `striped::Bool`: Whether to show striped rows (default: false)
-- `bordered::Bool`: Whether to show borders (default: true)
-- `hover::Bool`: Whether to show hover effect on rows (default: true)
-- `compact::Bool`: Whether to use compact spacing (default: false)
+- `striped::Bool`: Whether to show striped rows (default: `false`)
+- `bordered::Bool`: Whether to show borders (default: `true`)
+- `hover::Bool`: Whether to show hover effect on rows (default: `true`)
+- `compact::Bool`: Whether to use compact spacing (default: `false`)
 """
 @component function Table(;
     striped::Bool = false,

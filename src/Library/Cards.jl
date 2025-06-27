@@ -6,7 +6,7 @@ A content container with border and shadow.
 # Props
 - `padding::Union{Symbol,String}`: Padding size (`:none`, `:sm`, `:md`, `:lg`) (default: `:md`)
 - `shadow::Union{Symbol,String}`: Shadow size (`:none`, `:sm`, `:md`, `:lg`) (default: `:sm`)
-- `border::Bool`: Whether to show border (default: true)
+- `border::Bool`: Whether to show border (default: `true`)
 - `rounded::Union{Symbol,String}`: Border radius (`:none`, `:sm`, `:md`, `:lg`) (default: `:lg`)
 """
 @component function Card(;

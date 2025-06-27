@@ -40,7 +40,7 @@ User profile image component.
 
 # Props
 - `src::Union{String,Nothing}`: Image source URL (optional)
-- `alt::String`: Alternative text (default: "Avatar")
+- `alt::String`: Alternative text (default: `"Avatar"`)
 - `size::Union{Symbol,String}`: Avatar size (`:xs`, `:sm`, `:md`, `:lg`, `:xl`) (default: `:md`)
 - `shape::Union{Symbol,String}`: Avatar shape (`:circle`, `:square`) (default: `:circle`)
 - `fallback::Union{String,Nothing}`: Fallback content when no src provided (optional)

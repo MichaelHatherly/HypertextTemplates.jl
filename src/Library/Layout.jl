@@ -5,8 +5,8 @@ A responsive container component with proper max-widths and padding.
 
 # Props
 - `size::Union{Symbol,String}`: Container size (`:sm`, `:md`, `:lg`, `:xl`, `"2xl"`) (default: `:xl`)
-- `padding::Bool`: Whether to include horizontal padding (default: true)
-- `centered::Bool`: Whether to center the container (default: true)
+- `padding::Bool`: Whether to include horizontal padding (default: `true`)
+- `centered::Bool`: Whether to center the container (default: `true`)
 """
 @component function Container(;
     size::Union{Symbol,String} = :xl,
@@ -43,7 +43,7 @@ A flexible stack component for vertical or horizontal layouts with consistent sp
 
 # Props
 - `direction::Union{Symbol,String}`: Stack direction (`:vertical` or `:horizontal`) (default: `:vertical`)
-- `gap::Int`: Gap size using Tailwind spacing scale (default: 4)
+- `gap::Int`: Gap size using Tailwind spacing scale (default: `4`)
 - `align::Union{Symbol,String}`: Alignment (`:start`, `:center`, `:end`, `:stretch`) (default: `:stretch`)
 - `justify::Union{Symbol,String}`: Justification (`:start`, `:center`, `:end`, `:between`, `:around`, `:evenly`) (default: `:start`)
 """
@@ -94,12 +94,12 @@ end
 A responsive grid layout component.
 
 # Props
-- `cols::Int`: Default number of columns (default: 1)
+- `cols::Int`: Default number of columns (default: `1`)
 - `sm::Int`: Columns on small screens (optional)
 - `md::Int`: Columns on medium screens (optional)
 - `lg::Int`: Columns on large screens (optional)
 - `xl::Int`: Columns on extra large screens (optional)
-- `gap::Int`: Gap size using Tailwind spacing scale (default: 4)
+- `gap::Int`: Gap size using Tailwind spacing scale (default: `4`)
 """
 @component function Grid(;
     cols::Int = 1,

@@ -5,7 +5,7 @@ Navigation breadcrumb component.
 
 # Props
 - `items::Vector{Tuple{String,String}}`: Breadcrumb items as (href, label) tuples
-- `separator::String`: Separator character/string (default: "/")
+- `separator::String`: Separator character/string (default: `"/"`)
 """
 @component function Breadcrumb(;
     items::Vector{Tuple{String,String}} = Tuple{String,String}[],
@@ -50,10 +50,10 @@ end
 Page navigation component.
 
 # Props
-- `current::Int`: Current page number (default: 1)
-- `total::Int`: Total number of pages (default: 1)
-- `siblings::Int`: Number of sibling pages to show (default: 1)
-- `base_url::String`: Base URL for page links (default: "#")
+- `current::Int`: Current page number (default: `1`)
+- `total::Int`: Total number of pages (default: `1`)
+- `siblings::Int`: Number of sibling pages to show (default: `1`)
+- `base_url::String`: Base URL for page links (default: `"#"`)
 """
 @component function Pagination(;
     current::Int = 1,
