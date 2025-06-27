@@ -156,26 +156,94 @@ end
 
 """
     StreamingRender(func; kwargs...)
+    StreamingRender(; kwargs...) do io
+        # render content
+    end
 
-An iterable that will run the render function `func`, which takes a single `io`
-argument that must be passed to the `@render` macro call.
+Create an iterator for streaming template rendering.
 
-Uses a channel-based implementation with micro-batching for efficient streaming.
-Large writes (≥64 bytes by default) are sent immediately, while smaller writes
-are batched for efficiency.
+`StreamingRender` enables efficient rendering of large templates by yielding
+chunks of output as they become available. This is particularly useful for:
+- HTTP streaming responses
+- Large documents that would consume too much memory if rendered at once
+- Progressive rendering where content appears as it's generated
+
+The function uses intelligent micro-batching: large writes (≥64 bytes) are sent
+immediately for low latency, while smaller writes are batched for efficiency.
+
+# Arguments
+- `func`: Function that takes an `io` argument to pass to `@render`
 
 # Keywords
-- `buffer_size::Int=32`: Number of chunks the channel can buffer
-- `chunk_size::Int=4096`: Maximum size of buffered chunks (for compatibility)
-- `immediate_threshold::Int=64`: Bytes above which to send immediately
+- `buffer_size::Int=32`: Number of chunks the channel can buffer before blocking
+- `chunk_size::Int=4096`: Legacy parameter (kept for compatibility, no longer used)
+- `immediate_threshold::Int=64`: Bytes above which writes bypass buffering for low latency
 
+# Examples
+```jldoctest
+julia> using HypertextTemplates, HypertextTemplates.Elements
+
+julia> # Collect all chunks (for demonstration)
+       chunks = String[];
+
+julia> for chunk in StreamingRender() do io
+           @render io @div begin
+               @h1 "Header"
+               @p "Content"
+           end
+       end
+           push!(chunks, String(chunk))
+       end
+
+julia> join(chunks)
+"<div><h1>Header</h1><p>Content</p></div>"
+```
+
+# HTTP streaming example
 ```julia
-for bytes in StreamingRender(io -> @render io @component {args...})
-    write(http_stream, bytes)
+using HTTP
+using HypertextTemplates, HypertextTemplates.Elements
+
+function handle_request(req)
+    HTTP.Response(200, ["Content-Type" => "text/html"]) do io
+        for chunk in StreamingRender() do render_io
+            @render render_io @html begin
+                @head @title "Streaming Page"
+                @body begin
+                    @h1 "Live Data"
+                    for i in 1:1000
+                        @div "Item \$i"
+                    end
+                end
+            end
+        end
+            write(io, chunk)
+        end
+    end
 end
 ```
 
-Or use a `do` block rather than `->` syntax.
+# Progressive rendering
+```julia
+# Stream data as it becomes available
+for chunk in StreamingRender() do io
+    @render io @div begin
+        @h1 "Results"
+        for result in fetch_results_lazily()
+            @article begin
+                @h2 result.title
+                @p result.content
+            end
+        end
+    end
+end
+    # Send chunk to client immediately
+    write(client_connection, chunk)
+    flush(client_connection)
+end
+```
+
+See also: [`@render`](@ref), [`MicroBatchWriter`](@ref)
 """
 struct StreamingRender
     channel::Channel{Vector{UInt8}}

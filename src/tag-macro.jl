@@ -1,10 +1,79 @@
 """
-    @<TAG
-    @<TAG children...
-    @<TAG {props...}
-    @<TAG {props...} children...
+    @<component_or_element
+    @<component_or_element children...
+    @<component_or_element {props...}
+    @<component_or_element {props...} children...
 
-Render the `TAG` component or element with the given children and props.
+Dynamically render a component or element from a variable.
+
+The `@<` macro enables dynamic component selection, where the component or element
+to render is determined at runtime. This is useful for polymorphic rendering,
+component mappings, and conditional component selection.
+
+# Arguments
+- `component_or_element`: A variable containing a component function or element
+- `props...`: Optional properties in `{}` syntax
+- `children...`: Optional child content
+
+# Examples
+```jldoctest
+julia> using HypertextTemplates, HypertextTemplates.Elements
+
+julia> # Dynamic element selection
+       tag = Elements.div
+       @render @<tag {class = "dynamic"} "Content"
+"<div class=\\"dynamic\\">Content</div>"
+
+julia> # Change element at runtime
+       tag = span
+       @render @<tag {class = "dynamic"} "Content"
+"<span class=\\"dynamic\\">Content</span>"
+```
+
+# Dynamic component selection
+```jldoctest
+julia> using HypertextTemplates, HypertextTemplates.Elements
+
+julia> # Define components
+       @component function info_box(; message)
+           @div {class = "info"} @p \$message
+       end;
+
+julia> @component function error_box(; message)
+           @div {class = "error"} @strong \$message
+       end;
+
+julia> # Select component based on condition
+       function render_message(type, message)
+           component = type == :error ? error_box : info_box
+           @render @<component {message}
+       end
+render_message (generic function with 1 method)
+
+julia> render_message(:info, "All good!")
+"<div class=\\"info\\"><p>All good!</p></div>"
+
+julia> render_message(:error, "Something went wrong!")
+"<div class=\\"error\\"><strong>Something went wrong!</strong></div>"
+```
+
+# With slots
+```jldoctest
+julia> using HypertextTemplates, HypertextTemplates.Elements
+
+julia> @component function wrapper(; variant = "default")
+           @div {class = "wrapper-\$variant"} @__slot__
+       end;
+
+julia> # Dynamic wrapper
+       w = wrapper
+       @render @<w {variant = "special"} begin
+           @h1 "Wrapped content"
+       end
+"<div class=\\"wrapper-special\\"><h1>Wrapped content</h1></div>"
+```
+
+See also: [`@component`](@ref), [`@deftag`](@ref)
 """
 macro (<)(tag, args...)
     # Include source info if the file exists. This skips source info that

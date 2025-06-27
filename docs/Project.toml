@@ -1,6 +1,8 @@
 [deps]
+Deno_jll = "04572ae6-984a-583e-9378-9577a1c2574d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 HypertextTemplates = "c7d46f9d-34c3-4420-bf57-257f25aec718"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [compat]
 Documenter = "1"

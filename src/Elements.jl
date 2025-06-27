@@ -1,3 +1,39 @@
+"""
+    HypertextTemplates.Elements
+
+Standard HTML elements for use with HypertextTemplates.
+
+This module provides all standard HTML5 elements as both functions and macros. Each element
+can be used either as a macro (e.g., `@div`) or accessed as a function (e.g., `Elements.div`).
+
+# Usage
+```julia
+using HypertextTemplates, HypertextTemplates.Elements
+
+# Use elements as macros
+@render @div {class = "container"} begin
+    @h1 "Title"
+    @p "Content"
+end
+
+# Or access them as values for dynamic rendering
+element = rand() > 0.5 ? Elements.div : Elements.span
+@render @<element "Dynamic content"
+```
+
+# Available Elements
+All standard HTML5 elements are available, including:
+- Document structure: `html`, `head`, `body`, `div`, `span`
+- Text content: `p`, `h1`-`h6`, `blockquote`, `pre`
+- Forms: `form`, `input`, `textarea`, `select`, `button`
+- Media: `img`, `video`, `audio`, `canvas`
+- Tables: `table`, `tr`, `td`, `th`
+- And many more...
+
+# Special Behavior
+- The `@html` element automatically includes `<!DOCTYPE html>`
+- Void elements (like `br`, `img`, `input`) are self-closing
+"""
 module Elements
 
 using HypertextTemplates
