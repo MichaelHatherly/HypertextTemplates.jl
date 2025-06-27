@@ -30,7 +30,7 @@ using HypertextTemplates.Library
 html = @render @Container {size=:xl, padding=true, centered=true} begin
     @Text &quot;This content is in a centered container with padding.&quot;
 end</code></pre><div class="markdown"><hr />
-<pre><code class="language-html">&lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+<pre><code class="language-html">&lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot; role&#61;&quot;nothing&quot;&gt;
   &lt;p
     class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
   &gt;
@@ -111,7 +111,7 @@ html = @render @Section {spacing=:md, background=&quot;bg-slate-50&quot;} begin
     end
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;section class&#61;&quot;py-12 sm:py-16 md:py-20 bg-slate-50&quot;&gt;
-  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot; role&#61;&quot;nothing&quot;&gt;
     &lt;h2
       class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
     &gt;
@@ -188,14 +188,17 @@ end</code></pre><div class="markdown"><hr />
   &lt;a
     href&#61;&quot;/about&quot;
     class&#61;&quot;transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;About Us&lt;/a&gt; | &lt;a
     href&#61;&quot;https://example.com&quot;
     target&#61;&quot;_blank&quot;
     rel&#61;&quot;noopener noreferrer&quot;
     class&#61;&quot;transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;External Link&lt;/a&gt; | &lt;a
     href&#61;&quot;#&quot;
     class&#61;&quot;underline transition-colors text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;Underlined Link&lt;/a&gt;
 &lt;/div&gt;</code></pre>
 <hr />
@@ -236,12 +239,15 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center font-medium rounded-full bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 text-sm&quot;
+    role&#61;&quot;nothing&quot;
   &gt;New&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-0.5 text-xs&quot;
+    role&#61;&quot;nothing&quot;
   &gt;Active&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 px-3 py-1.5 text-base&quot;
+    role&#61;&quot;nothing&quot;
   &gt;Critical&lt;/span&gt;
 &lt;/div&gt;</code></pre>
 <hr />
@@ -292,6 +298,7 @@ end</code></pre><div class="markdown"><hr />
         &lt;td&gt;
           &lt;span
             class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2.5 py-1 text-sm&quot;
+            role&#61;&quot;nothing&quot;
           &gt;Active&lt;/span&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
@@ -301,6 +308,7 @@ end</code></pre><div class="markdown"><hr />
         &lt;td&gt;
           &lt;span
             class&#61;&quot;inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-2.5 py-1 text-sm&quot;
+            role&#61;&quot;nothing&quot;
           &gt;Pending&lt;/span&gt;
         &lt;/td&gt;
       &lt;/tr&gt;
@@ -356,6 +364,9 @@ end</code></pre><div class="markdown"><hr />
     placeholder&#61;&quot;Enter your name&quot;
     name&#61;&quot;nothing&quot;
     value&#61;&quot;nothing&quot;
+    id&#61;&quot;nothing&quot;
+    aria-invalid&#61;&quot;nothing&quot;
+    aria-describedby&#61;&quot;nothing&quot;
   &gt;
   &lt;input
     type&#61;&quot;email&quot;
@@ -363,6 +374,9 @@ end</code></pre><div class="markdown"><hr />
     placeholder&#61;&quot;Email address&quot;
     name&#61;&quot;nothing&quot;
     value&#61;&quot;nothing&quot;
+    id&#61;&quot;nothing&quot;
+    aria-invalid&#61;&quot;true&quot;
+    aria-describedby&#61;&quot;nothing&quot;
   &gt;
   &lt;div class&#61;&quot;relative&quot;&gt;
     &lt;div
@@ -375,6 +389,9 @@ end</code></pre><div class="markdown"><hr />
       placeholder&#61;&quot;Password&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
+      id&#61;&quot;nothing&quot;
+      aria-invalid&#61;&quot;nothing&quot;
+      aria-describedby&#61;&quot;nothing&quot;
     &gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
@@ -393,12 +410,18 @@ end</code></pre><div class="markdown"><hr />
     class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-y border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
     placeholder&#61;&quot;Enter your message...&quot;
     name&#61;&quot;nothing&quot;
+    id&#61;&quot;nothing&quot;
+    aria-invalid&#61;&quot;nothing&quot;
+    aria-describedby&#61;&quot;nothing&quot;
   &gt;&lt;/textarea&gt;
   &lt;textarea
     rows&#61;&quot;6&quot;
     class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-none border-green-300 focus:border-green-500 focus:ring-green-500/10&quot;
     placeholder&#61;&quot;nothing&quot;
     name&#61;&quot;nothing&quot;
+    id&#61;&quot;nothing&quot;
+    aria-invalid&#61;&quot;nothing&quot;
+    aria-describedby&#61;&quot;nothing&quot;
   &gt;Message sent successfully&#33;&lt;/textarea&gt;
 &lt;/div&gt;</code></pre>
 <hr />
@@ -414,6 +437,9 @@ html = @render @Select {
 <pre><code class="language-html">&lt;select
   class&#61;&quot;w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-&#91;url&#40;&amp;#39;data:image/svg&#43;xml;charset&#61;UTF-8,&#37;3csvg xmlns&#61;&amp;quot;http://www.w3.org/2000/svg&amp;quot; viewBox&#61;&amp;quot;0 0 24 24&amp;quot; fill&#61;&amp;quot;none&amp;quot; stroke&#61;&amp;quot;currentColor&amp;quot; stroke-width&#61;&amp;quot;2&amp;quot; stroke-linecap&#61;&amp;quot;round&amp;quot; stroke-linejoin&#61;&amp;quot;round&amp;quot;&#37;3e&#37;3cpolyline points&#61;&amp;quot;6 9 12 15 18 9&amp;quot;&#37;3e&#37;3c/polyline&#37;3e&#37;3c/svg&#37;3e&amp;#39;&#41;&#93; bg-&#91;length:1.5em_1.5em&#93; bg-&#91;right_0.5rem_center&#93; bg-no-repeat px-4 py-2 pr-10 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
   name&#61;&quot;nothing&quot;
+  id&#61;&quot;nothing&quot;
+  aria-invalid&#61;&quot;nothing&quot;
+  aria-describedby&#61;&quot;nothing&quot;
 &gt;
   &lt;option value&#61;&quot;&quot;&gt;Choose a country&lt;/option&gt;
   &lt;option value&#61;&quot;us&quot; selected&gt;United States&lt;/option&gt;
@@ -466,7 +492,7 @@ html = @render @Radio {
     options=[(&quot;basic&quot;, &quot;Basic Plan&quot;), (&quot;pro&quot;, &quot;Pro Plan&quot;), (&quot;enterprise&quot;, &quot;Enterprise&quot;)],
     value=&quot;pro&quot;
 }</code></pre><div class="markdown"><hr />
-<pre><code class="language-html">&lt;div class&#61;&quot;space-y-2&quot;&gt;
+<pre><code class="language-html">&lt;div class&#61;&quot;space-y-2&quot; role&#61;&quot;radiogroup&quot;&gt;
   &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
       type&#61;&quot;radio&quot;
       class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
@@ -508,25 +534,42 @@ end</code></pre><div class="markdown"><hr />
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
     &lt;label
       class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+      for&#61;&quot;form-field-4340152472302645777&quot;
     &gt;Email Address&lt;span class&#61;&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;&lt;/label&gt;&lt;input
       type&#61;&quot;email&quot;
       class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
       placeholder&#61;&quot;you@example.com&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
+      id&#61;&quot;nothing&quot;
+      aria-invalid&#61;&quot;nothing&quot;
+      aria-describedby&#61;&quot;nothing&quot;
     &gt;
-    &lt;p class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;&gt;&lt;/p&gt;
+    &lt;p
+      class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;
+      id&#61;&quot;form-field-4340152472302645777-help&quot;
+    &gt;
+    &lt;/p&gt;
   &lt;/div&gt;
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
-    &lt;label class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+    &lt;label
+      class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+      for&#61;&quot;form-field-16834992939604453143&quot;
     &gt;Password&lt;/label&gt;&lt;input
       type&#61;&quot;password&quot;
       class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
       placeholder&#61;&quot;nothing&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
+      id&#61;&quot;nothing&quot;
+      aria-invalid&#61;&quot;true&quot;
+      aria-describedby&#61;&quot;nothing&quot;
     &gt;
-    &lt;p class&#61;&quot;text-sm text-red-600 dark:text-red-400&quot;&gt;&lt;/p&gt;
+    &lt;p
+      class&#61;&quot;text-sm text-red-600 dark:text-red-400&quot;
+      id&#61;&quot;form-field-16834992939604453143-error&quot;
+    &gt;
+    &lt;/p&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 <hr />
@@ -597,6 +640,7 @@ end</code></pre><div class="markdown"><hr />
       aria-valuenow&#61;&quot;75&quot;
       aria-valuemin&#61;&quot;0&quot;
       aria-valuemax&#61;&quot;100&quot;
+      aria-label&#61;&quot;Progress: 75&#37;&quot;
     &gt;
       &lt;div
         class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-slate-900 dark:bg-slate-100 h-3&quot;
@@ -618,6 +662,7 @@ end</code></pre><div class="markdown"><hr />
       aria-valuenow&#61;&quot;50&quot;
       aria-valuemin&#61;&quot;0&quot;
       aria-valuemax&#61;&quot;100&quot;
+      aria-label&#61;&quot;nothing&quot;
     &gt;
       &lt;div
         class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-slate-900 dark:bg-slate-100 bg-&#91;length:1rem_1rem&#93; bg-gradient-to-r from-transparent via-white/20 to-transparent animate-&#91;progress-stripes_1s_linear_infinite&#93; h-3&quot;
@@ -633,6 +678,7 @@ end</code></pre><div class="markdown"><hr />
       aria-valuenow&#61;&quot;30&quot;
       aria-valuemin&#61;&quot;0&quot;
       aria-valuemax&#61;&quot;100&quot;
+      aria-label&#61;&quot;Progress: 30&#37;&quot;
     &gt;
       &lt;div
         class&#61;&quot;transition-all duration-300 ease-out rounded-full bg-green-600 dark:bg-green-400 h-4&quot;
@@ -655,9 +701,12 @@ html = @render @div begin
     @Spinner {size=:sm, color=:white}
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div&gt;
-  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
-  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
-  &lt;div class&#61;&quot;inline-flex items-center&quot;&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot; role&#61;&quot;status&quot; aria-label&#61;&quot;Loading&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot; role&#61;&quot;status&quot; aria-label&#61;&quot;Loading&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;inline-flex items-center&quot; role&#61;&quot;status&quot; aria-label&#61;&quot;Loading&quot;&gt;
+  &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 <hr />
 </div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Spinner size (<code>:sm</code>, <code>:md</code>, <code>:lg</code>) - default: <code>:md</code></li><li><code>color::Symbol</code> - Spinner color (<code>:slate</code>, <code>:primary</code>, <code>:white</code>) - default: <code>:primary</code></li></ul><h3 id="Navigation-Components"><a class="docs-heading-anchor" href="#Navigation-Components">Navigation Components</a><a id="Navigation-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Navigation-Components" title="Permalink"></a></h3><p>Components for site navigation and wayfinding.</p><h4 id="Breadcrumb"><a class="docs-heading-anchor" href="#Breadcrumb">Breadcrumb</a><a id="Breadcrumb-1"></a><a class="docs-heading-anchor-permalink" href="#Breadcrumb" title="Permalink"></a></h4><p>Navigation breadcrumbs for hierarchical pages.</p><pre><code class="language-julia hljs">using HypertextTemplates
@@ -720,6 +769,7 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;#4&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-l-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+          aria-label&#61;&quot;Go to previous page&quot;
         &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
             &lt;path
               fill-rule&#61;&quot;evenodd&quot;
@@ -772,6 +822,7 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;#6&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+          aria-label&#61;&quot;Go to next page&quot;
         &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
             &lt;path
               fill-rule&#61;&quot;evenodd&quot;
@@ -787,6 +838,8 @@ end</code></pre><div class="markdown"><hr />
       &lt;li&gt;
         &lt;span
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-l-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700&quot;
+          aria-label&#61;&quot;Previous page &#40;disabled&#41;&quot;
+          aria-disabled&#61;&quot;true&quot;
         &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
             &lt;path
               fill-rule&#61;&quot;evenodd&quot;
@@ -828,6 +881,7 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;/posts/page/2&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
+          aria-label&#61;&quot;Go to next page&quot;
         &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
             &lt;path
               fill-rule&#61;&quot;evenodd&quot;
@@ -857,11 +911,15 @@ html = @render @Tabs {
   &lt;nav
     class&#61;&quot;flex space-x-1 border-b border-slate-200 dark:border-slate-700&quot;
     aria-label&#61;&quot;Tabs&quot;
+    role&#61;&quot;tablist&quot;
   &gt;
     &lt;button
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      aria-selected&#61;&quot;false&quot;
+      role&#61;&quot;tab&quot;
       id&#61;&quot;tab-overview&quot;
+      aria-controls&#61;&quot;tabpanel-overview&quot;
     &gt;
       Overview
     &lt;/button&gt;
@@ -869,21 +927,30 @@ html = @render @Tabs {
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 border-b-2 border-slate-900 dark:border-slate-100 transition-colors&quot;
       aria-current&#61;&quot;page&quot;
+      aria-selected&#61;&quot;true&quot;
+      role&#61;&quot;tab&quot;
       id&#61;&quot;tab-features&quot;
+      aria-controls&#61;&quot;tabpanel-features&quot;
     &gt;
       Features
     &lt;/button&gt;
     &lt;button
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      aria-selected&#61;&quot;false&quot;
+      role&#61;&quot;tab&quot;
       id&#61;&quot;tab-pricing&quot;
+      aria-controls&#61;&quot;tabpanel-pricing&quot;
     &gt;
       Pricing
     &lt;/button&gt;
     &lt;button
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
+      aria-selected&#61;&quot;false&quot;
+      role&#61;&quot;tab&quot;
       id&#61;&quot;tab-support&quot;
+      aria-controls&#61;&quot;tabpanel-support&quot;
     &gt;
       Support
     &lt;/button&gt;
@@ -907,13 +974,16 @@ end</code></pre><div class="markdown"><hr />
   &gt;
     Section 1
   &lt;/p&gt;
-  &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+  &lt;hr
+    class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;
+    role&#61;&quot;separator&quot;
+  &gt;
   &lt;p
     class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
   &gt;
     Section 2
   &lt;/p&gt;
-  &lt;hr class&#61;&quot;border-t border-blue-500 my-4&quot;&gt;
+  &lt;hr class&#61;&quot;border-t border-blue-500 my-4&quot; role&#61;&quot;separator&quot;&gt;
   &lt;p
     class&#61;&quot;text-base leading-relaxed font-normal text-slate-600 dark:text-slate-400 text-left&quot;
   &gt;
@@ -971,11 +1041,15 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;flex flex-row gap-3 items-stretch justify-start&quot;&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-5 w-5 text-current&quot;
+    aria-hidden&#61;&quot;true&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;&lt;svg fill&#61;&quot;none&quot; stroke&#61;&quot;currentColor&quot; stroke-width&#61;&quot;2&quot; viewBox&#61;&quot;0 0 24 24&quot;&gt;
       &lt;path stroke-linecap&#61;&quot;round&quot; stroke-linejoin&#61;&quot;round&quot; d&#61;&quot;M5 13l4 4L19 7&quot; /&gt;
     &lt;/svg&gt;&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-6 w-6 text-blue-600&quot;
+    aria-hidden&#61;&quot;true&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;&lt;svg fill&#61;&quot;none&quot; stroke&#61;&quot;currentColor&quot; stroke-width&#61;&quot;2&quot; viewBox&#61;&quot;0 0 24 24&quot;&gt;
       &lt;path
         stroke-linecap&#61;&quot;round&quot;
@@ -985,6 +1059,8 @@ end</code></pre><div class="markdown"><hr />
     &lt;/svg&gt;&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-8 w-8 text-current&quot;
+    aria-hidden&#61;&quot;true&quot;
+    aria-label&#61;&quot;nothing&quot;
   &gt;&lt;/span&gt;
 &lt;/div&gt;</code></pre>
 <hr />
@@ -1019,7 +1095,7 @@ html = @render @Section {spacing=:lg} begin
                     @Stack {gap=4} begin
                         @Heading {level=2} &quot;Profile&quot;
                         @Stack {direction=:horizontal, gap=4, align=:center} begin
-                            @Avatar {src=&quot;/user.jpg&quot;, size=:lg}
+                            @Avatar {src=&quot;/user.jpg&quot;, alt=&quot;Avatar&quot;, size=:lg}
                             @Stack {gap=1} begin
                                 @Text {weight=:semibold} &quot;John Doe&quot;
                                 @Badge {variant=:success} &quot;Pro User&quot;
@@ -1068,7 +1144,7 @@ html = @render @Section {spacing=:lg} begin
     end
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;section class&#61;&quot;py-16 sm:py-20 md:py-24 lg:py-32&quot;&gt;
-  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot;&gt;
+  &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot; role&#61;&quot;nothing&quot;&gt;
     &lt;div class&#61;&quot;flex flex-col gap-6 items-stretch justify-start&quot;&gt;
       &lt;div
         class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-lg&quot;
@@ -1142,32 +1218,48 @@ end</code></pre><div class="markdown"><hr />
                 &lt;/p&gt;
                 &lt;span
                   class&#61;&quot;inline-flex items-center font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2.5 py-1 text-sm&quot;
+                  role&#61;&quot;nothing&quot;
                 &gt;Pro User&lt;/span&gt;
               &lt;/div&gt;
             &lt;/div&gt;
-            &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+            &lt;hr
+              class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;
+              role&#61;&quot;separator&quot;
+            &gt;
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+                for&#61;&quot;form-field-18389884435587328263&quot;
               &gt;Display Name&lt;/label&gt;&lt;input
                 type&#61;&quot;text&quot;
                 class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
                 placeholder&#61;&quot;nothing&quot;
                 name&#61;&quot;nothing&quot;
                 value&#61;&quot;John Doe&quot;
+                id&#61;&quot;nothing&quot;
+                aria-invalid&#61;&quot;nothing&quot;
+                aria-describedby&#61;&quot;nothing&quot;
               &gt;
             &lt;/div&gt;
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+                for&#61;&quot;form-field-395650071775237845&quot;
               &gt;Email&lt;/label&gt;&lt;input
                 type&#61;&quot;email&quot;
                 class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
                 placeholder&#61;&quot;nothing&quot;
                 name&#61;&quot;nothing&quot;
                 value&#61;&quot;john@example.com&quot;
+                id&#61;&quot;nothing&quot;
+                aria-invalid&#61;&quot;nothing&quot;
+                aria-describedby&#61;&quot;nothing&quot;
               &gt;
-              &lt;p class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;&gt;&lt;/p&gt;
+              &lt;p
+                class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;
+                id&#61;&quot;form-field-395650071775237845-help&quot;
+              &gt;
+              &lt;/p&gt;
             &lt;/div&gt;
           &lt;/div&gt;
         &lt;/div&gt;
@@ -1183,7 +1275,8 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-              &gt;Theme&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot;&gt;
+                for&#61;&quot;form-field-7368672387505806824&quot;
+              &gt;Theme&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot; role&#61;&quot;radiogroup&quot;&gt;
                 &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
                     type&#61;&quot;radio&quot;
                     class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
@@ -1210,7 +1303,10 @@ end</code></pre><div class="markdown"><hr />
                   &gt;System&lt;/span&gt;&lt;/label&gt;
               &lt;/div&gt;
             &lt;/div&gt;
-            &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
+            &lt;hr
+              class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;
+              role&#61;&quot;separator&quot;
+            &gt;
             &lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
               &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
                   type&#61;&quot;checkbox&quot;
@@ -1269,4 +1365,4 @@ end</code></pre><div class="markdown"><hr />
   &lt;/p&gt;
 &lt;/div&gt;</code></pre>
 <hr />
-</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 20:21">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 20:57">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
