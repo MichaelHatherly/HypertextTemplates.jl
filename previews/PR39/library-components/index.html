@@ -399,7 +399,7 @@ end</code></pre><div class="markdown"><hr />
     class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-none border-green-300 focus:border-green-500 focus:ring-green-500/10&quot;
     placeholder&#61;&quot;nothing&quot;
     name&#61;&quot;nothing&quot;
-  &gt;&lt;/textarea&gt;
+  &gt;Message sent successfully&#33;&lt;/textarea&gt;
 &lt;/div&gt;</code></pre>
 <hr />
 </div><p><strong>Props:</strong></p><ul><li><code>rows::Int</code> - Number of visible rows - default: <code>4</code></li><li><code>resize::Symbol</code> - Resize behavior (<code>:none</code>, <code>:vertical</code>, <code>:horizontal</code>, <code>:both</code>) - default: <code>:vertical</code></li><li><code>state::Symbol</code> - Input state - default: <code>:default</code></li><li>Plus all text input props (placeholder, name, value, etc.)</li></ul><h4 id="Select"><a class="docs-heading-anchor" href="#Select">Select</a><a id="Select-1"></a><a class="docs-heading-anchor-permalink" href="#Select" title="Permalink"></a></h4><p>Dropdown select element.</p><pre><code class="language-julia hljs">using HypertextTemplates
@@ -415,10 +415,10 @@ html = @render @Select {
   class&#61;&quot;w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-&#91;url&#40;&amp;#39;data:image/svg&#43;xml;charset&#61;UTF-8,&#37;3csvg xmlns&#61;&amp;quot;http://www.w3.org/2000/svg&amp;quot; viewBox&#61;&amp;quot;0 0 24 24&amp;quot; fill&#61;&amp;quot;none&amp;quot; stroke&#61;&amp;quot;currentColor&amp;quot; stroke-width&#61;&amp;quot;2&amp;quot; stroke-linecap&#61;&amp;quot;round&amp;quot; stroke-linejoin&#61;&amp;quot;round&amp;quot;&#37;3e&#37;3cpolyline points&#61;&amp;quot;6 9 12 15 18 9&amp;quot;&#37;3e&#37;3c/polyline&#37;3e&#37;3c/svg&#37;3e&amp;#39;&#41;&#93; bg-&#91;length:1.5em_1.5em&#93; bg-&#91;right_0.5rem_center&#93; bg-no-repeat px-4 py-2 pr-10 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
   name&#61;&quot;nothing&quot;
 &gt;
-  &lt;option value&#61;&quot;&quot;&gt;&lt;/option&gt;
-  &lt;option value&#61;&quot;us&quot; selected&gt;&lt;/option&gt;
-  &lt;option value&#61;&quot;uk&quot;&gt;&lt;/option&gt;
-  &lt;option value&#61;&quot;ca&quot;&gt;&lt;/option&gt;
+  &lt;option value&#61;&quot;&quot;&gt;Choose a country&lt;/option&gt;
+  &lt;option value&#61;&quot;us&quot; selected&gt;United States&lt;/option&gt;
+  &lt;option value&#61;&quot;uk&quot;&gt;United Kingdom&lt;/option&gt;
+  &lt;option value&#61;&quot;ca&quot;&gt;Canada&lt;/option&gt;
 &lt;/select&gt;</code></pre>
 <hr />
 </div><p><strong>Props:</strong></p><ul><li><code>options::Vector{Tuple{String,String}}</code> - Options as (value, label) tuples</li><li><code>size::Symbol</code> - Select size - default: <code>:md</code></li><li><code>state::Symbol</code> - Select state - default: <code>:default</code></li><li>Plus standard form props</li></ul><h4 id="Checkbox"><a class="docs-heading-anchor" href="#Checkbox">Checkbox</a><a id="Checkbox-1"></a><a class="docs-heading-anchor-permalink" href="#Checkbox" title="Permalink"></a></h4><p>Styled checkbox inputs.</p><pre><code class="language-julia hljs">using HypertextTemplates
@@ -436,20 +436,25 @@ end</code></pre><div class="markdown"><hr />
       class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
-  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;I agree to the terms&lt;/span&gt;&lt;/label&gt;&lt;label
+    class&#61;&quot;inline-flex items-center gap-2&quot;
+  &gt;&lt;input
       type&#61;&quot;checkbox&quot;
       class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
       checked
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
-  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;Subscribe to newsletter&lt;/span&gt;&lt;/label&gt;&lt;label
+    class&#61;&quot;inline-flex items-center gap-2&quot;
+  &gt;&lt;input
       type&#61;&quot;checkbox&quot;
       class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-5 w-5 text-green-600 focus:ring-green-500&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;Confirmed&lt;/span&gt;&lt;/label&gt;
 &lt;/div&gt;</code></pre>
 <hr />
 </div><p><strong>Props:</strong></p><ul><li><code>size::Symbol</code> - Checkbox size - default: <code>:md</code></li><li><code>color::Symbol</code> - Checkbox color (<code>:slate</code>, <code>:primary</code>, <code>:success</code>) - default: <code>:primary</code></li><li><code>label::String</code> - Label text (optional)</li><li><code>checked::Bool</code> - Checked state - default: <code>false</code></li><li>Plus standard form props</li></ul><h4 id="Radio"><a class="docs-heading-anchor" href="#Radio">Radio</a><a id="Radio-1"></a><a class="docs-heading-anchor-permalink" href="#Radio" title="Permalink"></a></h4><p>Radio button groups.</p><pre><code class="language-julia hljs">using HypertextTemplates
@@ -467,20 +472,23 @@ html = @render @Radio {
       class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;basic&quot;
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
-  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;Basic Plan&lt;/span&gt;&lt;/label&gt;&lt;label
+    class&#61;&quot;inline-flex items-center gap-2&quot;
+  &gt;&lt;input
       type&#61;&quot;radio&quot;
       class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;pro&quot;
       checked
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label
-  &gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;Pro Plan&lt;/span&gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
       type&#61;&quot;radio&quot;
       class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;enterprise&quot;
-    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span&gt;&lt;/label&gt;
+    &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+    &gt;Enterprise&lt;/span&gt;&lt;/label&gt;
 &lt;/div&gt;</code></pre>
 <hr />
 </div><p><strong>Props:</strong></p><ul><li><code>options::Vector{Tuple{String,String}}</code> - Options as (value, label) tuples</li><li><code>name::String</code> - Radio group name (required)</li><li><code>value::String</code> - Selected value (optional)</li><li><code>size::Symbol</code> - Radio size - default: <code>:md</code></li><li><code>color::Symbol</code> - Radio color - default: <code>:primary</code></li><li>Plus standard form props</li></ul><h4 id="FormGroup"><a class="docs-heading-anchor" href="#FormGroup">FormGroup</a><a id="FormGroup-1"></a><a class="docs-heading-anchor-permalink" href="#FormGroup" title="Permalink"></a></h4><p>Form field wrapper with label and help text.</p><pre><code class="language-julia hljs">using HypertextTemplates
@@ -500,7 +508,7 @@ end</code></pre><div class="markdown"><hr />
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
     &lt;label
       class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-    &gt;&lt;span class&#61;&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;&lt;/label&gt;&lt;input
+    &gt;Email Address&lt;span class&#61;&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;&lt;/label&gt;&lt;input
       type&#61;&quot;email&quot;
       class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
       placeholder&#61;&quot;you@example.com&quot;
@@ -510,9 +518,8 @@ end</code></pre><div class="markdown"><hr />
     &lt;p class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;&gt;&lt;/p&gt;
   &lt;/div&gt;
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
-    &lt;label
-      class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-    &gt;&lt;/label&gt;&lt;input
+    &lt;label class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
+    &gt;Password&lt;/label&gt;&lt;input
       type&#61;&quot;password&quot;
       class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
       placeholder&#61;&quot;nothing&quot;
@@ -671,37 +678,29 @@ html = @render @Breadcrumb {
       &lt;a
         href&#61;&quot;/&quot;
         class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
-      &gt;&lt;/a&gt;
-      &lt;span
-        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
-        aria-hidden&#61;&quot;true&quot;
-      &gt;&lt;/span&gt;
+      &gt;Home&lt;/a&gt;
+      &lt;span class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot; aria-hidden&#61;&quot;true&quot;
+      &gt;/&lt;/span&gt;
     &lt;/li&gt;
     &lt;li class&#61;&quot;flex items-center&quot;&gt;
       &lt;a
         href&#61;&quot;/products&quot;
         class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
-      &gt;&lt;/a&gt;
-      &lt;span
-        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
-        aria-hidden&#61;&quot;true&quot;
-      &gt;&lt;/span&gt;
+      &gt;Products&lt;/a&gt;
+      &lt;span class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot; aria-hidden&#61;&quot;true&quot;
+      &gt;/&lt;/span&gt;
     &lt;/li&gt;
     &lt;li class&#61;&quot;flex items-center&quot;&gt;
       &lt;a
         href&#61;&quot;/products/electronics&quot;
         class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
-      &gt;&lt;/a&gt;
-      &lt;span
-        class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
-        aria-hidden&#61;&quot;true&quot;
-      &gt;&lt;/span&gt;
+      &gt;Electronics&lt;/a&gt;
+      &lt;span class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot; aria-hidden&#61;&quot;true&quot;
+      &gt;/&lt;/span&gt;
     &lt;/li&gt;
     &lt;li class&#61;&quot;flex items-center&quot;&gt;
-      &lt;span
-        class&#61;&quot;text-slate-500 dark:text-slate-400&quot;
-        aria-current&#61;&quot;page&quot;
-      &gt;&lt;/span&gt;
+      &lt;span class&#61;&quot;text-slate-500 dark:text-slate-400&quot; aria-current&#61;&quot;page&quot;
+      &gt;Phones&lt;/span&gt;
     &lt;/li&gt;
   &lt;/ol&gt;
 &lt;/nav&gt;</code></pre>
@@ -721,13 +720,19 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;#4&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-l-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
+            &lt;path
+              fill-rule&#61;&quot;evenodd&quot;
+              d&#61;&quot;M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z&quot;
+              clip-rule&#61;&quot;evenodd&quot;
+            /&gt;
+          &lt;/svg&gt;&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;#1&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;1&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;span
@@ -738,19 +743,19 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;#4&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;4&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;span
           aria-current&#61;&quot;page&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 border border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100&quot;
-        &gt;&lt;/span&gt;
+        &gt;5&lt;/span&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;#6&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;6&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;span
@@ -761,13 +766,19 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;#10&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;10&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;#6&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
+            &lt;path
+              fill-rule&#61;&quot;evenodd&quot;
+              d&#61;&quot;M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z&quot;
+              clip-rule&#61;&quot;evenodd&quot;
+            /&gt;
+          &lt;/svg&gt;&lt;/a&gt;
       &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/nav&gt;
@@ -776,25 +787,31 @@ end</code></pre><div class="markdown"><hr />
       &lt;li&gt;
         &lt;span
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-l-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700&quot;
-        &gt;&lt;/span&gt;
+        &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
+            &lt;path
+              fill-rule&#61;&quot;evenodd&quot;
+              d&#61;&quot;M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z&quot;
+              clip-rule&#61;&quot;evenodd&quot;
+            /&gt;
+          &lt;/svg&gt;&lt;/span&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;span
           aria-current&#61;&quot;page&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 border border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100&quot;
-        &gt;&lt;/span&gt;
+        &gt;1&lt;/span&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;/posts/page/2&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;2&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;/posts/page/3&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;3&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;span
@@ -805,13 +822,19 @@ end</code></pre><div class="markdown"><hr />
         &lt;a
           href&#61;&quot;/posts/page/20&quot;
           class&#61;&quot;relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;20&lt;/a&gt;
       &lt;/li&gt;
       &lt;li&gt;
         &lt;a
           href&#61;&quot;/posts/page/2&quot;
           class&#61;&quot;relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800&quot;
-        &gt;&lt;/a&gt;
+        &gt;&lt;svg class&#61;&quot;w-5 h-5&quot; fill&#61;&quot;currentColor&quot; viewBox&#61;&quot;0 0 20 20&quot;&gt;
+            &lt;path
+              fill-rule&#61;&quot;evenodd&quot;
+              d&#61;&quot;M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z&quot;
+              clip-rule&#61;&quot;evenodd&quot;
+            /&gt;
+          &lt;/svg&gt;&lt;/a&gt;
       &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/nav&gt;
@@ -840,6 +863,7 @@ html = @render @Tabs {
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
       id&#61;&quot;tab-overview&quot;
     &gt;
+      Overview
     &lt;/button&gt;
     &lt;button
       type&#61;&quot;button&quot;
@@ -847,18 +871,21 @@ html = @render @Tabs {
       aria-current&#61;&quot;page&quot;
       id&#61;&quot;tab-features&quot;
     &gt;
+      Features
     &lt;/button&gt;
     &lt;button
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
       id&#61;&quot;tab-pricing&quot;
     &gt;
+      Pricing
     &lt;/button&gt;
     &lt;button
       type&#61;&quot;button&quot;
       class&#61;&quot;px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors&quot;
       id&#61;&quot;tab-support&quot;
     &gt;
+      Support
     &lt;/button&gt;
   &lt;/nav&gt;
 &lt;/div&gt;</code></pre>
@@ -915,6 +942,7 @@ end</code></pre><div class="markdown"><hr />
     &lt;div
       class&#61;&quot;flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400&quot;
     &gt;
+      JD
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div
@@ -923,6 +951,7 @@ end</code></pre><div class="markdown"><hr />
     &lt;div
       class&#61;&quot;flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400&quot;
     &gt;
+      👤
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
@@ -942,10 +971,18 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;flex flex-row gap-3 items-stretch justify-start&quot;&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-5 w-5 text-current&quot;
-  &gt;&lt;/span&gt;
+  &gt;&lt;svg fill&#61;&quot;none&quot; stroke&#61;&quot;currentColor&quot; stroke-width&#61;&quot;2&quot; viewBox&#61;&quot;0 0 24 24&quot;&gt;
+      &lt;path stroke-linecap&#61;&quot;round&quot; stroke-linejoin&#61;&quot;round&quot; d&#61;&quot;M5 13l4 4L19 7&quot; /&gt;
+    &lt;/svg&gt;&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-6 w-6 text-blue-600&quot;
-  &gt;&lt;/span&gt;
+  &gt;&lt;svg fill&#61;&quot;none&quot; stroke&#61;&quot;currentColor&quot; stroke-width&#61;&quot;2&quot; viewBox&#61;&quot;0 0 24 24&quot;&gt;
+      &lt;path
+        stroke-linecap&#61;&quot;round&quot;
+        stroke-linejoin&#61;&quot;round&quot;
+        d&#61;&quot;M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z&quot;
+      /&gt;
+    &lt;/svg&gt;&lt;/span&gt;
   &lt;span
     class&#61;&quot;inline-flex items-center justify-center h-8 w-8 text-current&quot;
   &gt;&lt;/span&gt;
@@ -1055,27 +1092,25 @@ end</code></pre><div class="markdown"><hr />
             &lt;a
               href&#61;&quot;/&quot;
               class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
-            &gt;&lt;/a&gt;
+            &gt;Home&lt;/a&gt;
             &lt;span
               class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
               aria-hidden&#61;&quot;true&quot;
-            &gt;&lt;/span&gt;
+            &gt;/&lt;/span&gt;
           &lt;/li&gt;
           &lt;li class&#61;&quot;flex items-center&quot;&gt;
             &lt;a
               href&#61;&quot;/account&quot;
               class&#61;&quot;text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors&quot;
-            &gt;&lt;/a&gt;
+            &gt;Account&lt;/a&gt;
             &lt;span
               class&#61;&quot;mx-2 text-slate-400 dark:text-slate-600&quot;
               aria-hidden&#61;&quot;true&quot;
-            &gt;&lt;/span&gt;
+            &gt;/&lt;/span&gt;
           &lt;/li&gt;
           &lt;li class&#61;&quot;flex items-center&quot;&gt;
-            &lt;span
-              class&#61;&quot;text-slate-500 dark:text-slate-400&quot;
-              aria-current&#61;&quot;page&quot;
-            &gt;&lt;/span&gt;
+            &lt;span class&#61;&quot;text-slate-500 dark:text-slate-400&quot; aria-current&#61;&quot;page&quot;
+            &gt;Settings&lt;/span&gt;
           &lt;/li&gt;
         &lt;/ol&gt;
       &lt;/nav&gt;
@@ -1114,7 +1149,7 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-              &gt;&lt;/label&gt;&lt;input
+              &gt;Display Name&lt;/label&gt;&lt;input
                 type&#61;&quot;text&quot;
                 class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
                 placeholder&#61;&quot;nothing&quot;
@@ -1125,7 +1160,7 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-              &gt;&lt;/label&gt;&lt;input
+              &gt;Email&lt;/label&gt;&lt;input
                 type&#61;&quot;email&quot;
                 class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
                 placeholder&#61;&quot;nothing&quot;
@@ -1148,24 +1183,22 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-              &gt;&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot;&gt;
+              &gt;Theme&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot;&gt;
                 &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
                     type&#61;&quot;radio&quot;
                     class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;light&quot;
-                  &gt;&lt;span
-                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
-                  &gt;&lt;/span&gt;&lt;/label&gt;&lt;label
+                  &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;Light&lt;/span&gt;&lt;/label&gt;&lt;label
                   class&#61;&quot;inline-flex items-center gap-2&quot;
                 &gt;&lt;input
                     type&#61;&quot;radio&quot;
                     class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;dark&quot;
-                  &gt;&lt;span
-                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
-                  &gt;&lt;/span&gt;&lt;/label&gt;&lt;label
+                  &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;Dark&lt;/span&gt;&lt;/label&gt;&lt;label
                   class&#61;&quot;inline-flex items-center gap-2&quot;
                 &gt;&lt;input
                     type&#61;&quot;radio&quot;
@@ -1173,9 +1206,8 @@ end</code></pre><div class="markdown"><hr />
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;system&quot;
                     checked
-                  &gt;&lt;span
-                    class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
-                  &gt;&lt;/span&gt;&lt;/label&gt;
+                  &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                  &gt;System&lt;/span&gt;&lt;/label&gt;
               &lt;/div&gt;
             &lt;/div&gt;
             &lt;hr class&#61;&quot;border-t border-slate-200 dark:border-slate-800 my-4&quot;&gt;
@@ -1186,21 +1218,25 @@ end</code></pre><div class="markdown"><hr />
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
                   checked
-                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
-                &gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                &gt;Email notifications&lt;/span&gt;&lt;/label&gt;&lt;label
+                class&#61;&quot;inline-flex items-center gap-2&quot;
+              &gt;&lt;input
                   type&#61;&quot;checkbox&quot;
                   class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
-                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
-                &gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                &gt;Marketing emails&lt;/span&gt;&lt;/label&gt;&lt;label
+                class&#61;&quot;inline-flex items-center gap-2&quot;
+              &gt;&lt;input
                   type&#61;&quot;checkbox&quot;
                   class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
                   checked
-                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;&gt;&lt;/span
-                &gt;&lt;/label&gt;
+                &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
+                &gt;Security alerts&lt;/span&gt;&lt;/label&gt;
             &lt;/div&gt;
           &lt;/div&gt;
         &lt;/div&gt;
@@ -1233,4 +1269,4 @@ end</code></pre><div class="markdown"><hr />
   &lt;/p&gt;
 &lt;/div&gt;</code></pre>
 <hr />
-</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 20:01">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 20:20">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
