@@ -84,6 +84,9 @@ include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
 
+# Library submodule:
+include("Library/Library.jl")
+
 # Initialization:
 
 function __init__()

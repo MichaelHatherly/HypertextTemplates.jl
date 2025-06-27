@@ -258,4 +258,7 @@ end
         @test length(output) > 1
         @test output == func()
     end
+
+    # Include Library tests
+    include("Library/runtests.jl")
 end

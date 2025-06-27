@@ -52,6 +52,7 @@ makedocs(
             "Components" => "components.md",
             "Elements & Attributes" => "elements-attributes.md",
             "Rendering & Performance" => "rendering.md",
+            "Library Components" => "library-components.md",
         ],
         "Advanced" => [
             "Advanced Features" => "advanced-features.md",
