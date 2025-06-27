@@ -29,7 +29,7 @@ html = @render @div begin
     @include_jquery  # Skips script (already rendered)
 end
 
-println(html)
+Main.display_html(html) #hide
 # Note: Only one script tag appears!
 ```
 
@@ -66,7 +66,7 @@ html = @render @div begin
     @styled_button {text = "Delete", variant = "danger"}
     @styled_button {text = "Cancel"}
 end
-println(html)
+Main.display_html(html) #hide
 # Note: The <style> block appears only once at the beginning!
 ```
 
@@ -115,7 +115,7 @@ html = @render @div begin
     @data_table {id = "table2", data = data2}
 end
 
-println(html)
+Main.display_html(html) #hide
 # Note: initDataTable function defined once, but called twice
 ```
 
@@ -141,14 +141,14 @@ html1 = @render @div begin
     @scoped_script
 end
 println("First render:")
-println(html1)
+Main.display_html(html1) #hide
 
 # Second render - includes script again (different render context)
 html2 = @render @div begin
     @scoped_script  
 end
 println("\nSecond render (new context):")
-println(html2)
+Main.display_html(html2) #hide
 
 # Within same render - deduplication works
 html3 = @render @div begin
@@ -156,7 +156,7 @@ html3 = @render @div begin
     @section @scoped_script  # Skipped
 end
 println("\nSame render context (deduplication):")
-println(html3)
+Main.display_html(html3) #hide
 ```
 
 ## The `@deftag` Macro
@@ -188,11 +188,11 @@ end
 html = @render @alert {type = "warning", dismissible = true} begin
     @strong "Warning!" " Something went wrong."
 end
-println(html)
+Main.display_html(html) #hide
 
 # Also works without dismissible
 html2 = @render @alert {type = "info"} "This is an info message."
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ### Custom Element Tags
@@ -207,7 +207,7 @@ using HypertextTemplates.Elements
 
 # Use the custom element
 html = @render @my_custom_element {prop = "value"} "Content"
-println(html)
+Main.display_html(html) #hide
 
 # Also works with nested content
 @element "custom-card" custom_card
@@ -218,7 +218,7 @@ html2 = @render @custom_card {variant = "primary"} begin
     @p "Card content goes here"
 end
 println("\nNested custom element:")
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ### Module-Scoped Tags
@@ -242,13 +242,13 @@ end
 
 # Use from outside the module
 html = @render @UI.button {variant = "primary"} "Click me"
-println(html)
+Main.display_html(html) #hide
 
 # Also can import and use directly
 using .UI: @button
 html2 = @render @button {variant = "success"} "Save"
 println("\nImported usage:")
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ## Text Interpolation with `$`
@@ -269,7 +269,7 @@ version = 1.9
 html = @render @div begin
     @h1 "Welcome to " $name " v" $version
 end
-println(html)
+Main.display_html(html) #hide
 # Equivalent to:
 # @h1 "Welcome to " @text name " v" @text version
 ```
@@ -287,7 +287,7 @@ html = @render @ul begin
         @li "Item " $i ": " $(uppercase(item))
     end
 end
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Nested Interpolation
@@ -308,7 +308,7 @@ html = @render @div begin
     @text " (Tax included: "
     @price_display {amount = 99.999 * 1.1} ")"
 end
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Dynamic Component Selection
@@ -357,7 +357,7 @@ html = @render @div begin
     @message {type = "warning", content = "Disk space low"}
     @message {type = "info", content = "Process completed"}
 end
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Polymorphic Components
@@ -380,14 +380,14 @@ html1 = @render @flexible_container {tag = section} begin
     @p "Section content"
 end
 println("As section:")
-println(html1)
+Main.display_html(html1) #hide
 
 html2 = @render @flexible_container {tag = article, class_name = "article-container"} begin
     @h2 "Article Title"
     @p "Article content"
 end
 println("\nAs article:")
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ### Component Maps
@@ -447,7 +447,7 @@ html = @render @form begin
     }
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Advanced Patterns
@@ -558,7 +558,7 @@ html1 = @render @data_fetcher {
     render_error = error_comp,
     render_success = success_comp
 }
-println(html1)
+Main.display_html(html1) #hide
 
 # Error case
 println("\nError case:")
@@ -568,7 +568,7 @@ html2 = @render @data_fetcher {
     render_error = error_comp,
     render_success = success_comp
 }
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ### Template Inheritance
@@ -623,7 +623,7 @@ post = (
 )
 
 html = @render @blog_layout {post}
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Lazy Loading Pattern
@@ -680,7 +680,7 @@ html1 = @render @lazy_data {
     cache_key = "users",
     data_loader = () -> fetch_users_from_db()
 }
-println(html1)
+Main.display_html(html1) #hide
 
 # Second render - uses cache
 println("\nSecond render:")
@@ -688,7 +688,7 @@ html2 = @render @lazy_data {
     cache_key = "users",
     data_loader = () -> fetch_users_from_db()
 }
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ## Best Practices

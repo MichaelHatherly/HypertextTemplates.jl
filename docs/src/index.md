@@ -16,7 +16,7 @@ HypertextTemplates.jl is a powerful and efficient HTML templating system that le
 
 ## Quick Start
 
-```@example
+```@example get-started
 using HypertextTemplates
 using HypertextTemplates.Elements
 
@@ -26,6 +26,10 @@ html = @render @div {class = "container"} begin
     @p "Build fast, secure web applications with Julia."
 end
 
+Main.display_html(ans) #hide
+```
+
+```@example get-started
 # Component example
 @component function article_card(; title, author, content)
     @article {class = "card"} begin
@@ -44,6 +48,8 @@ end
     author = "Julia Developer",
     content = "This is a reusable component!"
 }
+
+Main.display_html(ans) #hide
 ```
 
 ## Documentation
@@ -58,7 +64,6 @@ end
 - [Rendering & Performance](rendering.md) - Optimization and streaming
 
 ### Advanced Topics
-- [Security](security.md) - Auto-escaping and XSS protection
 - [Advanced Features](advanced-features.md) - Once rendering, dynamic components
 - [Markdown Integration](markdown-integration.md) - Using Markdown with templates
 

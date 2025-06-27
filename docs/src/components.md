@@ -21,11 +21,15 @@ end
 
 # Now you can use it
 html = @render @greeting {name = "Julia"}
-println(html)
 
+Main.display_html(html) #hide
+```
+
+```@example basic-component
 # Also works with default value
 html2 = @render @greeting
-println(html2)
+
+Main.display_html(html2) #hide
 ```
 
 ## Component Properties (Props)
@@ -51,7 +55,7 @@ end
 
 # Must provide both props
 html = @render @user_card {username = "julia_dev", email = "julia@example.com"}
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Optional Props with Defaults
@@ -73,13 +77,22 @@ end
 @deftag macro my_button end
 
 # Use with defaults
-println(@render @my_button {})
+@render @my_button {}
 
+Main.display_html(ans) #hide
+```
+
+```@example optional-props
 # Override specific props
-println(@render @my_button {text = "Submit", variant = "success"})
+@render @my_button {text = "Submit", variant = "success"}
 
+Main.display_html(ans) #hide
+```
+
+```@example optional-props
 # With disabled state
-println(@render @my_button {text = "Loading...", disabled = true})
+@render @my_button {text = "Loading...", disabled = true}
+Main.display_html(ans) #hide
 ```
 
 ### Typed Props
@@ -105,8 +118,15 @@ end
 @deftag macro product_price end
 
 # Usage with different types
-println(@render @product_price {amount = 29.99})
-println(@render @product_price {amount = 100, currency = "EUR", decimal_places = 0})
+@render @product_price {amount = 29.99}
+
+Main.display_html(ans) #hide
+```
+
+```@example typed-props
+@render @product_price {amount = 100, currency = "EUR", decimal_places = 0}
+
+Main.display_html(ans) #hide
 ```
 
 ## Slots System
@@ -137,7 +157,7 @@ html = @render @card {title = "User Profile"} begin
     @p "Name: Alice"
     @p "Role: Developer"
 end
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Named Slots
@@ -174,17 +194,17 @@ html = @render @layout begin
             @a {href = "/about"} "About"
         end
     end
-    
+
     # Default slot content
     @section begin
         @h2 "Welcome"
         @p "This is the main content area."
     end
-    
+
     footer := @p "© 2024 My Company"
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Conditional Slots
@@ -213,16 +233,18 @@ end
 html1 = @render @message {type = "warning"} begin
     @p "This is a warning"
 end
-println("Without close button:")
-println(html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example conditional-slots
 # With custom close button
 html2 = @render @message {type = "error", dismissible = true} begin
     @p "An error occurred"
     close_button := @span "×"
 end
-println("\nWith custom close button:")
-println(html2)
+
+Main.display_html(html2) #hide
 ```
 
 ### Slot Fallbacks
@@ -250,15 +272,17 @@ end
 
 # With image
 html1 = @render @avatar {src = "/user.jpg", alt = "User"}
-println("With image:")
-println(html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example slot-fallbacks
 # With placeholder (slot content)
 html2 = @render @avatar {alt = "John Doe"} begin
     @span "JD"  # Initials as fallback
 end
-println("\nWith placeholder:")
-println(html2)
+
+Main.display_html(html2) #hide
 ```
 
 ## Component Composition
@@ -305,7 +329,8 @@ links = [
 ]
 
 html = @render @navbar {links, current_path = "/about"}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Higher-Order Components
@@ -332,7 +357,8 @@ end
 html = @render @with_tooltip {tooltip = "Click to submit"} begin
     @button "Submit"
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Component Arrays
@@ -370,7 +396,8 @@ items = [
 ]
 
 html = @render @todo_list {items}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## Dynamic Components
@@ -392,11 +419,11 @@ using HypertextTemplates.Elements
         if !isnothing(header_component)
             @<header_component
         end
-        
+
         @<main_component {class = "main-content"} begin
             @__slot__
         end
-        
+
         if sidebar
             @aside {class = "sidebar"} begin
                 @__slot__ sidebar
@@ -423,7 +450,7 @@ html = @render @flexible_layout {
     sidebar := @p "Sidebar content"
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Conditional Component Selection
@@ -454,7 +481,7 @@ end
     else
         info_icon
     end
-    
+
     @div {class = "alert alert-$type"} begin
         @<icon_component
         @span " "
@@ -465,14 +492,20 @@ end
 @deftag macro alert end
 
 # Test different alert types
-println("Info alert:")
-println(@render @alert {type = "info", message = "This is information"})
+@render @alert {type = "info", message = "This is information"}
 
-println("\nWarning alert:")
-println(@render @alert {type = "warning", message = "This is a warning"})
+Main.display_html(ans)
+```
 
-println("\nError alert:")
-println(@render @alert {type = "error", message = "This is an error"})
+```@example conditional-components
+@render @alert {type = "warning", message = "This is a warning"}
+
+Main.display_html(ans) #hide
+```
+
+```@example conditional-components
+@render @alert {type = "error", message = "This is an error"}
+Main.display_html(ans) #hide
 ```
 
 ## Module-Qualified Components
@@ -486,13 +519,13 @@ using HypertextTemplates.Elements
 module UI
     using HypertextTemplates
     using HypertextTemplates.Elements
-    
+
     @component function my_button(; variant = "primary")
         @button {class = "ui-button ui-button-$variant"} @__slot__
     end
 
     @deftag macro my_button end
-    
+
     @component function card()
         @div {class = "ui-card"} @__slot__
     end
@@ -508,7 +541,7 @@ html = @render @div begin
     end
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Creating Component Macros
@@ -541,7 +574,7 @@ html = @render @div begin
     end
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Component Patterns
@@ -577,7 +610,8 @@ users = [
 ]
 
 html = @render @user_list_view {users}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Compound Components
@@ -591,7 +625,7 @@ using HypertextTemplates.Elements
 module Tabs
     using HypertextTemplates
     using HypertextTemplates.Elements
-    
+
     @component function container(; active_tab = 1)
         @div {class = "tabs", "data-active" := active_tab} begin
             @__slot__
@@ -599,7 +633,7 @@ module Tabs
     end
 
     @deftag macro container end
-    
+
     @component function list()
         @ul {class = "tab-list", role = "tablist"} begin
             @__slot__
@@ -607,7 +641,7 @@ module Tabs
     end
 
     @deftag macro list end
-    
+
     @component function tab(; index, active = false)
         @li {role = "presentation"} begin
             @button {
@@ -621,7 +655,7 @@ module Tabs
     end
 
     @deftag macro tab end
-    
+
     @component function panels()
         @div {class = "tab-panels"} begin
             @__slot__
@@ -629,7 +663,7 @@ module Tabs
     end
 
     @deftag macro panels end
-    
+
     @component function panel(; index, active = false)
         @div {
             role = "tabpanel",
@@ -650,7 +684,7 @@ html = @render @Tabs.container {active_tab = 2} begin
         @Tabs.tab {index = 2, active = true} "Tab 2"
         @Tabs.tab {index = 3, active = false} "Tab 3"
     end
-    
+
     @Tabs.panels begin
         @Tabs.panel {index = 1, active = false} begin
             @p "Content for tab 1"
@@ -664,7 +698,7 @@ html = @render @Tabs.container {active_tab = 2} begin
     end
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Safe Rendering Pattern
@@ -702,19 +736,23 @@ end
 # Example with valid user
 user = (name = "Alice", email = "alice@example.com", role = "Admin")
 html1 = @render @user_card {user}
-println("With user data:")
-println(html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example safe-rendering
 # Example with missing user
 html2 = @render @user_card {}
-println("\nWithout user data:")
-println(html2)
 
+Main.display_html(html2) #hide
+```
+
+```@example safe-rendering
 # Example with partial data
 partial_user = (name = "Bob")  # Missing email and role
 html3 = @render @user_card {user = partial_user}
-println("\nWith partial data:")
-println(html3)
+
+Main.display_html(html3) #hide
 ```
 
 ## Best Practices
@@ -746,7 +784,8 @@ end
 # Example usage
 product = (name = "Laptop", price = 999.99, currency = "USD")
 html = @render @product_card {product}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### 2. Use Props for Configuration
@@ -770,7 +809,7 @@ using HypertextTemplates.Elements
         hoverable ? "table-hover" : nothing,
         bordered ? "table-bordered" : nothing
     ] |> x -> filter(!isnothing, x) |> x -> join(x, " ")
-    
+
     @table {class = classes} begin
         @thead begin
             @tr begin
@@ -802,7 +841,8 @@ data = [
 ]
 
 html = @render @data_table {data, columns, striped = true, bordered = true}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### 3. Document Components
@@ -848,11 +888,14 @@ end
 @deftag macro my_button end
 
 # Example usage
-println("Primary button:")
-println(@render @my_button {variant = :primary} "Click me")
+@render @my_button {variant = :primary} "Click me"
 
-println("\nDanger button:")
-println(@render @my_button {variant = :danger} "Delete")
+Main.display_html(ans) #hide
+```
+
+```@example performance-optimization
+@render @my_button {variant = :danger} "Delete"
+Main.display_html(ans) #hide
 ```
 
 ### 5. Error Handling
@@ -871,11 +914,15 @@ end
 @deftag macro safe_image end
 
 # Example usage
-println("With valid source:")
-println(@render @safe_image {src = "/user.jpg", alt = "User avatar"})
+@render @safe_image {src = "/user.jpg", alt = "User avatar"}
 
-println("\nWith empty source (uses fallback):")
-println(@render @safe_image {src = "", alt = "User avatar"})
+Main.display_html(ans) #hide
+```
+
+```@example error-handling
+@render @safe_image {src = "", alt = "User avatar"}
+
+Main.display_html(ans) #hide
 ```
 
 ## Summary

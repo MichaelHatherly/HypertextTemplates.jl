@@ -48,7 +48,7 @@ html = @render @article begin
         @h1 "Article Title"
         @p {class = "meta"} "Published on " Elements.@time {datetime = "2024-01-01"} "January 1, 2024"
     end
-    
+
     @section begin
         @p "First paragraph of content..."
         @figure begin
@@ -56,13 +56,13 @@ html = @render @article begin
             @figcaption "Image caption"
         end
     end
-    
+
     @footer begin
         @p "Article footer with " @a {href = "/more"} "related links"
     end
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Attribute Syntax
@@ -76,10 +76,14 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # Single attribute
-println(@render @div {id = "main"} "Content")
+@render @div {id = "main"} "Content"
+Main.display_html(ans) #hide
+```
 
+```@example basic-attrs
 # Multiple attributes
-println(@render @a {href = "/home", class = "nav-link", target = "_blank"} "Home")
+@render @a {href = "/home", class = "nav-link", target = "_blank"} "Home"
+Main.display_html(ans) #hide
 ```
 
 ```@example computed-attrs
@@ -90,6 +94,8 @@ using HypertextTemplates.Elements
 width = 300
 height = 200
 @render @img {src = "/photo.jpg", width, height, alt = "Photo"}
+
+Main.display_html(ans) #hide
 ```
 
 ### Attribute Name Variations
@@ -103,7 +109,8 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 html = @render @input {type = "text", name = "username", placeholder = "Enter username"}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 #### Non-Standard Names
@@ -119,7 +126,8 @@ html = @render @div {"x-data" := "{ open: false }"} begin
     @button {"@click" := "open = !open"} "Toggle"
     @div {"x-show" := "open"} "Hidden content"
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ```@example htmx-attrs
@@ -132,7 +140,8 @@ html = @render @button {
     "hx-target" := "#result",
     "hx-swap" := "innerHTML"
 } "Click me"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ```@example data-attrs
@@ -145,7 +154,8 @@ html = @render @div {
     "data-role" := "admin",
     "aria-label" := "User profile"
 } "Content"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Attribute Value Types
@@ -164,8 +174,9 @@ Numbers are automatically converted to strings:
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-println(@render @img {width = 640, height = 480})
-println(@render @input {type = "range", min = 0, max = 100, step = 5})
+@render @input {type = "range", min = 0, max = 100, step = 5}
+
+Main.display_html(ans) #hide
 ```
 
 #### Booleans
@@ -177,14 +188,24 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # true renders just the attribute name
-println(@render @input {type = "checkbox", checked = true})
+@render @input {type = "checkbox", checked = true}
 
+Main.display_html(ans) #hide
+```
+
+```@example booleans-attrs
 # false omits the attribute entirely  
-println(@render @input {type = "checkbox", checked = false})
+@render @input {type = "checkbox", checked = false}
 
+Main.display_html(ans) #hide
+```
+
+```@example booleans-attrs
 # Dynamic boolean
 is_loading = true
-println(@render @button {disabled = is_loading} "Submit")
+@render @button {disabled = is_loading} "Submit"
+
+Main.display_html(ans) #hide
 ```
 
 #### Nothing/Missing
@@ -199,13 +220,17 @@ using HypertextTemplates.Elements
 condition = false
 optional_class = condition ? "active" : nothing
 html1 = @render @div {class = optional_class} "Content"
-println("With condition=false: ", html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example nothing-values
 # Test with true condition
 condition = true
 optional_class = condition ? "active" : nothing
 html2 = @render @div {class = optional_class} "Content"
-println("With condition=true: ", html2)
+
+Main.display_html(html2) #hide
 ```
 
 ### Attribute Shortcuts
@@ -224,6 +249,8 @@ role = "article"
 
 # Instead of {id = id, class = class, role = role}
 @render @div {id, class, role} "Content"
+
+Main.display_html(ans) #hide
 ```
 
 #### Spreading Attributes
@@ -236,7 +263,9 @@ using HypertextTemplates.Elements
 
 # From NamedTuple
 common_attrs = (class = "btn", type = "button")
-println(@render @button {id = "submit", common_attrs...} "Submit")
+@render @button {id = "submit", common_attrs...} "Submit"
+
+Main.display_html(ans) #hide
 ```
 
 ```@example spreading-dict
@@ -245,7 +274,9 @@ using HypertextTemplates.Elements
 
 # From Dict
 attrs = Dict(Symbol("data-value") => "123", Symbol("data-label") => "test")
-println(@render @div {class = "widget", attrs...} "Content")
+@render @div {class = "widget", attrs...} "Content"
+
+Main.display_html(ans) #hide
 ```
 
 ```@example spreading-combine
@@ -257,6 +288,8 @@ base = (; class = "card")
 extra = (; id = "main", role = "region")
 @render @article {base..., extra..., class = "card featured"} "Content"
 # Note: Later values override earlier ones
+
+Main.display_html(ans) #hide
 ```
 
 ### Conditional Attributes
@@ -270,7 +303,8 @@ using HypertextTemplates.Elements
 # Using ternary operator
 isactive = true
 html = @render @div {class = isactive ? "active" : "inactive"} "Status"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ```@example conditional-optional
@@ -284,7 +318,8 @@ html = @render @a {
     target = external ? "_blank" : nothing,
     rel = external ? "noopener" : nothing
 } "External Link"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ```@example conditional-classes
@@ -304,7 +339,8 @@ classes = [
 ] |> x -> filter(!isnothing, x) |> x -> join(x, " ")
 
 html = @render @button {class = classes, disabled} "Click"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## Custom Elements
@@ -322,8 +358,8 @@ using HypertextTemplates.Elements
 
 # Use it
 html = @render @<my_component {prop = "value"} "Content"
-println(html)
-# Output: <my-component prop="value">Content</my-component>
+
+Main.display_html(html) #hide
 ```
 
 ### Creating Element Macros
@@ -342,7 +378,8 @@ using HypertextTemplates.Elements
 
 # Now use as a regular macro
 html = @render @custom_button {variant = "primary"} "Click me"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Web Components Example
@@ -369,7 +406,7 @@ html = @render @sl_card begin
     end
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Special Elements
@@ -390,7 +427,7 @@ html = @render @div begin
     @meta {charset = "UTF-8"}
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Raw HTML with Script and Style
@@ -406,7 +443,7 @@ html = @render @div begin
         console.log("This is preserved as-is");
         const data = { value: 123 };
     """
-    
+
     @style """
         .custom-class {
             color: blue;
@@ -415,7 +452,7 @@ html = @render @div begin
     """
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### SVG Elements
@@ -442,7 +479,7 @@ html = @render @svg {width = "100", height = "100", viewBox = "0 0 100 100"} beg
     @path {d = "M 10 10 L 90 90", stroke = "black", "stroke-width" := "2"}
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Escaping and Security
@@ -457,8 +494,9 @@ using HypertextTemplates.Elements
 
 user_input = "\" onclick=\"alert('xss')\""
 html = @render @div {title = user_input} "Safe"
-println(html)
 # Output shows escaped attributes
+
+Main.display_html(html) #hide
 ```
 
 ### Pre-escaped Content
@@ -471,7 +509,8 @@ using HypertextTemplates.Elements
 
 safe_attr = SafeString("complex&value")
 html = @render @div {"data-value" := safe_attr} "Content"
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## Advanced Patterns
@@ -489,7 +528,7 @@ using HypertextTemplates.Elements
     for (key, value) in values
         attrs[Symbol("$prefix-$key")] = value
     end
-    
+
     @div {attrs...} @__slot__
 end
 
@@ -501,7 +540,7 @@ html = @render @dynamic_attrs {
     values = Dict("id" => "123", "name" => "test")
 } "Content with dynamic attributes"
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### ARIA Attributes
@@ -536,7 +575,7 @@ html = @render @accessible_modal {open = true} begin
     @p "This is the modal content."
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Style Objects
@@ -565,7 +604,7 @@ html = @render @div {
     )
 } "Styled div"
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Best Practices
@@ -585,17 +624,19 @@ html = @render @nav begin
         @li @a {href = "/about"} "About"
     end
 end
-println("Semantic navigation:")
-println(html)
 
+Main.display_html(html) #hide
+```
+
+```@example semantic-html
 # Article with semantic structure
 html2 = @render @article begin
     @header @h1 "Article Title"
     @section @p "Content..."
     @footer @button {type = "submit"} "Submit"
 end
-println("\nSemantic article:")
-println(html2)
+
+Main.display_html(html2) #hide
 ```
 
 ### 2. Accessibility First
@@ -613,7 +654,7 @@ html = @render @div begin
     @span {id = "email-error", class = "error"} "Please enter a valid email"
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### 3. Consistent Naming
@@ -656,7 +697,7 @@ html = @render @button {
     "data-confirm" := "true"
 } "Submit"
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Summary

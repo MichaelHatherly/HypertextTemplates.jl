@@ -33,7 +33,7 @@ html = @render @div begin
     @p "This is a simple example."
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Adding Attributes
@@ -48,6 +48,8 @@ html = @render @div {id = "main", class = "container"} begin
     @h1 {class = "title"} "Styled Heading"
     @p {style = "color: blue;"} "Blue text"
 end
+
+Main.display_html(html) #hide
 ```
 
 ### Using Variables and Expressions
@@ -66,6 +68,8 @@ html = @render @div begin
     @p "The answer is " $count
     @p "Double the answer: " $(count * 2)
 end
+
+Main.display_html(html) #hide
 ```
 
 ## Building a Simple Page
@@ -97,7 +101,8 @@ html = @render @html begin
         end
     end
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## Working with Loops
@@ -115,6 +120,8 @@ html = @render @ul begin
         @li $item
     end
 end
+
+Main.display_html(html) #hide
 ```
 
 ```@example loops2
@@ -129,6 +136,8 @@ html = @render @ol begin
         @li {value = i * 10} "Item " $i ": " $item
     end
 end
+
+Main.display_html(html) #hide
 ```
 
 ## Conditional Rendering
@@ -151,6 +160,8 @@ html = @render @div begin
         @button "Login"
     end
 end
+
+Main.display_html(html) #hide
 ```
 
 ## Creating Your First Component
@@ -187,7 +198,8 @@ html = @render @div {class = "card-grid"} begin
         link_text = "Explore"
     }
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Understanding Components
@@ -231,7 +243,8 @@ html = @render @page {title = "My First Page"} begin
         @li "Julia-native syntax"
     end
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 The `@__slot__` marker shows where child content renders inside the component.

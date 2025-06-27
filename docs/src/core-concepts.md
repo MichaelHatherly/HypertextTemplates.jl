@@ -14,9 +14,8 @@ using HypertextTemplates.Elements
 
 # This macro call...
 html = @render @div {class = "container"} @p "Hello"
-println(html)
 
-# The structure is analyzed at compile time - no runtime parsing needed!
+Main.display_html(html) #hide
 ```
 
 ### Native Julia Integration
@@ -37,6 +36,8 @@ using HypertextTemplates.Elements
         end
     end
 end
+
+Main.display_html(ans) #hide
 ```
 
 ### Type Safety
@@ -60,7 +61,8 @@ end
 # Julia's type system helps catch errors
 items = ["Apple", "Banana", "Cherry"]
 html = @render @typed_list {items}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## The `{}` Attribute Syntax
@@ -75,6 +77,8 @@ using HypertextTemplates.Elements
 
 # Simple attributes
 @render @div {id = "main", class = "container"} "Content"
+
+Main.display_html(ans) #hide
 ```
 
 ```@example attributes-computed
@@ -84,6 +88,8 @@ using HypertextTemplates.Elements
 # Computed attributes
 width = 100
 @render @img {src = "/logo.png", width = width * 2}
+
+Main.display_html(ans) #hide
 ```
 
 ### Attribute Name Shortcuts
@@ -99,6 +105,8 @@ disabled = true
 
 # Instead of {class = class, disabled = disabled}
 @render @button {class, disabled} "Click me"
+
+Main.display_html(ans) #hide
 ```
 
 ### Attribute Spreading
@@ -111,6 +119,8 @@ using HypertextTemplates.Elements
 
 common_attrs = (class = "btn", type = "button")
 @render @button {id = "submit", common_attrs...} "Submit"
+
+Main.display_html(ans) #hide
 ```
 
 ### Boolean Attributes
@@ -122,28 +132,19 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # true renders the attribute name only
-println(@render @input {type = "checkbox", checked = true})
+@render @input {type = "checkbox", checked = true}
 
+Main.display_html(ans) #hide
+```
+
+```@example booleans
 # false omits the attribute entirely
-println(@render @input {type = "checkbox", checked = false})
+@render @input {type = "checkbox", checked = false}
+
+Main.display_html(ans) #hide
 ```
 
 ## Text Rendering and Interpolation
-
-Beyond structural elements and attributes, HypertextTemplates provides flexible text rendering:
-
-### String Literals
-
-String literals are rendered directly without escaping:
-
-```@example string-literals
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-html = @render @p "This is <b>bold</b> text"
-println(html)
-# String literals are trusted content - HTML is preserved
-```
 
 ### Variable Interpolation with `$`
 
@@ -155,8 +156,8 @@ using HypertextTemplates.Elements
 
 user_input = "<script>alert('xss')</script>"
 html = @render @p "User said: " $user_input
-println(html)
-# Variables are automatically escaped for safety
+
+Main.display_html(html) #hide
 ```
 
 ### The `@text` Macro
@@ -168,18 +169,25 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 value = 42
-a, b = 10, 20
 
 # These are equivalent
-html1 = @render @p "Value: " $value
-html2 = @render @p "Value: " @text value
+html1 = @render @p "\$ Value: " $value
 
-println("Using \$: ", html1)
-println("Using @text: ", html2)
+Main.display_html(html1) #hide
+```
 
+```@example text-macro
+html2 = @render @p "@text Value: " @text value
+
+Main.display_html(html2) #hide
+```
+
+```@example text-macro
+a, b = 10, 20
 # @text can handle complex expressions
 html3 = @render @p @text "The sum is $(a + b)"
-println("Complex expression: ", html3)
+
+Main.display_html(html3) #hide
 ```
 
 ### Mixed Content
@@ -198,7 +206,8 @@ html = @render @div begin
     @p "bold"              # Nested element
     @strong " more text"   # Another literal
 end
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## Zero-Allocation Design
@@ -222,7 +231,8 @@ io = IOBuffer()
 end
 
 result = String(take!(io))
-println(result)
+
+Main.display_html(result) #hide
 ```
 
 ### Efficient String Building
@@ -238,7 +248,8 @@ html = @render @div begin
     @h1 "Title"
     @p "Content"
 end
-println(html)
+
+Main.display_html(html) #hide
 
 # This is equivalent to direct write() calls:
 # write(io, "<div>")
@@ -278,9 +289,11 @@ collection = ["Apple", "Banana", "Cherry"]
 html1 = @render @ul for item in collection
     @li $item
 end
-println("For loop:")
-println(html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example loops-examples
 # while loops
 count = 0
 html2 = @render @div begin
@@ -289,15 +302,17 @@ html2 = @render @div begin
         global count += 1
     end
 end
-println("\nWhile loop:")
-println(html2)
 
+Main.display_html(html2) #hide
+```
+
+```@example loops-examples
 # comprehensions
 html3 = @render @select begin
     [@option {value = i} "Option " $i for i in 1:5]
 end
 println("\nComprehension:")
-println(html3)
+Main.display_html(html3) #hide
 ```
 
 ### Conditionals
@@ -317,23 +332,27 @@ html1 = @render @div begin
         @p "False branch"
     end
 end
-println("If-else:")
-println(html1)
 
+Main.display_html(html1) #hide
+```
+
+```@example conditionals
 # ternary operator
 isactive = false
 html2 = @render @p {class = isactive ? "active" : "inactive"} "Status"
-println("\nTernary operator:")
-println(html2)
 
+Main.display_html(html2) #hide
+```
+
+```@example conditionals
 # short-circuit evaluation
 hasdata = false
 html3 = @render @div begin
     hasdata && @p "Data is available"
     !hasdata && @p "No data available"
 end
-println("\nShort-circuit:")
-println(html3)
+
+Main.display_html(html3) #hide
 ```
 
 ### Pattern Matching
@@ -370,7 +389,8 @@ end
 
 # Use the component
 html = @render @alert {type = "warning", message = "This is a warning!"}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Composition
@@ -407,7 +427,8 @@ alerts = [
 ]
 
 html = @render @alert_list {alerts}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Component Transformation
@@ -459,7 +480,8 @@ end
 
 # The structure is compiled, not interpreted at runtime
 html = @render @static_heavy
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Runtime Efficiency
@@ -484,7 +506,8 @@ end
 # Only the loop execution is runtime work
 items = ["Dynamic 1", "Dynamic 2", "Dynamic 3"]
 html = @render @dynamic_list {items}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ## HTML Escaping Strategy
@@ -501,8 +524,8 @@ using HypertextTemplates.Elements
 
 unsafe = "<script>alert('xss')</script>"
 html = @render @p $unsafe
-println(html)
-# Dynamic content is automatically escaped for safety
+
+Main.display_html(html) #hide
 ```
 
 ### Escape Rules

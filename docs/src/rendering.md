@@ -16,15 +16,18 @@ using HypertextTemplates.Elements
 
 # Render to String (default)
 html = @render @div "Hello, World!"
-println(html)
 
+Main.display_html(html) #hide
+```
+
+```@example basic-rendering
 # Render multiple elements
 html2 = @render begin
     @h1 "Title"
     @p "Paragraph"
 end
-println("\nMultiple elements:")
-println(html2)
+
+Main.display_html(html2) #hide
 ```
 
 ### Rendering to IO
@@ -44,7 +47,8 @@ buffer = IOBuffer()
     end
 end
 result = String(take!(buffer))
-println(result)
+
+Main.display_html(result) #hide
 ```
 
 ### Output Type Control
@@ -89,7 +93,7 @@ io = IOBuffer()
 end
 
 result = String(take!(io))
-println(result)
+Main.display_html(result) #hide
 
 # This is equivalent to manual IO operations:
 # write(io, "<article>")
@@ -129,7 +133,7 @@ html = @render @static_heavy begin
     @p "This is the dynamic content that goes in the slot."
 end
 
-println(html)
+Main.display_html(html) #hide
 ```
 
 ### Efficient String Handling
@@ -155,7 +159,7 @@ end
 
 items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
 html = @render @efficient_list {items}
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## StreamingRender
@@ -173,7 +177,7 @@ buffer = IOBuffer()
 stream = StreamingRender() do io
     @render io @div begin
         @h1 "Streaming Example"
-        
+
         # Render multiple sections
         for i in 1:3
             @section begin
@@ -207,7 +211,7 @@ using HypertextTemplates.Elements
 # Simulated streaming example (without actual HTTP.jl dependency)
 function simulate_streaming_response()
     chunks = String[]
-    
+
     for chunk in StreamingRender() do render_io
         @render render_io @html begin
             @head @title "Streaming Page"
@@ -221,7 +225,7 @@ function simulate_streaming_response()
     end
         push!(chunks, String(chunk))
     end
-    
+
     return chunks
 end
 
@@ -355,7 +359,8 @@ end
 
 # Example usage
 html = @render @two_column_layout {left_content, right_content}
-println(html)
+
+Main.display_html(html) #hide
 ```
 
 ### Lazy Rendering
@@ -381,7 +386,7 @@ end
     @div {class = "lazy-load"} begin
         # Only load data when actually rendering
         data = data_loader()
-        
+
         if isnothing(data)
             @p "No data available"
         else
@@ -403,18 +408,18 @@ function empty_query()
 end
 
 # Example with data
-println("With data:")
 html1 = @render @lazy_section {
     data_loader = () -> expensive_database_query()
 }
-println(html1)
+Main.display_html(html1) #hide
+```
 
+```@example lazy-rendering
 # Example without data
-println("\nWithout data:")
 html2 = @render @lazy_section {
     data_loader = () -> empty_query()
 }
-println(html2)
+Main.display_html(html2) #hide
 ```
 
 ### Progressive Enhancement
@@ -436,7 +441,7 @@ using HypertextTemplates.Elements
                 alt = img.alt
             }
         end
-        
+
         # Enhancement script
         @script """
         // Progressively load full images
@@ -457,7 +462,7 @@ images = [
 ]
 
 html = @render @progressive_gallery {images}
-println(html)
+Main.display_html(html) #hide
 ```
 
 ## Best Practices
@@ -507,11 +512,15 @@ end
 # Example usage
 items = ["Apple", "Banana", "Cherry"]
 
-println("Good (static structure):")
-println(@render @good_list {items})
+@render @good_list {items}
 
-println("\nLess optimal (dynamic structure):")
-println(@render @suboptimal_list {items})
+Main.display_html(ans) #hide
+```
+
+```@example minimize-dynamic
+@render @suboptimal_list {items}
+
+Main.display_html(ans) #hide
 ```
 
 ## Summary
