@@ -73,6 +73,8 @@ end
 
 @deftag macro Heading end
 
+function Text end
+
 """
     @Text
 
