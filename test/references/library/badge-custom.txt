@@ -1,1 +1,1 @@
-<span class="custom-class" role="nothing" id="my-badge">Custom Badge</span>
+<span class="custom-class" id="my-badge">Custom Badge</span>
