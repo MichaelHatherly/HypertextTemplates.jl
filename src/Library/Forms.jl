@@ -358,12 +358,16 @@ Radio button component for single selection.
     color_class = get(color_classes, color_sym, color_classes[:primary])
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
+    # Note: WebKit/Safari may clip the right edge of radio buttons in some cases.
+    # This is a known rendering issue with Safari's implementation of form controls.
     @div {class = "space-y-2", role = "radiogroup", attrs...} begin
         for (opt_value, opt_label) in options
-            Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
+            Elements.@label {
+                class = "flex items-center gap-2 cursor-pointer $disabled_class",
+            } begin
                 @input {
                     type = "radio",
-                    class = "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $size_class $color_class",
+                    class = "shrink-0 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors $size_class $color_class",
                     name = name,
                     value = opt_value,
                     checked = (!isnothing(value) && value == opt_value),
