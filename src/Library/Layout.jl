@@ -4,16 +4,18 @@
 A responsive container component with proper max-widths and padding.
 
 # Props
-- `size::Union{Symbol,String}`: Container size (`:sm`, `:md`, `:lg`, `:xl`, `"2xl"`) (default: `:xl`)
+- `size::Union{Symbol,String}`: Container size (`:sm`, `:md`, `:lg`, `:xl`, `"2xl"`, `:full`) (default: `:xl`)
 - `padding::Bool`: Whether to include horizontal padding (default: `true`)
 - `centered::Bool`: Whether to center the container (default: `true`)
 - `role::Union{String,Nothing}`: ARIA role for the container (e.g., "main") (optional)
+- `glass::Bool`: Whether to apply glassmorphism effect (default: `false`)
 """
 @component function Container(;
     size::Union{Symbol,String} = :xl,
     padding::Bool = true,
     centered::Bool = true,
     role::Union{String,Nothing} = nothing,
+    glass::Bool = false,
     attrs...,
 )
     # Convert to symbol
@@ -25,13 +27,15 @@ A responsive container component with proper max-widths and padding.
         :lg => "max-w-screen-lg",
         :xl => "max-w-screen-xl",
         Symbol("2xl") => "max-w-screen-2xl",
+        :full => "max-w-full",
     )
 
     size_class = get(size_classes, size_sym, "max-w-screen-xl")
     padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
     centered_class = centered ? "mx-auto" : ""
+    glass_class = glass ? "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" : ""
 
-    @div {class = "$size_class $padding_class $centered_class", role = role, attrs...} begin
+    @div {class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300", role = role, attrs...} begin
         @__slot__()
     end
 end
@@ -41,19 +45,21 @@ end
 """
     @Stack
 
-A flexible stack component for vertical or horizontal layouts with consistent spacing.
+A modern flexible stack component for vertical or horizontal layouts with consistent spacing.
 
 # Props
 - `direction::Union{Symbol,String}`: Stack direction (`:vertical` or `:horizontal`) (default: `:vertical`)
-- `gap::Int`: Gap size using Tailwind spacing scale (default: `4`)
+- `gap::Union{Symbol,String,Int}`: Gap size using Tailwind spacing scale or preset (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `4`)
 - `align::Union{Symbol,String}`: Alignment (`:start`, `:center`, `:end`, `:stretch`) (default: `:stretch`)
 - `justify::Union{Symbol,String}`: Justification (`:start`, `:center`, `:end`, `:between`, `:around`, `:evenly`) (default: `:start`)
+- `wrap::Bool`: Whether items should wrap (default: `false`)
 """
 @component function Stack(;
     direction::Union{Symbol,String} = :vertical,
-    gap::Int = 4,
+    gap::Union{Symbol,String,Int} = 4,
     align::Union{Symbol,String} = :stretch,
     justify::Union{Symbol,String} = :start,
+    wrap::Bool = false,
     attrs...,
 )
     # Convert to symbols
@@ -62,7 +68,23 @@ A flexible stack component for vertical or horizontal layouts with consistent sp
     justify_sym = Symbol(justify)
 
     direction_class = direction_sym == :horizontal ? "flex-row" : "flex-col"
-    gap_class = "gap-$gap"
+    
+    # Handle gap as symbol or int
+    gap_presets = Dict(
+        :xs => "gap-1",
+        :sm => "gap-2",
+        :base => "gap-4",
+        :lg => "gap-6",
+        :xl => "gap-8",
+    )
+    
+    gap_class = if gap isa Symbol
+        get(gap_presets, gap, "gap-4")
+    else
+        "gap-$gap"
+    end
+    
+    wrap_class = wrap ? "flex-wrap" : ""
 
     align_classes = Dict(
         :start => "items-start",
@@ -85,7 +107,7 @@ A flexible stack component for vertical or horizontal layouts with consistent sp
 
     # Build component default attributes
     component_attrs =
-        (class = "flex $direction_class $gap_class $align_class $justify_class",)
+        (class = "flex $direction_class $gap_class $align_class $justify_class $wrap_class",)
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)

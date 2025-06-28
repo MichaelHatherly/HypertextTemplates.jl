@@ -1,19 +1,23 @@
 """
     @Heading
 
-A styled heading component with consistent sizing and weight.
+A modern styled heading component with consistent sizing and weight.
 
 # Props
 - `level::Int`: Heading level (`1`-`6`) (default: `1`)
-- `size::Union{Symbol,String,Nothing}`: Override size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`, `"2xl"`, `"3xl"`, `"4xl"`, `"5xl"`) (optional)
-- `weight::Union{Symbol,String}`: Font weight (`:normal`, `:medium`, `:semibold`, `:bold`) (default: `:semibold`)
+- `size::Union{Symbol,String,Nothing}`: Override size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`, `"2xl"`, `"3xl"`, `"4xl"`, `"5xl"`, `"6xl"`) (optional)
+- `weight::Union{Symbol,String}`: Font weight (`:light`, `:normal`, `:medium`, `:semibold`, `:bold`, `:extrabold`) (default: `:bold`)
 - `color::Union{String,Nothing}`: Text color class (optional)
+- `gradient::Bool`: Whether to use gradient text effect (default: `false`)
+- `tracking::Union{Symbol,String}`: Letter spacing (`:tight`, `:normal`, `:wide`) (default: `:tight`)
 """
 @component function Heading(;
     level::Int = 1,
     size::Union{Symbol,String,Nothing} = nothing,
-    weight::Union{Symbol,String} = :semibold,
+    weight::Union{Symbol,String} = :bold,
     color::Union{String,Nothing} = nothing,
+    gradient::Bool = false,
+    tracking::Union{Symbol,String} = :tight,
     attrs...,
 )
     # Default sizes for each heading level
@@ -29,6 +33,7 @@ A styled heading component with consistent sizing and weight.
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
     weight_sym = Symbol(weight)
+    tracking_sym = Symbol(tracking)
 
     # Size overrides
     size_classes = Dict(
@@ -44,17 +49,31 @@ A styled heading component with consistent sizing and weight.
     )
 
     weight_classes = Dict(
+        :light => "font-light",
         :normal => "font-normal",
         :medium => "font-medium",
         :semibold => "font-semibold",
         :bold => "font-bold",
+        :extrabold => "font-extrabold",
+    )
+    
+    tracking_classes = Dict(
+        :tight => "tracking-tight",
+        :normal => "tracking-normal",
+        :wide => "tracking-wide",
     )
 
     size_class =
         isnothing(size_sym) ? get(default_sizes, level, "text-2xl") :
         get(size_classes, size_sym, "text-2xl")
-    weight_class = get(weight_classes, weight_sym, "font-semibold")
-    color_class = isnothing(color) ? "text-slate-900 dark:text-slate-100" : color
+    weight_class = get(weight_classes, weight_sym, "font-bold")
+    tracking_class = get(tracking_classes, tracking_sym, "tracking-tight")
+    
+    if gradient
+        color_class = "bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
+    else
+        color_class = isnothing(color) ? "text-gray-900 dark:text-gray-100" : color
+    end
 
     elements = Dict(
         1 => Elements.h1,

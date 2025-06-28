@@ -24,12 +24,12 @@ A responsive data table component.
 )
     striped_class =
         striped ?
-        "[&>tbody>tr:nth-child(even)]:bg-slate-50 dark:[&>tbody>tr:nth-child(even)]:bg-slate-800/50" :
+        "[&>tbody>tr:nth-child(even)]:bg-gray-50 dark:[&>tbody>tr:nth-child(even)]:bg-gray-800/50" :
         ""
 
     hover_class =
         hover ?
-        "[&>tbody>tr]:transition-colors [&>tbody>tr]:duration-150 [&>tbody>tr]:hover:bg-blue-50 dark:[&>tbody>tr]:hover:bg-blue-950/30 [&>tbody>tr]:hover:shadow-sm" :
+        "[&>tbody>tr]:transition-all [&>tbody>tr]:duration-200 [&>tbody>tr]:hover:bg-blue-50 dark:[&>tbody>tr]:hover:bg-blue-950/20 [&>tbody>tr]:hover:shadow-md" :
         ""
 
     spacing_class =
@@ -38,20 +38,20 @@ A responsive data table component.
 
     sticky_header_class =
         sticky_header ?
-        "[&>thead]:sticky [&>thead]:top-0 [&>thead]:z-10 [&>thead]:bg-white dark:[&>thead]:bg-slate-900 [&>thead]:shadow-sm" :
+        "[&>thead]:sticky [&>thead]:top-0 [&>thead]:z-10 [&>thead]:bg-white/95 dark:[&>thead]:bg-gray-900/95 [&>thead]:backdrop-blur-sm [&>thead]:shadow-lg" :
         ""
 
     sortable_class =
         sortable ?
-        "[&_th]:cursor-pointer [&_th]:select-none [&_th]:hover:bg-slate-100 dark:[&_th]:hover:bg-slate-800 [&_th]:transition-colors [&_th]:relative [&_th]:pr-8" :
+        "[&_th]:cursor-pointer [&_th]:select-none [&_th]:hover:bg-gray-100 dark:[&_th]:hover:bg-gray-800 [&_th]:transition-all [&_th]:duration-200 [&_th]:relative [&_th]:pr-8" :
         ""
 
-    header_style = "[&_th]:font-semibold [&_th]:text-left [&_th]:text-slate-900 dark:[&_th]:text-slate-100 [&_th]:uppercase [&_th]:text-xs [&_th]:tracking-wider"
+    header_style = "[&_th]:font-bold [&_th]:text-left [&_th]:text-gray-900 dark:[&_th]:text-gray-100 [&_th]:uppercase [&_th]:text-xs [&_th]:tracking-wide"
 
     border_classes = if bordered
-        "border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden [&_th]:border-b-2 [&_th]:border-slate-200 dark:[&_th]:border-slate-700 [&_td]:border-b [&_td]:border-slate-100 dark:[&_td]:border-slate-800 [&>tbody>tr:last-child>td]:border-b-0"
+        "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm [&_th]:border-b-2 [&_th]:border-gray-200 dark:[&_th]:border-gray-700 [&_td]:border-b [&_td]:border-gray-100 dark:[&_td]:border-gray-800 [&>tbody>tr:last-child>td]:border-b-0"
     else
-        ""
+        "rounded-xl overflow-hidden"
     end
 
     wrapper_class =
@@ -60,11 +60,11 @@ A responsive data table component.
 
     @div {class=wrapper_class} begin
         @table {
-            class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 $striped_class $hover_class $spacing_class $border_classes $sticky_header_class $sortable_class $header_style",
+            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 $striped_class $hover_class $spacing_class $border_classes $sticky_header_class $sortable_class $header_style",
             attrs...,
         } begin
             if !isnothing(caption)
-                @caption {class="mb-4 text-sm text-slate-600 dark:text-slate-400"} $caption
+                @caption {class="mb-4 text-sm text-gray-600 dark:text-gray-400 italic"} $caption
             end
             @__slot__()
         end
@@ -97,7 +97,7 @@ A styled list component with various markers.
     spacing_class = get(spacing_classes, spacing_sym, "space-y-2")
 
     # Base classes for all variants
-    base_class = "text-slate-600 dark:text-slate-400 $spacing_class"
+    base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
 
     if variant_sym == :bullet
         @ul {class="list-disc list-inside $base_class", attrs...} begin

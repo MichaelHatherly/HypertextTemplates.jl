@@ -19,20 +19,20 @@ Navigation breadcrumb component.
                     if i == length(items)
                         # Current page
                         @span {
-                            class = "text-slate-500 dark:text-slate-400",
+                            class = "text-gray-700 dark:text-gray-300 font-medium",
                             "aria-current" = "page",
                         } $label
                     else
                         # Link
                         @a {
                             href = href,
-                            class = "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors",
+                            class = "text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 hover:underline underline-offset-2",
                         } $label
                     end
 
                     if i < length(items)
                         @span {
-                            class = "mx-2 text-slate-400 dark:text-slate-600",
+                            class = "mx-2 text-gray-400 dark:text-gray-600",
                             "aria-hidden" = "true",
                         } $separator
                     end
@@ -93,13 +93,13 @@ Page navigation component.
     end
 
     @nav {class = "flex items-center justify-center", "aria-label" = "Pagination", attrs...} begin
-        @ul {class = "flex items-center -space-x-px"} begin
+        @ul {class = "flex items-center gap-1"} begin
             # Previous button
             @li begin
                 if current > 1
                     @a {
                         href = "$base_url$(current-1)",
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-l-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800",
+                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
                         "aria-label" = "Go to previous page",
                     } begin
                         @text HypertextTemplates.SafeString(
@@ -108,7 +108,7 @@ Page navigation component.
                     end
                 else
                     @span {
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-l-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700",
+                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-xl cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 opacity-50",
                         "aria-label" = "Previous page (disabled)",
                         "aria-disabled" = "true",
                     } begin
@@ -125,19 +125,19 @@ Page navigation component.
                     if page == -1
                         # Ellipsis
                         @span {
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300",
+                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg dark:bg-gray-900 dark:border-gray-700 dark:text-gray-500",
                         } "..."
                     elseif page == current
                         # Current page
                         @span {
                             "aria-current" = "page",
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-900 border border-slate-900 dark:bg-slate-100 dark:text-slate-900 dark:border-slate-100",
+                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-xl shadow-sm dark:bg-blue-600 dark:border-blue-600",
                         } @text string(page)
                     else
                         # Other pages
                         @a {
                             href = "$base_url$page",
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800",
+                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
                         } @text string(page)
                     end
                 end
@@ -148,7 +148,7 @@ Page navigation component.
                 if current < total
                     @a {
                         href = "$base_url$(current+1)",
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-r-md hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800",
+                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
                         "aria-label" = "Go to next page",
                     } begin
                         @text HypertextTemplates.SafeString(
@@ -157,7 +157,7 @@ Page navigation component.
                     end
                 else
                     @span {
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-400 bg-white border border-slate-300 rounded-r-md cursor-not-allowed dark:bg-slate-900 dark:border-slate-700",
+                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-xl cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 opacity-50",
                         "aria-label" = "Next page (disabled)",
                         "aria-disabled" = "true",
                     } begin
@@ -194,7 +194,7 @@ Tab navigation component (visual only, no JavaScript).
 
     @div {attrs...} begin
         @nav {
-            class = "flex space-x-1 border-b border-slate-200 dark:border-slate-700",
+            class = "flex gap-2 border-b-2 border-gray-200 dark:border-gray-700",
             "aria-label" = isnothing(aria_label) ? "Tabs" : aria_label,
             role = "tablist",
         } begin
@@ -204,7 +204,7 @@ Tab navigation component (visual only, no JavaScript).
                 if is_active
                     @button {
                         type = "button",
-                        class = "px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 border-b-2 border-slate-900 dark:border-slate-100 transition-colors",
+                        class = "px-4 py-2.5 text-sm font-semibold text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 dark:border-blue-400 -mb-[2px] transition-all duration-200 rounded-t-lg bg-blue-50 dark:bg-blue-950/30",
                         "aria-current" = "page",
                         "aria-selected" = "true",
                         role = "tab",
@@ -214,7 +214,7 @@ Tab navigation component (visual only, no JavaScript).
                 else
                     @button {
                         type = "button",
-                        class = "px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-900 hover:border-slate-300 dark:hover:text-slate-100 dark:hover:border-slate-600 transition-colors",
+                        class = "px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 border-b-2 border-transparent -mb-[2px] hover:text-gray-900 hover:bg-gray-50 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-t-lg",
                         "aria-selected" = "false",
                         role = "tab",
                         id = "tab-$id",

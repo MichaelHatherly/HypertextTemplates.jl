@@ -1,25 +1,29 @@
 """
     @Alert
 
-Notification message component.
+Modern notification message component with animations.
 
 # Props
 - `variant::Union{Symbol,String}`: Alert variant (`:info`, `:success`, `:warning`, `:error`) (default: `:info`)
 - `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: `false`)
+- `icon::Bool`: Whether to show icon (default: `true`)
+- `animated::Bool`: Whether to show fade-in animation (default: `true`)
 """
 @component function Alert(;
     variant::Union{Symbol,String} = :info,
     dismissible::Bool = false,
+    icon::Bool = true,
+    animated::Bool = true,
     attrs...,
 )
     # Convert to symbol
     variant_sym = Symbol(variant)
 
     variant_classes = Dict(
-        :info => "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200",
-        :success => "bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200",
-        :warning => "bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200",
-        :error => "bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200",
+        :info => "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/30 dark:border-blue-700 dark:text-blue-300",
+        :success => "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300",
+        :warning => "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/30 dark:border-amber-700 dark:text-amber-300",
+        :error => "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/30 dark:border-rose-700 dark:text-rose-300",
     )
 
     icon_svgs = Dict(
@@ -31,19 +35,22 @@ Notification message component.
 
     variant_class = get(variant_classes, variant_sym, variant_classes[:info])
     icon_svg = get(icon_svgs, variant_sym, icon_svgs[:info])
+    animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
 
-    @div {class = "rounded-lg border p-4 $variant_class", role = "alert", attrs...} begin
+    @div {class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300", role = "alert", attrs...} begin
         @div {class = "flex"} begin
-            @div {class = "flex-shrink-0"} begin
-                HypertextTemplates.SafeString(icon_svg)
+            if icon
+                @div {class = "flex-shrink-0"} begin
+                    HypertextTemplates.SafeString(icon_svg)
+                end
             end
-            @div {class = "ml-3 flex-1"} begin
+            @div {class = icon ? "ml-3 flex-1" : "flex-1"} begin
                 @__slot__()
             end
             if dismissible
                 @button {
                     type = "button",
-                    class = "ml-3 inline-flex flex-shrink-0 rounded-md p-1.5 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current",
+                    class = "ml-3 inline-flex flex-shrink-0 rounded-lg p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-all duration-200",
                     "aria-label" = "Dismiss",
                 } begin
                     HypertextTemplates.SafeString(
@@ -60,14 +67,15 @@ end
 """
     @Progress
 
-Progress bar component.
+Modern progress bar component with animations.
 
 # Props
 - `value::Int`: Current progress value (default: `0`)
 - `max::Int`: Maximum progress value (default: `100`)
 - `size::Union{Symbol,String}`: Progress bar size (`:sm`, `:md`, `:lg`) (default: `:md`)
-- `color::Union{Symbol,String}`: Progress bar color (`:slate`, `:primary`, `:success`) (default: `:primary`)
+- `color::Union{Symbol,String}`: Progress bar color (`:primary`, `:success`, `:warning`, `:danger`, `:gradient`) (default: `:primary`)
 - `striped::Bool`: Whether to show striped pattern (default: `false`)
+- `animated::Bool`: Whether to animate the stripes (default: `false`)
 - `label::Union{String,Nothing}`: Label to display (optional)
 - `aria_label::Union{String,Nothing}`: ARIA label for screen readers (optional)
 """
@@ -77,6 +85,7 @@ Progress bar component.
     size::Union{Symbol,String} = :md,
     color::Union{Symbol,String} = :primary,
     striped::Bool = false,
+    animated::Bool = false,
     label::Union{String,Nothing} = nothing,
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
@@ -85,34 +94,38 @@ Progress bar component.
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = Dict(:sm => "h-2", :md => "h-3", :lg => "h-4")
+    size_classes = Dict(:sm => "h-2", :md => "h-3", :lg => "h-5")
 
     color_classes = Dict(
-        :slate => "bg-slate-600 dark:bg-slate-400",
-        :primary => "bg-slate-900 dark:bg-slate-100",
-        :success => "bg-green-600 dark:bg-green-400",
+        :primary => "bg-blue-500 dark:bg-blue-400",
+        :success => "bg-emerald-500 dark:bg-emerald-400",
+        :warning => "bg-amber-500 dark:bg-amber-400",
+        :danger => "bg-rose-500 dark:bg-rose-400",
+        :gradient => "bg-gradient-to-r from-blue-500 to-purple-600",
     )
 
     size_class = get(size_classes, size_sym, size_classes[:md])
     color_class = get(color_classes, color_sym, color_classes[:primary])
     percentage = Base.min(100, Base.max(0, round(Int, (value / max) * 100)))
 
-    striped_class =
-        striped ?
-        "bg-[length:1rem_1rem] bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[progress-stripes_1s_linear_infinite]" :
+    striped_class = if striped
+        base_stripe = "bg-[length:1rem_1rem] bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        animated ? "$base_stripe animate-[stripes_1s_linear_infinite]" : base_stripe
+    else
         ""
+    end
 
     @div {attrs...} begin
         if !isnothing(label)
             @div {
-                class = "mb-1 flex justify-between text-sm text-slate-600 dark:text-slate-400",
+                class = "mb-2 flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300",
             } begin
                 @span label
-                @span "$percentage%"
+                @span {class = "font-semibold"} "$percentage%"
             end
         end
         @div {
-            class = "w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden $size_class",
+            class = "w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner $size_class",
             role = "progressbar",
             "aria-valuenow" = value,
             "aria-valuemin" = "0",
@@ -122,7 +135,7 @@ Progress bar component.
                 aria_label,
         } begin
             @div {
-                class = "transition-all duration-300 ease-out rounded-full $color_class $striped_class $size_class",
+                class = "transition-all duration-500 ease-out rounded-full shadow-sm $color_class $striped_class $size_class",
                 style = "width: $percentage%",
             }
         end
