@@ -427,7 +427,10 @@ Form field wrapper with label and help text.
         @__slot__ #(field_id, describedby_id)
 
         if !isnothing(error)
-            @p {class = "text-sm text-rose-600 dark:text-rose-400 animate-[fadeIn_0.3s_ease-in-out]", id = error_id} error
+            @p {
+                class = "text-sm text-rose-600 dark:text-rose-400 animate-[fadeIn_0.3s_ease-in-out]",
+                id = error_id,
+            } error
         elseif !isnothing(help)
             @p {class = "text-sm text-gray-500 dark:text-gray-400", id = help_id} help
         end
@@ -493,7 +496,7 @@ A modern styled button component with multiple variants and sizes.
 
     size_data = get(size_map, size_sym, size_map[:base])
     variant_class = get(variant_map, variant_sym, variant_map[:primary])
-    
+
     # Rounded classes
     rounded_classes = Dict(
         :base => "rounded-lg",

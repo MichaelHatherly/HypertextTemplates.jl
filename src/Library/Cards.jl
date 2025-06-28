@@ -129,7 +129,7 @@ Small status indicator component with modern styling.
         :danger => "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
         :gradient => "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
     )
-    
+
     outline_classes = Dict(
         :default => "bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300",
         :primary => "bg-transparent border border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300",
@@ -149,7 +149,9 @@ Small status indicator component with modern styling.
         :xl => "px-4 py-2 text-lg",
     )
 
-    variant_class = outline ? get(outline_classes, variant_sym, outline_classes[:default]) : get(variant_classes, variant_sym, variant_classes[:default])
+    variant_class =
+        outline ? get(outline_classes, variant_sym, outline_classes[:default]) :
+        get(variant_classes, variant_sym, variant_classes[:default])
     size_class = get(size_classes, size_sym, size_classes[:base])
     animation_class = animated ? "animate-pulse" : ""
     transition_class = "transition-all duration-200"

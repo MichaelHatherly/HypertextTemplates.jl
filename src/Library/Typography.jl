@@ -56,7 +56,7 @@ A modern styled heading component with consistent sizing and weight.
         :bold => "font-bold",
         :extrabold => "font-extrabold",
     )
-    
+
     tracking_classes = Dict(
         :tight => "tracking-tight",
         :normal => "tracking-normal",
@@ -68,7 +68,7 @@ A modern styled heading component with consistent sizing and weight.
         get(size_classes, size_sym, "text-2xl")
     weight_class = get(weight_classes, weight_sym, "font-bold")
     tracking_class = get(tracking_classes, tracking_sym, "tracking-tight")
-    
+
     if gradient
         color_class = "bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
     else

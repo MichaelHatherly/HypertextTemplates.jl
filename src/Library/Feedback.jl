@@ -37,7 +37,11 @@ Modern notification message component with animations.
     icon_svg = get(icon_svgs, variant_sym, icon_svgs[:info])
     animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
 
-    @div {class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300", role = "alert", attrs...} begin
+    @div {
+        class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300",
+        role = "alert",
+        attrs...,
+    } begin
         @div {class = "flex"} begin
             if icon
                 @div {class = "flex-shrink-0"} begin

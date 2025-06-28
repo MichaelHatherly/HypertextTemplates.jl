@@ -1,1 +1,1 @@
-<div class="max-w-screen-xl  mx-auto">No padding</div><div class="max-w-screen-xl px-4 sm:px-6 lg:px-8 ">Not centered</div><div class="custom-class">With custom class</div>
+<div class="max-w-screen-xl  mx-auto  transition-all duration-300">No padding</div><div class="max-w-screen-xl px-4 sm:px-6 lg:px-8   transition-all duration-300">Not centered</div><div class="custom-class">With custom class</div>

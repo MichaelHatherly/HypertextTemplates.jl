@@ -33,9 +33,16 @@ A responsive container component with proper max-widths and padding.
     size_class = get(size_classes, size_sym, "max-w-screen-xl")
     padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
     centered_class = centered ? "mx-auto" : ""
-    glass_class = glass ? "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" : ""
+    glass_class =
+        glass ?
+        "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" :
+        ""
 
-    @div {class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300", role = role, attrs...} begin
+    @div {
+        class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300",
+        role = role,
+        attrs...,
+    } begin
         @__slot__()
     end
 end
@@ -68,7 +75,7 @@ A modern flexible stack component for vertical or horizontal layouts with consis
     justify_sym = Symbol(justify)
 
     direction_class = direction_sym == :horizontal ? "flex-row" : "flex-col"
-    
+
     # Handle gap as symbol or int
     gap_presets = Dict(
         :xs => "gap-1",
@@ -77,13 +84,13 @@ A modern flexible stack component for vertical or horizontal layouts with consis
         :lg => "gap-6",
         :xl => "gap-8",
     )
-    
+
     gap_class = if gap isa Symbol
         get(gap_presets, gap, "gap-4")
     else
         "gap-$gap"
     end
-    
+
     wrap_class = wrap ? "flex-wrap" : ""
 
     align_classes = Dict(
@@ -106,8 +113,9 @@ A modern flexible stack component for vertical or horizontal layouts with consis
     justify_class = get(justify_classes, justify_sym, "justify-start")
 
     # Build component default attributes
-    component_attrs =
-        (class = "flex $direction_class $gap_class $align_class $justify_class $wrap_class",)
+    component_attrs = (
+        class = "flex $direction_class $gap_class $align_class $justify_class $wrap_class",
+    )
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)

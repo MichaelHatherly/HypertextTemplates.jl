@@ -48,11 +48,11 @@ User profile image component.
 - `fallback::Union{String,Nothing}`: Fallback content when no src provided (optional)
 """
 @component function Avatar(;
-    src::Union{String,Nothing} = nothing,
-    alt::Union{String,Nothing} = nothing,
+    src::Union{AbstractString,Nothing} = nothing,
+    alt::Union{AbstractString,Nothing} = nothing,
     size::Union{Symbol,String} = :md,
     shape::Union{Symbol,String} = :circle,
-    fallback::Union{String,Nothing} = nothing,
+    fallback::Union{AbstractString,Nothing} = nothing,
     attrs...,
 )
     # Convert to symbols

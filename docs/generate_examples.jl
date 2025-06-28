@@ -7,7 +7,7 @@ using HypertextTemplates.Library
         @head begin
             @meta {charset = "UTF-8"}
             @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
-            @title title
+            @title $title
             @script {src = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}
             @style {type = "text/tailwindcss"} begin
                 @text HypertextTemplates.SafeString("""
@@ -45,6 +45,9 @@ using HypertextTemplates.Library
                                 ("navigation-components.html", "Navigation Components"),
                                 ("table-list-components.html", "Table & List Components"),
                                 ("utility-components.html", "Utility Components"),
+                                ("modern-styling.html", "Modern Styling"),
+                                ("advanced-components.html", "Advanced Components"),
+                                ("dark-mode.html", "Dark Mode"),
                                 ("complete-app.html", "Complete Application"),
                             ]
                                 is_current = href == current_page
@@ -197,11 +200,11 @@ write(joinpath(build_dir, "layout-components.html"), layout_html)
 
                     @Stack {gap = 3} begin
                         @Heading {level = 1} "H1: Main Page Title"
-                        @Heading {level = 2} "H2: Section Heading"
-                        @Heading {level = 3} "H3: Subsection Heading"
+                        @Heading {level = 2, gradient = true} "H2: Gradient Heading"
+                        @Heading {level = 3, tracking = :wide} "H3: Wide Letter Spacing"
                         @Heading {level = 4, color = "text-blue-600 dark:text-blue-400"} "H4: Colored Heading"
-                        @Heading {level = 5, weight = :normal} "H5: Normal Weight Heading"
-                        @Heading {level = 6, size = :lg} "H6: Custom Size Heading"
+                        @Heading {level = 5, weight = :light} "H5: Light Weight Heading"
+                        @Heading {level = 6, size = "2xl", weight = :extrabold} "H6: Extra Bold Custom Size"
                     end
                 end
             end
@@ -234,16 +237,22 @@ write(joinpath(build_dir, "layout-components.html"), layout_html)
                     @Stack {gap = 2} begin
                         @Text begin
                             @text "Visit our "
-                            @Link {href = "#"} "documentation"
+                            @Link {href = "#", weight = :medium} "documentation"
                             @text " for more information."
                         end
                         @Text begin
                             @Link {href = "#", variant = :underline} "Always underlined link"
                             @text " | "
                             @Link {href = "#", variant = :hover_underline} "Underline on hover"
+                            @text " | "
+                            @Link {href = "#", variant = :animated} "Animated underline"
                         end
                         @Text begin
-                            @Link {href = "https://github.com", external = true} "External link to GitHub"
+                            @Link {
+                                href = "https://github.com",
+                                external = true,
+                                weight = :semibold,
+                            } "External link to GitHub"
                             @text " (opens in new tab)"
                         end
                     end
@@ -377,11 +386,19 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
 
                         @Divider {}
 
-                        # Submit button (styled)
-                        @button {
-                            type = "submit",
-                            class = "px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors",
-                        } "Create Account"
+                        # Modern button variations
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Action Buttons"
+                            @Stack {direction = :horizontal, gap = 3, wrap = true} begin
+                                @Button {
+                                    variant = :gradient,
+                                    rounded = :xl,
+                                    icon_left = """<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>""",
+                                } "Create Account"
+                                @Button {variant = :outline, rounded = :lg} "Save Draft"
+                                @Button {variant = :ghost} "Cancel"
+                            end
+                        end
                     end
                 end
             end
@@ -437,24 +454,24 @@ write(joinpath(build_dir, "form-components.html"), form_html)
                     @Text "Display important messages to users."
 
                     @Stack {gap = 3} begin
-                        @Alert {variant = :info} begin
+                        @Alert {variant = :info, animated = true} begin
                             @strong "Information:"
-                            @text " This is an informational alert with important details."
+                            @text " This is an informational alert with fade-in animation."
                         end
 
-                        @Alert {variant = :success, dismissible = true} begin
+                        @Alert {variant = :success, dismissible = true, animated = true} begin
                             @strong "Success!"
                             @text " Your changes have been saved successfully."
                         end
 
-                        @Alert {variant = :warning} begin
+                        @Alert {variant = :warning, icon = false} begin
                             @strong "Warning:"
-                            @text " Please review your input before proceeding."
+                            @text " Minimal alert without icon for cleaner look."
                         end
 
-                        @Alert {variant = :error} begin
+                        @Alert {variant = :error, animated = true} begin
                             @strong "Error:"
-                            @text " There was a problem processing your request."
+                            @text " Alert with left border accent for visual hierarchy."
                         end
                     end
                 end
@@ -468,14 +485,24 @@ write(joinpath(build_dir, "form-components.html"), form_html)
 
                     @Stack {gap = 4} begin
                         @Progress {value = 25, label = "Basic Progress"}
-                        @Progress {value = 50, color = :primary, label = "Primary Color"}
+                        @Progress {
+                            value = 50,
+                            color = :gradient,
+                            label = "Gradient Progress",
+                        }
                         @Progress {
                             value = 75,
                             color = :success,
                             striped = true,
-                            label = "Striped Progress",
+                            animated = true,
+                            label = "Animated Striped Progress",
                         }
-                        @Progress {value = 90, size = :lg, label = "Large Progress Bar"}
+                        @Progress {
+                            value = 90,
+                            size = :lg,
+                            color = :primary,
+                            label = "Large Progress Bar",
+                        }
 
                         @Stack {gap = 2} begin
                             @Text {size = :sm, weight = :semibold} "File Upload Progress"
@@ -530,19 +557,37 @@ write(joinpath(build_dir, "form-components.html"), form_html)
                     @Text "Small labels for status and categories."
 
                     @Stack {gap = 4} begin
-                        @Stack {direction = :horizontal, gap = 2, align = :center} begin
+                        @Stack {
+                            direction = :horizontal,
+                            gap = 2,
+                            align = :center,
+                            wrap = true,
+                        } begin
                             @Badge {} "Default"
                             @Badge {variant = :primary} "Primary"
                             @Badge {variant = :success} "Success"
                             @Badge {variant = :warning} "Warning"
                             @Badge {variant = :danger} "Danger"
+                            @Badge {variant = :gradient} "Gradient"
                         end
 
                         @Stack {direction = :horizontal, gap = 3, align = :center} begin
                             @Text "Sizes:"
+                            @Badge {size = :xs} "XS"
                             @Badge {size = :sm} "Small"
-                            @Badge {size = :md} "Medium"
+                            @Badge {size = :base} "Base"
                             @Badge {size = :lg} "Large"
+                            @Badge {size = :xl} "XL"
+                        end
+
+                        @Stack {gap = 3} begin
+                            @Text "Special Effects:"
+                            @Stack {direction = :horizontal, gap = 2, wrap = true} begin
+                                @Badge {variant = :primary, animated = true} "Animated"
+                                @Badge {variant = :success, outline = true} "Outline"
+                                @Badge {variant = :gradient, animated = true} "Animated Gradient"
+                                @Badge {variant = :danger, outline = true, animated = true} "Outline Animated"
+                            end
                         end
 
                         @Card {padding = :md, shadow = :sm} begin
@@ -1504,6 +1549,41 @@ utility_html = @render @HTMLDocument {
 end
 
 write(joinpath(build_dir, "utility-components.html"), utility_html)
+
+# Include additional example sections
+include("example_sections/modern_styling_examples.jl")
+include("example_sections/advanced_components_examples.jl")
+include("example_sections/dark_mode_examples.jl")
+
+# 9. Modern Styling Features
+modern_styling_html = @render @HTMLDocument {
+    title = "Modern Styling Features - HypertextTemplates",
+    current_page = "modern-styling.html",
+} begin
+    @ModernStylingExample {}
+end
+
+write(joinpath(build_dir, "modern-styling.html"), modern_styling_html)
+
+# 10. Advanced Components
+advanced_html = @render @HTMLDocument {
+    title = "Advanced Components - HypertextTemplates",
+    current_page = "advanced-components.html",
+} begin
+    @AdvancedComponentsExample {}
+end
+
+write(joinpath(build_dir, "advanced-components.html"), advanced_html)
+
+# 11. Dark Mode Showcase
+dark_mode_html = @render @HTMLDocument {
+    title = "Dark Mode Examples - HypertextTemplates",
+    current_page = "dark-mode.html",
+} begin
+    @DarkModeExample {}
+end
+
+write(joinpath(build_dir, "dark-mode.html"), dark_mode_html)
 
 println("\nComponent examples generated successfully!")
 println("Files created in: $(build_dir)")
