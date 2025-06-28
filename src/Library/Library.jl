@@ -21,7 +21,8 @@ export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
 # Navigation components
 export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs
 # Utility components
-export Divider, @Divider, Avatar, @Avatar, Icon, @Icon
+export Divider,
+    @Divider, Avatar, @Avatar, Icon, @Icon, ThemeToggle, @ThemeToggle, theme_toggle_script
 
 # Utility functions
 include("utils.jl")

@@ -167,3 +167,172 @@ Icon wrapper component for consistent sizing and styling.
 end
 
 @deftag macro Icon end
+
+"""
+    @ThemeToggle
+
+Theme toggle button component that cycles through light, dark, and system themes.
+
+# Props
+- `id::String`: HTML id for the button (default: `"theme-toggle"`)
+- `variant::Union{Symbol,String}`: Button variant style (`:default`, `:ghost`, `:outline`) (default: `:default`)
+- `size::Union{Symbol,String}`: Button size (`:sm`, `:md`, `:lg`) (default: `:md`)
+- `show_label::Bool`: Whether to show text label alongside icon (default: `true`)
+- `class::String`: Additional CSS classes (optional)
+
+# Example
+```julia
+@ThemeToggle {}
+@ThemeToggle {variant = :ghost, size = :sm, show_label = false}
+```
+
+# Requirements
+This component requires the theme management JavaScript to be included in your page.
+"""
+@component function ThemeToggle(;
+    id::String = "theme-toggle",
+    variant::Union{Symbol,String} = :default,
+    size::Union{Symbol,String} = :md,
+    show_label::Bool = true,
+    class::String = "",
+    attrs...,
+)
+    # Convert to symbols
+    variant_sym = Symbol(variant)
+    size_sym = Symbol(size)
+
+    # Base classes
+    base_classes = "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
+
+    # Variant classes
+    variant_classes = Dict(
+        :default => "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300",
+        :ghost => "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
+        :outline => "border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
+    )
+
+    # Size classes
+    size_classes = Dict(
+        :sm => "px-2.5 py-1.5 text-sm rounded",
+        :md => "px-3 py-2 text-sm rounded-lg",
+        :lg => "px-4 py-2.5 text-base rounded-lg",
+    )
+
+    variant_class = get(variant_classes, variant_sym, variant_classes[:default])
+    size_class = get(size_classes, size_sym, size_classes[:md])
+
+    @button {
+        id = id,
+        type = "button",
+        onclick = "toggleTheme()",
+        class = "$base_classes $variant_class $size_class $class",
+        title = "Toggle theme",
+        "data-show-label" = show_label ? "true" : "false",
+        attrs...,
+    } begin
+        if show_label
+            @text "💻 System"
+        else
+            # Icon only - still needs text for screen readers
+            @span {"aria-hidden" = "true"} "💻"
+            @span {class = "sr-only"} "Toggle theme"
+        end
+    end
+end
+
+@deftag macro ThemeToggle end
+
+"""
+    theme_toggle_script()
+
+Returns the JavaScript code needed for the ThemeToggle component to function.
+This should be included in your page's <head> section.
+
+# Example
+```julia
+@script begin
+    @text HypertextTemplates.SafeString(theme_toggle_script())
+end
+```
+"""
+function theme_toggle_script()
+    return """
+// Theme management
+const getStoredTheme = () => localStorage.getItem('theme') || 'system';
+
+const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+const applyTheme = (theme) => {
+    const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
+    if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+};
+
+const setTheme = (theme) => {
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+};
+
+// Set initial theme
+setTheme(getStoredTheme());
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (getStoredTheme() === 'system') {
+        applyTheme('system');
+    }
+});
+
+// Theme toggle function (cycles through light -> dark -> system)
+window.toggleTheme = () => {
+    const currentTheme = getStoredTheme();
+    let newTheme;
+    if (currentTheme === 'light') {
+        newTheme = 'dark';
+    } else if (currentTheme === 'dark') {
+        newTheme = 'system';
+    } else {
+        newTheme = 'light';
+    }
+    setTheme(newTheme);
+    updateThemeButtons();
+};
+
+// Update all theme toggle buttons
+window.updateThemeButtons = () => {
+    const theme = getStoredTheme();
+    const buttons = document.querySelectorAll('[onclick="toggleTheme()"]');
+    const icons = {
+        light: '☀️',
+        dark: '🌙',
+        system: '💻'
+    };
+    const labels = {
+        light: 'Light',
+        dark: 'Dark',
+        system: 'System'
+    };
+    
+    buttons.forEach(button => {
+        const showLabel = button.dataset.showLabel === 'true';
+        if (showLabel) {
+            button.innerHTML = icons[theme] + ' ' + labels[theme];
+        } else {
+            button.querySelector('[aria-hidden]').textContent = icons[theme];
+        }
+    });
+};
+
+// Update buttons on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateThemeButtons);
+} else {
+    updateThemeButtons();
+}
+"""
+end

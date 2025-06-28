@@ -2,18 +2,6 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 using HypertextTemplates.Library
 
-# Component for complete HTML document with Tailwind CSS
-# Reusable theme toggle component
-@component function ThemeToggle(; class::String = "", attrs...)
-    @button {
-        id = "theme-toggle",
-        onclick = "toggleTheme()",
-        class = "px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 transition-colors text-sm font-medium $class",
-        attrs...,
-    } "💻 System"
-end
-@deftag macro ThemeToggle end
-
 @component function HTMLDocument(; title::String, current_page::String = "")
     @html {lang = "en"} begin
         @head begin
@@ -28,74 +16,12 @@ end
                 """)
             end
             @script begin
-                @text HypertextTemplates.SafeString(
-                    """
-// Theme management
-const getStoredTheme = () => localStorage.getItem('theme') || 'system';
-
-const getSystemTheme = () => {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
-
-const applyTheme = (theme) => {
-    const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
-    if (effectiveTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-};
-
-const setTheme = (theme) => {
-    localStorage.setItem('theme', theme);
-    applyTheme(theme);
-};
-
-// Set initial theme
-setTheme(getStoredTheme());
-
-// Listen for system theme changes
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (getStoredTheme() === 'system') {
-        applyTheme('system');
-    }
-});
-
-// Theme toggle function (cycles through light -> dark -> system)
-window.toggleTheme = () => {
-    const currentTheme = getStoredTheme();
-    let newTheme;
-    if (currentTheme === 'light') {
-        newTheme = 'dark';
-    } else if (currentTheme === 'dark') {
-        newTheme = 'system';
-    } else {
-        newTheme = 'light';
-    }
-    setTheme(newTheme);
-    updateThemeButton();
-};
-
-// Update button text
-window.updateThemeButton = () => {
-    const theme = getStoredTheme();
-    const button = document.getElementById('theme-toggle');
-    if (button) {
-        const icons = {
-            light: '☀️ Light',
-            dark: '🌙 Dark',
-            system: '💻 System'
-        };
-        button.innerHTML = icons[theme] || icons.system;
-    }
-};
-""",
-                )
+                @text HypertextTemplates.SafeString(theme_toggle_script())
             end
         end
         @body {
             class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex",
-            onload = "updateThemeButton()",
+            onload = "updateThemeButtons()",
         } begin
             # Navigation sidebar - not fixed, part of flex layout
             @div {
@@ -136,10 +62,9 @@ window.updateThemeButton = () => {
                             end
                         end
 
-                        @Divider {}
+                        @Divider
 
-                        # Theme toggle button
-                        @ThemeToggle {class = "w-full"}
+                        @ThemeToggle
 
                         # Back to docs link
                         @a {
