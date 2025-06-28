@@ -23,9 +23,9 @@ Explore complete, interactive examples organized by category:
 - [Navigation Components](examples/navigation-components.html) - Breadcrumbs, Tabs, and Pagination
 - [Table & List Components](examples/table-list-components.html) - Data tables and styled lists
 - [Utility Components](examples/utility-components.html) - Dividers, Avatars, and Icons
-- [**Modern Styling**](examples/modern-styling.html) - Showcase of new design features
-- [**Advanced Components**](examples/advanced-components.html) - Complex component compositions
-- [**Dark Mode**](examples/dark-mode.html) - Dark mode optimized examples
+- [Modern Styling](examples/modern-styling.html) - Showcase of new design features
+- [Advanced Components](examples/advanced-components.html) - Complex component compositions
+- [Dark Mode](examples/dark-mode.html) - Dark mode optimized examples
 - [Complete Application](examples/complete-app.html) - Full dashboard example
 
 ## Modern Design System
