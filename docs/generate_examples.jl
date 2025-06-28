@@ -10,7 +10,7 @@ using HypertextTemplates.Library
         onclick = "toggleTheme()",
         class = "px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 transition-colors text-sm font-medium $class",
         attrs...,
-    } "🌙 Dark"
+    } "💻 System"
 end
 @deftag macro ThemeToggle end
 
@@ -28,38 +28,69 @@ end
                 """)
             end
             @script begin
-                @text HypertextTemplates.SafeString("""
-                // Theme management
-                const getTheme = () => localStorage.getItem('theme') || 'light';
-                const setTheme = (theme) => {
-                    localStorage.setItem('theme', theme);
-                    if (theme === 'dark') {
-                        document.documentElement.classList.add('dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                    }
-                };
+                @text HypertextTemplates.SafeString(
+                    """
+// Theme management
+const getStoredTheme = () => localStorage.getItem('theme') || 'system';
 
-                // Set initial theme
-                setTheme(getTheme());
+const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
 
-                // Theme toggle function
-                window.toggleTheme = () => {
-                    const currentTheme = getTheme();
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    setTheme(newTheme);
-                    updateThemeButton();
-                };
+const applyTheme = (theme) => {
+    const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
+    if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+};
 
-                // Update button text
-                window.updateThemeButton = () => {
-                    const theme = getTheme();
-                    const button = document.getElementById('theme-toggle');
-                    if (button) {
-                        button.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
-                    }
-                };
-                """)
+const setTheme = (theme) => {
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+};
+
+// Set initial theme
+setTheme(getStoredTheme());
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (getStoredTheme() === 'system') {
+        applyTheme('system');
+    }
+});
+
+// Theme toggle function (cycles through light -> dark -> system)
+window.toggleTheme = () => {
+    const currentTheme = getStoredTheme();
+    let newTheme;
+    if (currentTheme === 'light') {
+        newTheme = 'dark';
+    } else if (currentTheme === 'dark') {
+        newTheme = 'system';
+    } else {
+        newTheme = 'light';
+    }
+    setTheme(newTheme);
+    updateThemeButton();
+};
+
+// Update button text
+window.updateThemeButton = () => {
+    const theme = getStoredTheme();
+    const button = document.getElementById('theme-toggle');
+    if (button) {
+        const icons = {
+            light: '☀️ Light',
+            dark: '🌙 Dark',
+            system: '💻 System'
+        };
+        button.innerHTML = icons[theme] || icons.system;
+    }
+};
+""",
+                )
             end
         end
         @body {
