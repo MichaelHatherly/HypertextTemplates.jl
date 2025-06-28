@@ -15,12 +15,17 @@ export Table, @Table, List, @List
 # Form components
 export Input, @Input, Textarea, @Textarea, Select, @Select
 export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
+export Button, @Button
 # Feedback components
 export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
 # Navigation components
 export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs
 # Utility components
 export Divider, @Divider, Avatar, @Avatar, Icon, @Icon
+
+# Style system
+include("Styles.jl")
+using .Styles
 
 # Layout components
 include("Layout.jl")

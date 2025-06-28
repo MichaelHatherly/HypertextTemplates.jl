@@ -5,7 +5,7 @@ A styled text input field.
 
 # Props
 - `type::String`: Input type (default: `"text"`)
-- `size::Union{Symbol,String}`: Input size (`:sm`, `:md`, `:lg`) (default: `:md`)
+- `size::Union{Symbol,String}`: Input size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
 - `state::Union{Symbol,String}`: Input state (`:default`, `:error`, `:success`) (default: `:default`)
 - `icon::Union{String,Nothing}`: Icon HTML to display (optional)
 - `placeholder::Union{String,Nothing}`: Placeholder text (optional)
@@ -18,7 +18,7 @@ A styled text input field.
 """
 @component function Input(;
     type::String = "text",
-    size::Union{Symbol,String} = :md,
+    size::Union{Symbol,String} = :base,
     state::Union{Symbol,String} = :default,
     icon::Union{String,Nothing} = nothing,
     placeholder::Union{String,Nothing} = nothing,
@@ -35,22 +35,25 @@ A styled text input field.
     state_sym = Symbol(state)
 
     size_classes = Dict(
-        :sm => "px-3 py-1.5 text-sm",
-        :md => "px-4 py-2 text-base",
-        :lg => "px-4 py-3 text-lg",
+        :xs => "px-2.5 py-1.5 text-xs",
+        :sm => "px-3 py-2 text-sm",
+        :base => "px-4 py-2.5 text-base",
+        :md => "px-4 py-2.5 text-base",  # For backward compatibility
+        :lg => "px-5 py-3 text-lg",
+        :xl => "px-6 py-3.5 text-xl",
     )
 
     state_classes = Dict(
-        :default => "border-slate-300 focus:border-slate-900 focus:ring-slate-900/10",
-        :error => "border-red-300 focus:border-red-500 focus:ring-red-500/10",
-        :success => "border-green-300 focus:border-green-500 focus:ring-green-500/10",
+        :default => "border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400",
+        :error => "border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-800 dark:focus:border-red-400",
+        :success => "border-green-300 focus:border-green-500 focus:ring-green-500 dark:border-green-800 dark:focus:border-green-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
+    size_class = get(size_classes, size_sym, size_classes[:base])
     state_class = get(state_classes, state_sym, state_classes[:default])
-    disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
-    base_classes = "w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors $size_class $state_class $disabled_class"
+    base_classes = "w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $size_class $state_class $disabled_class"
     aria_invalid = state_sym == :error ? "true" : nothing
 
     if !isnothing(icon)
@@ -135,19 +138,19 @@ A multi-line text input component.
     )
 
     state_classes = Dict(
-        :default => "border-slate-300 focus:border-slate-900 focus:ring-slate-900/10",
-        :error => "border-red-300 focus:border-red-500 focus:ring-red-500/10",
-        :success => "border-green-300 focus:border-green-500 focus:ring-green-500/10",
+        :default => "border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400",
+        :error => "border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-800 dark:focus:border-red-400",
+        :success => "border-green-300 focus:border-green-500 focus:ring-green-500 dark:border-green-800 dark:focus:border-green-400",
     )
 
     resize_class = get(resize_classes, resize_sym, "resize-y")
     state_class = get(state_classes, state_sym, state_classes[:default])
-    disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
     aria_invalid = state_sym == :error ? "true" : nothing
 
     @textarea {
         rows = rows,
-        class = "w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors $resize_class $state_class $disabled_class",
+        class = "w-full px-4 py-2.5 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $resize_class $state_class $disabled_class",
         placeholder = placeholder,
         name = name,
         required = required,
@@ -171,7 +174,7 @@ end
 A dropdown select element.
 
 # Props
-- `size::Union{Symbol,String}`: Select size (`:sm`, `:md`, `:lg`) (default: `:md`)
+- `size::Union{Symbol,String}`: Select size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
 - `state::Union{Symbol,String}`: Select state (`:default`, `:error`, `:success`) (default: `:default`)
 - `options::Vector{Tuple{String,String}}`: Options as (value, label) tuples
 - `placeholder::Union{String,Nothing}`: Placeholder option text (optional)
@@ -183,7 +186,7 @@ A dropdown select element.
 - `aria_describedby::Union{String,Nothing}`: ID of element describing the select (optional)
 """
 @component function Select(;
-    size::Union{Symbol,String} = :md,
+    size::Union{Symbol,String} = :base,
     state::Union{Symbol,String} = :default,
     options::Vector{Tuple{String,String}} = Tuple{String,String}[],
     placeholder::Union{String,Nothing} = nothing,
@@ -200,24 +203,27 @@ A dropdown select element.
     state_sym = Symbol(state)
 
     size_classes = Dict(
-        :sm => "px-3 py-1.5 pr-8 text-sm",
-        :md => "px-4 py-2 pr-10 text-base",
-        :lg => "px-4 py-3 pr-10 text-lg",
+        :xs => "px-2.5 py-1.5 pr-8 text-xs",
+        :sm => "px-3 py-2 pr-9 text-sm",
+        :base => "px-4 py-2.5 pr-10 text-base",
+        :md => "px-4 py-2.5 pr-10 text-base",  # For backward compatibility
+        :lg => "px-5 py-3 pr-11 text-lg",
+        :xl => "px-6 py-3.5 pr-12 text-xl",
     )
 
     state_classes = Dict(
-        :default => "border-slate-300 focus:border-slate-900 focus:ring-slate-900/10",
-        :error => "border-red-300 focus:border-red-500 focus:ring-red-500/10",
-        :success => "border-green-300 focus:border-green-500 focus:ring-green-500/10",
+        :default => "border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400",
+        :error => "border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-800 dark:focus:border-red-400",
+        :success => "border-green-300 focus:border-green-500 focus:ring-green-500 dark:border-green-800 dark:focus:border-green-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
+    size_class = get(size_classes, size_sym, size_classes[:base])
     state_class = get(state_classes, state_sym, state_classes[:default])
-    disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
     aria_invalid = state_sym == :error ? "true" : nothing
 
     @select {
-        class = "w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpolyline points=\"6 9 12 15 18 9\"%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat $size_class $state_class $disabled_class",
+        class = "w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpolyline points=\"6 9 12 15 18 9\"%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat $size_class $state_class $disabled_class",
         name = name,
         required = required,
         disabled = disabled,
@@ -274,19 +280,19 @@ A styled checkbox input.
 
     color_classes = Dict(
         :slate => "text-slate-600 focus:ring-slate-500",
-        :primary => "text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100",
-        :success => "text-green-600 focus:ring-green-500",
+        :primary => "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
+        :success => "text-green-600 focus:ring-green-500 dark:text-green-500 dark:focus:ring-green-400",
     )
 
     size_class = get(size_classes, size_sym, size_classes[:md])
     color_class = get(color_classes, color_sym, color_classes[:primary])
-    disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
     if !isnothing(label)
         Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
             @input {
                 type = "checkbox",
-                class = "rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors $size_class $color_class",
+                class = "rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $size_class $color_class",
                 name = name,
                 value = value,
                 checked = checked,
@@ -299,7 +305,7 @@ A styled checkbox input.
     else
         @input {
             type = "checkbox",
-            class = "rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors $size_class $color_class $disabled_class",
+            class = "rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $size_class $color_class $disabled_class",
             name = name,
             value = value,
             checked = checked,
@@ -344,20 +350,20 @@ Radio button component for single selection.
 
     color_classes = Dict(
         :slate => "text-slate-600 focus:ring-slate-500",
-        :primary => "text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100",
-        :success => "text-green-600 focus:ring-green-500",
+        :primary => "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
+        :success => "text-green-600 focus:ring-green-500 dark:text-green-500 dark:focus:ring-green-400",
     )
 
     size_class = get(size_classes, size_sym, size_classes[:md])
     color_class = get(color_classes, color_sym, color_classes[:primary])
-    disabled_class = disabled ? "opacity-50 cursor-not-allowed" : ""
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
     @div {class = "space-y-2", role = "radiogroup", attrs...} begin
         for (opt_value, opt_label) in options
             Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
                 @input {
                     type = "radio",
-                    class = "border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors $size_class $color_class",
+                    class = "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 $size_class $color_class",
                     name = name,
                     value = opt_value,
                     checked = (!isnothing(value) && value == opt_value),
@@ -425,3 +431,90 @@ Form field wrapper with label and help text.
 end
 
 @deftag macro FormGroup end
+
+"""
+    @Button
+
+A styled button component with multiple variants and sizes.
+
+# Props
+- `variant::Union{Symbol,String}`: Button variant (`:primary`, `:secondary`, `:neutral`, `:success`, `:warning`, `:danger`, `:gradient`) (default: `:primary`)
+- `size::Union{Symbol,String}`: Button size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
+- `type::String`: Button type attribute (default: `"button"`)
+- `disabled::Bool`: Whether button is disabled (default: `false`)
+- `loading::Bool`: Whether button is in loading state (default: `false`)
+- `full_width::Bool`: Whether button should be full width (default: `false`)
+- `icon_left::Union{String,Nothing}`: Icon HTML to display on the left (optional)
+- `icon_right::Union{String,Nothing}`: Icon HTML to display on the right (optional)
+"""
+@component function Button(;
+    variant::Union{Symbol,String} = :primary,
+    size::Union{Symbol,String} = :base,
+    type::String = "button",
+    disabled::Bool = false,
+    loading::Bool = false,
+    full_width::Bool = false,
+    icon_left::Union{String,Nothing} = nothing,
+    icon_right::Union{String,Nothing} = nothing,
+    attrs...,
+)
+    # Convert to symbols
+    variant_sym = Symbol(variant)
+    size_sym = Symbol(size)
+
+    # Size classes
+    size_map = Dict(
+        :xs => (padding="px-2.5 py-1.5", text="text-xs", gap="gap-1"),
+        :sm => (padding="px-3 py-2", text="text-sm", gap="gap-1.5"),
+        :base => (padding="px-4 py-2.5", text="text-base", gap="gap-2"),
+        :lg => (padding="px-5 py-3", text="text-lg", gap="gap-2.5"),
+        :xl => (padding="px-6 py-3.5", text="text-xl", gap="gap-3")
+    )
+
+    # Variant classes
+    variant_map = Dict(
+        :primary => "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-400",
+        :secondary => "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400",
+        :neutral => "bg-slate-200 text-slate-900 hover:bg-slate-300 focus:ring-slate-400 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600",
+        :success => "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-400",
+        :warning => "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400",
+        :danger => "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-400",
+        :gradient => "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500"
+    )
+
+    size_data = get(size_map, size_sym, size_map[:base])
+    variant_class = get(variant_map, variant_sym, variant_map[:primary])
+    
+    # Build classes
+    width_class = full_width ? "w-full" : ""
+    disabled_class = disabled || loading ? "opacity-60 cursor-not-allowed" : ""
+    
+    base_classes = "inline-flex items-center justify-center font-medium rounded-lg border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 active:scale-[0.98] disabled:active:scale-100"
+    
+    final_classes = "$base_classes $(size_data.padding) $(size_data.text) $(size_data.gap) $variant_class $width_class $disabled_class"
+
+    @button {
+        type = type,
+        class = final_classes,
+        disabled = disabled || loading,
+        attrs...,
+    } begin
+        if loading
+            # Loading spinner
+            HypertextTemplates.SafeString("""<svg class="animate-spin -ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>""")
+        elseif !isnothing(icon_left)
+            HypertextTemplates.SafeString(icon_left)
+        end
+        
+        @__slot__()
+        
+        if !isnothing(icon_right) && !loading
+            HypertextTemplates.SafeString(icon_right)
+        end
+    end
+end
+
+@deftag macro Button end
