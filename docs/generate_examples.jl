@@ -3,6 +3,17 @@ using HypertextTemplates.Elements
 using HypertextTemplates.Library
 
 # Component for complete HTML document with Tailwind CSS
+# Reusable theme toggle component
+@component function ThemeToggle(; class::String = "", attrs...)
+    @button {
+        id = "theme-toggle",
+        onclick = "toggleTheme()",
+        class = "px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 transition-colors text-sm font-medium $class",
+        attrs...,
+    } "🌙 Dark"
+end
+@deftag macro ThemeToggle end
+
 @component function HTMLDocument(; title::String, current_page::String = "")
     @html {lang = "en"} begin
         @head begin
@@ -10,19 +21,50 @@ using HypertextTemplates.Library
             @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
             @title title
             @script {src = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}
+            @style {type = "text/tailwindcss"} begin
+                @text HypertextTemplates.SafeString("""
+                /* Enable class-based dark mode for Tailwind CSS v4 */
+                @variant dark (&:where(.dark, .dark *));
+                """)
+            end
             @script begin
-                HypertextTemplates.SafeString("""
-                tailwind.config = {
-                    darkMode: 'class',
-                    theme: {
-                        extend: {}
+                @text HypertextTemplates.SafeString("""
+                // Theme management
+                const getTheme = () => localStorage.getItem('theme') || 'light';
+                const setTheme = (theme) => {
+                    localStorage.setItem('theme', theme);
+                    if (theme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
                     }
-                }
+                };
+
+                // Set initial theme
+                setTheme(getTheme());
+
+                // Theme toggle function
+                window.toggleTheme = () => {
+                    const currentTheme = getTheme();
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    setTheme(newTheme);
+                    updateThemeButton();
+                };
+
+                // Update button text
+                window.updateThemeButton = () => {
+                    const theme = getTheme();
+                    const button = document.getElementById('theme-toggle');
+                    if (button) {
+                        button.innerHTML = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+                    }
+                };
                 """)
             end
         end
         @body {
             class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex",
+            onload = "updateThemeButton()",
         } begin
             # Navigation sidebar - not fixed, part of flex layout
             @div {
@@ -64,6 +106,9 @@ using HypertextTemplates.Library
                         end
 
                         @Divider {}
+
+                        # Theme toggle button
+                        @ThemeToggle {class = "w-full"}
 
                         # Back to docs link
                         @a {
