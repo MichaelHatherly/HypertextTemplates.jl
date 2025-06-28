@@ -9,7 +9,7 @@ html = @render @Card {padding=:lg, shadow=:md} begin
     @Text &quot;This is a card component with a heading and text.&quot;
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div
-  class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
 &gt;
   &lt;h2
     class&#61;&quot;text-3xl sm:text-4xl font-semibold text-slate-900 dark:text-slate-100&quot;
@@ -79,22 +79,22 @@ end</code></pre><div class="markdown"><hr />
   class&#61;&quot;grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4&quot;
 &gt;
   &lt;div
-    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
   &gt;
     Cell 1
   &lt;/div&gt;
   &lt;div
-    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
   &gt;
     Cell 2
   &lt;/div&gt;
   &lt;div
-    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
   &gt;
     Cell 3
   &lt;/div&gt;
   &lt;div
-    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+    class&#61;&quot;bg-white dark:bg-slate-900 p-4 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
   &gt;
     Cell 4
   &lt;/div&gt;
@@ -211,7 +211,7 @@ html = @render @Card {padding=:md, shadow=:sm, rounded=:lg} begin
     @Text &quot;Card content goes here&quot;
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div
-  class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+  class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl&quot;
 &gt;
   &lt;h3
     class&#61;&quot;text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100&quot;
@@ -238,7 +238,7 @@ html = @render @div begin
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div&gt;
   &lt;span
-    class&#61;&quot;inline-flex items-center font-medium rounded-full bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 text-sm&quot;
+    class&#61;&quot;inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2.5 py-1 text-sm&quot;
     role&#61;&quot;nothing&quot;
   &gt;New&lt;/span&gt;
   &lt;span
@@ -282,7 +282,7 @@ html = @render @Table {striped=true, hover=true} begin
 end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;w-full overflow-x-auto&quot;&gt;
   &lt;table
-    class&#61;&quot;min-w-full divide-y divide-slate-200 dark:divide-slate-700 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-800/50 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-slate-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-slate-800/50 &#91;&amp;amp;_th&#93;:px-6 &#91;&amp;amp;_th&#93;:py-3 &#91;&amp;amp;_td&#93;:px-6 &#91;&amp;amp;_td&#93;:py-4 border border-slate-200 dark:border-slate-800 &#91;&amp;amp;_th&#93;:border-b &#91;&amp;amp;_th&#93;:border-slate-200 dark:&#91;&amp;amp;_th&#93;:border-slate-700 &#91;&amp;amp;_td&#93;:border-b &#91;&amp;amp;_td&#93;:border-slate-200 dark:&#91;&amp;amp;_td&#93;:border-slate-700&quot;
+    class&#61;&quot;min-w-full divide-y divide-slate-200 dark:divide-slate-700 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:nth-child&#40;even&#41;&#93;:bg-slate-800/50 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:transition-colors &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:duration-150 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-blue-50 dark:&#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:bg-blue-950/30 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr&#93;:hover:shadow-sm &#91;&amp;amp;_th&#93;:px-6 &#91;&amp;amp;_th&#93;:py-3 &#91;&amp;amp;_td&#93;:px-6 &#91;&amp;amp;_td&#93;:py-4 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden &#91;&amp;amp;_th&#93;:border-b-2 &#91;&amp;amp;_th&#93;:border-slate-200 dark:&#91;&amp;amp;_th&#93;:border-slate-700 &#91;&amp;amp;_td&#93;:border-b &#91;&amp;amp;_td&#93;:border-slate-100 dark:&#91;&amp;amp;_td&#93;:border-slate-800 &#91;&amp;amp;&amp;gt;tbody&amp;gt;tr:last-child&amp;gt;td&#93;:border-b-0 &#91;&amp;amp;_th&#93;:font-semibold &#91;&amp;amp;_th&#93;:text-left &#91;&amp;amp;_th&#93;:text-slate-900 dark:&#91;&amp;amp;_th&#93;:text-slate-100 &#91;&amp;amp;_th&#93;:uppercase &#91;&amp;amp;_th&#93;:text-xs &#91;&amp;amp;_th&#93;:tracking-wider&quot;
   &gt;
     &lt;thead&gt;
       &lt;tr&gt;
@@ -360,7 +360,7 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
   &lt;input
     type&#61;&quot;text&quot;
-    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
     placeholder&#61;&quot;Enter your name&quot;
     name&#61;&quot;nothing&quot;
     value&#61;&quot;nothing&quot;
@@ -370,7 +370,7 @@ end</code></pre><div class="markdown"><hr />
   &gt;
   &lt;input
     type&#61;&quot;email&quot;
-    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
+    class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-800 dark:focus:border-red-400&quot;
     placeholder&#61;&quot;Email address&quot;
     name&#61;&quot;nothing&quot;
     value&#61;&quot;nothing&quot;
@@ -385,7 +385,7 @@ end</code></pre><div class="markdown"><hr />
     &lt;/div&gt;
     &lt;input
       type&#61;&quot;password&quot;
-      class&#61;&quot;pl-10 w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+      class&#61;&quot;pl-10 w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
       placeholder&#61;&quot;Password&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
@@ -407,7 +407,7 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
   &lt;textarea
     rows&#61;&quot;4&quot;
-    class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-y border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+    class&#61;&quot;w-full px-4 py-2.5 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 resize-y border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
     placeholder&#61;&quot;Enter your message...&quot;
     name&#61;&quot;nothing&quot;
     id&#61;&quot;nothing&quot;
@@ -416,7 +416,7 @@ end</code></pre><div class="markdown"><hr />
   &gt;&lt;/textarea&gt;
   &lt;textarea
     rows&#61;&quot;6&quot;
-    class&#61;&quot;w-full px-4 py-2 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors resize-none border-green-300 focus:border-green-500 focus:ring-green-500/10&quot;
+    class&#61;&quot;w-full px-4 py-2.5 text-base rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 resize-none border-green-300 focus:border-green-500 focus:ring-green-500 dark:border-green-800 dark:focus:border-green-400&quot;
     placeholder&#61;&quot;nothing&quot;
     name&#61;&quot;nothing&quot;
     id&#61;&quot;nothing&quot;
@@ -435,7 +435,7 @@ html = @render @Select {
     value=&quot;us&quot;
 }</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;select
-  class&#61;&quot;w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 transition-colors bg-&#91;url&#40;&amp;#39;data:image/svg&#43;xml;charset&#61;UTF-8,&#37;3csvg xmlns&#61;&amp;quot;http://www.w3.org/2000/svg&amp;quot; viewBox&#61;&amp;quot;0 0 24 24&amp;quot; fill&#61;&amp;quot;none&amp;quot; stroke&#61;&amp;quot;currentColor&amp;quot; stroke-width&#61;&amp;quot;2&amp;quot; stroke-linecap&#61;&amp;quot;round&amp;quot; stroke-linejoin&#61;&amp;quot;round&amp;quot;&#37;3e&#37;3cpolyline points&#61;&amp;quot;6 9 12 15 18 9&amp;quot;&#37;3e&#37;3c/polyline&#37;3e&#37;3c/svg&#37;3e&amp;#39;&#41;&#93; bg-&#91;length:1.5em_1.5em&#93; bg-&#91;right_0.5rem_center&#93; bg-no-repeat px-4 py-2 pr-10 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+  class&#61;&quot;w-full appearance-none rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 bg-&#91;url&#40;&amp;#39;data:image/svg&#43;xml;charset&#61;UTF-8,&#37;3csvg xmlns&#61;&amp;quot;http://www.w3.org/2000/svg&amp;quot; viewBox&#61;&amp;quot;0 0 24 24&amp;quot; fill&#61;&amp;quot;none&amp;quot; stroke&#61;&amp;quot;currentColor&amp;quot; stroke-width&#61;&amp;quot;2&amp;quot; stroke-linecap&#61;&amp;quot;round&amp;quot; stroke-linejoin&#61;&amp;quot;round&amp;quot;&#37;3e&#37;3cpolyline points&#61;&amp;quot;6 9 12 15 18 9&amp;quot;&#37;3e&#37;3c/polyline&#37;3e&#37;3c/svg&#37;3e&amp;#39;&#41;&#93; bg-&#91;length:1.5em_1.5em&#93; bg-&#91;right_0.5rem_center&#93; bg-no-repeat px-4 py-2.5 pr-10 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
   name&#61;&quot;nothing&quot;
   id&#61;&quot;nothing&quot;
   aria-invalid&#61;&quot;nothing&quot;
@@ -459,7 +459,7 @@ end</code></pre><div class="markdown"><hr />
 <pre><code class="language-html">&lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
   &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
       type&#61;&quot;checkbox&quot;
-      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
     &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -467,7 +467,7 @@ end</code></pre><div class="markdown"><hr />
     class&#61;&quot;inline-flex items-center gap-2&quot;
   &gt;&lt;input
       type&#61;&quot;checkbox&quot;
-      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
       checked
@@ -476,7 +476,7 @@ end</code></pre><div class="markdown"><hr />
     class&#61;&quot;inline-flex items-center gap-2&quot;
   &gt;&lt;input
       type&#61;&quot;checkbox&quot;
-      class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-5 w-5 text-green-600 focus:ring-green-500&quot;
+      class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-5 w-5 text-green-600 focus:ring-green-500 dark:text-green-500 dark:focus:ring-green-400&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
     &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -495,7 +495,7 @@ html = @render @Radio {
 <pre><code class="language-html">&lt;div class&#61;&quot;space-y-2&quot; role&#61;&quot;radiogroup&quot;&gt;
   &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
       type&#61;&quot;radio&quot;
-      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;basic&quot;
     &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -503,14 +503,14 @@ html = @render @Radio {
     class&#61;&quot;inline-flex items-center gap-2&quot;
   &gt;&lt;input
       type&#61;&quot;radio&quot;
-      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;pro&quot;
       checked
     &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
     &gt;Pro Plan&lt;/span&gt;&lt;/label&gt;&lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
       type&#61;&quot;radio&quot;
-      class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+      class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
       name&#61;&quot;plan&quot;
       value&#61;&quot;enterprise&quot;
     &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -534,10 +534,10 @@ end</code></pre><div class="markdown"><hr />
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
     &lt;label
       class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-      for&#61;&quot;form-field-4340152472302645777&quot;
+      for&#61;&quot;form-field-11024670695027236720&quot;
     &gt;Email Address&lt;span class&#61;&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;&lt;/label&gt;&lt;input
       type&#61;&quot;email&quot;
-      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
       placeholder&#61;&quot;you@example.com&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
@@ -547,17 +547,17 @@ end</code></pre><div class="markdown"><hr />
     &gt;
     &lt;p
       class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;
-      id&#61;&quot;form-field-4340152472302645777-help&quot;
+      id&#61;&quot;form-field-11024670695027236720-help&quot;
     &gt;
     &lt;/p&gt;
   &lt;/div&gt;
   &lt;div class&#61;&quot;space-y-1&quot;&gt;
     &lt;label
       class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-      for&#61;&quot;form-field-16834992939604453143&quot;
+      for&#61;&quot;form-field-8484928880996216766&quot;
     &gt;Password&lt;/label&gt;&lt;input
       type&#61;&quot;password&quot;
-      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-red-300 focus:border-red-500 focus:ring-red-500/10&quot;
+      class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-800 dark:focus:border-red-400&quot;
       placeholder&#61;&quot;nothing&quot;
       name&#61;&quot;nothing&quot;
       value&#61;&quot;nothing&quot;
@@ -567,7 +567,7 @@ end</code></pre><div class="markdown"><hr />
     &gt;
     &lt;p
       class&#61;&quot;text-sm text-red-600 dark:text-red-400&quot;
-      id&#61;&quot;form-field-16834992939604453143-error&quot;
+      id&#61;&quot;form-field-8484928880996216766-error&quot;
     &gt;
     &lt;/p&gt;
   &lt;/div&gt;
@@ -1147,7 +1147,7 @@ end</code></pre><div class="markdown"><hr />
   &lt;div class&#61;&quot;max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto&quot; role&#61;&quot;nothing&quot;&gt;
     &lt;div class&#61;&quot;flex flex-col gap-6 items-stretch justify-start&quot;&gt;
       &lt;div
-        class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow-md border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+        class&#61;&quot;bg-white dark:bg-slate-900 p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
       &gt;
         &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
           &lt;h1
@@ -1192,7 +1192,7 @@ end</code></pre><div class="markdown"><hr />
       &lt;/nav&gt;
       &lt;div class&#61;&quot;grid grid-cols-1 md:grid-cols-2 gap-6&quot;&gt;
         &lt;div
-          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
         &gt;
           &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
             &lt;h2
@@ -1229,10 +1229,10 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-                for&#61;&quot;form-field-18389884435587328263&quot;
+                for&#61;&quot;form-field-6781596645575310274&quot;
               &gt;Display Name&lt;/label&gt;&lt;input
                 type&#61;&quot;text&quot;
-                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
                 placeholder&#61;&quot;nothing&quot;
                 name&#61;&quot;nothing&quot;
                 value&#61;&quot;John Doe&quot;
@@ -1244,10 +1244,10 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-                for&#61;&quot;form-field-395650071775237845&quot;
+                for&#61;&quot;form-field-17993376131351372228&quot;
               &gt;Email&lt;/label&gt;&lt;input
                 type&#61;&quot;email&quot;
-                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-colors px-4 py-2 text-base border-slate-300 focus:border-slate-900 focus:ring-slate-900/10&quot;
+                class&#61;&quot;w-full rounded-lg border bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 px-4 py-2.5 text-base border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:focus:border-blue-400&quot;
                 placeholder&#61;&quot;nothing&quot;
                 name&#61;&quot;nothing&quot;
                 value&#61;&quot;john@example.com&quot;
@@ -1257,14 +1257,14 @@ end</code></pre><div class="markdown"><hr />
               &gt;
               &lt;p
                 class&#61;&quot;text-sm text-slate-500 dark:text-slate-400&quot;
-                id&#61;&quot;form-field-395650071775237845-help&quot;
+                id&#61;&quot;form-field-17993376131351372228-help&quot;
               &gt;
               &lt;/p&gt;
             &lt;/div&gt;
           &lt;/div&gt;
         &lt;/div&gt;
         &lt;div
-          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg&quot;
+          class&#61;&quot;bg-white dark:bg-slate-900 p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl&quot;
         &gt;
           &lt;div class&#61;&quot;flex flex-col gap-4 items-stretch justify-start&quot;&gt;
             &lt;h2
@@ -1275,11 +1275,11 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;space-y-1&quot;&gt;
               &lt;label
                 class&#61;&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;
-                for&#61;&quot;form-field-7368672387505806824&quot;
+                for&#61;&quot;form-field-8907725625585002784&quot;
               &gt;Theme&lt;/label&gt;&lt;div class&#61;&quot;space-y-2&quot; role&#61;&quot;radiogroup&quot;&gt;
                 &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
                     type&#61;&quot;radio&quot;
-                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;light&quot;
                   &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -1287,7 +1287,7 @@ end</code></pre><div class="markdown"><hr />
                   class&#61;&quot;inline-flex items-center gap-2&quot;
                 &gt;&lt;input
                     type&#61;&quot;radio&quot;
-                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;dark&quot;
                   &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -1295,7 +1295,7 @@ end</code></pre><div class="markdown"><hr />
                   class&#61;&quot;inline-flex items-center gap-2&quot;
                 &gt;&lt;input
                     type&#61;&quot;radio&quot;
-                    class&#61;&quot;border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                    class&#61;&quot;border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                     name&#61;&quot;theme&quot;
                     value&#61;&quot;system&quot;
                     checked
@@ -1310,7 +1310,7 @@ end</code></pre><div class="markdown"><hr />
             &lt;div class&#61;&quot;flex flex-col gap-3 items-stretch justify-start&quot;&gt;
               &lt;label class&#61;&quot;inline-flex items-center gap-2&quot;&gt;&lt;input
                   type&#61;&quot;checkbox&quot;
-                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
                   checked
@@ -1319,7 +1319,7 @@ end</code></pre><div class="markdown"><hr />
                 class&#61;&quot;inline-flex items-center gap-2&quot;
               &gt;&lt;input
                   type&#61;&quot;checkbox&quot;
-                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
                 &gt;&lt;span class&#61;&quot;text-sm text-slate-700 dark:text-slate-300&quot;
@@ -1327,7 +1327,7 @@ end</code></pre><div class="markdown"><hr />
                 class&#61;&quot;inline-flex items-center gap-2&quot;
               &gt;&lt;input
                   type&#61;&quot;checkbox&quot;
-                  class&#61;&quot;rounded border-slate-300 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-colors h-4 w-4 text-slate-900 dark:text-slate-100 focus:ring-slate-900 dark:focus:ring-slate-100&quot;
+                  class&#61;&quot;rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-offset-0 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400&quot;
                   name&#61;&quot;nothing&quot;
                   value&#61;&quot;nothing&quot;
                   checked
@@ -1365,4 +1365,4 @@ end</code></pre><div class="markdown"><hr />
   &lt;/p&gt;
 &lt;/div&gt;</code></pre>
 <hr />
-</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Friday 27 June 2025 20:57">Friday 27 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</div><p>Additional classes will be merged with the default component classes, allowing you to extend or override styles as needed.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../rendering/">« Rendering &amp; Performance</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.13.0 on <span class="colophon-date" title="Saturday 28 June 2025 08:28">Saturday 28 June 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
