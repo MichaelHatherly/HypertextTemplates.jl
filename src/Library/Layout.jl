@@ -31,7 +31,7 @@ A responsive container component with proper max-widths and padding.
     padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
     centered_class = centered ? "mx-auto" : ""
 
-    @div {class="$size_class $padding_class $centered_class", role=role, attrs...} begin
+    @div {class = "$size_class $padding_class $centered_class", role = role, attrs...} begin
         @__slot__()
     end
 end
@@ -83,7 +83,14 @@ A flexible stack component for vertical or horizontal layouts with consistent sp
     align_class = get(align_classes, align_sym, "items-stretch")
     justify_class = get(justify_classes, justify_sym, "justify-start")
 
-    @div {class="flex $direction_class $gap_class $align_class $justify_class", attrs...} begin
+    # Build component default attributes
+    component_attrs =
+        (class = "flex $direction_class $gap_class $align_class $justify_class",)
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @div {merged_attrs...} begin
         @__slot__()
     end
 end
@@ -119,7 +126,10 @@ A responsive grid layout component.
     xl_cols = isnothing(xl) ? "" : "xl:grid-cols-$xl"
     gap_class = "gap-$gap"
 
-    @div {class="grid $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class", attrs...} begin
+    @div {
+        class = "grid $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class",
+        attrs...,
+    } begin
         @__slot__()
     end
 end
@@ -152,7 +162,7 @@ A page section component with consistent vertical spacing.
     spacing_class = get(spacing_classes, spacing_sym, "py-12 sm:py-16 md:py-20")
     bg_class = isnothing(background) ? "" : background
 
-    @section {class="$spacing_class $bg_class", attrs...} begin
+    @section {class = "$spacing_class $bg_class", attrs...} begin
         @__slot__()
     end
 end

@@ -23,6 +23,9 @@ export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs
 # Utility components
 export Divider, @Divider, Avatar, @Avatar, Icon, @Icon
 
+# Utility functions
+include("utils.jl")
+
 # Style system
 include("Styles.jl")
 using .Styles
