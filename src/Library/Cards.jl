@@ -33,7 +33,7 @@ A content container with border and shadow.
         :base => "p-6",
         :md => "p-6",  # For backward compatibility
         :lg => "p-8",
-        :xl => "p-10"
+        :xl => "p-10",
     )
 
     shadow_classes = Dict(
@@ -42,7 +42,7 @@ A content container with border and shadow.
         :base => "shadow",
         :md => "shadow",  # For backward compatibility
         :lg => "shadow-lg",
-        :colored => "shadow-lg shadow-blue-500/10 dark:shadow-blue-400/10"
+        :colored => "shadow-lg shadow-blue-500/10 dark:shadow-blue-400/10",
     )
 
     rounded_classes = Dict(
@@ -51,19 +51,19 @@ A content container with border and shadow.
         :base => "rounded-lg",
         :md => "rounded-lg",  # For backward compatibility
         :lg => "rounded-xl",
-        :xl => "rounded-2xl"
+        :xl => "rounded-2xl",
     )
 
     border_classes = Dict(
         :none => "",
         :default => "border border-slate-200 dark:border-slate-800",
-        :gradient => "border border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 p-[1px]"
+        :gradient => "border border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 p-[1px]",
     )
 
     variant_classes = Dict(
         :default => "bg-white dark:bg-slate-900",
         :glass => "backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50",
-        :gradient => "bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900"
+        :gradient => "bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900",
     )
 
     padding_class = get(padding_classes, padding_sym, padding_classes[:base])
@@ -71,18 +71,16 @@ A content container with border and shadow.
     border_class = get(border_classes, border_sym, "")
     rounded_class = get(rounded_classes, rounded_sym, rounded_classes[:lg])
     variant_class = get(variant_classes, variant_sym, variant_classes[:default])
-    
-    hover_class = hoverable ? "transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5" : ""
-    
+
+    hover_class =
+        hoverable ?
+        "transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5" :
+        ""
+
     # Handle gradient border special case
     if border_sym == :gradient
-        @div {
-            class = "$border_class $rounded_class $shadow_class $hover_class",
-            attrs...,
-        } begin
-            @div {
-                class = "$variant_class $padding_class $rounded_class"
-            } begin
+        @div {class = "$border_class $rounded_class $shadow_class $hover_class", attrs...} begin
+            @div {class = "$variant_class $padding_class $rounded_class"} begin
                 @__slot__()
             end
         end

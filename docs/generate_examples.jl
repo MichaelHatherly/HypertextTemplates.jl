@@ -3,7 +3,7 @@ using HypertextTemplates.Elements
 using HypertextTemplates.Library
 
 # Component for complete HTML document with Tailwind CSS
-@component function HTMLDocument(; title::String)
+@component function HTMLDocument(; title::String, current_page::String = "")
     @html {lang = "en"} begin
         @head begin
             @meta {charset = "UTF-8"}
@@ -22,9 +22,64 @@ using HypertextTemplates.Library
             end
         end
         @body {
-            class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen",
+            class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex",
         } begin
-            @__slot__()
+            # Navigation sidebar - not fixed, part of flex layout
+            @div {
+                class = "w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto flex-shrink-0",
+            } begin
+                @div {class = "p-6"} begin
+                    @Stack {gap = 6} begin
+                        # Header
+                        @Stack {gap = 2} begin
+                            @Heading {level = 3, size = :lg} "Components"
+                            @Text {size = :sm, color = "text-slate-600 dark:text-slate-400"} "Browse all component examples"
+                        end
+
+                        # Navigation links
+                        @Stack {gap = 1} begin
+                            for (href, label) in [
+                                ("layout-components.html", "Layout Components"),
+                                ("typography-components.html", "Typography Components"),
+                                ("form-components.html", "Form Components"),
+                                ("feedback-components.html", "Feedback Components"),
+                                ("navigation-components.html", "Navigation Components"),
+                                ("table-list-components.html", "Table & List Components"),
+                                ("utility-components.html", "Utility Components"),
+                                ("complete-app.html", "Complete Application"),
+                            ]
+                                is_current = href == current_page
+                                link_class = if is_current
+                                    "block px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"
+                                else
+                                    "block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+                                end
+
+                                @a {
+                                    href = href,
+                                    class = link_class,
+                                    "aria-current" = is_current ? "page" : nothing,
+                                } $label
+                            end
+                        end
+
+                        @Divider {}
+
+                        # Back to docs link
+                        @a {
+                            href = "/library-components",
+                            class = "inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors",
+                        } begin
+                            @text "← Back to documentation"
+                        end
+                    end
+                end
+            end
+
+            # Main content area
+            @div {class = "flex-1 overflow-y-auto p-8"} begin
+                @__slot__()
+            end
         end
     end
 end
@@ -122,7 +177,10 @@ println("Generating component examples...")
 end
 @deftag macro LayoutExample end
 
-layout_html = @render @HTMLDocument {title = "Layout Components - HypertextTemplates"} begin
+layout_html = @render @HTMLDocument {
+    title = "Layout Components - HypertextTemplates",
+    current_page = "layout-components.html",
+} begin
     @LayoutExample {}
 end
 
@@ -209,10 +267,12 @@ write(joinpath(build_dir, "layout-components.html"), layout_html)
 end
 @deftag macro TypographyExample end
 
-typography_html =
-    @render @HTMLDocument {title = "Typography Components - HypertextTemplates"} begin
-        @TypographyExample {}
-    end
+typography_html = @render @HTMLDocument {
+    title = "Typography Components - HypertextTemplates",
+    current_page = "typography-components.html",
+} begin
+    @TypographyExample {}
+end
 
 write(joinpath(build_dir, "typography-components.html"), typography_html)
 
@@ -375,7 +435,10 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
 end
 @deftag macro FormExample end
 
-form_html = @render @HTMLDocument {title = "Form Components - HypertextTemplates"} begin
+form_html = @render @HTMLDocument {
+    title = "Form Components - HypertextTemplates",
+    current_page = "form-components.html",
+} begin
     @FormExample {}
 end
 
@@ -546,7 +609,10 @@ write(joinpath(build_dir, "form-components.html"), form_html)
 end
 @deftag macro FeedbackExample end
 
-feedback_html = @render @HTMLDocument {title = "Feedback Components - HypertextTemplates"} begin
+feedback_html = @render @HTMLDocument {
+    title = "Feedback Components - HypertextTemplates",
+    current_page = "feedback-components.html",
+} begin
     @FeedbackExample {}
 end
 
@@ -640,10 +706,12 @@ write(joinpath(build_dir, "feedback-components.html"), feedback_html)
 end
 @deftag macro NavigationExample end
 
-navigation_html =
-    @render @HTMLDocument {title = "Navigation Components - HypertextTemplates"} begin
-        @NavigationExample {}
-    end
+navigation_html = @render @HTMLDocument {
+    title = "Navigation Components - HypertextTemplates",
+    current_page = "navigation-components.html",
+} begin
+    @NavigationExample {}
+end
 
 write(joinpath(build_dir, "navigation-components.html"), navigation_html)
 
@@ -994,7 +1062,10 @@ write(joinpath(build_dir, "navigation-components.html"), navigation_html)
 end
 @deftag macro AppExample end
 
-app_html = @render @HTMLDocument {title = "Complete Application - HypertextTemplates"} begin
+app_html = @render @HTMLDocument {
+    title = "Complete Application - HypertextTemplates",
+    current_page = "complete-app.html",
+} begin
     @AppExample {}
 end
 
@@ -1264,10 +1335,12 @@ write(joinpath(build_dir, "complete-app.html"), app_html)
 end
 @deftag macro TableListExample end
 
-table_list_html =
-    @render @HTMLDocument {title = "Table & List Components - HypertextTemplates"} begin
-        @TableListExample {}
-    end
+table_list_html = @render @HTMLDocument {
+    title = "Table & List Components - HypertextTemplates",
+    current_page = "table-list-components.html",
+} begin
+    @TableListExample {}
+end
 
 write(joinpath(build_dir, "table-list-components.html"), table_list_html)
 
@@ -1534,7 +1607,10 @@ write(joinpath(build_dir, "table-list-components.html"), table_list_html)
 end
 @deftag macro UtilityExample end
 
-utility_html = @render @HTMLDocument {title = "Utility Components - HypertextTemplates"} begin
+utility_html = @render @HTMLDocument {
+    title = "Utility Components - HypertextTemplates",
+    current_page = "utility-components.html",
+} begin
     @UtilityExample {}
 end
 

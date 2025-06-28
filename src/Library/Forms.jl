@@ -464,11 +464,11 @@ A styled button component with multiple variants and sizes.
 
     # Size classes
     size_map = Dict(
-        :xs => (padding="px-2.5 py-1.5", text="text-xs", gap="gap-1"),
-        :sm => (padding="px-3 py-2", text="text-sm", gap="gap-1.5"),
-        :base => (padding="px-4 py-2.5", text="text-base", gap="gap-2"),
-        :lg => (padding="px-5 py-3", text="text-lg", gap="gap-2.5"),
-        :xl => (padding="px-6 py-3.5", text="text-xl", gap="gap-3")
+        :xs => (padding = "px-2.5 py-1.5", text = "text-xs", gap = "gap-1"),
+        :sm => (padding = "px-3 py-2", text = "text-sm", gap = "gap-1.5"),
+        :base => (padding = "px-4 py-2.5", text = "text-base", gap = "gap-2"),
+        :lg => (padding = "px-5 py-3", text = "text-lg", gap = "gap-2.5"),
+        :xl => (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
     )
 
     # Variant classes
@@ -479,38 +479,35 @@ A styled button component with multiple variants and sizes.
         :success => "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-400",
         :warning => "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400",
         :danger => "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-400",
-        :gradient => "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500"
+        :gradient => "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500",
     )
 
     size_data = get(size_map, size_sym, size_map[:base])
     variant_class = get(variant_map, variant_sym, variant_map[:primary])
-    
+
     # Build classes
     width_class = full_width ? "w-full" : ""
     disabled_class = disabled || loading ? "opacity-60 cursor-not-allowed" : ""
-    
+
     base_classes = "inline-flex items-center justify-center font-medium rounded-lg border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-all duration-200 motion-safe:transition-all motion-safe:duration-200 active:scale-[0.98] disabled:active:scale-100"
-    
+
     final_classes = "$base_classes $(size_data.padding) $(size_data.text) $(size_data.gap) $variant_class $width_class $disabled_class"
 
-    @button {
-        type = type,
-        class = final_classes,
-        disabled = disabled || loading,
-        attrs...,
-    } begin
+    @button {type = type, class = final_classes, disabled = disabled || loading, attrs...} begin
         if loading
             # Loading spinner
-            HypertextTemplates.SafeString("""<svg class="animate-spin -ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>""")
+            HypertextTemplates.SafeString(
+                """<svg class="animate-spin -ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+</svg>""",
+            )
         elseif !isnothing(icon_left)
             HypertextTemplates.SafeString(icon_left)
         end
-        
+
         @__slot__()
-        
+
         if !isnothing(icon_right) && !loading
             HypertextTemplates.SafeString(icon_right)
         end
