@@ -1,0 +1,1 @@
+<hr class="border-t border-red-500 my-8" role="separator">

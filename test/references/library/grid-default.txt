@@ -1,0 +1,1 @@
+<div class="grid grid-cols-3     gap-4"><div>Cell 1</div><div>Cell 2</div><div>Cell 3</div></div>

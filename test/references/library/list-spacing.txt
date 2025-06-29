@@ -1,0 +1,1 @@
+<ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1"><li>Tight spacing</li><li>Item 2</li></ul><ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-4"><li>Loose spacing</li><li>Item 2</li></ul>

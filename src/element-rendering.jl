@@ -47,7 +47,7 @@ end
 
 function _render_props(io::IO, props)
     for (k, v) in props
-        if v === false
+        if v === false || v === nothing
             # Skip it entirely.
         else
             print(io, " ", k)

@@ -39,6 +39,8 @@ function display_html(html::AbstractString)
     end
 end
 
+include("generate_examples.jl")
+
 makedocs(
     sitename = "HypertextTemplates",
     format = Documenter.HTML(),
@@ -52,6 +54,7 @@ makedocs(
             "Components" => "components.md",
             "Elements & Attributes" => "elements-attributes.md",
             "Rendering & Performance" => "rendering.md",
+            "Library Components" => "library-components.md",
         ],
         "Advanced" => [
             "Advanced Features" => "advanced-features.md",

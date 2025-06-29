@@ -1,0 +1,1 @@
+<p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Body text</p><p class="text-lg sm:text-xl leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Lead text</p><p class="text-sm leading-normal  font-normal text-slate-600 dark:text-slate-400 text-left">Small text</p>
