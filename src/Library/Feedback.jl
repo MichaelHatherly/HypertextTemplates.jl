@@ -45,7 +45,7 @@ Modern notification message component with animations.
         @div {class = "flex"} begin
             if icon
                 @div {class = "flex-shrink-0"} begin
-                    HypertextTemplates.SafeString(icon_svg)
+                    @text HypertextTemplates.SafeString(icon_svg)
                 end
             end
             @div {class = icon ? "ml-3 flex-1" : "flex-1"} begin
@@ -57,7 +57,7 @@ Modern notification message component with animations.
                     class = "ml-3 inline-flex flex-shrink-0 rounded-lg p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-all duration-200",
                     "aria-label" = "Dismiss",
                 } begin
-                    HypertextTemplates.SafeString(
+                    @text HypertextTemplates.SafeString(
                         """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>""",
                     )
                 end
@@ -124,8 +124,8 @@ Modern progress bar component with animations.
             @div {
                 class = "mb-2 flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300",
             } begin
-                @span label
-                @span {class = "font-semibold"} "$percentage%"
+                @span $label
+                @span {class = "font-semibold"} @text "$percentage%"
             end
         end
         @div {
