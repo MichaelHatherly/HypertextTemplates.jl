@@ -22,51 +22,144 @@ A responsive data table component.
     caption::Union{String,Nothing} = nothing,
     attrs...,
 )
-    striped_class =
-        striped ?
-        "[&>tbody>tr:nth-child(even)]:bg-gray-50 dark:[&>tbody>tr:nth-child(even)]:bg-gray-800/50" :
-        ""
-
-    hover_class =
-        hover ?
-        "[&>tbody>tr]:transition-all [&>tbody>tr]:duration-200 [&>tbody>tr]:hover:bg-blue-50 dark:[&>tbody>tr]:hover:bg-blue-950/20 [&>tbody>tr]:hover:shadow-md" :
-        ""
-
-    spacing_class =
-        compact ? "[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2" :
-        "[&_th]:px-6 [&_th]:py-3 [&_td]:px-6 [&_td]:py-4"
-
-    sticky_header_class =
-        sticky_header ?
-        "[&>thead]:sticky [&>thead]:top-0 [&>thead]:z-10 [&>thead]:bg-white/95 dark:[&>thead]:bg-gray-900/95 [&>thead]:backdrop-blur-sm [&>thead]:shadow-lg" :
-        ""
-
-    sortable_class =
-        sortable ?
-        "[&_th]:cursor-pointer [&_th]:select-none [&_th]:hover:bg-gray-100 dark:[&_th]:hover:bg-gray-800 [&_th]:transition-all [&_th]:duration-200 [&_th]:relative [&_th]:pr-8" :
-        ""
-
-    header_style = "[&_th]:font-bold [&_th]:text-left [&_th]:text-gray-900 dark:[&_th]:text-gray-100 [&_th]:uppercase [&_th]:text-xs [&_th]:tracking-wide"
-
-    border_classes = if bordered
-        "border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm [&_th]:border-b-2 [&_th]:border-gray-200 dark:[&_th]:border-gray-700 [&_td]:border-b [&_td]:border-gray-100 dark:[&_td]:border-gray-800 [&>tbody>tr:last-child>td]:border-b-0"
+    # Base wrapper classes
+    wrapper_classes = ["w-full", "relative"]
+    if sticky_header
+        push!(wrapper_classes, "overflow-auto", "max-h-[600px]")
     else
-        "rounded-xl overflow-hidden"
+        push!(wrapper_classes, "overflow-x-auto")
     end
 
-    wrapper_class =
-        sticky_header ? "w-full overflow-x-auto max-h-[600px] overflow-y-auto" :
-        "w-full overflow-x-auto"
+    # Table container classes for styling
+    container_classes = ["w-full"]
+    if bordered
+        push!(
+            container_classes,
+            "rounded-lg",
+            "border",
+            "border-gray-200",
+            "dark:border-gray-700",
+            "overflow-hidden",
+        )
+    end
 
-    @div {class=wrapper_class} begin
-        @table {
-            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 $striped_class $hover_class $spacing_class $border_classes $sticky_header_class $sortable_class $header_style",
-            attrs...,
-        } begin
-            if !isnothing(caption)
-                @caption {class="mb-4 text-sm text-gray-600 dark:text-gray-400 italic"} $caption
+    # Base table classes
+    table_classes = ["w-full", "text-sm"]
+
+    # Base styling for clean appearance
+    push!(table_classes, "border-separate", "border-spacing-0")
+
+    # Header styling - cleaner approach
+    push!(table_classes, "[&>thead>tr>th]:bg-white", "dark:[&>thead>tr>th]:bg-gray-900")
+    push!(
+        table_classes,
+        "[&>thead>tr>th]:text-left",
+        "[&>thead>tr>th]:text-xs",
+        "[&>thead>tr>th]:font-semibold",
+    )
+    push!(
+        table_classes,
+        "[&>thead>tr>th]:text-gray-600",
+        "dark:[&>thead>tr>th]:text-gray-400",
+    )
+    push!(table_classes, "[&>thead>tr>th]:uppercase", "[&>thead>tr>th]:tracking-wider")
+    push!(
+        table_classes,
+        "[&>thead>tr>th]:border-b",
+        "[&>thead>tr>th]:border-gray-200",
+        "dark:[&>thead>tr>th]:border-gray-700",
+    )
+
+    # Header padding
+    if compact
+        push!(table_classes, "[&>thead>tr>th]:px-4", "[&>thead>tr>th]:py-2")
+    else
+        push!(table_classes, "[&>thead>tr>th]:px-6", "[&>thead>tr>th]:py-4")
+    end
+
+    # Cell styling - cleaner with better spacing
+    push!(table_classes, "[&>tbody>tr>td]:bg-white", "dark:[&>tbody>tr>td]:bg-gray-900")
+    push!(
+        table_classes,
+        "[&>tbody>tr>td]:text-gray-700",
+        "dark:[&>tbody>tr>td]:text-gray-300",
+    )
+    push!(
+        table_classes,
+        "[&>tbody>tr>td]:border-b",
+        "[&>tbody>tr>td]:border-gray-100",
+        "dark:[&>tbody>tr>td]:border-gray-800",
+    )
+
+    # Cell padding
+    if compact
+        push!(table_classes, "[&>tbody>tr>td]:px-4", "[&>tbody>tr>td]:py-2")
+    else
+        push!(table_classes, "[&>tbody>tr>td]:px-6", "[&>tbody>tr>td]:py-4")
+    end
+
+    # Remove bottom border from last row
+    push!(table_classes, "[&>tbody>tr:last-child>td]:border-b-0")
+
+    # Striped rows - more subtle
+    if striped
+        push!(
+            table_classes,
+            "[&>tbody>tr:nth-child(even)>td]:bg-gray-50/50",
+            "dark:[&>tbody>tr:nth-child(even)>td]:bg-gray-800/50",
+        )
+    end
+
+    # Hover effect - more subtle
+    if hover
+        push!(table_classes, "[&>tbody>tr]:transition-all", "[&>tbody>tr]:duration-200")
+        push!(
+            table_classes,
+            "[&>tbody>tr:hover>td]:bg-gray-50",
+            "dark:[&>tbody>tr:hover>td]:bg-gray-800/70",
+        )
+    end
+
+    # Sticky header
+    if sticky_header
+        push!(table_classes, "[&>thead]:sticky", "[&>thead]:top-0", "[&>thead]:z-20")
+        push!(table_classes, "[&>thead]:shadow-sm")
+    end
+
+    # Sortable columns
+    if sortable
+        push!(
+            table_classes,
+            "[&>thead>tr>th]:cursor-pointer",
+            "[&>thead>tr>th]:select-none",
+        )
+        push!(
+            table_classes,
+            "[&>thead>tr>th]:transition-colors",
+            "[&>thead>tr>th]:duration-150",
+        )
+        push!(
+            table_classes,
+            "[&>thead>tr>th:hover]:bg-gray-50",
+            "dark:[&>thead>tr>th:hover]:bg-gray-800",
+        )
+    end
+
+    # Build component default attributes
+    component_attrs = (class = SafeString(join(table_classes, " ")),)
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @div {class = join(wrapper_classes, " ")} begin
+        if !isnothing(caption)
+            @p {class = "mb-2 text-sm text-gray-600 dark:text-gray-400 italic"} caption
+        end
+
+        @div {class = SafeString(join(container_classes, " "))} begin
+            @table {merged_attrs...} begin
+                @__slot__()
             end
-            @__slot__()
         end
     end
 end
@@ -100,23 +193,23 @@ A styled list component with various markers.
     base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
 
     if variant_sym == :bullet
-        @ul {class="list-disc list-inside $base_class", attrs...} begin
+        @ul {class = "list-disc list-inside $base_class", attrs...} begin
             @__slot__()
         end
     elseif variant_sym == :number
-        @ol {class="list-decimal list-inside $base_class", attrs...} begin
+        @ol {class = "list-decimal list-inside $base_class", attrs...} begin
             @__slot__()
         end
     elseif variant_sym == :check
         # For check variant, we'll style the list items with pseudo-elements
         @ul {
-            class="[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
+            class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
             attrs...,
         } begin
             @__slot__()
         end
     else # :none
-        @ul {class="list-none $base_class", attrs...} begin
+        @ul {class = "list-none $base_class", attrs...} begin
             @__slot__()
         end
     end

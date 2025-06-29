@@ -14,9 +14,8 @@
                     @Table {
                         striped = true,
                         hover = true,
-                        sticky_header = true,
-                        sortable = true,
-                        caption = "Employee performance metrics with sticky header and sortable columns",
+                        bordered = false,
+                        caption = "Employee performance metrics",
                     } begin
                         @thead begin
                             @tr begin
@@ -74,17 +73,27 @@
                                         end
                                     end
                                     @td begin
-                                        @Stack {direction = :horizontal, gap = -2} begin
-                                            for j = 1:min(3, i)
-                                                @Avatar {
-                                                    size = :xs,
-                                                    fallback = "P$j",
-                                                    class = "ring-2 ring-white dark:ring-gray-900",
-                                                }
+                                        @div {class = "flex items-center"} begin
+                                            @div {class = "flex -space-x-2"} begin
+                                                for j = 1:min(3, i)
+                                                    colors = [
+                                                        "bg-blue-500",
+                                                        "bg-green-500",
+                                                        "bg-purple-500",
+                                                    ]
+                                                    # Add z-index to ensure proper stacking
+                                                    z_index = 4 - j  # Higher index for earlier items
+                                                    @Avatar {
+                                                        size = :xs,
+                                                        fallback = "P$j",
+                                                        class = "ring-2 ring-white dark:ring-gray-900 $(colors[j]) relative",
+                                                        style = "z-index: $z_index;",
+                                                    }
+                                                end
                                             end
                                             if i > 3
                                                 @div {
-                                                    class = "flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900",
+                                                    class = "ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300",
                                                 } "+$(i-3)"
                                             end
                                         end
@@ -421,48 +430,17 @@
                         # Timeline list
                         @Stack {gap = 4} begin
                             @Heading {level = 3} "Timeline"
-                            @List {variant = :none, spacing = :loose} begin
+                            @Timeline begin
                                 for i = 1:4
-                                    @li {class = "relative"} begin
-                                        # Vertical line
-                                        if i < 4
-                                            @div {
-                                                class = "absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700",
-                                            }
-                                        end
-
-                                        @Stack {
-                                            direction = :horizontal,
-                                            gap = 3,
-                                            align = :start,
+                                    @TimelineItem {icon = string(i), last = i == 4} begin
+                                        @TimelineContent {
+                                            title = "Milestone $i",
+                                            subtitle = "$(i*2) hours ago",
                                         } begin
-                                            # Timeline dot
-                                            @div {
-                                                class = "mt-1.5 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0",
-                                            } begin
-                                                @Text {
-                                                    size = :xs,
-                                                    color = "text-white",
-                                                    weight = :medium,
-                                                } string(i)
-                                            end
-
-                                            # Content
-                                            @Card {padding = :sm, shadow = :sm} begin
-                                                @Stack {gap = 1} begin
-                                                    @Text {weight = :semibold} "Milestone $i"
-                                                    @Text {
-                                                        size = :sm,
-                                                        color = "text-gray-600 dark:text-gray-400",
-                                                    } begin
-                                                        "Completed important task with significant impact"
-                                                    end
-                                                    @Text {
-                                                        size = :xs,
-                                                        color = "text-gray-500",
-                                                    } "$(i*2) hours ago"
-                                                end
-                                            end
+                                            @Text {
+                                                size = :sm,
+                                                color = "text-gray-600 dark:text-gray-400",
+                                            } "Completed important task with significant impact"
                                         end
                                     end
                                 end

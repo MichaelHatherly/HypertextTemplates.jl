@@ -12,6 +12,8 @@ export Heading, @Heading, Text, @Text, Link, @Link
 export Card, @Card, Badge, @Badge
 # Table components
 export Table, @Table, List, @List
+# List components
+export Timeline, @Timeline, TimelineItem, @TimelineItem, TimelineContent, @TimelineContent
 # Form components
 export Input, @Input, Textarea, @Textarea, Select, @Select
 export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
@@ -42,6 +44,9 @@ include("Cards.jl")
 
 # Table components
 include("Tables.jl")
+
+# List components
+include("Lists.jl")
 
 # Form components
 include("Forms.jl")

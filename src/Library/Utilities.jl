@@ -70,10 +70,22 @@ User profile image component.
     size_class = get(size_classes, size_sym, size_classes[:md])
     shape_class = shape_sym == :circle ? "rounded-full" : "rounded-lg"
 
-    @div {
-        class = "relative inline-block $size_class $shape_class overflow-hidden bg-slate-100 dark:bg-slate-800",
-        attrs...,
-    } begin
+    # Default background color for fallback avatars
+    default_bg = if !isnothing(src)
+        "bg-slate-100 dark:bg-slate-800"
+    else
+        "bg-blue-500 dark:bg-blue-600"
+    end
+
+    # Build component default attributes
+    component_attrs = (
+        class = "relative inline-flex $size_class $shape_class overflow-hidden $default_bg",
+    )
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @div {merged_attrs...} begin
         if !isnothing(src)
             # Require meaningful alt text for images
             if isnothing(alt)
@@ -83,7 +95,7 @@ User profile image component.
         else
             # Fallback content
             @div {
-                class = "flex h-full w-full items-center justify-center font-medium text-slate-600 dark:text-slate-400",
+                class = "flex h-full w-full items-center justify-center font-medium text-white",
             } begin
                 if !isnothing(fallback)
                     @text fallback
