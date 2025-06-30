@@ -628,6 +628,7 @@ Requires Alpine.js.
     search: '',
     selected: $initial_value,
     highlighted: 0,
+    dropUp: false,
     options: $(serialize_options(options)),
     get filteredOptions() {
         if (!this.search) return this.options;
@@ -649,6 +650,16 @@ Requires Alpine.js.
     },
     get hasSelection() {
         return $(multiple ? "true" : "false") ? this.selected.length > 0 : !!this.selected;
+    },
+    checkDropDirection() {
+        const button = this.\$refs.button;
+        const rect = button.getBoundingClientRect();
+        const dropdownHeight = parseInt('$(max_height)') || 300;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        // If not enough space below and more space above, drop up
+        this.dropUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
     },
     selectOption(value) {
         if ($(multiple ? "true" : "false")) {
@@ -674,6 +685,7 @@ Requires Alpine.js.
     handleKeydown(e) {
         if (!this.open && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
             e.preventDefault();
+            this.checkDropDirection();
             this.open = true;
             if (this.searchable) this.\$nextTick(() => this.\$refs.search.focus());
             return;
@@ -734,7 +746,7 @@ Requires Alpine.js.
             @button {
                 type = "button",
                 "x-ref" = "button",
-                "@click" = disabled ? nothing : "open = !open",
+                "@click" = disabled ? nothing : "checkDropDirection(); open = !open",
                 ":aria-expanded" = "open.toString()",
                 "aria-haspopup" = "listbox",
                 "aria-controls" = dropdown_id,
@@ -815,7 +827,8 @@ Requires Alpine.js.
             "x-transition:leave-end" = "opacity-0 transform scale-95",
             "@click.away" = "open = false; search = ''",
             id = dropdown_id,
-            class = "absolute z-50 mt-2 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            ":class" = "dropUp ? 'bottom-full mb-2' : 'top-full mt-2'",
+            class = "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
             role = "listbox",
             "aria-label" = placeholder,
         } begin
