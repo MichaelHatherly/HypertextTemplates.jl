@@ -394,6 +394,30 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
                             }
                         end
 
+                        # Clearable Select Dropdown
+                        @FormGroup {
+                            label = "Timezone",
+                            help = "Click the × to clear selection",
+                        } begin
+                            @SelectDropdown {
+                                name = "timezone",
+                                placeholder = "Select your timezone...",
+                                clearable = true,
+                                options = [
+                                    ("utc", "UTC (Coordinated Universal Time)"),
+                                    ("est", "EST (Eastern Standard Time)"),
+                                    ("cst", "CST (Central Standard Time)"),
+                                    ("mst", "MST (Mountain Standard Time)"),
+                                    ("pst", "PST (Pacific Standard Time)"),
+                                    ("gmt", "GMT (Greenwich Mean Time)"),
+                                    ("cet", "CET (Central European Time)"),
+                                    ("jst", "JST (Japan Standard Time)"),
+                                    ("aest", "AEST (Australian Eastern Standard Time)"),
+                                ],
+                                value = "pst",
+                            }
+                        end
+
                         # Textarea
                         @FormGroup {label = "Bio", help = "Tell us about yourself"} begin
                             @Textarea {
@@ -531,6 +555,119 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
                                 placeholder = "Disabled select",
                                 options = [("1", "Option 1"), ("2", "Option 2")],
                             }
+                        end
+                    end
+
+                    @Divider {}
+
+                    @Heading {level = 3} "Clearable SelectDropdown Examples"
+
+                    @Grid {cols = 1, md = 2, gap = 6} begin
+                        # Basic clearable
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Basic Clearable Dropdown"
+                            @FormGroup {
+                                label = "Department",
+                                help = "Optional field - can be cleared",
+                            } begin
+                                @SelectDropdown {
+                                    name = "department",
+                                    placeholder = "Select department...",
+                                    clearable = true,
+                                    options = [
+                                        ("eng", "Engineering"),
+                                        ("sales", "Sales"),
+                                        ("marketing", "Marketing"),
+                                        ("hr", "Human Resources"),
+                                        ("finance", "Finance"),
+                                    ],
+                                }
+                            end
+                        end
+
+                        # Clearable with search
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Searchable & Clearable"
+                            @FormGroup {
+                                label = "Project",
+                                help = "Search and clear functionality",
+                            } begin
+                                @SelectDropdown {
+                                    name = "project",
+                                    placeholder = "Search projects...",
+                                    clearable = true,
+                                    searchable = true,
+                                    value = "project-beta",
+                                    options = [
+                                        ("project-alpha", "Project Alpha"),
+                                        ("project-beta", "Project Beta"),
+                                        ("project-gamma", "Project Gamma"),
+                                        ("project-delta", "Project Delta"),
+                                        ("project-epsilon", "Project Epsilon"),
+                                        ("project-zeta", "Project Zeta"),
+                                    ],
+                                }
+                            end
+                        end
+
+                        # Multiple selection with clearable
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Multiple Selection with Clear All"
+                            @FormGroup {
+                                label = "Tags",
+                                help = "Clear all selections at once",
+                            } begin
+                                @SelectDropdown {
+                                    name = "tags[]",
+                                    placeholder = "Select tags...",
+                                    clearable = true,
+                                    multiple = true,
+                                    searchable = true,
+                                    value = ["urgent", "bug"],
+                                    options = [
+                                        ("urgent", "Urgent"),
+                                        ("bug", "Bug"),
+                                        ("feature", "Feature"),
+                                        ("enhancement", "Enhancement"),
+                                        ("documentation", "Documentation"),
+                                        ("testing", "Testing"),
+                                        ("refactor", "Refactor"),
+                                    ],
+                                }
+                            end
+                        end
+
+                        # Clearable with different states
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Clearable with States"
+                            @Stack {gap = 2} begin
+                                @SelectDropdown {
+                                    clearable = true,
+                                    state = :success,
+                                    value = "approved",
+                                    placeholder = "Status...",
+                                    options = [
+                                        ("pending", "Pending"),
+                                        ("approved", "Approved"),
+                                        ("rejected", "Rejected"),
+                                    ],
+                                }
+                                @Text {size = :sm, color = "text-green-600"} "Valid selection (clearable)"
+                            end
+                            @Stack {gap = 2} begin
+                                @SelectDropdown {
+                                    clearable = true,
+                                    state = :error,
+                                    placeholder = "Priority level...",
+                                    options = [
+                                        ("low", "Low"),
+                                        ("medium", "Medium"),
+                                        ("high", "High"),
+                                        ("critical", "Critical"),
+                                    ],
+                                }
+                                @Text {size = :sm, color = "text-red-600"} "Required field (clearable)"
+                            end
                         end
                     end
                 end

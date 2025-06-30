@@ -548,6 +548,7 @@ Requires Alpine.js.
 - `placeholder::Union{String,Nothing}`: Placeholder text (default: "Select...")
 - `searchable::Bool`: Enable search functionality (default: `false`)
 - `multiple::Bool`: Enable multiple selection (default: `false`)
+- `clearable::Bool`: Enable clear button to reset selection (default: `false`)
 - `max_height::String`: Maximum height of dropdown (default: "300px")
 - `size::Union{Symbol,String}`: Component size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
 - `state::Union{Symbol,String}`: Component state (`:default`, `:error`, `:success`) (default: `:default`)
@@ -562,6 +563,7 @@ Requires Alpine.js.
     placeholder::Union{String,Nothing} = "Select...",
     searchable::Bool = false,
     multiple::Bool = false,
+    clearable::Bool = false,
     max_height::String = "300px",
     size::Union{Symbol,String} = :base,
     state::Union{Symbol,String} = :default,
@@ -645,6 +647,9 @@ Requires Alpine.js.
             return opt ? opt[1] : (this.selected || $(placeholder === nothing ? "''" : "'$(escape_js(placeholder))'"));
         }
     },
+    get hasSelection() {
+        return $(multiple ? "true" : "false") ? this.selected.length > 0 : !!this.selected;
+    },
     selectOption(value) {
         if ($(multiple ? "true" : "false")) {
             const idx = this.selected.indexOf(value);
@@ -658,6 +663,10 @@ Requires Alpine.js.
             this.open = false;
             this.search = '';
         }
+    },
+    clearSelection() {
+        this.selected = $(multiple ? "true" : "false") ? [] : '';
+        this.search = '';
     },
     isSelected(value) {
         return $(multiple ? "true" : "false") ? this.selected.includes(value) : this.selected === value;
@@ -719,46 +728,79 @@ Requires Alpine.js.
             end
         end
 
-        # Dropdown trigger button
-        @button {
-            type = "button",
-            "x-ref" = "button",
-            "@click" = disabled ? nothing : "open = !open",
-            ":aria-expanded" = "open.toString()",
-            "aria-haspopup" = "listbox",
-            "aria-controls" = dropdown_id,
-            disabled = disabled,
-            required = required,
-            class =
-                merge_attrs(
+        # Wrapper for button and clear button
+        @div {class = "relative"} begin
+            # Dropdown trigger button
+            @button {
+                type = "button",
+                "x-ref" = "button",
+                "@click" = disabled ? nothing : "open = !open",
+                ":aria-expanded" = "open.toString()",
+                "aria-haspopup" = "listbox",
+                "aria-controls" = dropdown_id,
+                disabled = disabled,
+                required = required,
+                class = merge_attrs(
                     (
                         class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
                     ),
                     (),
                 ).class,
-        } begin
-            @span {
-                "x-text" = "selectedLabel",
-                ":class" = "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
             } begin
-                if !isnothing(placeholder)
-                    @text placeholder
+                @span {
+                    "x-text" = "selectedLabel",
+                    ":class" = "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
+                    class = clearable ? "pr-12" : "pr-8",
+                } begin
+                    if !isnothing(placeholder)
+                        @text placeholder
+                    end
+                end
+
+                # Dropdown arrow
+                @svg {
+                    class = "absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none",
+                    ":class" = "{ 'rotate-180': open }",
+                    xmlns = "http://www.w3.org/2000/svg",
+                    viewBox = "0 0 20 20",
+                    fill = "currentColor",
+                } begin
+                    @path {
+                        "fill-rule" = "evenodd",
+                        d = "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z",
+                        "clip-rule" = "evenodd",
+                    }
                 end
             end
 
-            # Dropdown arrow
-            @svg {
-                class = "ml-2 h-5 w-5 text-gray-400 transition-transform duration-200",
-                ":class" = "{ 'rotate-180': open }",
-                xmlns = "http://www.w3.org/2000/svg",
-                viewBox = "0 0 20 20",
-                fill = "currentColor",
-            } begin
-                @path {
-                    "fill-rule" = "evenodd",
-                    d = "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z",
-                    "clip-rule" = "evenodd",
-                }
+            # Clear button (outside main button)
+            if clearable
+                @button {
+                    type = "button",
+                    "@click.stop" = "clearSelection()",
+                    "x-show" = "hasSelection",
+                    "x-transition:enter" = "transition ease-out duration-150",
+                    "x-transition:enter-start" = "opacity-0 scale-75",
+                    "x-transition:enter-end" = "opacity-100 scale-100",
+                    "x-transition:leave" = "transition ease-in duration-100",
+                    "x-transition:leave-start" = "opacity-100 scale-100",
+                    "x-transition:leave-end" = "opacity-0 scale-75",
+                    class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                    "aria-label" = "Clear selection",
+                } begin
+                    @svg {
+                        class = "h-4 w-4 text-gray-500 dark:text-gray-400",
+                        xmlns = "http://www.w3.org/2000/svg",
+                        viewBox = "0 0 20 20",
+                        fill = "currentColor",
+                    } begin
+                        @path {
+                            "fill-rule" = "evenodd",
+                            d = "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z",
+                            "clip-rule" = "evenodd",
+                        }
+                    end
+                end
             end
         end
 
