@@ -3,6 +3,12 @@ module Library
 using HypertextTemplates
 using HypertextTemplates.Elements
 
+@element svg
+@deftag macro svg end
+
+@element path
+@deftag macro path end
+
 # Export all components (both functions and macros)
 # Layout components
 export Container, @Container, Stack, @Stack, Grid, @Grid, Section, @Section
@@ -15,7 +21,7 @@ export Table, @Table, List, @List
 # List components
 export Timeline, @Timeline, TimelineItem, @TimelineItem, TimelineContent, @TimelineContent
 # Form components
-export Input, @Input, Textarea, @Textarea, Select, @Select
+export Input, @Input, Textarea, @Textarea, Select, @Select, SelectDropdown, @SelectDropdown
 export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
 export Button, @Button
 # Feedback components

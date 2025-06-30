@@ -347,6 +347,53 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
                             }
                         end
 
+                        # Enhanced Select Dropdown with Search
+                        @FormGroup {label = "Programming Language"} begin
+                            @SelectDropdown {
+                                name = "language",
+                                placeholder = "Choose your favorite language...",
+                                searchable = true,
+                                options = [
+                                    ("julia", "Julia"),
+                                    ("python", "Python"),
+                                    ("javascript", "JavaScript"),
+                                    ("typescript", "TypeScript"),
+                                    ("rust", "Rust"),
+                                    ("go", "Go"),
+                                    ("ruby", "Ruby"),
+                                    ("java", "Java"),
+                                    ("csharp", "C#"),
+                                    ("cpp", "C++"),
+                                    ("swift", "Swift"),
+                                    ("kotlin", "Kotlin"),
+                                ],
+                                value = "julia",
+                            }
+                        end
+
+                        # Multiple Selection Dropdown
+                        @FormGroup {label = "Skills", help = "Select all that apply"} begin
+                            @SelectDropdown {
+                                name = "skills[]",
+                                placeholder = "Select your skills...",
+                                multiple = true,
+                                searchable = true,
+                                options = [
+                                    ("frontend", "Frontend Development"),
+                                    ("backend", "Backend Development"),
+                                    ("mobile", "Mobile Development"),
+                                    ("devops", "DevOps"),
+                                    ("ml", "Machine Learning"),
+                                    ("data", "Data Science"),
+                                    ("security", "Security"),
+                                    ("ui", "UI/UX Design"),
+                                    ("pm", "Project Management"),
+                                    ("qa", "Quality Assurance"),
+                                ],
+                                value = ["frontend", "backend"],
+                            }
+                        end
+
                         # Textarea
                         @FormGroup {label = "Bio", help = "Tell us about yourself"} begin
                             @Textarea {
@@ -427,6 +474,63 @@ write(joinpath(build_dir, "typography-components.html"), typography_html)
 
                         @FormGroup {label = "Error State", error = "This field is required"} begin
                             @Input {state = :error, placeholder = "Error state"}
+                        end
+                    end
+
+                    @Divider {}
+
+                    @Heading {level = 3} "SelectDropdown States & Sizes"
+
+                    @Grid {cols = 1, md = 2, gap = 4} begin
+                        # Different sizes
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Component Sizes"
+                            @SelectDropdown {
+                                size = :xs,
+                                placeholder = "Extra small select",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
+                            @SelectDropdown {
+                                size = :sm,
+                                placeholder = "Small select",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
+                            @SelectDropdown {
+                                size = :base,
+                                placeholder = "Base size select",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
+                            @SelectDropdown {
+                                size = :lg,
+                                placeholder = "Large select",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
+                        end
+
+                        # Different states
+                        @Stack {gap = 3} begin
+                            @Text {weight = :semibold} "Component States"
+                            @SelectDropdown {
+                                state = :default,
+                                placeholder = "Default state",
+                                options = [("active", "Active"), ("inactive", "Inactive")],
+                            }
+                            @SelectDropdown {
+                                state = :success,
+                                value = "valid",
+                                options =
+                                    [("valid", "Valid Selection"), ("invalid", "Invalid")],
+                            }
+                            @SelectDropdown {
+                                state = :error,
+                                placeholder = "Error state",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
+                            @SelectDropdown {
+                                disabled = true,
+                                placeholder = "Disabled select",
+                                options = [("1", "Option 1"), ("2", "Option 2")],
+                            }
                         end
                     end
                 end

@@ -148,13 +148,18 @@
                                 label = "Environment",
                                 help = "Select deployment environment",
                             } begin
-                                @Select {
+                                @SelectDropdown {
+                                    searchable = true,
+                                    placeholder = "Choose environment...",
                                     options = [
-                                        ("", "Choose environment"),
                                         ("dev", "Development"),
                                         ("staging", "Staging"),
+                                        ("qa", "Quality Assurance"),
+                                        ("uat", "User Acceptance Testing"),
                                         ("prod", "Production"),
+                                        ("dr", "Disaster Recovery"),
                                     ],
+                                    value = "dev",
                                 }
                             end
                         end
@@ -415,6 +420,176 @@
                                         @Text {size = :sm} "CDN: High latency"
                                     end
                                 end
+                            end
+                        end
+                    end
+                end
+            end
+
+            # Advanced SelectDropdown Examples
+            @Card {padding = :lg} begin
+                @Stack {gap = 6} begin
+                    @Heading {level = 2} "Advanced Select Dropdown"
+                    @Text "Enhanced dropdown with search, multiple selection, and keyboard navigation."
+
+                    @Grid {cols = 1, md = 2, gap = 6} begin
+                        # Country selector with flags
+                        @FormGroup {
+                            label = "Country",
+                            help = "Search by country name or code",
+                        } begin
+                            @SelectDropdown {
+                                searchable = true,
+                                placeholder = "Select your country...",
+                                options = [
+                                    ("us", "🇺🇸 United States"),
+                                    ("gb", "🇬🇧 United Kingdom"),
+                                    ("ca", "🇨🇦 Canada"),
+                                    ("au", "🇦🇺 Australia"),
+                                    ("de", "🇩🇪 Germany"),
+                                    ("fr", "🇫🇷 France"),
+                                    ("es", "🇪🇸 Spain"),
+                                    ("it", "🇮🇹 Italy"),
+                                    ("jp", "🇯🇵 Japan"),
+                                    ("kr", "🇰🇷 South Korea"),
+                                    ("cn", "🇨🇳 China"),
+                                    ("in", "🇮🇳 India"),
+                                    ("br", "🇧🇷 Brazil"),
+                                    ("mx", "🇲🇽 Mexico"),
+                                    ("za", "🇿🇦 South Africa"),
+                                    ("ae", "🇦🇪 United Arab Emirates"),
+                                ],
+                                value = "us",
+                            }
+                        end
+
+                        # Tech stack selector
+                        @FormGroup {
+                            label = "Technology Stack",
+                            help = "Select all technologies you work with",
+                        } begin
+                            @SelectDropdown {
+                                multiple = true,
+                                searchable = true,
+                                max_height = "240px",
+                                placeholder = "Choose technologies...",
+                                options = [
+                                    # Languages
+                                    ("julia", "Julia (Language)"),
+                                    ("python", "Python (Language)"),
+                                    ("javascript", "JavaScript (Language)"),
+                                    ("typescript", "TypeScript (Language)"),
+                                    ("rust", "Rust (Language)"),
+                                    ("go", "Go (Language)"),
+                                    # Frameworks
+                                    ("react", "React (Framework)"),
+                                    ("vue", "Vue.js (Framework)"),
+                                    ("angular", "Angular (Framework)"),
+                                    ("django", "Django (Framework)"),
+                                    ("flask", "Flask (Framework)"),
+                                    ("rails", "Ruby on Rails (Framework)"),
+                                    # Databases
+                                    ("postgresql", "PostgreSQL (Database)"),
+                                    ("mysql", "MySQL (Database)"),
+                                    ("mongodb", "MongoDB (Database)"),
+                                    ("redis", "Redis (Database)"),
+                                    # Tools
+                                    ("docker", "Docker (Tool)"),
+                                    ("kubernetes", "Kubernetes (Tool)"),
+                                    ("git", "Git (Tool)"),
+                                    ("aws", "AWS (Cloud)"),
+                                ],
+                                value = ["julia", "react", "postgresql"],
+                            }
+                        end
+
+                        # Timezone selector
+                        @FormGroup {label = "Timezone", help = "Your local timezone"} begin
+                            @SelectDropdown {
+                                searchable = true,
+                                placeholder = "Select timezone...",
+                                options = [
+                                    ("UTC", "UTC (±00:00) Coordinated Universal Time"),
+                                    ("EST", "EST (−05:00) Eastern Standard Time"),
+                                    ("CST", "CST (−06:00) Central Standard Time"),
+                                    ("MST", "MST (−07:00) Mountain Standard Time"),
+                                    ("PST", "PST (−08:00) Pacific Standard Time"),
+                                    ("GMT", "GMT (±00:00) Greenwich Mean Time"),
+                                    ("CET", "CET (+01:00) Central European Time"),
+                                    ("JST", "JST (+09:00) Japan Standard Time"),
+                                    ("AEST", "AEST (+10:00) Australian Eastern Standard"),
+                                    ("NZST", "NZST (+12:00) New Zealand Standard"),
+                                ],
+                            }
+                        end
+
+                        # User role assignment
+                        @FormGroup {
+                            label = "Assign Roles",
+                            help = "Select multiple roles for the user",
+                        } begin
+                            @SelectDropdown {
+                                multiple = true,
+                                placeholder = "Select roles...",
+                                options = [
+                                    ("admin", "Administrator"),
+                                    ("editor", "Editor"),
+                                    ("author", "Author"),
+                                    ("contributor", "Contributor"),
+                                    ("moderator", "Moderator"),
+                                    ("viewer", "Viewer"),
+                                ],
+                                state = :success,
+                                value = ["editor", "author"],
+                            }
+                        end
+                    end
+
+                    @Divider {}
+
+                    # Showcase different configurations
+                    @Stack {gap = 4} begin
+                        @Heading {level = 3} "Configuration Examples"
+
+                        @Grid {cols = 1, md = 3, gap = 4} begin
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Compact with Error"
+                                @SelectDropdown {
+                                    size = :xs,
+                                    state = :error,
+                                    placeholder = "Required field",
+                                    options = [
+                                        ("opt1", "Option 1"),
+                                        ("opt2", "Option 2"),
+                                        ("opt3", "Option 3"),
+                                    ],
+                                }
+                            end
+
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Large Success State"
+                                @SelectDropdown {
+                                    size = :lg,
+                                    state = :success,
+                                    value = "approved",
+                                    options = [
+                                        ("pending", "Pending Review"),
+                                        ("approved", "Approved ✓"),
+                                        ("rejected", "Rejected"),
+                                    ],
+                                }
+                            end
+
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Disabled State"
+                                @SelectDropdown {
+                                    disabled = true,
+                                    value = "locked",
+                                    options = [
+                                        ("locked", "Selection Locked"),
+                                        ("other", "Other Option"),
+                                    ],
+                                }
                             end
                         end
                     end

@@ -536,3 +536,322 @@ A modern styled button component with multiple variants and sizes.
 end
 
 @deftag macro Button end
+
+"""
+    @SelectDropdown
+
+An enhanced dropdown select with search, keyboard navigation, and multiple selection support.
+Requires Alpine.js.
+
+# Props
+- `options::Vector{Tuple{String,String}}`: Options as (value, label) tuples
+- `placeholder::Union{String,Nothing}`: Placeholder text (default: "Select...")
+- `searchable::Bool`: Enable search functionality (default: `false`)
+- `multiple::Bool`: Enable multiple selection (default: `false`)
+- `max_height::String`: Maximum height of dropdown (default: "300px")
+- `size::Union{Symbol,String}`: Component size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
+- `state::Union{Symbol,String}`: Component state (`:default`, `:error`, `:success`) (default: `:default`)
+- `name::Union{String,Nothing}`: Form field name (optional)
+- `value::Union{String,Vector{String},Nothing}`: Selected value(s) (optional)
+- `disabled::Bool`: Whether component is disabled (default: `false`)
+- `required::Bool`: Whether field is required (default: `false`)
+- `id::Union{String,Nothing}`: Component ID (optional)
+"""
+@component function SelectDropdown(;
+    options::Vector{Tuple{String,String}} = Tuple{String,String}[],
+    placeholder::Union{String,Nothing} = "Select...",
+    searchable::Bool = false,
+    multiple::Bool = false,
+    max_height::String = "300px",
+    size::Union{Symbol,String} = :base,
+    state::Union{Symbol,String} = :default,
+    name::Union{String,Nothing} = nothing,
+    value::Union{String,Vector{String},Nothing} = nothing,
+    disabled::Bool = false,
+    required::Bool = false,
+    id::Union{String,Nothing} = nothing,
+    _hash = hash(time_ns()),
+    attrs...,
+)
+    # Convert to symbols
+    size_sym = Symbol(size)
+    state_sym = Symbol(state)
+
+    # Generate unique ID if not provided
+    component_id = isnothing(id) ? "select-dropdown-$(_hash)" : id
+    dropdown_id = "$(component_id)-dropdown"
+
+    # Helper to escape JavaScript strings
+    escape_js(s::String) = replace(replace(s, "\\" => "\\\\"), "'" => "\\'")
+
+    # Serialize options array for JavaScript
+    function serialize_options(opts)
+        items = join(
+            ["['$(escape_js(val))', '$(escape_js(label))']" for (val, label) in opts],
+            ", ",
+        )
+        return "[$items]"
+    end
+
+    # Serialize initial value
+    initial_value = if multiple
+        isnothing(value) ? "[]" : "[" * join(["'$(escape_js(v))'" for v in value], ", ") * "]"
+    else
+        isnothing(value) ? "''" : "'$(escape_js(value))'"
+    end
+
+    # Size classes (matching Input component)
+    size_classes = Dict(
+        :xs => "px-2.5 py-1.5 text-xs",
+        :sm => "px-3 py-2 text-sm",
+        :base => "px-4 py-2.5 text-base",
+        :lg => "px-5 py-3 text-lg",
+        :xl => "px-6 py-3.5 text-xl",
+    )
+
+    state_classes = Dict(
+        :default => "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
+        :error => "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
+        :success => "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+    )
+
+    size_class = get(size_classes, size_sym, size_classes[:base])
+    state_class = get(state_classes, state_sym, state_classes[:default])
+    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+
+    # Alpine.js data
+    alpine_data = SafeString(
+        """{
+    open: false,
+    search: '',
+    selected: $initial_value,
+    highlighted: 0,
+    options: $(serialize_options(options)),
+    get filteredOptions() {
+        if (!this.search) return this.options;
+        return this.options.filter(([val, label]) => 
+            label.toLowerCase().includes(this.search.toLowerCase())
+        );
+    },
+    get selectedLabel() {
+        if ($(multiple ? "true" : "false")) {
+            const labels = this.selected.map(v => {
+                const opt = this.options.find(([val]) => val === v);
+                return opt ? opt[1] : v;
+            });
+            return labels.length > 0 ? labels.join(', ') : $(placeholder === nothing ? "''" : "'$(escape_js(placeholder))'");
+        } else {
+            const opt = this.options.find(([val]) => val === this.selected);
+            return opt ? opt[1] : (this.selected || $(placeholder === nothing ? "''" : "'$(escape_js(placeholder))'"));
+        }
+    },
+    selectOption(value) {
+        if ($(multiple ? "true" : "false")) {
+            const idx = this.selected.indexOf(value);
+            if (idx > -1) {
+                this.selected.splice(idx, 1);
+            } else {
+                this.selected.push(value);
+            }
+        } else {
+            this.selected = value;
+            this.open = false;
+            this.search = '';
+        }
+    },
+    isSelected(value) {
+        return $(multiple ? "true" : "false") ? this.selected.includes(value) : this.selected === value;
+    },
+    handleKeydown(e) {
+        if (!this.open && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
+            e.preventDefault();
+            this.open = true;
+            if (this.searchable) this.\$nextTick(() => this.\$refs.search.focus());
+            return;
+        }
+
+        if (!this.open) return;
+
+        switch(e.key) {
+            case 'Escape':
+                e.preventDefault();
+                this.open = false;
+                this.\$refs.button.focus();
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                this.highlighted = Math.min(this.highlighted + 1, this.filteredOptions.length - 1);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                this.highlighted = Math.max(this.highlighted - 1, 0);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (this.filteredOptions[this.highlighted]) {
+                    this.selectOption(this.filteredOptions[this.highlighted][0]);
+                }
+                break;
+        }
+    }
+}""",
+    )
+
+    # Build the component
+    @div {
+        "x-data" = alpine_data,
+        "@keydown" = "handleKeydown",
+        class = "relative",
+        attrs...,
+    } begin
+        # Hidden input(s) for form submission
+        if !isnothing(name)
+            if multiple
+                @template for selected_val in (isnothing(value) ? String[] : value)
+                    @input {
+                        type = "hidden",
+                        name = name,
+                        "x-bind:value" = "'$selected_val'",
+                    }
+                end
+            else
+                @input {type = "hidden", name = name, "x-bind:value" = "selected"}
+            end
+        end
+
+        # Dropdown trigger button
+        @button {
+            type = "button",
+            "x-ref" = "button",
+            "@click" = disabled ? nothing : "open = !open",
+            ":aria-expanded" = "open.toString()",
+            "aria-haspopup" = "listbox",
+            "aria-controls" = dropdown_id,
+            disabled = disabled,
+            required = required,
+            class =
+                merge_attrs(
+                    (
+                        class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
+                    ),
+                    (),
+                ).class,
+        } begin
+            @span {
+                "x-text" = "selectedLabel",
+                ":class" = "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
+            } begin
+                if !isnothing(placeholder)
+                    @text placeholder
+                end
+            end
+
+            # Dropdown arrow
+            @svg {
+                class = "ml-2 h-5 w-5 text-gray-400 transition-transform duration-200",
+                ":class" = "{ 'rotate-180': open }",
+                xmlns = "http://www.w3.org/2000/svg",
+                viewBox = "0 0 20 20",
+                fill = "currentColor",
+            } begin
+                @path {
+                    "fill-rule" = "evenodd",
+                    d = "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z",
+                    "clip-rule" = "evenodd",
+                }
+            end
+        end
+
+        # Dropdown panel
+        @div {
+            "x-show" = "open",
+            "x-transition:enter" = "transition ease-out duration-200",
+            "x-transition:enter-start" = "opacity-0 transform scale-95",
+            "x-transition:enter-end" = "opacity-100 transform scale-100",
+            "x-transition:leave" = "transition ease-in duration-150",
+            "x-transition:leave-start" = "opacity-100 transform scale-100",
+            "x-transition:leave-end" = "opacity-0 transform scale-95",
+            "@click.away" = "open = false; search = ''",
+            id = dropdown_id,
+            class = "absolute z-50 mt-2 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            role = "listbox",
+            "aria-label" = placeholder,
+        } begin
+            # Search input (if searchable)
+            if searchable
+                @div {class = "p-2 border-b border-gray-200 dark:border-gray-800"} begin
+                    @input {
+                        type = "text",
+                        "x-ref" = "search",
+                        "x-model" = "search",
+                        "@click.stop" = "",
+                        placeholder = "Search...",
+                        class = "w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                    }
+                end
+            end
+
+            # Options list
+            @div {class = "overflow-y-auto", style = "max-height: $max_height"} begin
+                @template {
+                    "x-for" = "(option, index) in filteredOptions",
+                    ":key" = "option[0]",
+                } begin
+                    @button {
+                        type = "button",
+                        "@click" = "selectOption(option[0])",
+                        ":class" = """{
+                            'bg-blue-50 dark:bg-blue-900/20': highlighted === index,
+                            'bg-blue-100 dark:bg-blue-900/40': isSelected(option[0])
+                        }""",
+                        "@mouseenter" = "highlighted = index",
+                        class = "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150",
+                        role = "option",
+                        ":aria-selected" = "isSelected(option[0])",
+                    } begin
+                        @div {class = "flex items-center"} begin
+                            if multiple
+                                @div {class = "mr-3"} begin
+                                    @div {
+                                        class = "h-4 w-4 rounded border-2 transition-all duration-200",
+                                        ":class" = """{
+                                            'border-blue-500 bg-blue-500': isSelected(option[0]),
+                                            'border-gray-300 dark:border-gray-600': !isSelected(option[0])
+                                        }""",
+                                    } begin
+                                        @svg {
+                                            "x-show" = "isSelected(option[0])",
+                                            class = "h-3 w-3 text-white",
+                                            fill = "none",
+                                            viewBox = "0 0 24 24",
+                                            stroke = "currentColor",
+                                        } begin
+                                            @path {
+                                                "stroke-linecap" = "round",
+                                                "stroke-linejoin" = "round",
+                                                "stroke-width" = "3",
+                                                d = "M5 13l4 4L19 7",
+                                            }
+                                        end
+                                    end
+                                end
+                            end
+                            @span {
+                                "x-text" = "option[1]",
+                                class = "text-gray-900 dark:text-gray-100",
+                            }
+                        end
+                    end
+                end
+
+                # No results message
+                @div {
+                    "x-show" = "search && filteredOptions.length === 0",
+                    class = "px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400",
+                } "No options found"
+            end
+        end
+    end
+end
+
+@deftag macro SelectDropdown end
