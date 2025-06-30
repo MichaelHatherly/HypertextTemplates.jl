@@ -17,7 +17,7 @@ using HypertextTemplates.Library
                 @text HypertextTemplates.SafeString("""
                 /* Enable class-based dark mode for Tailwind CSS v4 */
                 @variant dark (&:where(.dark, .dark *));
-                
+
                 /* Keyframes for progress bar stripes animation */
                 @keyframes stripes {
                     0% {
@@ -796,10 +796,38 @@ write(joinpath(build_dir, "form-components.html"), form_html)
                         end
                     end
 
-                    @Card {padding = :md, class = "bg-slate-100 dark:bg-slate-800"} begin
-                        @Stack {direction = :horizontal, gap = 3, align = :center} begin
-                            @Spinner {size = :sm}
-                            @Text "Loading user data..."
+                    @Stack {gap = 3} begin
+                        @Text {weight = :semibold} "Loading States"
+                        @Stack {gap = 2} begin
+                            @Stack {
+                                direction = :horizontal,
+                                gap = 3,
+                                align = :center,
+                                class = "p-4 border border-slate-200 dark:border-slate-700 rounded-lg",
+                            } begin
+                                @Spinner {size = :sm}
+                                @Text "Loading user data..."
+                            end
+
+                            @Stack {
+                                direction = :horizontal,
+                                gap = 3,
+                                align = :center,
+                                class = "p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800",
+                            } begin
+                                @Spinner {size = :sm, color = :primary}
+                                @Text {color = "text-blue-900 dark:text-blue-100"} "Processing your request..."
+                            end
+
+                            @Stack {
+                                direction = :horizontal,
+                                gap = 3,
+                                align = :center,
+                                class = "inline-flex p-3 bg-white dark:bg-slate-900 shadow-md rounded-full",
+                            } begin
+                                @Spinner {size = :sm}
+                                @Text {size = :sm, weight = :medium} "Saving..."
+                            end
                         end
                     end
                 end

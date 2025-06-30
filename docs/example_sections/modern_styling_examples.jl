@@ -314,9 +314,24 @@
 
                         @Stack {gap = 2} begin
                             @Text {size = :sm, weight = :semibold} "Animated Progress Set (loads on page refresh)"
-                            @Progress {value = 30, size = :sm, color = :warning, animated_fill = true}
-                            @Progress {value = 60, size = :sm, color = :primary, animated_fill = true}
-                            @Progress {value = 90, size = :sm, color = :success, animated_fill = true}
+                            @Progress {
+                                value = 30,
+                                size = :sm,
+                                color = :warning,
+                                animated_fill = true,
+                            }
+                            @Progress {
+                                value = 60,
+                                size = :sm,
+                                color = :primary,
+                                animated_fill = true,
+                            }
+                            @Progress {
+                                value = 90,
+                                size = :sm,
+                                color = :success,
+                                animated_fill = true,
+                            }
                         end
                     end
                 end
