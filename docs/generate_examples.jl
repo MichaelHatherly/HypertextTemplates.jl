@@ -9,6 +9,10 @@ using HypertextTemplates.Library
             @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
             @title $title
             @script {src = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}
+            @script {
+                defer = true,
+                src = "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js",
+            }
             @style {type = "text/tailwindcss"} begin
                 @text HypertextTemplates.SafeString("""
                 /* Enable class-based dark mode for Tailwind CSS v4 */
@@ -451,7 +455,7 @@ write(joinpath(build_dir, "form-components.html"), form_html)
             @Card {padding = :lg} begin
                 @Stack {gap = 4} begin
                     @Heading {level = 2} "Alert Component"
-                    @Text "Display important messages to users."
+                    @Text "Display important messages to users with interactive dismiss functionality."
 
                     @Stack {gap = 3} begin
                         @Alert {variant = :info, animated = true} begin
@@ -461,17 +465,17 @@ write(joinpath(build_dir, "form-components.html"), form_html)
 
                         @Alert {variant = :success, dismissible = true, animated = true} begin
                             @strong "Success!"
-                            @text " Your changes have been saved successfully."
+                            @text " Your changes have been saved successfully. Click the X to dismiss this alert."
                         end
 
-                        @Alert {variant = :warning, icon = false} begin
+                        @Alert {variant = :warning, dismissible = true} begin
                             @strong "Warning:"
-                            @text " Minimal alert without icon for cleaner look."
+                            @text " This alert can be dismissed by clicking the close button."
                         end
 
-                        @Alert {variant = :error, animated = true} begin
+                        @Alert {variant = :error, dismissible = true, animated = true} begin
                             @strong "Error:"
-                            @text " Alert with left border accent for visual hierarchy."
+                            @text " Something went wrong! This alert features both animation and dismiss functionality."
                         end
                     end
                 end
@@ -662,7 +666,7 @@ write(joinpath(build_dir, "feedback-components.html"), feedback_html)
             @Card {padding = :lg} begin
                 @Stack {gap = 4} begin
                     @Heading {level = 2} "Tabs Component"
-                    @Text "Tab navigation interface (visual only)."
+                    @Text "Interactive tab navigation powered by Alpine.js."
 
                     @Tabs {
                         items = [
@@ -672,11 +676,95 @@ write(joinpath(build_dir, "feedback-components.html"), feedback_html)
                             ("reviews", "Reviews"),
                             ("support", "Support"),
                         ],
-                        active = "features",
-                    }
+                        active = "overview",
+                    } begin
+                        @TabPanel {id = "overview"} begin
+                            @Card {padding = :md} begin
+                                @Stack {gap = 2} begin
+                                    @Heading {level = 3} "Product Overview"
+                                    @Text "Welcome to our comprehensive product overview. This tab provides a high-level view of all features and capabilities."
+                                    @Text {
+                                        size = :sm,
+                                        color = "text-slate-600 dark:text-slate-400",
+                                    } "Click on different tabs above to explore more sections."
+                                end
+                            end
+                        end
 
-                    @Card {padding = :md, class = "mt-4"} begin
-                        @Text "Tab content would appear here. The Features tab is currently active."
+                        @TabPanel {id = "features"} begin
+                            @Card {padding = :md} begin
+                                @Stack {gap = 3} begin
+                                    @Heading {level = 3} "Key Features"
+                                    @List {variant = :bullet} begin
+                                        @li "Real-time collaboration"
+                                        @li "Advanced analytics dashboard"
+                                        @li "Seamless integrations"
+                                        @li "Enterprise-grade security"
+                                    end
+                                end
+                            end
+                        end
+
+                        @TabPanel {id = "pricing"} begin
+                            @Card {padding = :md} begin
+                                @Stack {gap = 3} begin
+                                    @Heading {level = 3} "Pricing Plans"
+                                    @Grid {cols = 1, sm = 3, gap = 4} begin
+                                        @Card {padding = :sm, shadow = :sm} begin
+                                            @Stack {gap = 2} begin
+                                                @Text {weight = :semibold} "Starter"
+                                                @Text {size = "2xl", weight = :bold} "\$9/mo"
+                                            end
+                                        end
+                                        @Card {
+                                            padding = :sm,
+                                            shadow = :sm,
+                                            variant = :gradient,
+                                        } begin
+                                            @Stack {gap = 2} begin
+                                                @Text {weight = :semibold} "Pro"
+                                                @Text {size = "2xl", weight = :bold} "\$29/mo"
+                                            end
+                                        end
+                                        @Card {padding = :sm, shadow = :sm} begin
+                                            @Stack {gap = 2} begin
+                                                @Text {weight = :semibold} "Enterprise"
+                                                @Text {size = "2xl", weight = :bold} "Custom"
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
+                        @TabPanel {id = "reviews"} begin
+                            @Card {padding = :md} begin
+                                @Stack {gap = 3} begin
+                                    @Heading {level = 3} "Customer Reviews"
+                                    @Stack {gap = 2} begin
+                                        @Badge {variant = :success} "5.0 ★★★★★"
+                                        @Text {italic = true} "\"Amazing product! Completely transformed our workflow.\""
+                                        @Text {
+                                            size = :sm,
+                                            color = "text-slate-600 dark:text-slate-400",
+                                        } "- Sarah J., CEO"
+                                    end
+                                end
+                            end
+                        end
+
+                        @TabPanel {id = "support"} begin
+                            @Card {padding = :md} begin
+                                @Stack {gap = 3} begin
+                                    @Heading {level = 3} "Support Options"
+                                    @Text "Get help when you need it:"
+                                    @Stack {gap = 2} begin
+                                        @Button {variant = :primary} "Contact Support"
+                                        @Button {variant = :outline} "Browse Documentation"
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -746,7 +834,89 @@ write(joinpath(build_dir, "navigation-components.html"), navigation_html)
                             ("settings", "Settings"),
                         ],
                         active = "overview",
-                    }
+                    } begin
+                        @TabPanel {id = "overview"} begin
+                            @Stack {gap = 4} begin
+                                @Text {
+                                    size = :sm,
+                                    color = "text-slate-600 dark:text-slate-400",
+                                } "Welcome back! Here's what's happening with your projects."
+                                @Grid {cols = 1, md = 2, gap = 4} begin
+                                    @Card {padding = :sm} begin
+                                        @Text {weight = :medium} "Recent Activity"
+                                        @Text {size = :sm} "24 commits this week"
+                                    end
+                                    @Card {padding = :sm} begin
+                                        @Text {weight = :medium} "Upcoming Deadlines"
+                                        @Text {size = :sm} "3 projects due this month"
+                                    end
+                                end
+                            end
+                        end
+
+                        @TabPanel {id = "projects"} begin
+                            @Stack {gap = 3} begin
+                                @Stack {
+                                    direction = :horizontal,
+                                    justify = :between,
+                                    align = :center,
+                                } begin
+                                    @Text {weight = :medium} "All Projects"
+                                    @Button {size = :sm, variant = :primary} "New Project"
+                                end
+                                @Text {
+                                    size = :sm,
+                                    color = "text-slate-600 dark:text-slate-400",
+                                } "24 total projects across 4 teams"
+                            end
+                        end
+
+                        @TabPanel {id = "team"} begin
+                            @Stack {gap = 3} begin
+                                @Text {weight = :medium} "Team Members"
+                                @Grid {cols = 2, md = 4, gap = 3} begin
+                                    for i = 1:8
+                                        @Stack {gap = 1, align = :center} begin
+                                            @Avatar {size = :md, fallback = "U$i"}
+                                            @Text {size = :sm} "User $i"
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
+                        @TabPanel {id = "settings"} begin
+                            @Stack {gap = 4} begin
+                                @Text {weight = :medium} "Project Settings"
+                                @Stack {gap = 3} begin
+                                    @Stack {
+                                        direction = :horizontal,
+                                        justify = :between,
+                                        align = :center,
+                                    } begin
+                                        @Text {size = :sm} "Email Notifications"
+                                        @Badge {variant = :success} "Enabled"
+                                    end
+                                    @Stack {
+                                        direction = :horizontal,
+                                        justify = :between,
+                                        align = :center,
+                                    } begin
+                                        @Text {size = :sm} "API Access"
+                                        @Badge {variant = :warning} "Limited"
+                                    end
+                                    @Stack {
+                                        direction = :horizontal,
+                                        justify = :between,
+                                        align = :center,
+                                    } begin
+                                        @Text {size = :sm} "Data Export"
+                                        @Badge {} "Available"
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             end
 

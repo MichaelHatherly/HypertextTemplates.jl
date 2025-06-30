@@ -266,18 +266,22 @@
 
                     # Animated alerts
                     @Stack {gap = 4} begin
-                        @Heading {level = 3} "Animated Alerts"
+                        @Heading {level = 3} "Interactive Alerts with Alpine.js"
 
                         @Alert {variant = :info, animated = true, icon = false} begin
                             @Text {weight = :semibold} "Minimal alert without icon"
                         end
 
                         @Alert {variant = :success, animated = true, dismissible = true} begin
-                            @Text "Alert with fade-in animation and dismiss button"
+                            @Text "Click the X button to dismiss this alert with a smooth fade-out animation!"
                         end
 
-                        @Alert {variant = :warning, animated = true} begin
-                            @Text "Border accent on the left for visual hierarchy"
+                        @Alert {variant = :warning, animated = true, dismissible = true} begin
+                            @Text "Interactive dismissible alert with Alpine.js powered transitions"
+                        end
+
+                        @Alert {variant = :error, dismissible = true} begin
+                            @Text "Error alerts can also be dismissed by the user"
                         end
                     end
 
@@ -347,7 +351,43 @@
                                 ("api", "API Reference"),
                             ],
                             active = "components",
-                        }
+                        } begin
+                            @TabPanel {id = "design"} begin
+                                @Card {padding = :md, variant = :glass} begin
+                                    @Stack {gap = 2} begin
+                                        @Text {weight = :semibold} "Modern Design Principles"
+                                        @Text {size = :sm} "Clean interfaces, smooth animations, and thoughtful color palettes."
+                                    end
+                                end
+                            end
+
+                            @TabPanel {id = "components"} begin
+                                @Card {padding = :md, variant = :gradient} begin
+                                    @Stack {gap = 2} begin
+                                        @Text {weight = :semibold} "Component Library"
+                                        @Text {size = :sm} "Pre-built components with modern styling and dark mode support."
+                                    end
+                                end
+                            end
+
+                            @TabPanel {id = "examples"} begin
+                                @Card {padding = :md} begin
+                                    @Stack {gap = 2} begin
+                                        @Text {weight = :semibold} "Live Examples"
+                                        @Text {size = :sm} "Interactive demos showcasing all modern features and effects."
+                                    end
+                                end
+                            end
+
+                            @TabPanel {id = "api"} begin
+                                @Card {padding = :md, border = :gradient} begin
+                                    @Stack {gap = 2} begin
+                                        @Text {weight = :semibold} "API Documentation"
+                                        @Text {size = :sm} "Complete reference for all components, props, and styling options."
+                                    end
+                                end
+                            end
+                        end
                     end
 
                     @Divider {}

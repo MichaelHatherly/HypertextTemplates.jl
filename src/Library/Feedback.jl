@@ -8,6 +8,16 @@ Modern notification message component with animations.
 - `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: `false`)
 - `icon::Bool`: Whether to show icon (default: `true`)
 - `animated::Bool`: Whether to show fade-in animation (default: `true`)
+
+# Interactive Features
+When `dismissible=true`, this component uses Alpine.js for interactive dismiss functionality.
+To enable interactivity, include Alpine.js in your page:
+
+```julia
+@script {defer=true, src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"}
+```
+
+Without Alpine.js, the component will display the close button but won't be interactive.
 """
 @component function Alert(;
     variant::Union{Symbol,String} = :info,
@@ -37,11 +47,33 @@ Modern notification message component with animations.
     icon_svg = get(icon_svgs, variant_sym, icon_svgs[:info])
     animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
 
-    @div {
+    # Build component default attributes
+    component_attrs = (
         class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300",
         role = "alert",
-        attrs...,
-    } begin
+    )
+
+    # Add Alpine.js attributes if dismissible
+    if dismissible
+        component_attrs = merge(
+            component_attrs,
+            (
+                Symbol("x-data") => SafeString("{ show: true }"),
+                Symbol("x-show") => SafeString("show"),
+                Symbol("x-transition:leave") =>
+                    SafeString("transition ease-in duration-200"),
+                Symbol("x-transition:leave-start") =>
+                    SafeString("opacity-100 transform scale-100"),
+                Symbol("x-transition:leave-end") =>
+                    SafeString("opacity-0 transform scale-95"),
+            ),
+        )
+    end
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @div {merged_attrs...} begin
         @div {class = "flex"} begin
             if icon
                 @div {class = "flex-shrink-0"} begin
@@ -55,7 +87,8 @@ Modern notification message component with animations.
                 @button {
                     type = "button",
                     class = "ml-3 inline-flex flex-shrink-0 rounded-lg p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-all duration-200",
-                    "aria-label" = "Dismiss",
+                    "aria-label" := "Dismiss",
+                    "@click" := "show = false",
                 } begin
                     @text HypertextTemplates.SafeString(
                         """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>""",

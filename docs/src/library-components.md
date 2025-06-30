@@ -12,6 +12,32 @@ using HypertextTemplates.Library
 
 All component props and detailed API documentation can be found in the [API Reference](api.md).
 
+## Interactive Components
+
+Some components in the library include interactive features powered by Alpine.js. These components work without JavaScript but provide enhanced functionality when Alpine.js is available.
+
+### Components with Alpine.js Integration
+
+- **Alert** (`dismissible=true`) - Adds smooth dismiss animations with fade-out transitions
+- **Tabs** - Interactive tab switching with content panels
+- **Select** (coming soon) - Enhanced dropdown with search functionality
+- **Table** (coming soon) - Client-side sorting when `sortable=true`
+
+### Including Alpine.js
+
+To enable interactive features, include Alpine.js in your page:
+
+```julia
+@script {defer=true, src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"}
+```
+
+### Progressive Enhancement
+
+All interactive components follow progressive enhancement principles:
+- Components render and display correctly without JavaScript
+- Interactive features enhance the experience when Alpine.js is loaded
+- No functionality is broken if JavaScript is disabled
+
 ## Live Examples
 
 Explore complete, interactive examples organized by category:

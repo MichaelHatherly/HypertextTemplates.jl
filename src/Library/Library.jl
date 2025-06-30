@@ -21,7 +21,7 @@ export Button, @Button
 # Feedback components
 export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
 # Navigation components
-export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs
+export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs, TabPanel, @TabPanel
 # Utility components
 export Divider,
     @Divider, Avatar, @Avatar, Icon, @Icon, ThemeToggle, @ThemeToggle, theme_toggle_script

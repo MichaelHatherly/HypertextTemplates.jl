@@ -6,8 +6,8 @@
         @Stack {gap = 8} begin
             @Heading {level = 1, class = "text-center mb-8"} "Dark Mode Optimized Components"
 
-            @Alert {variant = :info} begin
-                @Text "Toggle dark mode using the button in the sidebar to see how components adapt!"
+            @Alert {variant = :info, dismissible = true} begin
+                @Text "Toggle dark mode using the button in the sidebar to see how components adapt! (You can dismiss this message)"
             end
 
             # Color Contrast Demo
@@ -217,22 +217,23 @@
             @Card {padding = :lg} begin
                 @Stack {gap = 6} begin
                     @Heading {level = 2} "Dark Mode Alert Styles"
+                    @Text "All alerts feature Alpine.js-powered dismiss functionality when the dismissible prop is set."
 
                     @Stack {gap = 3} begin
-                        @Alert {variant = :info} begin
-                            @Text "Info alert with adjusted colors for dark backgrounds"
+                        @Alert {variant = :info, dismissible = true} begin
+                            @Text "Info alert with adjusted colors for dark backgrounds - click X to dismiss"
                         end
 
-                        @Alert {variant = :success} begin
-                            @Text "Success alert maintains readability in both modes"
+                        @Alert {variant = :success, dismissible = true} begin
+                            @Text "Success alert maintains readability in both modes - dismissible with smooth transitions"
                         end
 
-                        @Alert {variant = :warning} begin
-                            @Text "Warning alert with optimized contrast"
+                        @Alert {variant = :warning, dismissible = true} begin
+                            @Text "Warning alert with optimized contrast - try dismissing me!"
                         end
 
-                        @Alert {variant = :error} begin
-                            @Text "Error alert stands out appropriately"
+                        @Alert {variant = :error, dismissible = true} begin
+                            @Text "Error alert stands out appropriately - interactive dismiss button included"
                         end
                     end
                 end
@@ -259,7 +260,25 @@
                                 ("best-practices", "Best Practices"),
                             ],
                             active = "overview",
-                        }
+                        } begin
+                            @TabPanel {id = "overview"} begin
+                                @Card {padding = :sm} begin
+                                    @Text {size = :sm} "Dark mode provides a comfortable viewing experience in low-light environments while reducing eye strain."
+                                end
+                            end
+
+                            @TabPanel {id = "implementation"} begin
+                                @Card {padding = :sm} begin
+                                    @Text {size = :sm} "Implementation uses Tailwind's dark mode classes with proper color contrast ratios."
+                                end
+                            end
+
+                            @TabPanel {id = "best-practices"} begin
+                                @Card {padding = :sm} begin
+                                    @Text {size = :sm} "Always test color contrast, avoid pure black backgrounds, and ensure consistent theming."
+                                end
+                            end
+                        end
 
                         @Pagination {current = 3, total = 5}
                     end
