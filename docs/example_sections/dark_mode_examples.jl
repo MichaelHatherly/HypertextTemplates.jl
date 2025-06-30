@@ -143,11 +143,13 @@
                                 value = 25,
                                 color = :primary,
                                 label = "Primary Progress",
+                                animated_fill = true,
                             }
                             @Progress {
                                 value = 50,
                                 color = :gradient,
                                 label = "Gradient Progress",
+                                animated_fill = true,
                             }
                             @Progress {
                                 value = 75,

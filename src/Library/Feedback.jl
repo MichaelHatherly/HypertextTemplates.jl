@@ -113,8 +113,19 @@ Modern progress bar component with animations.
 - `color::Union{Symbol,String}`: Progress bar color (`:primary`, `:success`, `:warning`, `:danger`, `:gradient`) (default: `:primary`)
 - `striped::Bool`: Whether to show striped pattern (default: `false`)
 - `animated::Bool`: Whether to animate the stripes (default: `false`)
+- `animated_fill::Bool`: Whether to animate the progress fill on load (default: `false`)
 - `label::Union{String,Nothing}`: Label to display (optional)
 - `aria_label::Union{String,Nothing}`: ARIA label for screen readers (optional)
+
+# Interactive Features
+When `animated_fill=true`, this component uses Alpine.js for smooth fill animation on load.
+To enable interactivity, include Alpine.js in your page:
+
+```julia
+@script {defer=true, src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"}
+```
+
+Without Alpine.js, the progress bar will display at its final value without animation.
 """
 @component function Progress(;
     value::Int = 0,
@@ -123,6 +134,7 @@ Modern progress bar component with animations.
     color::Union{Symbol,String} = :primary,
     striped::Bool = false,
     animated::Bool = false,
+    animated_fill::Bool = false,
     label::Union{String,Nothing} = nothing,
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
@@ -152,28 +164,52 @@ Modern progress bar component with animations.
         ""
     end
 
-    @div {attrs...} begin
+    # Build component attributes
+    component_attrs = if animated_fill
+        (
+            var"x-data" = SafeString("{ progress: 0 }"),
+            var"x-init" = SafeString("\$nextTick(() => { progress = $percentage })"),
+        )
+    else
+        NamedTuple()
+    end
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @div {merged_attrs...} begin
         if !isnothing(label)
             @div {
                 class = "mb-2 flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300",
             } begin
                 @span $label
-                @span {class = "font-semibold"} @text "$percentage%"
+                if animated_fill
+                    @span {class = "font-semibold", "x-text" = SafeString("progress + '%'")}
+                else
+                    @span {class = "font-semibold"} @text "$percentage%"
+                end
             end
         end
         @div {
             class = "w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner $size_class",
             role = "progressbar",
-            "aria-valuenow" = value,
+            "aria-valuenow" = animated_fill ? nothing : value,
+            ":aria-valuenow" =
+                animated_fill ? SafeString("Math.round(progress * $max / 100)") : nothing,
             "aria-valuemin" = "0",
             "aria-valuemax" = max,
             "aria-label" =
-                isnothing(aria_label) && isnothing(label) ? "Progress: $percentage%" :
-                aria_label,
+                isnothing(aria_label) && isnothing(label) ?
+                (animated_fill ? nothing : "Progress: $percentage%") : aria_label,
+            ":aria-label" =
+                animated_fill && isnothing(aria_label) && isnothing(label) ?
+                SafeString("'Progress: ' + progress + '%'") : nothing,
         } begin
             @div {
                 class = "transition-all duration-500 ease-out rounded-full shadow-sm $color_class $striped_class $size_class",
-                style = "width: $percentage%",
+                style = animated_fill ? nothing : "width: $percentage%",
+                ":style" =
+                    animated_fill ? SafeString("'width: ' + progress + '%'") : nothing,
             }
         end
     end

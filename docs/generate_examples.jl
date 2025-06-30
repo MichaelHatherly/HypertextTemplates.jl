@@ -17,6 +17,16 @@ using HypertextTemplates.Library
                 @text HypertextTemplates.SafeString("""
                 /* Enable class-based dark mode for Tailwind CSS v4 */
                 @variant dark (&:where(.dark, .dark *));
+                
+                /* Keyframes for progress bar stripes animation */
+                @keyframes stripes {
+                    0% {
+                        background-position: 0 0;
+                    }
+                    100% {
+                        background-position: 1rem 0;
+                    }
+                }
                 """)
             end
             @script begin
