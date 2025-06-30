@@ -11,6 +11,10 @@ using HypertextTemplates.Library
             @script {src = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}
             @script {
                 defer = true,
+                src = "https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js",
+            }
+            @script {
+                defer = true,
                 src = "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js",
             }
             @style {type = "text/tailwindcss"} begin
@@ -27,10 +31,23 @@ using HypertextTemplates.Library
                         background-position: 1rem 0;
                     }
                 }
+
+                /* Hide elements with x-cloak until Alpine initializes */
+                [x-cloak] { display: none !important; }
                 """)
             end
             @script begin
                 @text HypertextTemplates.SafeString(theme_toggle_script())
+            end
+            # Load dropdown.js globally for dropdown components
+            # This ensures Alpine.data('dropdown', ...) is available for all dropdowns
+            @script begin
+                @text HypertextTemplates.SafeString(
+                    read(
+                        joinpath(dirname(@__DIR__), "src/Library/assets/dropdown.js"),
+                        String,
+                    ),
+                )
             end
         end
         @body {
@@ -57,6 +74,7 @@ using HypertextTemplates.Library
                                 ("form-components.html", "Form Components"),
                                 ("feedback-components.html", "Feedback Components"),
                                 ("navigation-components.html", "Navigation Components"),
+                                ("dropdown-menu.html", "Dropdown Menus"),
                                 ("table-list-components.html", "Table & List Components"),
                                 ("utility-components.html", "Utility Components"),
                                 ("modern-styling.html", "Modern Styling"),
@@ -2003,6 +2021,7 @@ write(joinpath(build_dir, "utility-components.html"), utility_html)
 include("example_sections/modern_styling_examples.jl")
 include("example_sections/advanced_components_examples.jl")
 include("example_sections/dark_mode_examples.jl")
+include("example_sections/dropdown_menu_examples.jl")
 
 # 9. Modern Styling Features
 modern_styling_html = @render @HTMLDocument {
@@ -2033,6 +2052,16 @@ dark_mode_html = @render @HTMLDocument {
 end
 
 write(joinpath(build_dir, "dark-mode.html"), dark_mode_html)
+
+# 12. Dropdown Menu Components
+dropdown_menu_html = @render @HTMLDocument {
+    title = "Dropdown Menu Components - HypertextTemplates",
+    current_page = "dropdown-menu.html",
+} begin
+    @DropdownMenuExample {}
+end
+
+write(joinpath(build_dir, "dropdown-menu.html"), dropdown_menu_html)
 
 println("\nComponent examples generated successfully!")
 println("Files created in: $(build_dir)")

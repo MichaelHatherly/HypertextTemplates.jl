@@ -11,6 +11,7 @@ A responsive data table component.
 - `sticky_header::Bool`: Whether table header should be sticky (default: `false`)
 - `sortable::Bool`: Whether to show sortable column indicators (default: `false`)
 - `caption::Union{String,Nothing}`: Table caption/description (optional)
+- `overflow::Bool`: Whether to apply overflow scrolling (default: `true`). Set to `false` when table contains dropdowns or other overlaying elements
 """
 @component function Table(;
     striped::Bool = false,
@@ -20,13 +21,14 @@ A responsive data table component.
     sticky_header::Bool = false,
     sortable::Bool = false,
     caption::Union{String,Nothing} = nothing,
+    overflow::Bool = true,
     attrs...,
 )
     # Base wrapper classes
     wrapper_classes = ["w-full", "relative"]
     if sticky_header
         push!(wrapper_classes, "overflow-auto", "max-h-[600px]")
-    else
+    elseif overflow
         push!(wrapper_classes, "overflow-x-auto")
     end
 
@@ -39,8 +41,10 @@ A responsive data table component.
             "border",
             "border-gray-200",
             "dark:border-gray-700",
-            "overflow-hidden",
         )
+        if overflow
+            push!(container_classes, "overflow-hidden")
+        end
     end
 
     # Base table classes

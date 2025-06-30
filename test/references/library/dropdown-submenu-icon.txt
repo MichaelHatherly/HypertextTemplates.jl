@@ -1,0 +1,256 @@
+<script>/**
+ * Alpine.data component for DropdownMenu
+ * 
+ * This file defines the interactive behavior for the DropdownMenu component.
+ * It uses Alpine.js's data component system to provide reusable dropdown functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'dropdown' Alpine.data component
+ * - Manages dropdown state and keyboard navigation
+ * - Leverages Alpine Anchor plugin for automatic positioning
+ * - Provides clean method APIs for event handlers to keep templates simple
+ * 
+ * Submenu Implementation:
+ * - Submenus are positioned using Alpine Anchor with x-anchor="$el.previousElementSibling"
+ * - This works because the DOM structure places trigger buttons before content divs
+ * - The JavaScript only manages open/closed state, not positioning
+ * - Multiple submenus can be open, but only one branch at a time
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * - Alpine Anchor plugin (for positioning dropdowns and submenus)
+ * 
+ * Usage in templates:
+ * x-data="dropdown()"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('dropdown', () => ({
+        // State management
+        open: false,                                // Whether dropdown is currently open
+        dropdownId: 'dropdown-' + Math.random().toString(36).substr(2, 9), // Unique ID for coordination
+        openSubmenus: {},                           // Track which submenus are open by their IDs
+
+
+        /**
+         * Toggle dropdown open/closed state
+         * When opening: dispatches event to close other dropdowns, focuses content
+         */
+        toggle() {
+            this.open = !this.open;
+            if (this.open) {
+                // Notify other dropdowns to close via Alpine's event system
+                // This ensures only one dropdown is open at a time
+                this.$dispatch('dropdown-open', { id: this.dropdownId });
+
+                this.$nextTick(() => {
+                    this.$refs.content.focus();
+                });
+            }
+        },
+
+        close() {
+            this.open = false;
+            this.openSubmenus = {};
+        },
+
+        // Submenu management
+        /**
+         * Toggle a submenu open/closed
+         * @param {string} id - The unique submenu ID
+         * @param {Event} event - The click event
+         * 
+         * Note: The actual positioning of submenus is handled by Alpine Anchor
+         * in the component template using x-anchor="$el.previousElementSibling".
+         * This method just manages the open/closed state.
+         */
+        toggleSubmenu(id, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // If opening this submenu
+            if (!this.openSubmenus[id]) {
+                // Find all ancestors of this submenu
+                const ancestors = this.findSubmenuAncestors(id, event);
+                
+                // Close all submenus that are NOT ancestors
+                // This ensures only one branch of submenus is open at a time
+                Object.keys(this.openSubmenus).forEach(key => {
+                    if (!ancestors.has(key)) {
+                        this.openSubmenus[key] = false;
+                    }
+                });
+                
+                // Open the requested submenu
+                this.openSubmenus[id] = true;
+                
+                // Note: Alpine Anchor handles positioning automatically
+                // The x-anchor directive in the template uses $el.previousElementSibling
+                // to find the trigger button and position relative to it
+            } else {
+                // Close this submenu and all its descendants
+                this.closeSubmenuAndDescendants(id);
+            }
+        },
+        
+        // Find all ancestor submenus of the given submenu
+        findSubmenuAncestors(id, event) {
+            const ancestors = new Set();
+            
+            if (event && event.currentTarget) {
+                // Start from the clicked button's parent submenu container
+                let element = event.currentTarget.closest('[data-submenu-id]');
+                
+                // Traverse up through parent submenus
+                while (element) {
+                    // Look for parent element that might contain this submenu
+                    let parent = element.parentElement;
+                    while (parent && parent !== this.$el) {
+                        const parentSubmenu = parent.closest('[data-submenu-id]');
+                        if (parentSubmenu && parentSubmenu !== element) {
+                            const parentId = parentSubmenu.getAttribute('data-submenu-id');
+                            if (parentId) {
+                                ancestors.add(parentId);
+                            }
+                            parent = parentSubmenu;
+                            break;
+                        }
+                        parent = parent.parentElement;
+                    }
+                    element = parent && parent !== this.$el ? parent : null;
+                }
+            }
+            
+            return ancestors;
+        },
+        
+        // Close a submenu and all its descendants
+        closeSubmenuAndDescendants(id) {
+            // Close the submenu itself
+            this.openSubmenus[id] = false;
+            
+            // Find and close all descendant submenus
+            const element = this.$el.querySelector(`[data-submenu-id="${id}"]`);
+            if (element) {
+                const descendants = element.querySelectorAll('[data-submenu-id]');
+                descendants.forEach(desc => {
+                    const descId = desc.getAttribute('data-submenu-id');
+                    if (descId) {
+                        this.openSubmenus[descId] = false;
+                    }
+                });
+            }
+        },
+
+        /**
+         * Check if a submenu is currently open
+         * Used by x-show directive in the template
+         */
+        isSubmenuOpen(id) {
+            return this.openSubmenus[id] || false;
+        },
+
+        /**
+         * Handle keyboard navigation within dropdown
+         * Supports: Arrow keys, Home/End, Escape
+         * Implements circular navigation (wrap around at ends)
+         */
+        handleKeydown(event) {
+            const items = Array.from(this.$refs.content.querySelectorAll(`[role='menuitem']:not([disabled])`));
+            const currentIndex = items.findIndex(item => item === document.activeElement);
+
+            switch (event.key) {
+                case 'Escape':
+                    this.close();
+                    this.$refs.trigger.focus();
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    if (currentIndex < items.length - 1) {
+                        items[currentIndex + 1].focus();
+                    } else {
+                        items[0].focus();
+                    }
+                    break;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    if (currentIndex > 0) {
+                        items[currentIndex - 1].focus();
+                    } else {
+                        items[items.length - 1].focus();
+                    }
+                    break;
+                case 'Home':
+                    event.preventDefault();
+                    items[0]?.focus();
+                    break;
+                case 'End':
+                    event.preventDefault();
+                    items[items.length - 1]?.focus();
+                    break;
+            }
+        },
+
+
+        // Event handler methods
+        /**
+         * Handle clicks within the dropdown container
+         * Closes dropdown if click is not on trigger or content
+         * Used by: @click directive on container
+         * 
+         * Why this is needed:
+         * The @click.outside directive only fires for clicks outside the entire dropdown
+         * container. However, the dropdown container often has padding or empty space
+         * around the trigger button. Without this handler, clicking that empty space
+         * wouldn't close the dropdown, which feels unnatural to users.
+         * 
+         * This handler ensures clicks anywhere in the container (except on the trigger
+         * or dropdown content itself) will close the dropdown, providing intuitive behavior.
+         */
+        handleContainerClick(event) {
+            // Don't do anything if dropdown is closed
+            if (!this.open) {
+                return;
+            }
+            
+            // Check if click is on the trigger or content
+            const clickedTrigger = this.$refs.trigger && this.$refs.trigger.contains(event.target);
+            const clickedContent = this.$refs.content && this.$refs.content.contains(event.target);
+            
+            // If clicked outside trigger and content (but still within container), close
+            if (!clickedTrigger && !clickedContent) {
+                this.close();
+            }
+        },
+        
+        /**
+         * Handle clicks outside the dropdown - closes if open
+         * Used by: @click.outside directive
+         */
+        handleClickOutside(event) {
+            if (this.open) {
+                this.close();
+            }
+        },
+
+        /**
+         * Handle global dropdown-open events from other dropdowns
+         * Ensures only one dropdown is open at a time
+         * Used by: @dropdown-open.window directive
+         */
+        handleDropdownOpen(event) {
+            if (event.detail.id !== this.dropdownId && this.open) {
+                this.close();
+            }
+        },
+
+        /**
+         * Focus the first enabled menu item when dropdown content receives focus
+         * Used by: @focus directive on dropdown content
+         */
+        focusFirstItem() {
+            this.$el.querySelector('[role="menuitem"]:not([disabled])')?.focus();
+        }
+    }))
+});
+</script><style>[x-cloak] { display: none !important; }</style><div x-data="dropdown()" data-dropdown="true" @click="handleContainerClick($event)" class="inline-block text-left " @dropdown-open.window="handleDropdownOpen" @keydown.escape="close()" @click.outside="handleClickOutside"><div x-ref="trigger" @click="toggle()" class="inline-block" :aria-expanded="open" aria-haspopup="true"><button>Options</button></div><div tabindex="-1" x-ref="content" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave-start="transform opacity-100 scale-100" class="absolute z-[9999] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 " x-transition:leave="transition ease-in duration-75" x-transition:enter-start="transform opacity-0 scale-95" aria-orientation="vertical" x-show="open" @focus="focusFirstItem" x-cloak="" x-transition:enter="transition ease-out duration-100" x-anchor.bottom-start.offset.4="$refs.trigger ? $refs.trigger : null" role="menu" x-transition:leave-end="transform opacity-0 scale-95" @keydown="handleKeydown($event)"><div class="relative" data-submenu-id="submenu-14111841737768141182"><button type="button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors duration-150 flex items-center justify-between" @click="toggleSubmenu(&#39;submenu-14111841737768141182&#39;, $event)" x-ref="submenu_trigger_submenu-14111841737768141182"><span class="flex items-center gap-2"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></span>Export</span><svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg></button><div x-ref="submenu_content_submenu-14111841737768141182" x-show="isSubmenuOpen(&#39;submenu-14111841737768141182&#39;)" x-cloak="" x-anchor.right-start.offset.4="$el.previousElementSibling" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute z-[10000] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 " role="menu" @click.stop=""><button type="button" class="block w-full text-left px-4 py-2 text-sm transition-colors duration-150 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 " role="menuitem">Export as PDF</button><button type="button" class="block w-full text-left px-4 py-2 text-sm transition-colors duration-150 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 " role="menuitem">Export as CSV</button><button type="button" class="block w-full text-left px-4 py-2 text-sm transition-colors duration-150 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 " role="menuitem">Export as JSON</button></div></div></div></div>

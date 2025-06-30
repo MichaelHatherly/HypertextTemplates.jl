@@ -28,6 +28,10 @@ export Button, @Button
 export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
 # Navigation components
 export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs, TabPanel, @TabPanel
+export DropdownMenu,
+    @DropdownMenu, DropdownTrigger, @DropdownTrigger, DropdownContent, @DropdownContent
+export DropdownItem,
+    @DropdownItem, DropdownDivider, @DropdownDivider, DropdownSubmenu, @DropdownSubmenu
 # Utility components
 export Divider,
     @Divider, Avatar, @Avatar, Icon, @Icon, ThemeToggle, @ThemeToggle, theme_toggle_script
@@ -38,6 +42,9 @@ include("utils.jl")
 # Style system
 include("Styles.jl")
 using .Styles
+
+# Icon components (needed by many other components)
+include("Icons.jl")
 
 # Layout components
 include("Layout.jl")
