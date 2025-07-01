@@ -34,7 +34,17 @@ export DropdownItem,
     @DropdownItem, DropdownDivider, @DropdownDivider, DropdownSubmenu, @DropdownSubmenu
 # Utility components
 export Divider,
-    @Divider, Avatar, @Avatar, Icon, @Icon, ThemeToggle, @ThemeToggle, theme_toggle_script
+    @Divider,
+    Avatar,
+    @Avatar,
+    Icon,
+    @Icon,
+    IconGallery,
+    @IconGallery,
+    get_available_icons,
+    ThemeToggle,
+    @ThemeToggle,
+    theme_toggle_script
 
 # Utility functions
 include("utils.jl")

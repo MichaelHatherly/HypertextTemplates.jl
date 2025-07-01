@@ -77,6 +77,7 @@ using HypertextTemplates.Library
                                 ("dropdown-menu.html", "Dropdown Menus"),
                                 ("table-list-components.html", "Table & List Components"),
                                 ("utility-components.html", "Utility Components"),
+                                ("icon-gallery.html", "Icon Gallery"),
                                 ("modern-styling.html", "Modern Styling"),
                                 ("advanced-components.html", "Advanced Components"),
                                 ("dark-mode.html", "Dark Mode"),
@@ -2017,13 +2018,47 @@ end
 
 write(joinpath(build_dir, "utility-components.html"), utility_html)
 
+# 9. Icon Gallery Example
+include("example_sections/icon_gallery_examples.jl")
+
+@component function IconGalleryExample()
+    @Container {class = "py-8"} begin
+        @Stack {gap = 6} begin
+            @Heading {level = 1, class = "text-center mb-8"} "Icon Gallery"
+            @Text {variant = :lead, class = "text-center mb-8"} "Complete collection of available icons in the HypertextTemplates Library"
+
+            for example in icon_gallery_examples
+                @Card {padding = :lg, class = "mb-6"} begin
+                    @Stack {gap = 4} begin
+                        @Heading {level = 2} example.title
+                        if haskey(example, :description) && !isnothing(example.description)
+                            @Text {color = "text-gray-600 dark:text-gray-400"} example.description
+                        end
+                        @<example.component
+                    end
+                end
+            end
+        end
+    end
+end
+@deftag macro IconGalleryExample end
+
+icon_gallery_html = @render @HTMLDocument {
+    title = "Icon Gallery - HypertextTemplates",
+    current_page = "icon-gallery.html",
+} begin
+    @IconGalleryExample {}
+end
+
+write(joinpath(build_dir, "icon-gallery.html"), icon_gallery_html)
+
 # Include additional example sections
 include("example_sections/modern_styling_examples.jl")
 include("example_sections/advanced_components_examples.jl")
 include("example_sections/dark_mode_examples.jl")
 include("example_sections/dropdown_menu_examples.jl")
 
-# 9. Modern Styling Features
+# 10. Modern Styling Features
 modern_styling_html = @render @HTMLDocument {
     title = "Modern Styling Features - HypertextTemplates",
     current_page = "modern-styling.html",
@@ -2033,7 +2068,7 @@ end
 
 write(joinpath(build_dir, "modern-styling.html"), modern_styling_html)
 
-# 10. Advanced Components
+# 11. Advanced Components
 advanced_html = @render @HTMLDocument {
     title = "Advanced Components - HypertextTemplates",
     current_page = "advanced-components.html",
@@ -2043,7 +2078,7 @@ end
 
 write(joinpath(build_dir, "advanced-components.html"), advanced_html)
 
-# 11. Dark Mode Showcase
+# 12. Dark Mode Showcase
 dark_mode_html = @render @HTMLDocument {
     title = "Dark Mode Examples - HypertextTemplates",
     current_page = "dark-mode.html",
@@ -2053,7 +2088,7 @@ end
 
 write(joinpath(build_dir, "dark-mode.html"), dark_mode_html)
 
-# 12. Dropdown Menu Components
+# 13. Dropdown Menu Components
 dropdown_menu_html = @render @HTMLDocument {
     title = "Dropdown Menu Components - HypertextTemplates",
     current_page = "dropdown-menu.html",

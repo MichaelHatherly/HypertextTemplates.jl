@@ -3,6 +3,32 @@
 using HypertextTemplates: SafeString
 using ..Library: merge_attrs
 
+# Module-level icon cache to avoid repeated file I/O
+const ICON_CACHE = Dict{String,Union{String,Nothing}}()
+
+"""
+    load_icon(name::String) -> Union{String, Nothing}
+
+Load an icon SVG from the filesystem with caching.
+Returns the SVG content or nothing if the icon doesn't exist.
+"""
+function load_icon(name::String)
+    # Check cache first
+    haskey(ICON_CACHE, name) && return ICON_CACHE[name]
+
+    # Try to load from file
+    icon_path = joinpath(@__DIR__, "assets", "icons", "$name.svg")
+    if isfile(icon_path)
+        icon_content = read(icon_path, String)
+        ICON_CACHE[name] = icon_content
+        return icon_content
+    end
+
+    # Cache the miss to avoid repeated file checks
+    ICON_CACHE[name] = nothing
+    return nothing
+end
+
 """
     @Icon
 
@@ -14,6 +40,33 @@ Icon wrapper component for consistent sizing and styling.
 - `name::Union{String,Nothing}`: Icon name for built-in icons (optional)
 - `aria_label::Union{String,Nothing}`: ARIA label for interactive icons (optional)
 - `decorative::Bool`: Whether icon is purely decorative (default: `true`)
+
+# Available Icons
+Icons are loaded from SVG files in the `assets/icons/` directory. Available icons include:
+- Navigation: home, arrow-up/down/left/right, chevron-up/down/left/right, external-link
+- Actions: edit, trash, save, download, upload, copy, refresh
+- Communication: mail, phone, chat
+- Media: play, pause, stop, camera, image
+- Status: info, info-circle, warning, exclamation-triangle, error, x-circle, question, bell, check-circle
+- Files: file, document, code
+- UI Controls: filter, sort, grid, list, eye, eye-off, lock, unlock
+- Time: calendar, clock
+- E-commerce: cart, credit-card, tag
+- Social: heart, star, bookmark, share
+- UI: check, x, plus, minus, menu, search, user, settings, logout, folder, dots-vertical, dots-horizontal, spinner
+
+# Usage
+```julia
+# Using a built-in icon
+@Icon {name="check", size=:lg}
+
+# Using a custom SVG
+@Icon {size=:sm, color="text-blue-500"} begin
+    @svg {viewBox="0 0 24 24"} begin
+        # Custom SVG content
+    end
+end
+```
 """
 @component function Icon(;
     size::Union{Symbol,String} = :md,
@@ -37,26 +90,6 @@ Icon wrapper component for consistent sizing and styling.
     size_class = get(size_classes, size_sym, size_classes[:md])
     color_class = isnothing(color) ? "text-current" : color
 
-    # Built-in icons
-    icons = Dict(
-        "check" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>""",
-        "x" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>""",
-        "arrow-right" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>""",
-        "arrow-left" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>""",
-        "chevron-down" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>""",
-        "chevron-up" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>""",
-        "menu" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>""",
-        "search" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>""",
-        "plus" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>""",
-        "minus" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" /></svg>""",
-        "user" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>""",
-        "settings" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>""",
-        "logout" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>""",
-        "folder" => """<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>""",
-        "dots-vertical" => """<svg width="100%" height="100%" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>""",
-        "dots-horizontal" => """<svg width="100%" height="100%" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" /></svg>""",
-    )
-
     # Set aria-hidden for decorative icons, or aria-label for interactive ones
     aria_hidden = decorative && isnothing(aria_label) ? "true" : nothing
 
@@ -66,13 +99,179 @@ Icon wrapper component for consistent sizing and styling.
         "aria-label" = aria_label,
         attrs...,
     } begin
-        if !isnothing(name) && haskey(icons, name)
-            @text HypertextTemplates.SafeString(icons[name])
+        if !isnothing(name)
+            icon_svg = load_icon(name)
+            if !isnothing(icon_svg)
+                @text SafeString(icon_svg)
+            else
+                # Icon not found - render nothing or fall back to slot
+                @__slot__()
+            end
         else
-            # Slot for custom icon content
+            # No name provided - use slot for custom icon content
             @__slot__()
         end
     end
 end
 
 @deftag macro Icon end
+
+"""
+    get_available_icons() -> Vector{String}
+
+Get a list of all available icon names by reading the icons directory.
+Icons are sorted alphabetically.
+"""
+function get_available_icons()
+    icons_dir = joinpath(@__DIR__, "assets", "icons")
+    if isdir(icons_dir)
+        # Get all .svg files and extract just the name without extension
+        icon_files = filter(f -> endswith(f, ".svg"), readdir(icons_dir))
+        return sort([splitext(f)[1] for f in icon_files])
+    else
+        return String[]
+    end
+end
+
+# """
+#     @IconGallery
+#
+# Display all available icons in a grid gallery.
+#
+# # Props
+# - `columns::Int`: Number of columns for the grid (default: 6 for desktop, responsive)
+# - `show_names::Bool`: Whether to show icon names below icons (default: true)
+# - `icon_size::Union{Symbol,String}`: Size for all icons (default: :lg)
+# - `group_by_category::Bool`: Whether to group icons by category (default: false)
+#
+# # Example
+# ```julia
+# @IconGallery {}
+# @IconGallery {columns = 8, icon_size = :xl, show_names = false}
+# ```
+# """
+# @component function IconGallery(;
+#     columns::Int = 6,
+#     show_names::Bool = true,
+#     icon_size::Union{Symbol,String} = :lg,
+#     group_by_category::Bool = false,
+#     attrs...,
+# )
+#     all_icons = get_available_icons()
+#
+#     # Group icons by category if requested
+#     if group_by_category
+#         # Define icon categories
+#         categories = [
+#             (
+#                 "Navigation",
+#                 [
+#                     "home",
+#                     "arrow-up",
+#                     "arrow-down",
+#                     "arrow-left",
+#                     "arrow-right",
+#                     "chevron-up",
+#                     "chevron-down",
+#                     "chevron-left",
+#                     "chevron-right",
+#                     "external-link",
+#                 ],
+#             ),
+#             ("Actions", ["edit", "trash", "save", "download", "upload", "copy", "refresh"]),
+#             ("Communication", ["mail", "phone", "chat"]),
+#             ("Media", ["play", "pause", "stop", "camera", "image"]),
+#             (
+#                 "Status",
+#                 [
+#                     "info",
+#                     "info-circle",
+#                     "warning",
+#                     "exclamation-triangle",
+#                     "error",
+#                     "x-circle",
+#                     "question",
+#                     "bell",
+#                     "check-circle",
+#                 ],
+#             ),
+#             ("Files", ["file", "document", "folder", "code"]),
+#             (
+#                 "UI Controls",
+#                 [
+#                     "filter",
+#                     "sort",
+#                     "grid",
+#                     "list",
+#                     "eye",
+#                     "eye-off",
+#                     "lock",
+#                     "unlock",
+#                     "search",
+#                     "settings",
+#                     "menu",
+#                     "dots-vertical",
+#                     "dots-horizontal",
+#                 ],
+#             ),
+#             ("Common", ["check", "x", "plus", "minus", "user", "logout", "spinner"]),
+#             ("Time", ["calendar", "clock"]),
+#             ("E-commerce", ["cart", "credit-card", "tag"]),
+#             ("Social", ["heart", "star", "bookmark", "share"]),
+#         ]
+#
+#         # Find uncategorized icons
+#         categorized_icons = Set(vcat([cat[2] for cat in categories]...))
+#         uncategorized = filter(icon -> !(icon in categorized_icons), all_icons)
+#
+#         @div {class = "space-y-8", attrs...} begin
+#             for (category_name, icon_names) in categories
+#                 # Filter to only icons that actually exist
+#                 existing_icons = filter(icon -> icon in all_icons, icon_names)
+#                 if !isempty(existing_icons)
+#                     @div begin
+#                         @h3 {
+#                             class = "text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200",
+#                         } $category_name
+#                         render_icon_grid(existing_icons, columns, show_names, icon_size)
+#                     end
+#                 end
+#             end
+#
+#             # Show uncategorized icons if any
+#             if !isempty(uncategorized)
+#                 @div begin
+#                     @h3 {
+#                         class = "text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200",
+#                     } "Other"
+#                     render_icon_grid(uncategorized, columns, show_names, icon_size)
+#                 end
+#             end
+#         end
+#     else
+#         # Simple grid without categories
+#         @div {attrs...} begin
+#             render_icon_grid(all_icons, columns, show_names, icon_size)
+#         end
+#     end
+# end
+#
+# # Helper function to render icon grid
+# function render_icon_grid(icons, columns, show_names, icon_size)
+#     grid_cols = "grid-cols-3 sm:grid-cols-4 md:grid-cols-$columns"
+#
+#     @div {class = "grid $grid_cols gap-4"} begin
+#         for icon_name in icons
+#             @div {
+#                 class = "flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+#             } begin
+#                 @Icon {name = icon_name, size = icon_size}
+#                 if show_names
+#                     @span {class = "text-xs text-gray-600 dark:text-gray-400 text-center"} $icon_name
+#                 end
+#             end
+#         end
+#     end
+# end
+#
+# @deftag macro IconGallery end
