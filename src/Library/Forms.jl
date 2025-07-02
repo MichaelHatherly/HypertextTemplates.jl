@@ -571,6 +571,12 @@ Requires Alpine.js.
     _hash = hash(time_ns()),
     attrs...,
 )
+    # Load JavaScript for dropdown functionality
+    @__once__ begin
+        @script @text SafeString(
+            read(joinpath(@__DIR__, "assets/select-dropdown.js"), String),
+        )
+    end
     # Convert to symbols
     size_sym = Symbol(size)
     state_sym = Symbol(state)
@@ -579,24 +585,48 @@ Requires Alpine.js.
     component_id = isnothing(id) ? "select-dropdown-$(_hash)" : id
     dropdown_id = "$(component_id)-dropdown"
 
-    # Helper to escape JavaScript strings
+    # Helper to escape JavaScript strings  
     escape_js(s::String) = replace(replace(s, "\\" => "\\\\"), "'" => "\\'")
 
-    # Serialize options array for JavaScript
-    function serialize_options(opts)
-        items = join(
-            ["['$(escape_js(val))', '$(escape_js(label))']" for (val, label) in opts],
-            ", ",
-        )
-        return "[$items]"
+    # Create configuration object for Alpine component
+    # Using JSON-like syntax for better reliability
+    options_json = "["
+    for (i, (val, label)) in enumerate(options)
+        if i > 1
+            options_json *= ", "
+        end
+        options_json *= "['$(escape_js(val))', '$(escape_js(label))']"
+    end
+    options_json *= "]"
+
+    # Build configuration string
+    config_parts = String[]
+    push!(config_parts, "options: $options_json")
+    push!(config_parts, "multiple: $(multiple ? "true" : "false")")
+    push!(config_parts, "searchable: $(searchable ? "true" : "false")")
+    push!(config_parts, "clearable: $(clearable ? "true" : "false")")
+    push!(config_parts, "disabled: $(disabled ? "true" : "false")")
+    push!(config_parts, "maxHeight: '$(escape_js(max_height))'")
+
+    if !isnothing(placeholder)
+        push!(config_parts, "placeholder: '$(escape_js(placeholder))'")
     end
 
-    # Serialize initial value
-    initial_value = if multiple
-        isnothing(value) ? "[]" : "[" * join(["'$(escape_js(v))'" for v in value], ", ") * "]"
-    else
-        isnothing(value) ? "''" : "'$(escape_js(value))'"
+    if !isnothing(name)
+        push!(config_parts, "name: '$(escape_js(name))'")
     end
+
+    # Handle initial value
+    if !isnothing(value)
+        if multiple
+            value_json = "[" * join(["'$(escape_js(v))'" for v in value], ", ") * "]"
+            push!(config_parts, "value: $value_json")
+        else
+            push!(config_parts, "value: '$(escape_js(value))'")
+        end
+    end
+
+    alpine_config = SafeString("{" * join(config_parts, ", ") * "}")
 
     # Size classes (matching Input component)
     size_classes = (
@@ -617,142 +647,33 @@ Requires Alpine.js.
     state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
 
-    # Alpine.js data
-    alpine_data = SafeString(
-        """{
-    open: false,
-    search: '',
-    selected: $initial_value,
-    highlighted: 0,
-    dropUp: false,
-    options: $(serialize_options(options)),
-    get filteredOptions() {
-        if (!this.search) return this.options;
-        return this.options.filter(([val, label]) => 
-            label.toLowerCase().includes(this.search.toLowerCase())
-        );
-    },
-    get selectedLabel() {
-        if ($(multiple ? "true" : "false")) {
-            const labels = this.selected.map(v => {
-                const opt = this.options.find(([val]) => val === v);
-                return opt ? opt[1] : v;
-            });
-            return labels.length > 0 ? labels.join(', ') : $(placeholder === nothing ? "''" : "'$(escape_js(placeholder))'");
-        } else {
-            const opt = this.options.find(([val]) => val === this.selected);
-            return opt ? opt[1] : (this.selected || $(placeholder === nothing ? "''" : "'$(escape_js(placeholder))'"));
-        }
-    },
-    get hasSelection() {
-        return $(multiple ? "true" : "false") ? this.selected.length > 0 : !!this.selected;
-    },
-    checkDropDirection() {
-        const button = this.\$refs.button;
-        const rect = button.getBoundingClientRect();
-        const dropdownHeight = parseInt('$(max_height)') || 300;
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
-
-        // If not enough space below and more space above, drop up
-        this.dropUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
-    },
-    selectOption(value) {
-        if ($(multiple ? "true" : "false")) {
-            const idx = this.selected.indexOf(value);
-            if (idx > -1) {
-                this.selected.splice(idx, 1);
-            } else {
-                this.selected.push(value);
-            }
-        } else {
-            this.selected = value;
-            this.open = false;
-            this.search = '';
-        }
-    },
-    clearSelection() {
-        this.selected = $(multiple ? "true" : "false") ? [] : '';
-        this.search = '';
-    },
-    isSelected(value) {
-        return $(multiple ? "true" : "false") ? this.selected.includes(value) : this.selected === value;
-    },
-    handleKeydown(e) {
-        if (!this.open && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown')) {
-            e.preventDefault();
-            this.checkDropDirection();
-            this.open = true;
-            if (this.searchable) this.\$nextTick(() => this.\$refs.search.focus());
-            return;
-        }
-
-        if (!this.open) return;
-
-        switch(e.key) {
-            case 'Escape':
-                e.preventDefault();
-                this.open = false;
-                this.\$refs.button.focus();
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                this.highlighted = Math.min(this.highlighted + 1, this.filteredOptions.length - 1);
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                this.highlighted = Math.max(this.highlighted - 1, 0);
-                break;
-            case 'Enter':
-                e.preventDefault();
-                if (this.filteredOptions[this.highlighted]) {
-                    this.selectOption(this.filteredOptions[this.highlighted][0]);
-                }
-                break;
-        }
-    }
-}""",
-    )
-
     # Build the component
     @div {
-        "x-data" = alpine_data,
-        "@keydown" = "handleKeydown",
+        var"x-data" = SafeString("selectDropdown($alpine_config)"),
+        var"@keydown" = "handleKeydown(\$event)",
         class = "relative",
         attrs...,
     } begin
-        # Hidden input(s) for form submission
-        if !isnothing(name)
-            if multiple
-                @template for selected_val in (isnothing(value) ? String[] : value)
-                    @input {
-                        type = "hidden",
-                        name = name,
-                        "x-bind:value" := "'$selected_val'",
-                    }
-                end
-            else
-                @input {type = "hidden", name = name, "x-bind:value" := "selected"}
-            end
-        end
+        # Hidden inputs container will be managed by Alpine component
+        @div {var"data-select-inputs" = "", style = "display: none"}
 
         # Wrapper for button and clear button
         @div {class = "relative"} begin
             # Dropdown trigger button
             @button {
                 type = "button",
-                "x-ref" := "button",
-                "@click" := disabled ? nothing : "checkDropDirection(); open = !open",
-                ":aria-expanded" := "open.toString()",
-                "aria-haspopup" := "listbox",
-                "aria-controls" := dropdown_id,
+                var"x-ref" = "button",
+                var"@click" = "toggle()",
+                var":aria-expanded" = "open.toString()",
+                var"aria-haspopup" = "listbox",
+                var"aria-controls" = dropdown_id,
                 disabled = disabled,
                 required = required,
                 class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
             } begin
                 @span {
-                    "x-text" := "selectedLabel",
-                    ":class" := "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
+                    var"x-text" = "selectedLabel",
+                    var":class" = "{ 'text-gray-500 dark:text-gray-400': !hasSelection }",
                     class = clearable ? "pr-12" : "pr-8",
                 } begin
                     if !isnothing(placeholder)
@@ -763,15 +684,15 @@ Requires Alpine.js.
                 # Dropdown arrow
                 @svg {
                     class = "absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none",
-                    ":class" := "{ 'rotate-180': open }",
+                    var":class" = "{ 'rotate-180': open }",
                     xmlns = "http://www.w3.org/2000/svg",
                     viewBox = "0 0 20 20",
                     fill = "currentColor",
                 } begin
                     @path {
-                        "fill-rule" := "evenodd",
+                        var"fill-rule" = "evenodd",
                         d = "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z",
-                        "clip-rule" := "evenodd",
+                        var"clip-rule" = "evenodd",
                     }
                 end
             end
@@ -780,16 +701,16 @@ Requires Alpine.js.
             if clearable
                 @button {
                     type = "button",
-                    "@click.stop" := "clearSelection()",
-                    "x-show" := "hasSelection",
-                    "x-transition:enter" := "transition ease-out duration-150",
-                    "x-transition:enter-start" := "opacity-0 scale-75",
-                    "x-transition:enter-end" := "opacity-100 scale-100",
-                    "x-transition:leave" := "transition ease-in duration-100",
-                    "x-transition:leave-start" := "opacity-100 scale-100",
-                    "x-transition:leave-end" := "opacity-0 scale-75",
+                    var"@click.stop" = "clearSelection()",
+                    var"x-show" = "hasSelection",
+                    var"x-transition:enter" = "transition ease-out duration-150",
+                    var"x-transition:enter-start" = "opacity-0 scale-75",
+                    var"x-transition:enter-end" = "opacity-100 scale-100",
+                    var"x-transition:leave" = "transition ease-in duration-100",
+                    var"x-transition:leave-start" = "opacity-100 scale-100",
+                    var"x-transition:leave-end" = "opacity-0 scale-75",
                     class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
-                    "aria-label" := "Clear selection",
+                    var"aria-label" = "Clear selection",
                 } begin
                     @svg {
                         class = "h-4 w-4 text-gray-500 dark:text-gray-400",
@@ -798,9 +719,9 @@ Requires Alpine.js.
                         fill = "currentColor",
                     } begin
                         @path {
-                            "fill-rule" := "evenodd",
+                            var"fill-rule" = "evenodd",
                             d = "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z",
-                            "clip-rule" := "evenodd",
+                            var"clip-rule" = "evenodd",
                         }
                     end
                 end
@@ -809,28 +730,28 @@ Requires Alpine.js.
 
         # Dropdown panel
         @div {
-            "x-show" := "open",
-            "x-transition:enter" := "transition ease-out duration-200",
-            "x-transition:enter-start" := "opacity-0 transform scale-95",
-            "x-transition:enter-end" := "opacity-100 transform scale-100",
-            "x-transition:leave" := "transition ease-in duration-150",
-            "x-transition:leave-start" := "opacity-100 transform scale-100",
-            "x-transition:leave-end" := "opacity-0 transform scale-95",
-            "@click.away" := "open = false; search = ''",
+            var"x-show" = "open",
+            var"x-anchor.bottom-start.offset.4" = SafeString("\$refs.button"),
+            var"x-transition:enter" = "transition ease-out duration-200",
+            var"x-transition:enter-start" = "opacity-0 transform scale-95",
+            var"x-transition:enter-end" = "opacity-100 transform scale-100",
+            var"x-transition:leave" = "transition ease-in duration-150",
+            var"x-transition:leave-start" = "opacity-100 transform scale-100",
+            var"x-transition:leave-end" = "opacity-0 transform scale-95",
+            var"@click.away" = "handleClickOutside()",
             id = dropdown_id,
-            ":class" := "dropUp ? 'bottom-full mb-2' : 'top-full mt-2'",
-            class := "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            class = "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
             role = "listbox",
-            "aria-label" := placeholder,
+            var"aria-label" = placeholder,
         } begin
             # Search input (if searchable)
             if searchable
                 @div {class = "p-2 border-b border-gray-200 dark:border-gray-800"} begin
                     @input {
                         type = "text",
-                        "x-ref" := "search",
-                        "x-model" := "search",
-                        "@click.stop" := "",
+                        var"x-ref" = "search",
+                        var"x-model" = "search",
+                        var"@click.stop" = "",
                         placeholder = "Search...",
                         class = "w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
                     }
@@ -838,44 +759,49 @@ Requires Alpine.js.
             end
 
             # Options list
-            @div {class = "overflow-y-auto", style = "max-height: $max_height"} begin
+            @div {
+                class = "overflow-y-auto",
+                style = "max-height: $max_height",
+                var"x-ref" = "optionsList",
+            } begin
                 @template {
-                    "x-for" := "(option, index) in filteredOptions",
-                    ":key" := "option[0]",
+                    var"x-for" = "(option, index) in filteredOptions",
+                    var":key" = "option[0]",
                 } begin
                     @button {
                         type = "button",
-                        "@click" := "selectOption(option[0])",
-                        ":class" := """{
+                        var"@click" = "selectOption(option[0])",
+                        var":class" = """{
                             'bg-blue-50 dark:bg-blue-900/20': highlighted === index,
                             'bg-blue-100 dark:bg-blue-900/40': isSelected(option[0])
                         }""",
-                        "@mouseenter" := "highlighted = index",
+                        var"@mouseenter" = "highlighted = index",
+                        var":data-index" = "index",
                         class = "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150",
                         role = "option",
-                        ":aria-selected" := "isSelected(option[0])",
+                        var":aria-selected" = "isSelected(option[0])",
                     } begin
                         @div {class = "flex items-center"} begin
                             if multiple
                                 @div {class = "mr-3"} begin
                                     @div {
                                         class = "h-4 w-4 rounded border-2 transition-all duration-200",
-                                        ":class" := """{
+                                        var":class" = """{
                                             'border-blue-500 bg-blue-500': isSelected(option[0]),
                                             'border-gray-300 dark:border-gray-600': !isSelected(option[0])
                                         }""",
                                     } begin
                                         @svg {
-                                            "x-show" := "isSelected(option[0])",
+                                            var"x-show" = "isSelected(option[0])",
                                             class = "h-3 w-3 text-white",
                                             fill = "none",
                                             viewBox = "0 0 24 24",
                                             stroke = "currentColor",
                                         } begin
                                             @path {
-                                                "stroke-linecap" := "round",
-                                                "stroke-linejoin" := "round",
-                                                "stroke-width" := "3",
+                                                var"stroke-linecap" = "round",
+                                                var"stroke-linejoin" = "round",
+                                                var"stroke-width" = "3",
                                                 d = "M5 13l4 4L19 7",
                                             }
                                         end
@@ -883,7 +809,7 @@ Requires Alpine.js.
                                 end
                             end
                             @span {
-                                "x-text" := "option[1]",
+                                var"x-text" = "option[1]",
                                 class = "text-gray-900 dark:text-gray-100",
                             }
                         end
@@ -892,7 +818,7 @@ Requires Alpine.js.
 
                 # No results message
                 @div {
-                    "x-show" := "search && filteredOptions.length === 0",
+                    var"x-show" = "search && filteredOptions.length === 0",
                     class = "px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400",
                 } "No options found"
             end
