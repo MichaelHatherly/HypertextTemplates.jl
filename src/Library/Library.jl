@@ -53,10 +53,6 @@ export Divider,
 # Utility functions
 include("utils.jl")
 
-# Style system
-include("Styles.jl")
-using .Styles
-
 # Icon components (needed by many other components)
 include("Icons.jl")
 
