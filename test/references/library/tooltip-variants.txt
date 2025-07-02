@@ -1,0 +1,228 @@
+<script>/**
+ * Alpine.data component for Tooltip
+ * 
+ * This file defines the interactive behavior for the Tooltip component.
+ * It uses Alpine.js's data component system to provide reusable tooltip functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'tooltip' Alpine.data component
+ * - Manages tooltip visibility with configurable delays
+ * - Supports multiple trigger types (hover, click, focus)
+ * - Works with Alpine Anchor for intelligent positioning
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * - Alpine Anchor plugin (for positioning)
+ * 
+ * Usage in templates:
+ * x-data="tooltip(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('tooltip', (config = {}) => ({
+        // State
+        open: false,
+        showTimeout: null,
+        hideTimeout: null,
+        
+        // Configuration
+        delay: config.delay || 500,
+        hideDelay: config.hideDelay || 0,
+        trigger: config.trigger || 'hover',
+        placement: config.placement || 'top',
+        interactive: config.interactive || false,
+        offset: config.offset || 8,
+        
+        /**
+         * Initialize component
+         * Sets up event listeners and accessibility attributes
+         */
+        init() {
+            // Generate unique ID for accessibility
+            this.tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Set up ARIA attributes after next tick to ensure refs are available
+            this.$nextTick(() => {
+                if (this.$refs.trigger && this.$refs.content) {
+                    this.$refs.trigger.setAttribute('aria-describedby', this.tooltipId);
+                    this.$refs.content.setAttribute('id', this.tooltipId);
+                }
+            });
+            
+            // Set up event listeners based on trigger type
+            this.setupTriggerListeners();
+            
+            // Global escape key handler
+            const handleEscapeBound = this.handleEscape.bind(this);
+            document.addEventListener('keydown', handleEscapeBound);
+            
+            // Store cleanup function
+            this._cleanup = () => {
+                document.removeEventListener('keydown', handleEscapeBound);
+                this.clearTimeouts();
+            };
+        },
+        
+        /**
+         * Cleanup when component is destroyed
+         */
+        destroy() {
+            if (this._cleanup) {
+                this._cleanup();
+            }
+        },
+        
+        /**
+         * Set up event listeners based on trigger type
+         */
+        setupTriggerListeners() {
+            const trigger = this.$refs.trigger;
+            if (!trigger) return;
+            
+            switch (this.trigger) {
+                case 'hover':
+                    // Mouse events
+                    trigger.addEventListener('mouseenter', () => this.show());
+                    trigger.addEventListener('mouseleave', () => this.hide());
+                    
+                    // Touch events for mobile
+                    trigger.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.toggle();
+                    });
+                    
+                    // Interactive mode - keep open when hovering content
+                    if (this.interactive && this.$refs.content) {
+                        this.$refs.content.addEventListener('mouseenter', () => this.clearTimeouts());
+                        this.$refs.content.addEventListener('mouseleave', () => this.hide());
+                    }
+                    break;
+                    
+                case 'click':
+                    trigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggle();
+                    });
+                    
+                    // Close on outside click
+                    document.addEventListener('click', (e) => {
+                        if (this.open && !this.$el.contains(e.target)) {
+                            this.hide();
+                        }
+                    });
+                    break;
+                    
+                case 'focus':
+                    trigger.addEventListener('focus', () => this.show());
+                    trigger.addEventListener('blur', () => this.hide());
+                    break;
+            }
+        },
+        
+        /**
+         * Show tooltip with delay
+         */
+        show() {
+            this.clearTimeouts();
+            
+            if (this.delay > 0) {
+                this.showTimeout = setTimeout(() => {
+                    this.open = true;
+                    this.$dispatch('tooltip-show', { id: this.tooltipId });
+                }, this.delay);
+            } else {
+                this.open = true;
+                this.$dispatch('tooltip-show', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Hide tooltip with delay
+         */
+        hide() {
+            this.clearTimeouts();
+            
+            if (this.hideDelay > 0) {
+                this.hideTimeout = setTimeout(() => {
+                    this.open = false;
+                    this.$dispatch('tooltip-hide', { id: this.tooltipId });
+                }, this.hideDelay);
+            } else {
+                this.open = false;
+                this.$dispatch('tooltip-hide', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Toggle tooltip visibility
+         */
+        toggle() {
+            if (this.open) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        },
+        
+        /**
+         * Clear all timeouts
+         */
+        clearTimeouts() {
+            if (this.showTimeout) {
+                clearTimeout(this.showTimeout);
+                this.showTimeout = null;
+            }
+            if (this.hideTimeout) {
+                clearTimeout(this.hideTimeout);
+                this.hideTimeout = null;
+            }
+        },
+        
+        /**
+         * Handle escape key to close tooltip
+         */
+        handleEscape(e) {
+            if (e.key === 'Escape' && this.open) {
+                this.hide();
+                // Return focus to trigger if it was a click trigger
+                if (this.trigger === 'click' && this.$refs.trigger) {
+                    this.$refs.trigger.focus();
+                }
+            }
+        },
+        
+        /**
+         * Get anchor directive value based on placement
+         */
+        get anchorDirective() {
+            const placements = {
+                top: 'top',
+                bottom: 'bottom', 
+                left: 'left',
+                right: 'right',
+                'top-start': 'top-start',
+                'top-end': 'top-end',
+                'bottom-start': 'bottom-start',
+                'bottom-end': 'bottom-end',
+                'left-start': 'left-start',
+                'left-end': 'left-end',
+                'right-start': 'right-start',
+                'right-end': 'right-end'
+            };
+            
+            const placement = placements[this.placement] || 'top';
+            return `${placement}.offset.${this.offset}`;
+        }
+    }))
+});</script><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span>Dark</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Dark tooltip</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span>Light</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-white text-gray-900 border border-gray-200 " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Light tooltip</div></div></div>

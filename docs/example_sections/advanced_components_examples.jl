@@ -596,6 +596,314 @@
                 end
             end
 
+            # Tooltip Components
+            @Card {padding = :lg} begin
+                @Stack {gap = 6} begin
+                    @Heading {level = 2} "Tooltip Components"
+                    @Text "Interactive tooltips with various triggers and styles using Alpine Anchor for smart positioning."
+
+                    # Basic tooltips
+                    @Stack {gap = 4} begin
+                        @Heading {level = 3} "Basic Tooltips"
+                        @Text {size = :sm, color = "text-gray-600 dark:text-gray-400"} "Simple text tooltips with different placements and variants."
+
+                        @Stack {
+                            direction = :horizontal,
+                            gap = 4,
+                            wrap = true,
+                            align = :center,
+                        } begin
+                            @Tooltip {text = "This appears above", placement = :top} begin
+                                @Button {variant = :secondary} "Top"
+                            end
+
+                            @Tooltip {text = "This appears below", placement = :bottom} begin
+                                @Button {variant = :secondary} "Bottom"
+                            end
+
+                            @Tooltip {text = "This appears to the left", placement = :left} begin
+                                @Button {variant = :secondary} "Left"
+                            end
+
+                            @Tooltip {
+                                text = "This appears to the right",
+                                placement = :right,
+                            } begin
+                                @Button {variant = :secondary} "Right"
+                            end
+                        end
+
+                        @Divider {}
+
+                        @Stack {
+                            direction = :horizontal,
+                            gap = 4,
+                            wrap = true,
+                            align = :center,
+                        } begin
+                            @Tooltip {text = "Dark tooltip (default)", variant = :dark} begin
+                                @Badge {variant = :primary} "Dark Variant"
+                            end
+
+                            @Tooltip {text = "Light tooltip style", variant = :light} begin
+                                @Badge {variant = :secondary} "Light Variant"
+                            end
+
+                            @Tooltip {text = "Instant tooltip - no delay", delay = 0} begin
+                                @Badge {variant = :success} "No Delay"
+                            end
+
+                            @Tooltip {
+                                text = "Slow to appear (1 second delay)",
+                                delay = 1000,
+                            } begin
+                                @Badge {variant = :warning} "Long Delay"
+                            end
+                        end
+                    end
+
+                    @Divider {}
+
+                    # Icon tooltips
+                    @Stack {gap = 4} begin
+                        @Heading {level = 3} "Icon Tooltips"
+                        @Text {size = :sm, color = "text-gray-600 dark:text-gray-400"} "Common UI patterns with helpful tooltips."
+
+                        @Stack {direction = :horizontal, gap = 6, align = :center} begin
+                            @Tooltip {text = "Edit this item"} begin
+                                @button {
+                                    class = "p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+                                } begin
+                                    @Icon {name = "edit", size = :md}
+                                end
+                            end
+
+                            @Tooltip {text = "Delete permanently", variant = :light} begin
+                                @button {
+                                    class = "p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors",
+                                } begin
+                                    @Icon {name = "trash", size = :md}
+                                end
+                            end
+
+                            @Tooltip {text = "Download file"} begin
+                                @button {
+                                    class = "p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors",
+                                } begin
+                                    @Icon {name = "download", size = :md}
+                                end
+                            end
+
+                            @Tooltip {text = "Share with others"} begin
+                                @button {
+                                    class = "p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition-colors",
+                                } begin
+                                    @Icon {name = "share", size = :md}
+                                end
+                            end
+                        end
+                    end
+
+                    @Divider {}
+
+                    # Rich content tooltips
+                    @Stack {gap = 4} begin
+                        @Heading {level = 3} "Rich Content Tooltips"
+                        @Text {size = :sm, color = "text-gray-600 dark:text-gray-400"} "Complex tooltips with formatted content using the composable API."
+
+                        @Grid {cols = 1, md = 2, gap = 4} begin
+                            # Interactive tooltip
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Interactive Tooltip"
+                                @TooltipWrapper {interactive = true, placement = :right} begin
+                                    @TooltipTrigger begin
+                                        @Badge {variant = :gradient, size = :lg} "PRO Feature"
+                                    end
+                                    @TooltipContent {variant = :light, max_width = "300px"} begin
+                                        @Stack {gap = 3} begin
+                                            @Heading {level = 4, size = :sm} "Upgrade to Pro"
+                                            @Text {size = :sm} "Get access to advanced features including:"
+                                            @List {variant = :bullet, size = :sm} begin
+                                                @li "Unlimited projects"
+                                                @li "Priority support"
+                                                @li "Advanced analytics"
+                                            end
+                                            @Button {
+                                                size = :sm,
+                                                variant = :primary,
+                                                full_width = true,
+                                            } "Upgrade Now"
+                                        end
+                                    end
+                                end
+                            end
+
+                            # Click trigger tooltip
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Click Trigger"
+                                @TooltipWrapper {trigger = :click, placement = :bottom} begin
+                                    @TooltipTrigger begin
+                                        @Button {variant = :outline} begin
+                                            @Stack {
+                                                direction = :horizontal,
+                                                gap = 2,
+                                                align = :center,
+                                            } begin
+                                                @Icon {name = "info", size = :sm}
+                                                @text "More Info"
+                                            end
+                                        end
+                                    end
+                                    @TooltipContent {max_width = "350px"} begin
+                                        @Stack {gap = 2} begin
+                                            @Text {weight = :semibold} "Click-triggered Tooltip"
+                                            @Text {size = :sm} "This tooltip appears on click and stays open until you click elsewhere. Great for displaying detailed information."
+                                            @Text {
+                                                size = :xs,
+                                                color = "text-gray-500 dark:text-gray-400",
+                                            } "Press Escape to close"
+                                        end
+                                    end
+                                end
+                            end
+
+                            # User card tooltip
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "User Profile"
+                                @TooltipWrapper {placement = :top, interactive = true} begin
+                                    @TooltipTrigger begin
+                                        @Avatar {
+                                            src = "https://i.pravatar.cc/150?img=5",
+                                            alt = "Sarah Chen",
+                                            size = :lg,
+                                        }
+                                    end
+                                    @TooltipContent {variant = :light, max_width = "280px"} begin
+                                        @Stack {gap = 3} begin
+                                            @Stack {
+                                                direction = :horizontal,
+                                                gap = 3,
+                                                align = :center,
+                                            } begin
+                                                @Avatar {
+                                                    src = "https://i.pravatar.cc/150?img=5",
+                                                    alt = "Sarah Chen",
+                                                    size = :md,
+                                                }
+                                                @Stack {gap = 0} begin
+                                                    @Text {weight = :semibold} "Sarah Chen"
+                                                    @Text {
+                                                        size = :sm,
+                                                        color = "text-gray-600",
+                                                    } "@sarahchen"
+                                                end
+                                            end
+                                            @Text {size = :sm} "Senior Product Designer with 8+ years of experience in UX/UI design."
+                                            @Stack {direction = :horizontal, gap = 2} begin
+                                                @Badge {size = :sm} "Design"
+                                                @Badge {size = :sm} "UX"
+                                                @Badge {size = :sm} "Figma"
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+
+                            # Status tooltip
+                            @Stack {gap = 2} begin
+                                @Text {weight = :semibold, size = :sm} "Service Status"
+                                @TooltipWrapper {placement = :left} begin
+                                    @TooltipTrigger begin
+                                        @Stack {
+                                            direction = :horizontal,
+                                            gap = 2,
+                                            align = :center,
+                                        } begin
+                                            @div {
+                                                class = "w-3 h-3 bg-yellow-500 rounded-full animate-pulse",
+                                            }
+                                            @Text {size = :sm, weight = :medium} "Degraded Performance"
+                                        end
+                                    end
+                                    @TooltipContent begin
+                                        @Stack {gap = 2} begin
+                                            @Text {weight = :semibold, size = :sm} "System Status"
+                                            @Stack {gap = 1} begin
+                                                @Stack {
+                                                    direction = :horizontal,
+                                                    gap = 2,
+                                                    align = :center,
+                                                } begin
+                                                    @div {
+                                                        class = "w-2 h-2 bg-green-500 rounded-full",
+                                                    }
+                                                    @Text {size = :xs} "API: Operational"
+                                                end
+                                                @Stack {
+                                                    direction = :horizontal,
+                                                    gap = 2,
+                                                    align = :center,
+                                                } begin
+                                                    @div {
+                                                        class = "w-2 h-2 bg-yellow-500 rounded-full",
+                                                    }
+                                                    @Text {size = :xs} "CDN: High Latency"
+                                                end
+                                                @Stack {
+                                                    direction = :horizontal,
+                                                    gap = 2,
+                                                    align = :center,
+                                                } begin
+                                                    @div {
+                                                        class = "w-2 h-2 bg-green-500 rounded-full",
+                                                    }
+                                                    @Text {size = :xs} "Database: Operational"
+                                                end
+                                            end
+                                            @Text {size = :xs, color = "text-gray-500"} "Last updated: 2 min ago"
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                    @Divider {}
+
+                    # Form field tooltips
+                    @Stack {gap = 4} begin
+                        @Heading {level = 3} "Form Field Tooltips"
+                        @Text {size = :sm, color = "text-gray-600 dark:text-gray-400"} "Help users understand form fields with contextual tooltips."
+
+                        @Grid {cols = 1, md = 2, gap = 4} begin
+                            @FormGroup {label = "Display Name"} begin
+                                @Stack {gap = 1} begin
+                                    @Stack {
+                                        direction = :horizontal,
+                                        gap = 2,
+                                        align = :center,
+                                    } begin
+                                        @text "Display Name"
+                                        @Tooltip {
+                                            text = "This name will be shown publicly on your profile",
+                                            placement = :right,
+                                            size = :sm,
+                                        } begin
+                                            @Icon {
+                                                name = "info",
+                                                size = :xs,
+                                                color = "text-gray-400",
+                                            }
+                                        end
+                                    end
+                                    @Input {placeholder = "Enter your display name"}
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
             # Advanced List Compositions
             @Card {padding = :lg} begin
                 @Stack {gap = 6} begin

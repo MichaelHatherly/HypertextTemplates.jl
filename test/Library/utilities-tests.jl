@@ -86,4 +86,97 @@ using HypertextTemplates.Library
             end
         end
     end
+
+    @testset "ThemeToggle" begin
+        render_test("references/library/theme-toggle-default.txt") do io
+            @render io @ThemeToggle {}
+        end
+
+        render_test("references/library/theme-toggle-custom.txt") do io
+            @render io @ThemeToggle {
+                variant = :ghost,
+                size = :sm,
+                show_label = false,
+                id = "custom-toggle",
+            }
+        end
+    end
+
+    @testset "Tooltip" begin
+        render_test("references/library/tooltip-default.txt") do io
+            @render io @Tooltip {text = "Hello tooltip"} begin
+                @button "Hover me"
+            end
+        end
+
+        render_test("references/library/tooltip-placements.txt") do io
+            @render io begin
+                @Tooltip {text = "Top tooltip", placement = :top} begin
+                    @button "Top"
+                end
+                @Tooltip {text = "Bottom tooltip", placement = :bottom} begin
+                    @button "Bottom"
+                end
+                @Tooltip {text = "Left tooltip", placement = :left} begin
+                    @button "Left"
+                end
+                @Tooltip {text = "Right tooltip", placement = :right} begin
+                    @button "Right"
+                end
+            end
+        end
+
+        render_test("references/library/tooltip-variants.txt") do io
+            @render io begin
+                @Tooltip {text = "Dark tooltip", variant = :dark} begin
+                    @span "Dark"
+                end
+                @Tooltip {text = "Light tooltip", variant = :light} begin
+                    @span "Light"
+                end
+            end
+        end
+
+        render_test("references/library/tooltip-delays.txt") do io
+            @render io begin
+                @Tooltip {text = "No delay", delay = 0} begin
+                    @button "Instant"
+                end
+                @Tooltip {text = "Long delay", delay = 1000} begin
+                    @button "Slow"
+                end
+            end
+        end
+    end
+
+    @testset "TooltipWrapper" begin
+        render_test("references/library/tooltip-wrapper-basic.txt") do io
+            @render io @TooltipWrapper {} begin
+                @TooltipTrigger begin
+                    @button "Click for info"
+                end
+                @TooltipContent begin
+                    @div "This is the tooltip content"
+                end
+            end
+        end
+
+        render_test("references/library/tooltip-wrapper-interactive.txt") do io
+            @render io @TooltipWrapper {
+                interactive = true,
+                trigger = :click,
+                placement = :right,
+            } begin
+                @TooltipTrigger begin
+                    @span "Click me"
+                end
+                @TooltipContent {variant = :light} begin
+                    @div begin
+                        @h4 "Interactive Tooltip"
+                        @p "This tooltip stays open when you hover over it."
+                    end
+                end
+            end
+        end
+    end
 end

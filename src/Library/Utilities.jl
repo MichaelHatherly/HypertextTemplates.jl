@@ -197,3 +197,253 @@ This component requires Alpine.js to be included in your page.
 end
 
 @deftag macro ThemeToggle end
+
+"""
+    @Tooltip
+
+Simple tooltip component that shows text on hover.
+
+# Props
+- `text::String`: The tooltip text to display (required)
+- `placement::Union{Symbol,String}`: Tooltip placement (`:top`, `:bottom`, `:left`, `:right`) (default: `:top`)
+- `delay::Int`: Show delay in milliseconds (default: `500`)
+- `hide_delay::Int`: Hide delay in milliseconds (default: `0`)
+- `offset::Int`: Distance from trigger in pixels (default: `8`)
+- `variant::Union{Symbol,String}`: Visual style (`:dark`, `:light`) (default: `:dark`)
+- `size::Union{Symbol,String}`: Text size (`:sm`, `:base`) (default: `:sm`)
+- `max_width::String`: Maximum width of tooltip (default: `"250px"`)
+- `class::String`: Additional CSS classes (optional)
+
+# Example
+```julia
+@Tooltip {text = "Delete this item"} begin
+    @Button {variant = :danger, size = :sm} begin
+        @Icon {name = "trash"}
+    end
+end
+```
+"""
+@component function Tooltip(;
+    text::String,
+    placement::Union{Symbol,String} = :top,
+    delay::Int = 500,
+    hide_delay::Int = 0,
+    offset::Int = 8,
+    variant::Union{Symbol,String} = :dark,
+    size::Union{Symbol,String} = :sm,
+    max_width::String = "250px",
+    class::String = "",
+    attrs...,
+)
+    # Load JavaScript for tooltip functionality
+    @__once__ begin
+        @script @text SafeString(read(joinpath(@__DIR__, "assets/tooltip.js"), String))
+    end
+
+    # Convert to symbols
+    placement_sym = Symbol(placement)
+    variant_sym = Symbol(variant)
+    size_sym = Symbol(size)
+
+    # Build configuration
+    config = SafeString("""{
+        delay: $delay,
+        hideDelay: $hide_delay,
+        trigger: 'hover',
+        placement: '$(string(placement_sym))',
+        offset: $offset
+    }""")
+
+    # Variant styles
+    variant_classes = (
+        dark = "bg-gray-900 text-white",
+        light = "bg-white text-gray-900 border border-gray-200",
+    )
+
+    # Size classes
+    size_classes = (sm = "text-sm", base = "text-base")
+
+    variant_class = get(variant_classes, variant_sym, variant_classes.dark)
+    size_class = get(size_classes, size_sym, size_classes.sm)
+
+    @div {
+        var"x-data" = SafeString("tooltip($config)"),
+        class = "relative inline-block",
+        attrs...,
+    } begin
+        # Trigger wrapper
+        @div {var"x-ref" = "trigger", class = "inline-block"} begin
+            @__slot__()
+        end
+
+        # Tooltip content
+        @div {
+            var"x-ref" = "content",
+            var"x-show" = "open",
+            var"x-anchor" = SafeString("anchorDirective"),
+            var"x-anchor:element" = SafeString("\$refs.trigger"),
+            var"x-transition:enter" = "transition ease-out duration-200",
+            var"x-transition:enter-start" = "opacity-0 scale-95",
+            var"x-transition:enter-end" = "opacity-100 scale-100",
+            var"x-transition:leave" = "transition ease-in duration-150",
+            var"x-transition:leave-start" = "opacity-100 scale-100",
+            var"x-transition:leave-end" = "opacity-0 scale-95",
+            class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
+            style = "max-width: $max_width; width: max-content;",
+            role = "tooltip",
+        } begin
+            @div {class = "px-3 py-2 $size_class"} begin
+                @text text
+            end
+        end
+    end
+end
+
+@deftag macro Tooltip end
+
+"""
+    @TooltipWrapper
+
+Wrapper component for rich tooltip content using composition pattern.
+
+# Props
+- `placement::Union{Symbol,String}`: Tooltip placement (default: `:top`)
+- `delay::Int`: Show delay in milliseconds (default: `500`)
+- `hide_delay::Int`: Hide delay in milliseconds (default: `0`)
+- `offset::Int`: Distance from trigger in pixels (default: `8`)
+- `trigger::Union{Symbol,String}`: Trigger type (`:hover`, `:click`, `:focus`) (default: `:hover`)
+- `interactive::Bool`: Keep open when hovering tooltip content (default: `false`)
+
+# Example
+```julia
+@TooltipWrapper {interactive = true} begin
+    @TooltipTrigger begin
+        @Badge "PRO"
+    end
+    @TooltipContent {variant = :light, arrow = true} begin
+        @Heading {level = 4, size = :sm} "Pro Feature"
+        @Text {size = :sm} "Upgrade to access advanced features"
+    end
+end
+```
+"""
+@component function TooltipWrapper(;
+    placement::Union{Symbol,String} = :top,
+    delay::Int = 500,
+    hide_delay::Int = 0,
+    offset::Int = 8,
+    trigger::Union{Symbol,String} = :hover,
+    interactive::Bool = false,
+    attrs...,
+)
+    # Load JavaScript for tooltip functionality
+    @__once__ begin
+        @script @text SafeString(read(joinpath(@__DIR__, "assets/tooltip.js"), String))
+    end
+
+    # Convert to symbols
+    placement_sym = Symbol(placement)
+    trigger_sym = Symbol(trigger)
+
+    # Build configuration
+    config = SafeString("""{
+        delay: $delay,
+        hideDelay: $hide_delay,
+        trigger: '$(string(trigger_sym))',
+        placement: '$(string(placement_sym))',
+        offset: $offset,
+        interactive: $(interactive ? "true" : "false")
+    }""")
+
+    @div {
+        var"x-data" = SafeString("tooltip($config)"),
+        class = "relative inline-block",
+        attrs...,
+    } begin
+        @__slot__()
+    end
+end
+
+@deftag macro TooltipWrapper end
+
+"""
+    @TooltipTrigger
+
+Trigger element for TooltipWrapper. Wraps the element that triggers the tooltip.
+
+# Props
+- `class::String`: Additional CSS classes (optional)
+- `attrs...`: Additional attributes
+"""
+@component function TooltipTrigger(; class::String = "", attrs...)
+    @div {var"x-ref" = "trigger", class = "inline-block $class", attrs...} begin
+        @__slot__()
+    end
+end
+
+@deftag macro TooltipTrigger end
+
+"""
+    @TooltipContent
+
+Content component for TooltipWrapper. Contains the rich tooltip content.
+
+# Props
+- `variant::Union{Symbol,String}`: Visual style (`:dark`, `:light`) (default: `:dark`)
+- `arrow::Bool`: Show arrow pointing to trigger (default: `true`)
+- `max_width::String`: Maximum width (default: `"300px"`)
+- `class::String`: Additional CSS classes (optional)
+- `attrs...`: Additional attributes
+"""
+@component function TooltipContent(;
+    variant::Union{Symbol,String} = :dark,
+    arrow::Bool = true,
+    max_width::String = "300px",
+    class::String = "",
+    attrs...,
+)
+    # Convert to symbol
+    variant_sym = Symbol(variant)
+
+    # Variant styles
+    variant_classes = (
+        dark = "bg-gray-900 text-white",
+        light = "bg-white text-gray-900 border border-gray-200",
+    )
+
+    variant_class = get(variant_classes, variant_sym, variant_classes.dark)
+
+    # Arrow classes based on variant
+    arrow_classes = (dark = "bg-gray-900", light = "bg-white border-gray-200")
+
+    arrow_class = get(arrow_classes, variant_sym, arrow_classes.dark)
+
+    @div {
+        var"x-ref" = "content",
+        var"x-show" = "open",
+        var"x-anchor" = SafeString("anchorDirective"),
+        var"x-anchor:element" = SafeString("\$refs.trigger"),
+        var"x-transition:enter" = "transition ease-out duration-200",
+        var"x-transition:enter-start" = "opacity-0 scale-95",
+        var"x-transition:enter-end" = "opacity-100 scale-100",
+        var"x-transition:leave" = "transition ease-in duration-150",
+        var"x-transition:leave-start" = "opacity-100 scale-100",
+        var"x-transition:leave-end" = "opacity-0 scale-95",
+        class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
+        style = "max-width: $max_width; width: max-content;",
+        role = "tooltip",
+        attrs...,
+    } begin
+        # Arrow (if enabled)
+        if arrow
+            # Note: Arrow positioning with Alpine Anchor is complex
+            # For now, we'll skip the visual arrow but keep the prop for future enhancement
+        end
+
+        @div {class = "px-4 py-3"} begin
+            @__slot__()
+        end
+    end
+end
+
+@deftag macro TooltipContent end

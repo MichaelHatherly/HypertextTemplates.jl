@@ -44,7 +44,14 @@ export Divider,
     get_available_icons,
     ThemeToggle,
     @ThemeToggle,
-    theme_toggle_script
+    Tooltip,
+    @Tooltip,
+    TooltipWrapper,
+    @TooltipWrapper,
+    TooltipTrigger,
+    @TooltipTrigger,
+    TooltipContent,
+    @TooltipContent
 
 # Utility functions
 include("utils.jl")
