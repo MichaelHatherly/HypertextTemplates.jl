@@ -201,7 +201,7 @@ Include Alpine.js in your page:
     @TabPanel {id = "tab1"} begin
         @Text "Content for Tab 1"
     end
-    
+
     @TabPanel {id = "tab2"} begin
         @Text "Content for Tab 2"
     end
@@ -465,9 +465,9 @@ Individual menu item within dropdown.
     # Variant classes
     variant_classes = if disabled
         "text-gray-400 cursor-not-allowed dark:text-gray-500"
-    elseif variant == :danger
+    elseif variant === :danger
         "text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/20 dark:hover:text-red-300"
-    elseif variant == :success
+    elseif variant === :success
         "text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/20 dark:hover:text-green-300"
     else
         "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"

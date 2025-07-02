@@ -27,50 +27,50 @@ A content container with border and shadow.
     variant_sym = Symbol(variant)
     border_sym = border isa Symbol ? border : (border ? :default : :none)
 
-    padding_classes = Dict(
-        :none => "",
-        :sm => "p-3 md:p-4",
-        :base => "p-5 md:p-6",
-        :md => "p-5 md:p-6",  # For backward compatibility
-        :lg => "p-6 md:p-8",
-        :xl => "p-8 md:p-10",
+    padding_classes = (
+        none = "",
+        sm = "p-3 md:p-4",
+        base = "p-5 md:p-6",
+        md = "p-5 md:p-6",  # For backward compatibility
+        lg = "p-6 md:p-8",
+        xl = "p-8 md:p-10",
     )
 
-    shadow_classes = Dict(
-        :none => "",
-        :sm => "shadow-sm",
-        :base => "shadow",
-        :md => "shadow",  # For backward compatibility
-        :lg => "shadow-lg",
-        :colored => "shadow-lg shadow-blue-500/10 dark:shadow-blue-400/10",
+    shadow_classes = (
+        none = "",
+        sm = "shadow-sm",
+        base = "shadow",
+        md = "shadow",  # For backward compatibility
+        lg = "shadow-lg",
+        colored = "shadow-lg shadow-blue-500/10 dark:shadow-blue-400/10",
     )
 
-    rounded_classes = Dict(
-        :none => "",
-        :sm => "rounded",
-        :base => "rounded-lg",
-        :md => "rounded-lg",  # For backward compatibility
-        :lg => "rounded-xl",
-        :xl => "rounded-2xl",
+    rounded_classes = (
+        none = "",
+        sm = "rounded",
+        base = "rounded-lg",
+        md = "rounded-lg",  # For backward compatibility
+        lg = "rounded-xl",
+        xl = "rounded-2xl",
     )
 
-    border_classes = Dict(
-        :none => "",
-        :default => "border border-slate-200 dark:border-slate-800",
-        :gradient => "border border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 p-[1px]",
+    border_classes = (
+        none = "",
+        default = "border border-slate-200 dark:border-slate-800",
+        gradient = "border border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 p-[1px]",
     )
 
-    variant_classes = Dict(
-        :default => "bg-white dark:bg-slate-900",
-        :glass => "backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50",
-        :gradient => "bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900",
+    variant_classes = (
+        default = "bg-white dark:bg-slate-900",
+        glass = "backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50",
+        gradient = "bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900",
     )
 
-    padding_class = get(padding_classes, padding_sym, padding_classes[:base])
-    shadow_class = get(shadow_classes, shadow_sym, shadow_classes[:base])
+    padding_class = get(padding_classes, padding_sym, padding_classes.base)
+    shadow_class = get(shadow_classes, shadow_sym, shadow_classes.base)
     border_class = get(border_classes, border_sym, "")
-    rounded_class = get(rounded_classes, rounded_sym, rounded_classes[:lg])
-    variant_class = get(variant_classes, variant_sym, variant_classes[:default])
+    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.lg)
+    variant_class = get(variant_classes, variant_sym, variant_classes.default)
 
     hover_class =
         hoverable ?
@@ -78,7 +78,7 @@ A content container with border and shadow.
         ""
 
     # Handle gradient border special case
-    if border_sym == :gradient
+    if border_sym === :gradient
         @div {class = "$border_class $rounded_class $shadow_class $hover_class", attrs...} begin
             @div {class = "$variant_class $padding_class $rounded_class"} begin
                 @__slot__()
@@ -120,39 +120,39 @@ Small status indicator component with modern styling.
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
 
-    variant_classes = Dict(
-        :default => "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
-        :primary => "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-        :secondary => "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-        :success => "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-        :warning => "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-        :danger => "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
-        :gradient => "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
+    variant_classes = (
+        default = "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+        primary = "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+        secondary = "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+        success = "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+        warning = "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+        danger = "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
+        gradient = "bg-gradient-to-r from-blue-500 to-purple-600 text-white",
     )
 
-    outline_classes = Dict(
-        :default => "bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300",
-        :primary => "bg-transparent border border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300",
-        :secondary => "bg-transparent border border-purple-300 text-purple-700 dark:border-purple-600 dark:text-purple-300",
-        :success => "bg-transparent border border-emerald-300 text-emerald-700 dark:border-emerald-600 dark:text-emerald-300",
-        :warning => "bg-transparent border border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300",
-        :danger => "bg-transparent border border-rose-300 text-rose-700 dark:border-rose-600 dark:text-rose-300",
-        :gradient => "bg-transparent border-2 border-transparent bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent",
+    outline_classes = (
+        default = "bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300",
+        primary = "bg-transparent border border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300",
+        secondary = "bg-transparent border border-purple-300 text-purple-700 dark:border-purple-600 dark:text-purple-300",
+        success = "bg-transparent border border-emerald-300 text-emerald-700 dark:border-emerald-600 dark:text-emerald-300",
+        warning = "bg-transparent border border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300",
+        danger = "bg-transparent border border-rose-300 text-rose-700 dark:border-rose-600 dark:text-rose-300",
+        gradient = "bg-transparent border-2 border-transparent bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent",
     )
 
-    size_classes = Dict(
-        :xs => "px-2 py-0.5 text-xs",
-        :sm => "px-2.5 py-0.5 text-xs",
-        :base => "px-3 py-1 text-sm",
-        :md => "px-3 py-1 text-sm",  # For backward compatibility
-        :lg => "px-3.5 py-1.5 text-base",
-        :xl => "px-4 py-2 text-lg",
+    size_classes = (
+        xs = "px-2 py-0.5 text-xs",
+        sm = "px-2.5 py-0.5 text-xs",
+        base = "px-3 py-1 text-sm",
+        md = "px-3 py-1 text-sm",  # For backward compatibility
+        lg = "px-3.5 py-1.5 text-base",
+        xl = "px-4 py-2 text-lg",
     )
 
     variant_class =
-        outline ? get(outline_classes, variant_sym, outline_classes[:default]) :
-        get(variant_classes, variant_sym, variant_classes[:default])
-    size_class = get(size_classes, size_sym, size_classes[:base])
+        outline ? get(outline_classes, variant_sym, outline_classes.default) :
+        get(variant_classes, variant_sym, variant_classes.default)
+    size_class = get(size_classes, size_sym, size_classes.base)
     animation_class = animated ? "animate-pulse" : ""
     transition_class = "transition-all duration-200"
 

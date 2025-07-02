@@ -21,13 +21,13 @@ A responsive container component with proper max-widths and padding.
     # Convert to symbol
     size_sym = Symbol(size)
 
-    size_classes = Dict(
-        :sm => "max-w-screen-sm",
-        :md => "max-w-screen-md",
-        :lg => "max-w-screen-lg",
-        :xl => "max-w-screen-xl",
-        Symbol("2xl") => "max-w-screen-2xl",
-        :full => "max-w-full",
+    size_classes = (
+        sm = "max-w-screen-sm",
+        md = "max-w-screen-md",
+        lg = "max-w-screen-lg",
+        xl = "max-w-screen-xl",
+        var"2xl" = "max-w-screen-2xl",
+        full = "max-w-full",
     )
 
     size_class = get(size_classes, size_sym, "max-w-screen-xl")
@@ -77,13 +77,7 @@ A modern flexible stack component for vertical or horizontal layouts with consis
     direction_class = direction_sym == :horizontal ? "flex-row" : "flex-col"
 
     # Handle gap as symbol or int
-    gap_presets = Dict(
-        :xs => "gap-1",
-        :sm => "gap-2",
-        :base => "gap-4",
-        :lg => "gap-6",
-        :xl => "gap-8",
-    )
+    gap_presets = (xs = "gap-1", sm = "gap-2", base = "gap-4", lg = "gap-6", xl = "gap-8")
 
     gap_class = if gap isa Symbol
         get(gap_presets, gap, "gap-4")
@@ -93,20 +87,20 @@ A modern flexible stack component for vertical or horizontal layouts with consis
 
     wrap_class = wrap ? "flex-wrap" : ""
 
-    align_classes = Dict(
-        :start => "items-start",
-        :center => "items-center",
-        :end => "items-end",
-        :stretch => "items-stretch",
+    align_classes = (
+        start = "items-start",
+        center = "items-center",
+        var"end" = "items-end",
+        stretch = "items-stretch",
     )
 
-    justify_classes = Dict(
-        :start => "justify-start",
-        :center => "justify-center",
-        :end => "justify-end",
-        :between => "justify-between",
-        :around => "justify-around",
-        :evenly => "justify-evenly",
+    justify_classes = (
+        start = "justify-start",
+        center = "justify-center",
+        var"end" = "justify-end",
+        between = "justify-between",
+        around = "justify-around",
+        evenly = "justify-evenly",
     )
 
     align_class = get(align_classes, align_sym, "items-stretch")
@@ -183,10 +177,10 @@ A page section component with consistent vertical spacing.
     # Convert to symbol
     spacing_sym = Symbol(spacing)
 
-    spacing_classes = Dict(
-        :sm => "py-8 sm:py-12",
-        :md => "py-12 sm:py-16 md:py-20",
-        :lg => "py-16 sm:py-20 md:py-24 lg:py-32",
+    spacing_classes = (
+        sm = "py-8 sm:py-12",
+        md = "py-12 sm:py-16 md:py-20",
+        lg = "py-16 sm:py-20 md:py-24 lg:py-32",
     )
 
     spacing_class = get(spacing_classes, spacing_sym, "py-12 sm:py-16 md:py-20")

@@ -17,11 +17,11 @@ Horizontal or vertical separator component.
     # Convert to symbol
     orientation_sym = Symbol(orientation)
 
-    default_spacing = orientation_sym == :horizontal ? "my-4" : "mx-4"
+    default_spacing = orientation_sym === :horizontal ? "my-4" : "mx-4"
     spacing_class = isnothing(spacing) ? default_spacing : spacing
     color_class = isnothing(color) ? "border-slate-200 dark:border-slate-800" : color
 
-    if orientation_sym == :horizontal
+    if orientation_sym === :horizontal
         @hr {class = "border-t $color_class $spacing_class", role = "separator", attrs...}
     else
         @div {
@@ -59,16 +59,16 @@ User profile image component.
     size_sym = Symbol(size)
     shape_sym = Symbol(shape)
 
-    size_classes = Dict(
-        :xs => "h-6 w-6 text-xs",
-        :sm => "h-8 w-8 text-sm",
-        :md => "h-10 w-10 text-base",
-        :lg => "h-12 w-12 text-lg",
-        :xl => "h-16 w-16 text-xl",
+    size_classes = (
+        xs = "h-6 w-6 text-xs",
+        sm = "h-8 w-8 text-sm",
+        md = "h-10 w-10 text-base",
+        lg = "h-12 w-12 text-lg",
+        xl = "h-16 w-16 text-xl",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
-    shape_class = shape_sym == :circle ? "rounded-full" : "rounded-lg"
+    size_class = get(size_classes, size_sym, size_classes.md)
+    shape_class = shape_sym === :circle ? "rounded-full" : "rounded-lg"
 
     # Default background color for fallback avatars
     default_bg = if !isnothing(src)
@@ -149,21 +149,21 @@ This component requires the theme management JavaScript to be included in your p
     base_classes = "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
 
     # Variant classes
-    variant_classes = Dict(
-        :default => "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300",
-        :ghost => "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
-        :outline => "border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
+    variant_classes = (
+        default = "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300",
+        ghost = "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
+        outline = "border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
     )
 
     # Size classes
-    size_classes = Dict(
-        :sm => "px-2.5 py-1.5 text-sm rounded",
-        :md => "px-3 py-2 text-sm rounded-lg",
-        :lg => "px-4 py-2.5 text-base rounded-lg",
+    size_classes = (
+        sm = "px-2.5 py-1.5 text-sm rounded",
+        md = "px-3 py-2 text-sm rounded-lg",
+        lg = "px-4 py-2.5 text-base rounded-lg",
     )
 
-    variant_class = get(variant_classes, variant_sym, variant_classes[:default])
-    size_class = get(size_classes, size_sym, size_classes[:md])
+    variant_class = get(variant_classes, variant_sym, variant_classes.default)
+    size_class = get(size_classes, size_sym, size_classes.md)
 
     @button {
         id = id,
@@ -261,7 +261,7 @@ window.updateThemeButtons = () => {
         dark: 'Dark',
         system: 'System'
     };
-    
+
     buttons.forEach(button => {
         const showLabel = button.dataset.showLabel === 'true';
         if (showLabel) {

@@ -34,34 +34,34 @@ A styled text input field.
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    size_classes = Dict(
-        :xs => "px-2.5 py-1.5 text-xs",
-        :sm => "px-3 py-2 text-sm",
-        :base => "px-4 py-2.5 text-base",
-        :md => "px-4 py-2.5 text-base",  # For backward compatibility
-        :lg => "px-5 py-3 text-lg",
-        :xl => "px-6 py-3.5 text-xl",
+    size_classes = (
+        xs = "px-2.5 py-1.5 text-xs",
+        sm = "px-3 py-2 text-sm",
+        base = "px-4 py-2.5 text-base",
+        md = "px-4 py-2.5 text-base",  # For backward compatibility
+        lg = "px-5 py-3 text-lg",
+        xl = "px-6 py-3.5 text-xl",
     )
 
-    state_classes = Dict(
-        :default => "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        :error => "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        :success => "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+    state_classes = (
+        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:base])
-    state_class = get(state_classes, state_sym, state_classes[:default])
+    size_class = get(size_classes, size_sym, size_classes.base)
+    state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
     base_classes = "w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class"
-    aria_invalid = state_sym == :error ? "true" : nothing
+    aria_invalid = state_sym === :error ? "true" : nothing
 
     if !isnothing(icon)
         @div {class = "relative"} begin
             @div {
                 class = "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400",
             } begin
-                HypertextTemplates.SafeString(icon)
+                @text HypertextTemplates.SafeString(icon)
             end
             @input {
                 type = type,
@@ -72,8 +72,8 @@ A styled text input field.
                 required = required,
                 disabled = disabled,
                 id = id,
-                "aria-invalid" = aria_invalid,
-                "aria-describedby" = aria_describedby,
+                "aria-invalid" := aria_invalid,
+                "aria-describedby" := aria_describedby,
                 attrs...,
             }
         end
@@ -87,8 +87,8 @@ A styled text input field.
             required = required,
             disabled = disabled,
             id = id,
-            "aria-invalid" = aria_invalid,
-            "aria-describedby" = aria_describedby,
+            "aria-invalid" := aria_invalid,
+            "aria-describedby" := aria_describedby,
             attrs...,
         }
     end
@@ -130,23 +130,23 @@ A multi-line text input component.
     resize_sym = Symbol(resize)
     state_sym = Symbol(state)
 
-    resize_classes = Dict(
-        :none => "resize-none",
-        :vertical => "resize-y",
-        :horizontal => "resize-x",
-        :both => "resize",
+    resize_classes = (
+        none = "resize-none",
+        vertical = "resize-y",
+        horizontal = "resize-x",
+        both = "resize",
     )
 
-    state_classes = Dict(
-        :default => "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        :error => "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        :success => "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+    state_classes = (
+        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
     )
 
     resize_class = get(resize_classes, resize_sym, "resize-y")
-    state_class = get(state_classes, state_sym, state_classes[:default])
+    state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
-    aria_invalid = state_sym == :error ? "true" : nothing
+    aria_invalid = state_sym === :error ? "true" : nothing
 
     @textarea {
         rows = rows,
@@ -156,8 +156,8 @@ A multi-line text input component.
         required = required,
         disabled = disabled,
         id = id,
-        "aria-invalid" = aria_invalid,
-        "aria-describedby" = aria_describedby,
+        "aria-invalid" := aria_invalid,
+        "aria-describedby" := aria_describedby,
         attrs...,
     } begin
         if !isnothing(value)
@@ -202,25 +202,25 @@ A dropdown select element.
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    size_classes = Dict(
-        :xs => "px-2.5 py-1.5 pr-8 text-xs",
-        :sm => "px-3 py-2 pr-9 text-sm",
-        :base => "px-4 py-2.5 pr-10 text-base",
-        :md => "px-4 py-2.5 pr-10 text-base",  # For backward compatibility
-        :lg => "px-5 py-3 pr-11 text-lg",
-        :xl => "px-6 py-3.5 pr-12 text-xl",
+    size_classes = (
+        xs = "px-2.5 py-1.5 pr-8 text-xs",
+        sm = "px-3 py-2 pr-9 text-sm",
+        base = "px-4 py-2.5 pr-10 text-base",
+        md = "px-4 py-2.5 pr-10 text-base",  # For backward compatibility
+        lg = "px-5 py-3 pr-11 text-lg",
+        xl = "px-6 py-3.5 pr-12 text-xl",
     )
 
-    state_classes = Dict(
-        :default => "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        :error => "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        :success => "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+    state_classes = (
+        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:base])
-    state_class = get(state_classes, state_sym, state_classes[:default])
+    size_class = get(size_classes, size_sym, size_classes.base)
+    state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
-    aria_invalid = state_sym == :error ? "true" : nothing
+    aria_invalid = state_sym === :error ? "true" : nothing
 
     @select {
         class = "w-full appearance-none rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpolyline points=\"6 9 12 15 18 9\"%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat $size_class $state_class $disabled_class",
@@ -228,8 +228,8 @@ A dropdown select element.
         required = required,
         disabled = disabled,
         id = id,
-        "aria-invalid" = aria_invalid,
-        "aria-describedby" = aria_describedby,
+        "aria-invalid" := aria_invalid,
+        "aria-describedby" := aria_describedby,
         attrs...,
     } begin
         if !isnothing(placeholder)
@@ -276,16 +276,16 @@ A styled checkbox input.
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = Dict(:sm => "h-3.5 w-3.5", :md => "h-4 w-4", :lg => "h-5 w-5")
+    size_classes = (sm = "h-3.5 w-3.5", md = "h-4 w-4", lg = "h-5 w-5")
 
-    color_classes = Dict(
-        :slate => "text-gray-600 focus:ring-gray-500",
-        :primary => "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
-        :success => "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
+    color_classes = (
+        slate = "text-gray-600 focus:ring-gray-500",
+        primary = "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
+        success = "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
-    color_class = get(color_classes, color_sym, color_classes[:primary])
+    size_class = get(size_classes, size_sym, size_classes.md)
+    color_class = get(color_classes, color_sym, color_classes.primary)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
     if !isnothing(label)
@@ -346,16 +346,16 @@ Radio button component for single selection.
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = Dict(:sm => "h-3.5 w-3.5", :md => "h-4 w-4", :lg => "h-5 w-5")
+    size_classes = (sm = "h-3.5 w-3.5", md = "h-4 w-4", lg = "h-5 w-5")
 
-    color_classes = Dict(
-        :slate => "text-gray-600 focus:ring-gray-500",
-        :primary => "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
-        :success => "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
+    color_classes = (
+        slate = "text-gray-600 focus:ring-gray-500",
+        primary = "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
+        success = "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
-    color_class = get(color_classes, color_sym, color_classes[:primary])
+    size_class = get(size_classes, size_sym, size_classes.md)
+    color_class = get(color_classes, color_sym, color_classes.primary)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
     # Note: WebKit/Safari may clip the right edge of radio buttons in some cases.
@@ -413,7 +413,7 @@ Form field wrapper with label and help text.
         if !isnothing(label)
             Elements.@label {
                 class = "block text-sm font-medium text-gray-700 dark:text-gray-300",
-                "for" = field_id,
+                "for" := field_id,
             } begin
                 @text label
                 if required
@@ -473,38 +473,34 @@ A modern styled button component with multiple variants and sizes.
     rounded_sym = Symbol(rounded)
 
     # Size classes
-    size_map = Dict(
-        :xs => (padding = "px-2.5 py-1.5", text = "text-xs", gap = "gap-1"),
-        :sm => (padding = "px-3 py-2", text = "text-sm", gap = "gap-1.5"),
-        :base => (padding = "px-4 py-2.5", text = "text-base", gap = "gap-2"),
-        :lg => (padding = "px-5 py-3", text = "text-lg", gap = "gap-2.5"),
-        :xl => (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
+    size_map = (
+        xs = (padding = "px-2.5 py-1.5", text = "text-xs", gap = "gap-1"),
+        sm = (padding = "px-3 py-2", text = "text-sm", gap = "gap-1.5"),
+        base = (padding = "px-4 py-2.5", text = "text-base", gap = "gap-2"),
+        lg = (padding = "px-5 py-3", text = "text-lg", gap = "gap-2.5"),
+        xl = (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
     )
 
     # Variant classes
-    variant_map = Dict(
-        :primary => "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md",
-        :secondary => "bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md",
-        :neutral => "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md",
-        :success => "bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-400 shadow-sm hover:shadow-md",
-        :warning => "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400 shadow-sm hover:shadow-md",
-        :danger => "bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-400 shadow-sm hover:shadow-md",
-        :gradient => "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-blue-400 shadow-md hover:shadow-lg",
-        :ghost => "bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
-        :outline => "bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
+    variant_map = (
+        primary = "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md",
+        secondary = "bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md",
+        neutral = "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md",
+        success = "bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-400 shadow-sm hover:shadow-md",
+        warning = "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400 shadow-sm hover:shadow-md",
+        danger = "bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-400 shadow-sm hover:shadow-md",
+        gradient = "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-blue-400 shadow-md hover:shadow-lg",
+        ghost = "bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
+        outline = "bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
     )
 
-    size_data = get(size_map, size_sym, size_map[:base])
-    variant_class = get(variant_map, variant_sym, variant_map[:primary])
+    size_data = get(size_map, size_sym, size_map.base)
+    variant_class = get(variant_map, variant_sym, variant_map.primary)
 
     # Rounded classes
-    rounded_classes = Dict(
-        :base => "rounded-lg",
-        :lg => "rounded-xl",
-        :xl => "rounded-2xl",
-        :full => "rounded-full",
-    )
-    rounded_class = get(rounded_classes, rounded_sym, rounded_classes[:xl])
+    rounded_classes =
+        (base = "rounded-lg", lg = "rounded-xl", xl = "rounded-2xl", full = "rounded-full")
+    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.xl)
 
     # Build classes
     width_class = full_width ? "w-full" : ""
@@ -517,20 +513,20 @@ A modern styled button component with multiple variants and sizes.
     @button {type = type, class = final_classes, disabled = disabled || loading, attrs...} begin
         if loading
             # Modern loading spinner
-            HypertextTemplates.SafeString(
+            @text HypertextTemplates.SafeString(
                 """<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 </svg>""",
             )
         elseif !isnothing(icon_left)
-            HypertextTemplates.SafeString(icon_left)
+            @text HypertextTemplates.SafeString(icon_left)
         end
 
         @__slot__()
 
         if !isnothing(icon_right) && !loading
-            HypertextTemplates.SafeString(icon_right)
+            @text HypertextTemplates.SafeString(icon_right)
         end
     end
 end
@@ -603,22 +599,22 @@ Requires Alpine.js.
     end
 
     # Size classes (matching Input component)
-    size_classes = Dict(
-        :xs => "px-2.5 py-1.5 text-xs",
-        :sm => "px-3 py-2 text-sm",
-        :base => "px-4 py-2.5 text-base",
-        :lg => "px-5 py-3 text-lg",
-        :xl => "px-6 py-3.5 text-xl",
+    size_classes = (
+        xs = "px-2.5 py-1.5 text-xs",
+        sm = "px-3 py-2 text-sm",
+        base = "px-4 py-2.5 text-base",
+        lg = "px-5 py-3 text-lg",
+        xl = "px-6 py-3.5 text-xl",
     )
 
-    state_classes = Dict(
-        :default => "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        :error => "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        :success => "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+    state_classes = (
+        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:base])
-    state_class = get(state_classes, state_sym, state_classes[:default])
+    size_class = get(size_classes, size_sym, size_classes.base)
+    state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
 
     # Alpine.js data
@@ -732,11 +728,11 @@ Requires Alpine.js.
                     @input {
                         type = "hidden",
                         name = name,
-                        "x-bind:value" = "'$selected_val'",
+                        "x-bind:value" := "'$selected_val'",
                     }
                 end
             else
-                @input {type = "hidden", name = name, "x-bind:value" = "selected"}
+                @input {type = "hidden", name = name, "x-bind:value" := "selected"}
             end
         end
 
@@ -745,23 +741,18 @@ Requires Alpine.js.
             # Dropdown trigger button
             @button {
                 type = "button",
-                "x-ref" = "button",
-                "@click" = disabled ? nothing : "checkDropDirection(); open = !open",
-                ":aria-expanded" = "open.toString()",
-                "aria-haspopup" = "listbox",
-                "aria-controls" = dropdown_id,
+                "x-ref" := "button",
+                "@click" := disabled ? nothing : "checkDropDirection(); open = !open",
+                ":aria-expanded" := "open.toString()",
+                "aria-haspopup" := "listbox",
+                "aria-controls" := dropdown_id,
                 disabled = disabled,
                 required = required,
-                class = merge_attrs(
-                    (
-                        class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
-                    ),
-                    (),
-                ).class,
+                class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
             } begin
                 @span {
-                    "x-text" = "selectedLabel",
-                    ":class" = "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
+                    "x-text" := "selectedLabel",
+                    ":class" := "{ 'text-gray-500 dark:text-gray-400': !selected || (Array.isArray(selected) && selected.length === 0) }",
                     class = clearable ? "pr-12" : "pr-8",
                 } begin
                     if !isnothing(placeholder)
@@ -772,15 +763,15 @@ Requires Alpine.js.
                 # Dropdown arrow
                 @svg {
                     class = "absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none",
-                    ":class" = "{ 'rotate-180': open }",
+                    ":class" := "{ 'rotate-180': open }",
                     xmlns = "http://www.w3.org/2000/svg",
                     viewBox = "0 0 20 20",
                     fill = "currentColor",
                 } begin
                     @path {
-                        "fill-rule" = "evenodd",
+                        "fill-rule" := "evenodd",
                         d = "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z",
-                        "clip-rule" = "evenodd",
+                        "clip-rule" := "evenodd",
                     }
                 end
             end
@@ -789,16 +780,16 @@ Requires Alpine.js.
             if clearable
                 @button {
                     type = "button",
-                    "@click.stop" = "clearSelection()",
-                    "x-show" = "hasSelection",
-                    "x-transition:enter" = "transition ease-out duration-150",
-                    "x-transition:enter-start" = "opacity-0 scale-75",
-                    "x-transition:enter-end" = "opacity-100 scale-100",
-                    "x-transition:leave" = "transition ease-in duration-100",
-                    "x-transition:leave-start" = "opacity-100 scale-100",
-                    "x-transition:leave-end" = "opacity-0 scale-75",
+                    "@click.stop" := "clearSelection()",
+                    "x-show" := "hasSelection",
+                    "x-transition:enter" := "transition ease-out duration-150",
+                    "x-transition:enter-start" := "opacity-0 scale-75",
+                    "x-transition:enter-end" := "opacity-100 scale-100",
+                    "x-transition:leave" := "transition ease-in duration-100",
+                    "x-transition:leave-start" := "opacity-100 scale-100",
+                    "x-transition:leave-end" := "opacity-0 scale-75",
                     class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
-                    "aria-label" = "Clear selection",
+                    "aria-label" := "Clear selection",
                 } begin
                     @svg {
                         class = "h-4 w-4 text-gray-500 dark:text-gray-400",
@@ -807,9 +798,9 @@ Requires Alpine.js.
                         fill = "currentColor",
                     } begin
                         @path {
-                            "fill-rule" = "evenodd",
+                            "fill-rule" := "evenodd",
                             d = "M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z",
-                            "clip-rule" = "evenodd",
+                            "clip-rule" := "evenodd",
                         }
                     end
                 end
@@ -818,28 +809,28 @@ Requires Alpine.js.
 
         # Dropdown panel
         @div {
-            "x-show" = "open",
-            "x-transition:enter" = "transition ease-out duration-200",
-            "x-transition:enter-start" = "opacity-0 transform scale-95",
-            "x-transition:enter-end" = "opacity-100 transform scale-100",
-            "x-transition:leave" = "transition ease-in duration-150",
-            "x-transition:leave-start" = "opacity-100 transform scale-100",
-            "x-transition:leave-end" = "opacity-0 transform scale-95",
-            "@click.away" = "open = false; search = ''",
+            "x-show" := "open",
+            "x-transition:enter" := "transition ease-out duration-200",
+            "x-transition:enter-start" := "opacity-0 transform scale-95",
+            "x-transition:enter-end" := "opacity-100 transform scale-100",
+            "x-transition:leave" := "transition ease-in duration-150",
+            "x-transition:leave-start" := "opacity-100 transform scale-100",
+            "x-transition:leave-end" := "opacity-0 transform scale-95",
+            "@click.away" := "open = false; search = ''",
             id = dropdown_id,
-            ":class" = "dropUp ? 'bottom-full mb-2' : 'top-full mt-2'",
-            class = "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            ":class" := "dropUp ? 'bottom-full mb-2' : 'top-full mt-2'",
+            class := "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
             role = "listbox",
-            "aria-label" = placeholder,
+            "aria-label" := placeholder,
         } begin
             # Search input (if searchable)
             if searchable
                 @div {class = "p-2 border-b border-gray-200 dark:border-gray-800"} begin
                     @input {
                         type = "text",
-                        "x-ref" = "search",
-                        "x-model" = "search",
-                        "@click.stop" = "",
+                        "x-ref" := "search",
+                        "x-model" := "search",
+                        "@click.stop" := "",
                         placeholder = "Search...",
                         class = "w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
                     }
@@ -849,42 +840,42 @@ Requires Alpine.js.
             # Options list
             @div {class = "overflow-y-auto", style = "max-height: $max_height"} begin
                 @template {
-                    "x-for" = "(option, index) in filteredOptions",
-                    ":key" = "option[0]",
+                    "x-for" := "(option, index) in filteredOptions",
+                    ":key" := "option[0]",
                 } begin
                     @button {
                         type = "button",
-                        "@click" = "selectOption(option[0])",
-                        ":class" = """{
+                        "@click" := "selectOption(option[0])",
+                        ":class" := """{
                             'bg-blue-50 dark:bg-blue-900/20': highlighted === index,
                             'bg-blue-100 dark:bg-blue-900/40': isSelected(option[0])
                         }""",
-                        "@mouseenter" = "highlighted = index",
+                        "@mouseenter" := "highlighted = index",
                         class = "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150",
                         role = "option",
-                        ":aria-selected" = "isSelected(option[0])",
+                        ":aria-selected" := "isSelected(option[0])",
                     } begin
                         @div {class = "flex items-center"} begin
                             if multiple
                                 @div {class = "mr-3"} begin
                                     @div {
                                         class = "h-4 w-4 rounded border-2 transition-all duration-200",
-                                        ":class" = """{
+                                        ":class" := """{
                                             'border-blue-500 bg-blue-500': isSelected(option[0]),
                                             'border-gray-300 dark:border-gray-600': !isSelected(option[0])
                                         }""",
                                     } begin
                                         @svg {
-                                            "x-show" = "isSelected(option[0])",
+                                            "x-show" := "isSelected(option[0])",
                                             class = "h-3 w-3 text-white",
                                             fill = "none",
                                             viewBox = "0 0 24 24",
                                             stroke = "currentColor",
                                         } begin
                                             @path {
-                                                "stroke-linecap" = "round",
-                                                "stroke-linejoin" = "round",
-                                                "stroke-width" = "3",
+                                                "stroke-linecap" := "round",
+                                                "stroke-linejoin" := "round",
+                                                "stroke-width" := "3",
                                                 d = "M5 13l4 4L19 7",
                                             }
                                         end
@@ -892,7 +883,7 @@ Requires Alpine.js.
                                 end
                             end
                             @span {
-                                "x-text" = "option[1]",
+                                "x-text" := "option[1]",
                                 class = "text-gray-900 dark:text-gray-100",
                             }
                         end
@@ -901,7 +892,7 @@ Requires Alpine.js.
 
                 # No results message
                 @div {
-                    "x-show" = "search && filteredOptions.length === 0",
+                    "x-show" := "search && filteredOptions.length === 0",
                     class = "px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400",
                 } "No options found"
             end

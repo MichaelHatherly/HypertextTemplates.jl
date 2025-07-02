@@ -29,22 +29,22 @@ Without Alpine.js, the component will display the close button but won't be inte
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    variant_classes = Dict(
-        :info => "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/30 dark:border-blue-700 dark:text-blue-300",
-        :success => "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300",
-        :warning => "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/30 dark:border-amber-700 dark:text-amber-300",
-        :error => "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/30 dark:border-rose-700 dark:text-rose-300",
+    variant_classes = (
+        info = "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/30 dark:border-blue-700 dark:text-blue-300",
+        success = "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300",
+        warning = "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/30 dark:border-amber-700 dark:text-amber-300",
+        error = "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/30 dark:border-rose-700 dark:text-rose-300",
     )
 
-    icon_svgs = Dict(
-        :info => """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>""",
-        :success => """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>""",
-        :warning => """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>""",
-        :error => """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>""",
+    icon_svgs = (
+        info = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>""",
+        success = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>""",
+        warning = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>""",
+        error = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>""",
     )
 
-    variant_class = get(variant_classes, variant_sym, variant_classes[:info])
-    icon_svg = get(icon_svgs, variant_sym, icon_svgs[:info])
+    variant_class = get(variant_classes, variant_sym, variant_classes.info)
+    icon_svg = get(icon_svgs, variant_sym, icon_svgs.info)
     animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
 
     # Build component default attributes
@@ -58,14 +58,13 @@ Without Alpine.js, the component will display the close button but won't be inte
         component_attrs = merge(
             component_attrs,
             (
-                Symbol("x-data") => SafeString("{ show: true }"),
-                Symbol("x-show") => SafeString("show"),
-                Symbol("x-transition:leave") =>
-                    SafeString("transition ease-in duration-200"),
-                Symbol("x-transition:leave-start") =>
-                    SafeString("opacity-100 transform scale-100"),
-                Symbol("x-transition:leave-end") =>
-                    SafeString("opacity-0 transform scale-95"),
+                var"x-data" = SafeString("{ show: true }"),
+                var"x-show" = SafeString("show"),
+                var"x-transition:leave" = SafeString("transition ease-in duration-200"),
+                var"x-transition:leave-start" = SafeString(
+                    "opacity-100 transform scale-100",
+                ),
+                var"x-transition:leave-end" = SafeString("opacity-0 transform scale-95"),
             ),
         )
     end
@@ -143,18 +142,18 @@ Without Alpine.js, the progress bar will display at its final value without anim
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = Dict(:sm => "h-2", :md => "h-3", :lg => "h-5")
+    size_classes = (sm = "h-2", md = "h-3", lg = "h-5")
 
-    color_classes = Dict(
-        :primary => "bg-blue-500 dark:bg-blue-400",
-        :success => "bg-emerald-500 dark:bg-emerald-400",
-        :warning => "bg-amber-500 dark:bg-amber-400",
-        :danger => "bg-rose-500 dark:bg-rose-400",
-        :gradient => "bg-gradient-to-r from-blue-500 to-purple-600",
+    color_classes = (
+        primary = "bg-blue-500 dark:bg-blue-400",
+        success = "bg-emerald-500 dark:bg-emerald-400",
+        warning = "bg-amber-500 dark:bg-amber-400",
+        danger = "bg-rose-500 dark:bg-rose-400",
+        gradient = "bg-gradient-to-r from-blue-500 to-purple-600",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
-    color_class = get(color_classes, color_sym, color_classes[:primary])
+    size_class = get(size_classes, size_sym, size_classes.md)
+    color_class = get(color_classes, color_sym, color_classes.primary)
     percentage = Base.min(100, Base.max(0, round(Int, (value / max) * 100)))
 
     striped_class = if striped
@@ -235,16 +234,16 @@ Loading spinner component.
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = Dict(:sm => "h-4 w-4", :md => "h-6 w-6", :lg => "h-8 w-8")
+    size_classes = (sm = "h-4 w-4", md = "h-6 w-6", lg = "h-8 w-8")
 
-    color_classes = Dict(
-        :slate => "text-slate-600 dark:text-slate-400",
-        :primary => "text-slate-900 dark:text-slate-100",
-        :white => "text-white",
+    color_classes = (
+        slate = "text-slate-600 dark:text-slate-400",
+        primary = "text-slate-900 dark:text-slate-100",
+        white = "text-white",
     )
 
-    size_class = get(size_classes, size_sym, size_classes[:md])
-    color_class = get(color_classes, color_sym, color_classes[:primary])
+    size_class = get(size_classes, size_sym, size_classes.md)
+    color_class = get(color_classes, color_sym, color_classes.primary)
 
     @div {
         class = "inline-flex items-center",

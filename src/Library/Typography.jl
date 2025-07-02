@@ -21,13 +21,13 @@ A modern styled heading component with consistent sizing and weight.
     attrs...,
 )
     # Default sizes for each heading level
-    default_sizes = Dict(
-        1 => "text-4xl sm:text-5xl",
-        2 => "text-3xl sm:text-4xl",
-        3 => "text-2xl sm:text-3xl",
-        4 => "text-xl sm:text-2xl",
-        5 => "text-lg sm:text-xl",
-        6 => "text-base sm:text-lg",
+    default_sizes = (
+        #= 1 =#"text-4xl sm:text-5xl",
+        #= 2 =#"text-3xl sm:text-4xl",
+        #= 3 =#"text-2xl sm:text-3xl",
+        #= 4 =#"text-xl sm:text-2xl",
+        #= 5 =#"text-lg sm:text-xl",
+        #= 6 =#"text-base sm:text-lg",
     )
 
     # Convert to symbols
@@ -36,32 +36,29 @@ A modern styled heading component with consistent sizing and weight.
     tracking_sym = Symbol(tracking)
 
     # Size overrides
-    size_classes = Dict(
-        :xs => "text-xs",
-        :sm => "text-sm",
-        :base => "text-base",
-        :lg => "text-lg",
-        :xl => "text-xl",
-        Symbol("2xl") => "text-2xl",
-        Symbol("3xl") => "text-3xl",
-        Symbol("4xl") => "text-4xl",
-        Symbol("5xl") => "text-5xl",
+    size_classes = (
+        xs = "text-xs",
+        sm = "text-sm",
+        base = "text-base",
+        lg = "text-lg",
+        xl = "text-xl",
+        var"2xl" = "text-2xl",
+        var"3xl" = "text-3xl",
+        var"4xl" = "text-4xl",
+        var"5xl" = "text-5xl",
     )
 
-    weight_classes = Dict(
-        :light => "font-light",
-        :normal => "font-normal",
-        :medium => "font-medium",
-        :semibold => "font-semibold",
-        :bold => "font-bold",
-        :extrabold => "font-extrabold",
+    weight_classes = (
+        light = "font-light",
+        normal = "font-normal",
+        medium = "font-medium",
+        semibold = "font-semibold",
+        bold = "font-bold",
+        extrabold = "font-extrabold",
     )
 
-    tracking_classes = Dict(
-        :tight => "tracking-tight",
-        :normal => "tracking-normal",
-        :wide => "tracking-wide",
-    )
+    tracking_classes =
+        (tight = "tracking-tight", normal = "tracking-normal", wide = "tracking-wide")
 
     size_class =
         isnothing(size_sym) ? get(default_sizes, level, "text-2xl") :
@@ -75,13 +72,13 @@ A modern styled heading component with consistent sizing and weight.
         color_class = isnothing(color) ? "text-gray-900 dark:text-gray-100" : color
     end
 
-    elements = Dict(
-        1 => Elements.h1,
-        2 => Elements.h2,
-        3 => Elements.h3,
-        4 => Elements.h4,
-        5 => Elements.h5,
-        6 => Elements.h6,
+    elements = (
+        #= 1 =#Elements.h1,
+        #= 2 =#Elements.h2,
+        #= 3 =#Elements.h3,
+        #= 4 =#Elements.h4,
+        #= 5 =#Elements.h5,
+        #= 6 =#Elements.h6,
     )
     element = get(elements, level, Elements.h1)
 
@@ -114,32 +111,27 @@ Body text component with various styles.
     align::Union{Symbol,String} = :left,
     attrs...,
 )
-    variant_classes = Dict(
-        :body => "text-base leading-relaxed",
-        :lead => "text-lg sm:text-xl leading-relaxed",
-        :small => "text-sm leading-normal",
+    variant_classes = (
+        body = "text-base leading-relaxed",
+        lead = "text-lg sm:text-xl leading-relaxed",
+        small = "text-sm leading-normal",
     )
 
-    size_classes = Dict(
-        :xs => "text-xs",
-        :sm => "text-sm",
-        :base => "text-base",
-        :lg => "text-lg",
-        :xl => "text-xl",
+    size_classes =
+        (xs = "text-xs", sm = "text-sm", base = "text-base", lg = "text-lg", xl = "text-xl")
+
+    weight_classes = (
+        normal = "font-normal",
+        medium = "font-medium",
+        semibold = "font-semibold",
+        bold = "font-bold",
     )
 
-    weight_classes = Dict(
-        :normal => "font-normal",
-        :medium => "font-medium",
-        :semibold => "font-semibold",
-        :bold => "font-bold",
-    )
-
-    align_classes = Dict(
-        :left => "text-left",
-        :center => "text-center",
-        :right => "text-right",
-        :justify => "text-justify",
+    align_classes = (
+        left = "text-left",
+        center = "text-center",
+        right = "text-right",
+        justify = "text-justify",
     )
 
     # Convert to symbols
@@ -184,10 +176,10 @@ Styled anchor element with hover effects.
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    variant_classes = Dict(
-        :default => "transition-colors",
-        :underline => "underline transition-colors",
-        :hover_underline => "hover:underline transition-all",
+    variant_classes = (
+        default = "transition-colors",
+        underline = "underline transition-colors",
+        hover_underline = "hover:underline transition-all",
     )
 
     variant_class = get(variant_classes, variant_sym, "transition-colors")

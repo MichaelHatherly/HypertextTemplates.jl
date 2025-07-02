@@ -188,23 +188,22 @@ A styled list component with various markers.
     variant_sym = Symbol(variant)
     spacing_sym = Symbol(spacing)
 
-    spacing_classes =
-        Dict(:tight => "space-y-1", :normal => "space-y-2", :loose => "space-y-4")
+    spacing_classes = (tight = "space-y-1", normal = "space-y-2", loose = "space-y-4")
 
     spacing_class = get(spacing_classes, spacing_sym, "space-y-2")
 
     # Base classes for all variants
     base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
 
-    if variant_sym == :bullet
+    if variant_sym === :bullet
         @ul {class = "list-disc list-inside $base_class", attrs...} begin
             @__slot__()
         end
-    elseif variant_sym == :number
+    elseif variant_sym === :number
         @ol {class = "list-decimal list-inside $base_class", attrs...} begin
             @__slot__()
         end
-    elseif variant_sym == :check
+    elseif variant_sym === :check
         # For check variant, we'll style the list items with pseudo-elements
         @ul {
             class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
