@@ -131,7 +131,7 @@ Theme toggle button component that cycles through light, dark, and system themes
 ```
 
 # Requirements
-This component requires the theme management JavaScript to be included in your page.
+This component requires Alpine.js to be included in your page.
 """
 @component function ThemeToggle(;
     id::String = "theme-toggle",
@@ -141,6 +141,13 @@ This component requires the theme management JavaScript to be included in your p
     class::String = "",
     attrs...,
 )
+    # Load JavaScript for theme functionality
+    @__once__ begin
+        @script @text SafeString(
+            read(joinpath(@__DIR__, "assets", "theme-toggle.js"), String),
+        )
+    end
+
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
@@ -165,118 +172,28 @@ This component requires the theme management JavaScript to be included in your p
     variant_class = get(variant_classes, variant_sym, variant_classes.default)
     size_class = get(size_classes, size_sym, size_classes.md)
 
-    @button {
+    # Build component attributes with Alpine.js
+    component_attrs = (
         id = id,
         type = "button",
-        onclick = "toggleTheme()",
+        var"x-data" = "themeToggle()",
+        var"@click" = "toggle()",
         class = "$base_classes $variant_class $size_class $class",
         title = "Toggle theme",
-        "data-show-label" = show_label ? "true" : "false",
-        attrs...,
-    } begin
+    )
+
+    # Merge with user attributes
+    merged_attrs = merge_attrs(component_attrs, attrs)
+
+    @button {merged_attrs...} begin
         if show_label
-            @text "💻 System"
+            @span {var"x-text" = "`\${currentIcon} \${currentLabel}`"} "💻 System"
         else
             # Icon only - still needs text for screen readers
-            @span {"aria-hidden" = "true"} "💻"
+            @span {"aria-hidden" = "true", var"x-text" = "currentIcon"} "💻"
             @span {class = "sr-only"} "Toggle theme"
         end
     end
 end
 
 @deftag macro ThemeToggle end
-
-"""
-    theme_toggle_script()
-
-Returns the JavaScript code needed for the ThemeToggle component to function.
-This should be included in your page's <head> section.
-
-# Example
-```julia
-@script begin
-    @text HypertextTemplates.SafeString(theme_toggle_script())
-end
-```
-"""
-function theme_toggle_script()
-    return """
-// Theme management
-const getStoredTheme = () => localStorage.getItem('theme') || 'system';
-
-const getSystemTheme = () => {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
-
-const applyTheme = (theme) => {
-    const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
-    if (effectiveTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-};
-
-const setTheme = (theme) => {
-    localStorage.setItem('theme', theme);
-    applyTheme(theme);
-};
-
-// Set initial theme
-setTheme(getStoredTheme());
-
-// Listen for system theme changes
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (getStoredTheme() === 'system') {
-        applyTheme('system');
-    }
-});
-
-// Theme toggle function (cycles through light -> dark -> system)
-window.toggleTheme = () => {
-    const currentTheme = getStoredTheme();
-    let newTheme;
-    if (currentTheme === 'light') {
-        newTheme = 'dark';
-    } else if (currentTheme === 'dark') {
-        newTheme = 'system';
-    } else {
-        newTheme = 'light';
-    }
-    setTheme(newTheme);
-    updateThemeButtons();
-};
-
-// Update all theme toggle buttons
-window.updateThemeButtons = () => {
-    const theme = getStoredTheme();
-    const buttons = document.querySelectorAll('[onclick="toggleTheme()"]');
-    const icons = {
-        light: '☀️',
-        dark: '🌙',
-        system: '💻'
-    };
-    const labels = {
-        light: 'Light',
-        dark: 'Dark',
-        system: 'System'
-    };
-
-    buttons.forEach(button => {
-        const showLabel = button.dataset.showLabel === 'true';
-        if (showLabel) {
-            button.innerHTML = icons[theme] + ' ' + labels[theme];
-        } else {
-            button.querySelector('[aria-hidden]').textContent = icons[theme];
-        }
-    });
-};
-
-// Update buttons on load
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateThemeButtons);
-} else {
-    updateThemeButtons();
-}
-"""
-end

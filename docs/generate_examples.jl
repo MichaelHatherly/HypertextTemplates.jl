@@ -36,9 +36,6 @@ using HypertextTemplates.Library
                 [x-cloak] { display: none !important; }
                 """)
             end
-            @script begin
-                @text HypertextTemplates.SafeString(theme_toggle_script())
-            end
             # Load dropdown.js globally for dropdown components
             # This ensures Alpine.data('dropdown', ...) is available for all dropdowns
             @script begin
@@ -52,7 +49,6 @@ using HypertextTemplates.Library
         end
         @body {
             class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex",
-            onload = "updateThemeButtons()",
         } begin
             # Navigation sidebar - not fixed, part of flex layout
             @div {
