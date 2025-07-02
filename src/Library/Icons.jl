@@ -6,12 +6,6 @@ using ..Library: merge_attrs
 # Module-level icon cache to avoid repeated file I/O
 const ICON_CACHE = Dict{String,Union{String,Nothing}}()
 
-"""
-    load_icon(name::String) -> Union{String, Nothing}
-
-Load an icon SVG from the filesystem with caching.
-Returns the SVG content or nothing if the icon doesn't exist.
-"""
 function load_icon(name::String)
     # Check cache first
     haskey(ICON_CACHE, name) && return ICON_CACHE[name]

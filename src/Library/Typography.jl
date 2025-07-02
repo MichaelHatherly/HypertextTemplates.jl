@@ -61,7 +61,7 @@ A modern styled heading component with consistent sizing and weight.
         (tight = "tracking-tight", normal = "tracking-normal", wide = "tracking-wide")
 
     size_class =
-        isnothing(size_sym) ? get(default_sizes, level, "text-2xl") :
+        isnothing(size_sym) ? _get(default_sizes, level, "text-2xl") :
         get(size_classes, size_sym, "text-2xl")
     weight_class = get(weight_classes, weight_sym, "font-bold")
     tracking_class = get(tracking_classes, tracking_sym, "tracking-tight")
@@ -80,11 +80,18 @@ A modern styled heading component with consistent sizing and weight.
         #= 5 =#Elements.h5,
         #= 6 =#Elements.h6,
     )
-    element = get(elements, level, Elements.h1)
+    element = _get(elements, level, Elements.h1)
 
     @<element {class = "$size_class $weight_class $color_class", attrs...} begin
         @__slot__()
     end
+end
+
+# TODO: remove when dropping Julia 1.6 support.
+if VERSION < v"1.7"
+    _get(t::Tuple, i::Integer, default) = i in 1:length(t) ? getindex(t, i) : default
+else
+    _get(t::Tuple, i::Integer, default) = Base.get(t, i, default)
 end
 
 @deftag macro Heading end
