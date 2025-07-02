@@ -26,7 +26,7 @@ end
 """
     @Icon
 
-Icon wrapper component for consistent sizing and styling.
+A flexible icon component that supports both built-in icons and custom SVG content. Icons are essential visual elements that enhance user interfaces by providing quick visual recognition of actions, states, and categories. This component offers a comprehensive library of built-in icons covering common UI needs, while also allowing custom SVG content for specialized requirements. With consistent sizing options and color inheritance, icons integrate seamlessly into buttons, links, navigation elements, and standalone contexts. The component ensures proper accessibility through ARIA attributes, making icons work well for both decorative and interactive purposes.
 
 # Props
 - `size::Union{Symbol,String}`: Icon size (`:xs`, `:sm`, `:md`, `:lg`, `:xl`) (default: `:md`)
@@ -34,6 +34,9 @@ Icon wrapper component for consistent sizing and styling.
 - `name::Union{String,Nothing}`: Icon name for built-in icons (optional)
 - `aria_label::Union{String,Nothing}`: ARIA label for interactive icons (optional)
 - `decorative::Bool`: Whether icon is purely decorative (default: `true`)
+
+# Slots
+- Custom SVG content - used when `name` prop is not provided or when the named icon is not found
 
 # Available Icons
 Icons are loaded from SVG files in the `assets/icons/` directory. Available icons include:
@@ -49,18 +52,33 @@ Icons are loaded from SVG files in the `assets/icons/` directory. Available icon
 - Social: heart, star, bookmark, share
 - UI: check, x, plus, minus, menu, search, user, settings, logout, folder, dots-vertical, dots-horizontal, spinner
 
-# Usage
+# Example
 ```julia
 # Using a built-in icon
-@Icon {name="check", size=:lg}
+@Icon {name = "check", size = :lg}
+@Icon {name = "heart", color = "text-red-500"}
 
-# Using a custom SVG
-@Icon {size=:sm, color="text-blue-500"} begin
-    @svg {viewBox="0 0 24 24"} begin
-        # Custom SVG content
+# Interactive icon with ARIA label
+@Icon {name = "trash", aria_label = "Delete item", decorative = false}
+
+# Custom SVG icon
+@Icon {size = :xl, color = "text-purple-500"} begin
+    @svg {viewBox = "0 0 24 24", fill = "currentColor"} begin
+        @path {d = "M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"}
     end
 end
+
+# Fallback when icon not found
+@Icon {name = "nonexistent"} begin
+    @text "?"  # Fallback content
+end
 ```
+
+# See also
+- [`Button`](@ref) - Commonly used with icons
+- [`Link`](@ref) - For icon links
+- [`Badge`](@ref) - Can contain icons
+- [`DropdownItem`](@ref) - Supports icon props
 """
 @component function Icon(;
     size::Union{Symbol,String} = :md,

@@ -1,7 +1,7 @@
 """
     @Table
 
-A responsive data table component.
+A responsive data table component designed for presenting structured data in a clear, scannable format. Tables are fundamental for displaying datasets, comparisons, and detailed information that benefits from row and column organization. This component provides extensive customization options including striped rows for easier scanning, hover effects for row highlighting, sticky headers for long tables, and responsive overflow handling. It maintains accessibility standards with proper table markup and ARIA attributes while offering modern styling options that work seamlessly with both light and dark themes.
 
 # Props
 - `striped::Bool`: Whether to show striped rows (default: `false`)
@@ -12,6 +12,93 @@ A responsive data table component.
 - `sortable::Bool`: Whether to show sortable column indicators (default: `false`)
 - `caption::Union{String,Nothing}`: Table caption/description (optional)
 - `overflow::Bool`: Whether to apply overflow scrolling (default: `true`). Set to `false` when table contains dropdowns or other overlaying elements
+
+# Slots
+- Table content - should contain standard HTML table elements (thead, tbody, tr, th, td)
+
+# Example
+```julia
+# Basic table
+@Table begin
+    @thead begin
+        @tr begin
+            @th "Name"
+            @th "Email"
+            @th "Role"
+        end
+    end
+    @tbody begin
+        @tr begin
+            @td "John Doe"
+            @td "john@example.com"
+            @td "Admin"
+        end
+        @tr begin
+            @td "Jane Smith"
+            @td "jane@example.com"
+            @td "User"
+        end
+    end
+end
+
+# Striped table with sticky header
+@Table {striped = true, sticky_header = true, caption = "User list"} begin
+    @thead begin
+        @tr begin
+            @th "ID"
+            @th "Username"
+            @th "Status"
+        end
+    end
+    @tbody begin
+        # Table rows...
+    end
+end
+```
+
+# Accessibility
+This component implements comprehensive table accessibility standards:
+
+**ARIA Patterns:**
+- Uses semantic table markup (`<table>`, `<thead>`, `<tbody>`, `<th>`, `<td>`)
+- Table captions provide context and summary for screen readers
+- Column headers (`<th>`) are properly associated with data cells
+- Sortable columns include appropriate ARIA attributes when enabled
+
+**Keyboard Navigation:**
+- **Tab**: Moves focus through interactive elements within table
+- **Shift+Tab**: Moves focus to previous interactive element
+- **Arrow keys**: Navigate between cells (in sortable mode)
+- **Enter/Space**: Activate sortable column headers
+
+**Screen Reader Support:**
+- Table structure (headers, rows, columns) is announced
+- Caption text provides table context and purpose
+- Column relationships are communicated through header associations
+- Striped rows and hover states don't interfere with content reading
+- Row and column counts are announced when table receives focus
+
+**Data Presentation:**
+- Headers should be properly marked with `<th scope="col">` or `<th scope="row">`
+- Complex tables should use `<thead>`, `<tbody>`, and `<tfoot>` sections
+- Data relationships are clear through proper table structure
+- Sortable state changes are announced to assistive technology
+
+**Visual Design:**
+- Sufficient color contrast maintained across all styling options (4.5:1 minimum)
+- Focus indicators are clearly visible on interactive elements
+- Hover states provide clear feedback without relying solely on color
+- Sticky headers maintain visual association with content
+
+**Usage Guidelines:**
+- Provide meaningful captions that describe table purpose
+- Use column headers that clearly describe data content
+- Consider responsive alternatives for complex tables on mobile
+- Ensure interactive elements (sort buttons) have clear labels
+
+# See also
+- [`List`](@ref) - For simpler list layouts
+- [`Grid`](@ref) - For card-based data display
 """
 @component function Table(;
     striped::Bool = false,
@@ -173,11 +260,43 @@ end
 """
     @List
 
-A styled list component with various markers.
+A styled list component that enhances standard HTML lists with consistent visual design and flexible presentation options. Lists are essential for presenting sequential or related information in a scannable format, from simple bullet points to numbered steps or checklists. This component offers multiple variants including traditional bullets, numbers, checkmarks, or no markers at all, combined with adjustable spacing to suit different content densities. The styling is carefully crafted to maintain readability while providing visual interest through custom markers and proper indentation.
 
 # Props
 - `variant::Union{Symbol,String}`: List variant (`:bullet`, `:number`, `:check`, `:none`) (default: `:bullet`)
 - `spacing::Union{Symbol,String}`: Item spacing (`:tight`, `:normal`, `:loose`) (default: `:normal`)
+
+# Slots
+- List items - should contain `li` elements
+
+# Example
+```julia
+# Bulleted list
+@List begin
+    @li "First item"
+    @li "Second item"
+    @li "Third item"
+end
+
+# Numbered list
+@List {variant = :number} begin
+    @li "Step one"
+    @li "Step two"
+    @li "Step three"
+end
+
+# Checklist with loose spacing
+@List {variant = :check, spacing = :loose} begin
+    @li "Task completed"
+    @li "Another completed task"
+    @li "Final task done"
+end
+```
+
+# See also
+- [`Table`](@ref) - For tabular data
+- [`Timeline`](@ref) - For chronological lists
+- [`Stack`](@ref) - For custom list layouts
 """
 @component function List(;
     variant::Union{Symbol,String} = :bullet,

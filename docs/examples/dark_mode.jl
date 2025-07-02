@@ -1,3 +1,7 @@
+using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
 # Dark Mode Examples
 # Showcases components optimized for dark mode
 
@@ -289,4 +293,5 @@
         end
     end
 end
+
 @deftag macro DarkModeExample end

@@ -1,7 +1,7 @@
 """
     @Container
 
-A responsive container component with proper max-widths and padding.
+A responsive container component that constrains content width and provides consistent padding. This component serves as the primary layout wrapper for page content, ensuring readable line lengths and appropriate spacing across different screen sizes. It automatically centers content and applies responsive breakpoints to maintain optimal viewing experiences from mobile devices to large desktop displays.
 
 # Props
 - `size::Union{Symbol,String}`: Container size (`:sm`, `:md`, `:lg`, `:xl`, `"2xl"`, `:full`) (default: `:xl`)
@@ -9,6 +9,27 @@ A responsive container component with proper max-widths and padding.
 - `centered::Bool`: Whether to center the container (default: `true`)
 - `role::Union{String,Nothing}`: ARIA role for the container (e.g., "main") (optional)
 - `glass::Bool`: Whether to apply glassmorphism effect (default: `false`)
+
+# Slots
+- Content to be contained within the responsive wrapper
+
+# Example
+```julia
+@Container {size = :lg} begin
+    @Heading "Welcome"
+    @Text "This content is constrained to a large container width."
+end
+
+# With glass effect
+@Container {glass = true, size = :md} begin
+    @Card "Glassmorphic content"
+end
+```
+
+# See also
+- [`Section`](@ref) - For page sections with vertical spacing
+- [`Stack`](@ref) - For stacking elements with consistent gaps
+- [`Grid`](@ref) - For grid-based layouts
 """
 @component function Container(;
     size::Union{Symbol,String} = :xl,
@@ -52,7 +73,7 @@ end
 """
     @Stack
 
-A modern flexible stack component for vertical or horizontal layouts with consistent spacing.
+A flexible stack component for arranging child elements with consistent spacing in vertical or horizontal layouts. Stack simplifies the common pattern of placing elements in a row or column with uniform gaps between them, eliminating the need for manual margin management. It's particularly useful for creating button groups, form layouts, card arrangements, and any scenario where you need predictable spacing between a series of elements.
 
 # Props
 - `direction::Union{Symbol,String}`: Stack direction (`:vertical` or `:horizontal`) (default: `:vertical`)
@@ -60,6 +81,30 @@ A modern flexible stack component for vertical or horizontal layouts with consis
 - `align::Union{Symbol,String}`: Alignment (`:start`, `:center`, `:end`, `:stretch`) (default: `:stretch`)
 - `justify::Union{Symbol,String}`: Justification (`:start`, `:center`, `:end`, `:between`, `:around`, `:evenly`) (default: `:start`)
 - `wrap::Bool`: Whether items should wrap (default: `false`)
+
+# Slots
+- Child elements to be stacked with automatic spacing
+
+# Example
+```julia
+# Vertical stack with cards
+@Stack {gap = :lg} begin
+    @Card "First item"
+    @Card "Second item"
+    @Card "Third item"
+end
+
+# Horizontal button group
+@Stack {direction = :horizontal, gap = :sm} begin
+    @Button "Save"
+    @Button {variant = :secondary} "Cancel"
+end
+```
+
+# See also
+- [`Grid`](@ref) - For multi-column layouts
+- [`Container`](@ref) - For constraining content width
+- [`Card`](@ref) - Common child component for stacks
 """
 @component function Stack(;
     direction::Union{Symbol,String} = :vertical,
@@ -124,7 +169,7 @@ end
 """
     @Grid
 
-A responsive grid layout component.
+A responsive grid layout component for arranging content in columns. The Grid component provides a powerful and flexible way to create multi-column layouts that automatically adapt to different screen sizes. It handles the complexity of responsive design by allowing you to specify different column counts for various breakpoints, making it ideal for galleries, card layouts, product listings, and any content that benefits from a structured grid arrangement.
 
 # Props
 - `cols::Int`: Default number of columns (default: `1`)
@@ -133,6 +178,33 @@ A responsive grid layout component.
 - `lg::Int`: Columns on large screens (optional)
 - `xl::Int`: Columns on extra large screens (optional)
 - `gap::Int`: Gap size using Tailwind spacing scale (default: `4`)
+
+# Slots
+- Grid items to be arranged in columns
+
+# Example
+```julia
+# Responsive card grid
+@Grid {cols = 1, md = 2, lg = 3, gap = 6} begin
+    @Card "Item 1"
+    @Card "Item 2"
+    @Card "Item 3"
+    @Card "Item 4"
+    @Card "Item 5"
+    @Card "Item 6"
+end
+
+# Simple two-column layout
+@Grid {cols = 2, gap = 4} begin
+    @Section "Left content"
+    @Section "Right content"
+end
+```
+
+# See also
+- [`Stack`](@ref) - For single-direction layouts
+- [`Container`](@ref) - For constraining grid width
+- [`Card`](@ref) - Common grid item component
 """
 @component function Grid(;
     cols::Int = 1,
@@ -163,11 +235,40 @@ end
 """
     @Section
 
-A page section component with consistent vertical spacing.
+A semantic section component with consistent vertical spacing for page structure. Section provides a standardized way to divide your page into distinct content areas with appropriate padding and optional background colors. It helps maintain visual hierarchy and breathing room between different parts of your page, making it perfect for hero sections, feature showcases, content blocks, and any logical grouping of related information.
 
 # Props
 - `spacing::Union{Symbol,String}`: Vertical spacing size (`:sm`, `:md`, `:lg`) (default: `:md`)
 - `background::Union{String,Nothing}`: Background color class (optional)
+
+# Slots
+- Section content
+
+# Example
+```julia
+# Hero section
+@Section {spacing = :lg, background = "bg-gray-50 dark:bg-gray-900"} begin
+    @Container begin
+        @Heading {level = 1} "Welcome to our site"
+        @Text {variant = :lead} "Discover amazing features"
+    end
+end
+
+# Content section
+@Section begin
+    @Container begin
+        @Grid {cols = 1, md = 2} begin
+            @div "Feature 1"
+            @div "Feature 2"
+        end
+    end
+end
+```
+
+# See also
+- [`Container`](@ref) - For constraining content within sections
+- [`Stack`](@ref) - For organizing section content
+- [`Grid`](@ref) - For section grid layouts
 """
 @component function Section(;
     spacing::Union{Symbol,String} = :md,

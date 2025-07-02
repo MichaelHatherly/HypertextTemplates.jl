@@ -1,3 +1,7 @@
+using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
 # Modern Styling Examples
 # Showcases the new design system features added to components
 

@@ -1,7 +1,7 @@
 """
     @Divider
 
-Horizontal or vertical separator component.
+A horizontal or vertical separator component that creates visual boundaries between sections of content. Dividers are subtle yet important design elements that help organize interfaces by creating clear visual separation without adding clutter. They guide the eye through layouts, group related content, and provide breathing room between different sections. This component supports both horizontal and vertical orientations with customizable spacing and colors, adapting seamlessly to light and dark themes while maintaining appropriate visual weight for non-intrusive content separation.
 
 # Props
 - `orientation::Union{Symbol,String}`: Divider orientation (`:horizontal`, `:vertical`) (default: `:horizontal`)
@@ -38,7 +38,7 @@ end
 """
     @Avatar
 
-User profile image component.
+A user profile image component that displays user avatars with automatic fallbacks and consistent styling. Avatars are essential for personalizing user interfaces, making them feel more human and helping users quickly identify accounts, authors, or participants in conversations. This component handles the common challenges of avatar display including missing images, different aspect ratios, and the need for fallback representations. It provides multiple size options and shape variants (circular or square) while ensuring images load smoothly and fallbacks appear gracefully when no image is available.
 
 # Props
 - `src::Union{String,Nothing}`: Image source URL (optional)
@@ -115,7 +115,7 @@ end
 """
     @ThemeToggle
 
-Theme toggle button component that cycles through light, dark, and system themes.
+A theme toggle button component that enables users to switch between light, dark, and system-based color schemes with a single click. Theme toggles have become essential for modern web applications, respecting user preferences and improving accessibility for users who need specific contrast levels or reduced eye strain. This component provides a smooth cycling through theme options with visual feedback, remembers user preferences across sessions, and integrates with system-level theme settings. The button adapts its appearance to the current theme and provides clear indication of the active mode through both icons and optional text labels.
 
 # Props
 - `id::String`: HTML id for the button (default: `"theme-toggle"`)
@@ -131,7 +131,55 @@ Theme toggle button component that cycles through light, dark, and system themes
 ```
 
 # Requirements
-This component requires Alpine.js to be included in your page.
+This component requires Alpine.js to be included in your page:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+```
+
+**Browser Compatibility:** Modern browsers with ES6 support  
+**Dependencies:** Tailwind CSS for styling classes
+
+**Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
+
+# Accessibility
+This component implements comprehensive accessibility for theme switching:
+
+**ARIA Patterns:**
+- Uses semantic `<button>` element with descriptive `title` attribute
+- Button text dynamically updates to reflect current theme state
+- Screen readers announce theme changes when selection occurs
+- Maintains button semantics while providing theme functionality
+
+**Keyboard Navigation:**
+- **Enter/Space**: Cycles through theme options (light → dark → system)
+- **Tab**: Moves focus to theme toggle button
+- **Shift+Tab**: Moves focus to previous element
+- All theme switching is accessible via keyboard
+
+**Screen Reader Support:**
+- Current theme state is announced through button text
+- Theme changes are communicated when they occur
+- Button purpose is clear through descriptive labeling
+- Icon-only mode includes screen reader text for context
+
+**Visual Design:**
+- Focus indicators are clearly visible with high contrast
+- Button variants maintain sufficient color contrast (4.5:1 minimum)
+- Theme icons provide visual feedback for current state
+- Hover and active states give clear interactive feedback
+
+**Theme Persistence:**
+- Theme preference is stored in localStorage for consistency
+- System theme preference is respected and monitored
+- Theme changes are applied immediately for visual feedback
+- Works across browser sessions and page refreshes
+
+**Usage Guidelines:**
+- Place theme toggle in consistent, discoverable location
+- Consider using icon + text for maximum clarity
+- Test with all three theme states (light, dark, system)
+- Ensure theme toggle itself is visible in all themes
 """
 @component function ThemeToggle(;
     id::String = "theme-toggle",
@@ -201,7 +249,7 @@ end
 """
     @Tooltip
 
-Simple tooltip component that shows text on hover.
+A simple tooltip component that displays contextual information when users hover over or focus on elements, with intelligent positioning to stay within viewport bounds. Tooltips are invaluable for providing additional context without cluttering the interface, perfect for explaining icons, showing keyboard shortcuts, or offering helpful hints. This component features customizable delays to prevent accidental triggers, smooth fade animations for polished interactions, and automatic positioning adjustments using Alpine Anchor. It supports both dark and light variants to ensure readability in different contexts while maintaining accessibility through proper ARIA attributes.
 
 # Props
 - `text::String`: The tooltip text to display (required)
@@ -214,14 +262,71 @@ Simple tooltip component that shows text on hover.
 - `max_width::String`: Maximum width of tooltip (default: `"250px"`)
 - `class::String`: Additional CSS classes (optional)
 
+# Slots
+- Trigger element - the element that shows the tooltip on hover
+
 # Example
 ```julia
+# Icon with tooltip
 @Tooltip {text = "Delete this item"} begin
     @Button {variant = :danger, size = :sm} begin
         @Icon {name = "trash"}
     end
 end
+
+# Text with tooltip
+@Tooltip {text = "Click to learn more about this feature"} begin
+    @Link {href = "/help"} "What's this?"
+end
+
+# Badge with light tooltip
+@Tooltip {text = "Premium features included", variant = :light} begin
+    @Badge {variant = :gradient} "PRO"
+end
 ```
+
+# Requirements
+This component requires Alpine.js and Alpine Anchor for intelligent positioning:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@latest/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+```
+
+**Browser Compatibility:** Modern browsers with ES6 support  
+**Dependencies:** Tailwind CSS for styling classes
+
+**Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
+
+# Accessibility
+This component follows WAI-ARIA best practices for tooltip implementation:
+
+**ARIA Patterns:**
+- Tooltip content uses `role="tooltip"` for proper identification
+- Trigger element maintains `aria-describedby` relationship with tooltip
+- Tooltip visibility state is managed through show/hide rather than DOM manipulation
+
+**Keyboard Navigation:**
+- **Escape**: Dismisses tooltip when trigger is focused
+- **Tab**: Moves focus away from trigger (hides tooltip)
+- **Enter/Space**: Shows tooltip when trigger button is focused
+
+**Screen Reader Support:**
+- Tooltip text is announced when trigger receives focus
+- Tooltip content is available to screen readers via `aria-describedby`
+- Dismissal of tooltip is communicated to assistive technology
+- Tooltip text is read in context with trigger element
+
+**Focus Management:**
+- Tooltip appears on both hover and focus events
+- Focus remains on trigger element (tooltip is non-interactive)
+- Tooltip dismisses when focus moves away from trigger
+- Keyboard users get equivalent experience to mouse users
+
+# See also
+- [`TooltipWrapper`](@ref) - For rich tooltip content
+- [`Alert`](@ref) - For persistent help messages
+- [`Badge`](@ref) - Common tooltip trigger
 """
 @component function Tooltip(;
     text::String,
@@ -304,7 +409,7 @@ end
 """
     @TooltipWrapper
 
-Wrapper component for rich tooltip content using composition pattern.
+A wrapper component that enables rich, interactive tooltips with custom content through a flexible composition pattern. While simple tooltips handle text, many interfaces need tooltips that can display formatted content, multiple lines, icons, or even interactive elements. This wrapper component provides the infrastructure for such advanced tooltips, supporting different trigger types (hover, click, focus), optional interaction with the tooltip content itself, and smooth positioning behavior. It coordinates with child components to create sophisticated tooltip experiences while maintaining the ease of use and accessibility standards users expect.
 
 # Props
 - `placement::Union{Symbol,String}`: Tooltip placement (default: `:top`)
@@ -314,18 +419,83 @@ Wrapper component for rich tooltip content using composition pattern.
 - `trigger::Union{Symbol,String}`: Trigger type (`:hover`, `:click`, `:focus`) (default: `:hover`)
 - `interactive::Bool`: Keep open when hovering tooltip content (default: `false`)
 
+# Slots
+- Should contain exactly one @TooltipTrigger and one @TooltipContent component
+
 # Example
 ```julia
+# Interactive tooltip with rich content
 @TooltipWrapper {interactive = true} begin
     @TooltipTrigger begin
         @Badge "PRO"
     end
-    @TooltipContent {variant = :light, arrow = true} begin
+    @TooltipContent {variant = :light} begin
         @Heading {level = 4, size = :sm} "Pro Feature"
         @Text {size = :sm} "Upgrade to access advanced features"
+        @Button {size = :sm, variant = :primary} "Upgrade Now"
+    end
+end
+
+# Click-triggered tooltip
+@TooltipWrapper {trigger = :click} begin
+    @TooltipTrigger begin
+        @Icon {name = "info-circle"}
+    end
+    @TooltipContent begin
+        @Text "Click anywhere to close"
     end
 end
 ```
+
+# Requirements
+This component requires Alpine.js and Alpine Anchor for intelligent positioning:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@latest/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+```
+
+**Browser Compatibility:** Modern browsers with ES6 support  
+**Dependencies:** Tailwind CSS for styling classes
+
+**Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
+
+# Accessibility
+This component enables rich, accessible tooltip experiences:
+
+**ARIA Patterns:**
+- Maintains proper tooltip role and ARIA relationships
+- Supports interactive tooltip content when configured appropriately
+- Manages focus and tooltip visibility states correctly
+
+**Keyboard Navigation:**
+- **Escape**: Dismisses tooltip and returns focus to trigger
+- **Tab**: Navigates through tooltip content when interactive
+- **Enter/Space**: Activates trigger to show/hide tooltip
+- Supports both hover and focus-based tooltip display
+
+**Screen Reader Support:**
+- Rich tooltip content is properly announced
+- Interactive elements within tooltips are keyboard accessible
+- Tooltip dismissal is communicated to assistive technology
+- Content structure (headings, lists) is preserved for screen readers
+
+**Focus Management:**
+- Interactive tooltips can receive and maintain focus
+- Focus returns to trigger when tooltip is dismissed
+- Keyboard navigation works within complex tooltip content
+- Non-interactive tooltips don't interfere with tab order
+
+**Usage Guidelines:**
+- Use interactive tooltips sparingly for essential actions only
+- Ensure tooltip content is also available via other means
+- Consider mobile users who may not have hover capabilities
+
+# See also
+- [`Tooltip`](@ref) - Simple text tooltips
+- [`TooltipTrigger`](@ref) - Trigger component
+- [`TooltipContent`](@ref) - Content component
+- [`DropdownMenu`](@ref) - Alternative for complex interactions
 """
 @component function TooltipWrapper(;
     placement::Union{Symbol,String} = :top,
@@ -369,11 +539,47 @@ end
 """
     @TooltipTrigger
 
-Trigger element for TooltipWrapper. Wraps the element that triggers the tooltip.
+The trigger element within TooltipWrapper that designates which element should activate the tooltip display. This component acts as a transparent wrapper that can encompass any element—from simple text to complex components—transforming it into an interactive trigger. It handles all the necessary event bindings and ARIA attributes automatically, ensuring that the wrapped element maintains its original functionality while gaining tooltip capabilities. The trigger component coordinates with its parent wrapper to manage tooltip visibility and positioning without interfering with the wrapped element's behavior.
 
 # Props
 - `class::String`: Additional CSS classes (optional)
 - `attrs...`: Additional attributes
+
+# Slots
+- Trigger element - any element that should show the tooltip when interacted with
+
+# Example
+```julia
+@TooltipTrigger begin
+    @Button {variant = :ghost} "Hover me"
+end
+```
+
+# Accessibility
+**ARIA Patterns:**
+- Maintains semantic relationship with tooltip content
+- Preserves trigger element's original accessibility properties
+- Adds tooltip-specific ARIA attributes without overriding existing ones
+
+**Keyboard Navigation:**
+- **Enter/Space**: Shows tooltip when trigger is button-like
+- **Escape**: Dismisses tooltip (handled by parent wrapper)
+- **Tab**: Normal tab behavior; tooltip shows/hides based on focus
+
+**Screen Reader Support:**
+- Trigger element's role and label are preserved
+- Tooltip relationship is announced to screen readers
+- Original element functionality remains intact
+- Works with any trigger element type (button, link, span, etc.)
+
+**Integration Guidelines:**
+- Wrap any element that should trigger tooltips
+- Maintain original element's accessibility properties
+- Ensure trigger has sufficient color contrast and focus indicators
+
+# See also
+- [`TooltipWrapper`](@ref) - Parent wrapper component
+- [`TooltipContent`](@ref) - Tooltip content component
 """
 @component function TooltipTrigger(; class::String = "", attrs...)
     @div {var"x-ref" = "trigger", class = "inline-block $class", attrs...} begin
@@ -386,7 +592,7 @@ end
 """
     @TooltipContent
 
-Content component for TooltipWrapper. Contains the rich tooltip content.
+The content component within TooltipWrapper that defines what appears in the tooltip popup, supporting rich formatting and complex layouts. Unlike simple text tooltips, this component can contain any valid HTML content including headings, paragraphs, lists, images, or even interactive elements when used with appropriate trigger settings. It provides consistent styling with customizable variants (dark or light), manages its appearance with smooth transitions, and positions itself intelligently relative to the trigger. The content component ensures that rich tooltips maintain visual coherence with the rest of the interface while providing the flexibility needed for advanced use cases.
 
 # Props
 - `variant::Union{Symbol,String}`: Visual style (`:dark`, `:light`) (default: `:dark`)
@@ -394,6 +600,57 @@ Content component for TooltipWrapper. Contains the rich tooltip content.
 - `max_width::String`: Maximum width (default: `"300px"`)
 - `class::String`: Additional CSS classes (optional)
 - `attrs...`: Additional attributes
+
+# Slots
+- Tooltip content - can contain any components or rich formatting
+
+# Example
+```julia
+@TooltipContent {variant = :light} begin
+    @Stack {gap = :sm} begin
+        @Heading {level = 5} "Tooltip Title"
+        @Text {size = :sm} "This tooltip can contain any content."
+        @Stack {direction = :horizontal, gap = :xs} begin
+            @Badge "Tag 1"
+            @Badge "Tag 2"
+        end
+    end
+end
+```
+
+# Accessibility
+**ARIA Patterns:**
+- Uses `role="tooltip"` for proper identification
+- Supports rich content while maintaining tooltip semantics
+- Preserves content structure for assistive technology
+
+**Keyboard Navigation:**
+- Content is keyboard accessible when tooltip is interactive
+- **Escape**: Dismisses tooltip and returns focus to trigger
+- **Tab**: Navigates through interactive elements within tooltip
+
+**Screen Reader Support:**
+- Rich content (headings, links, buttons) is properly announced
+- Content structure is preserved and navigable
+- Interactive elements within tooltip are accessible
+- Tooltip content is associated with trigger element
+
+**Content Guidelines:**
+- Use headings to structure complex tooltip content
+- Ensure interactive elements have proper labels
+- Maintain sufficient color contrast for all content
+- Consider content length and readability
+
+**Visual Design:**
+- Light and dark variants ensure proper contrast
+- Content is clearly separated from page background
+- Focus indicators work within tooltip content
+- Responsive design adapts to different screen sizes
+
+# See also
+- [`TooltipWrapper`](@ref) - Parent wrapper component
+- [`TooltipTrigger`](@ref) - Trigger component
+- [`Card`](@ref) - For similar content styling
 """
 @component function TooltipContent(;
     variant::Union{Symbol,String} = :dark,

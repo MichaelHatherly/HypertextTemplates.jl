@@ -1,7 +1,7 @@
 """
     @Heading
 
-A modern styled heading component with consistent sizing and weight.
+A semantic heading component that establishes clear visual hierarchy and structure in your content through flexible typography options. Headings are fundamental to web accessibility and SEO, providing both visual and semantic structure that helps users and search engines understand content organization. This component automatically renders the appropriate HTML heading element (h1-h6) based on the specified level while allowing complete control over visual appearance through size overrides, weight adjustments, and color options. Special features like gradient text effects enable eye-catching headlines that maintain readability and accessibility standards.
 
 # Props
 - `level::Int`: Heading level (`1`-`6`) (default: `1`)
@@ -10,6 +10,31 @@ A modern styled heading component with consistent sizing and weight.
 - `color::Union{String,Nothing}`: Text color class (optional)
 - `gradient::Bool`: Whether to use gradient text effect (default: `false`)
 - `tracking::Union{Symbol,String}`: Letter spacing (`:tight`, `:normal`, `:wide`) (default: `:tight`)
+
+# Slots
+- Heading text content
+
+# Example
+```julia
+# Basic headings
+@Heading "Welcome to Our Site"
+@Heading {level = 2} "About Us"
+@Heading {level = 3, weight = :medium} "Our Services"
+
+# Gradient heading
+@Heading {gradient = true} "Amazing Features"
+
+# Custom sized heading
+@Heading {level = 2, size = "4xl"} "Large Subheading"
+
+# Colored heading
+@Heading {level = 4, color = "text-blue-600 dark:text-blue-400"} "Blue Heading"
+```
+
+# See also
+- [`Text`](@ref) - For body text
+- [`Link`](@ref) - For hyperlinks
+- [`Badge`](@ref) - For small labels
 """
 @component function Heading(;
     level::Int = 1,
@@ -101,7 +126,7 @@ function Text end
 """
     @Text
 
-Body text component with various styles.
+A paragraph text component that provides consistent typography styling for body content throughout your application. Text components form the foundation of readable interfaces, ensuring that body copy maintains appropriate line heights, spacing, and contrast across different contexts. This versatile component supports multiple variants from small supporting text to prominent lead paragraphs, with fine-grained control over size, weight, color, and alignment. It adapts seamlessly to different screen sizes and color schemes while maintaining optimal readability through carefully chosen typography defaults.
 
 # Props
 - `variant::Union{Symbol,String}`: Text variant (`:body`, `:lead`, `:small`) (default: `:body`)
@@ -109,6 +134,32 @@ Body text component with various styles.
 - `weight::Union{Symbol,String}`: Font weight (`:normal`, `:medium`, `:semibold`, `:bold`) (default: `:normal`)
 - `color::Union{String,Nothing}`: Text color class (optional)
 - `align::Union{Symbol,String}`: Text alignment (`:left`, `:center`, `:right`, `:justify`) (default: `:left`)
+
+# Slots
+- Paragraph text content
+
+# Example
+```julia
+# Basic paragraph
+@Text "This is a regular paragraph of text."
+
+# Lead paragraph
+@Text {variant = :lead} "This is a larger, emphasized paragraph often used for introductions."
+
+# Small text
+@Text {variant = :small, color = "text-gray-600"} "This is smaller supporting text."
+
+# Centered bold text
+@Text {align = :center, weight = :bold} "Centered bold statement"
+
+# Custom styled text
+@Text {size = :lg, weight = :medium} "Custom sized medium weight text"
+```
+
+# See also
+- [`Heading`](@ref) - For headings
+- [`Link`](@ref) - For inline links
+- [`Alert`](@ref) - For notification text
 """
 @component function Text(;
     variant::Union{Symbol,String} = :body,
@@ -163,7 +214,7 @@ end
 """
     @Link
 
-Styled anchor element with hover effects.
+A styled anchor component that creates consistent, accessible hyperlinks with smooth hover effects and proper visual feedback. Links are critical navigation elements that connect pages and resources, requiring careful attention to usability, accessibility, and visual design. This component enhances standard HTML anchors with customizable styling variants, automatic handling of external links with security attributes, and smooth color transitions that provide clear interactive feedback. It maintains proper focus states for keyboard navigation and supports integration with icons for enhanced visual communication while ensuring links remain distinguishable and accessible to all users.
 
 # Props
 - `href::String`: Link destination (required)
@@ -171,6 +222,36 @@ Styled anchor element with hover effects.
 - `color::Union{String,Nothing}`: Text color class (optional)
 - `external::Bool`: Whether this is an external link (adds target="_blank") (default: `false`)
 - `aria_label::Union{String,Nothing}`: ARIA label for additional context (optional)
+
+# Slots
+- Link text or content
+
+# Example
+```julia
+# Basic link
+@Link {href = "/about"} "About Us"
+
+# External link
+@Link {href = "https://example.com", external = true} "Visit Example.com"
+
+# Underlined link
+@Link {href = "/contact", variant = :underline} "Contact Us"
+
+# Custom colored link
+@Link {href = "/products", color = "text-purple-600 hover:text-purple-700"} "Our Products"
+
+# Link with icon
+@Link {href = "/download"} begin
+    @Icon {name = "download", size = :sm}
+    @text " Download PDF"
+end
+```
+
+# See also
+- [`Button`](@ref) - For button-style links
+- [`Text`](@ref) - For regular text
+- [`Heading`](@ref) - For heading text
+- [`Icon`](@ref) - For link icons
 """
 @component function Link(;
     href::String,

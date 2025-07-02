@@ -1,13 +1,16 @@
 """
     @Alert
 
-Modern notification message component with animations.
+A notification component for displaying important messages with contextual styling and optional dismiss functionality. Alerts are essential for communicating important information, warnings, errors, or success messages to users in a clear and noticeable way. They support different severity levels through color-coded variants, can include icons for better visual recognition, and offer optional dismiss functionality for user control. With built-in animation support, alerts can appear smoothly and grab attention without being jarring.
 
 # Props
 - `variant::Union{Symbol,String}`: Alert variant (`:info`, `:success`, `:warning`, `:error`) (default: `:info`)
 - `dismissible::Bool`: Whether alert can be dismissed (shows close button) (default: `false`)
 - `icon::Bool`: Whether to show icon (default: `true`)
 - `animated::Bool`: Whether to show fade-in animation (default: `true`)
+
+# Slots
+- Alert message content - can include text, links, or other inline elements
 
 # Interactive Features
 When `dismissible=true`, this component uses Alpine.js for interactive dismiss functionality.
@@ -18,7 +21,31 @@ To enable interactivity, include Alpine.js in your page:
 ```
 
 Without Alpine.js, the component will display the close button but won't be interactive.
-"""
+
+# Example
+```julia
+# Simple alerts
+@Alert "This is an informational message."
+@Alert {variant = :success} "Operation completed successfully!"
+@Alert {variant = :error} "An error occurred. Please try again."
+
+# Dismissible alert
+@Alert {variant = :warning, dismissible = true} begin
+    @strong "Warning:"
+    @text " Your session will expire in 5 minutes."
+end
+
+# Alert with custom content
+@Alert {variant = :info, icon = false} begin
+    @Text "New version available. "
+    @Link {href = "/changelog"} "View changelog"
+end
+```
+
+# See also
+- [`Badge`](@ref) - For small status indicators
+- [`Card`](@ref) - For general content containers
+- [`Tooltip`](@ref) - For contextual help messages"""
 @component function Alert(;
     variant::Union{Symbol,String} = :info,
     dismissible::Bool = false,
@@ -103,7 +130,7 @@ end
 """
     @Progress
 
-Modern progress bar component with animations.
+A modern progress bar component that visually represents the completion status of a task or process. Progress bars provide essential feedback during operations like file uploads, form submissions, or multi-step workflows, helping users understand how much has been completed and how much remains. This component supports various visual styles including solid colors and gradients, optional striped patterns for visual interest, and smooth animations that bring the interface to life. Labels can be added to show exact percentages or descriptive text.
 
 # Props
 - `value::Int`: Current progress value (default: `0`)
@@ -219,7 +246,7 @@ end
 """
     @Spinner
 
-Loading spinner component.
+A loading spinner component that provides visual feedback during asynchronous operations. Spinners are crucial for maintaining user engagement during loading states, preventing users from thinking the application has frozen or crashed. This simple yet effective component uses smooth rotation animation and comes in multiple sizes and colors to fit various contexts, from small inline loading indicators to full-page loading states. The spinner automatically includes proper ARIA attributes for accessibility.
 
 # Props
 - `size::Union{Symbol,String}`: Spinner size (`:sm`, `:md`, `:lg`) (default: `:md`)

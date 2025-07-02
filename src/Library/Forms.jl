@@ -1,7 +1,7 @@
 """
     @Input
 
-A styled text input field.
+A styled text input field that provides a consistent and accessible way to collect user text input. This foundational form component handles various input types including text, email, password, number, and more, while maintaining a cohesive visual style across your application. It includes built-in support for different states (default, error, success), icons for visual context, and proper accessibility attributes. The component automatically adapts to light and dark themes and provides smooth focus transitions for a polished user experience.
 
 # Props
 - `type::String`: Input type (default: `"text"`)
@@ -15,6 +15,39 @@ A styled text input field.
 - `disabled::Bool`: Whether input is disabled (default: `false`)
 - `id::Union{String,Nothing}`: Input ID for label association (optional)
 - `aria_describedby::Union{String,Nothing}`: ID of element describing the input (optional)
+
+# Accessibility
+This component implements comprehensive form accessibility standards:
+
+**ARIA Patterns:**
+- Uses `aria-invalid="true"` for error states to communicate validation status
+- Supports `aria-describedby` for associating help text or error messages
+- Maintains proper input semantics with appropriate `type` attributes
+- Required fields are marked with HTML `required` attribute
+
+**Keyboard Navigation:**
+- **Tab**: Moves focus to input field
+- **Shift+Tab**: Moves focus to previous element
+- **Enter**: Submits form (for most input types)
+- All keyboard input works as expected for each input type
+
+**Screen Reader Support:**
+- Input purpose is communicated through `type`, `name`, and `placeholder`
+- Error states are announced through `aria-invalid` and associated descriptions
+- Required status is communicated to assistive technology
+- Icon content is properly marked as decorative or informative
+
+**Form Integration:**
+- Inputs should be associated with labels using `for`/`id` relationships
+- Error messages should be linked via `aria-describedby`
+- Help text should be associated with input for context
+- Fieldsets and legends should group related inputs
+
+**Visual Design:**
+- Focus indicators are clearly visible with high contrast
+- Error states use both color and other visual indicators
+- Sufficient color contrast maintained across all states (4.5:1 minimum)
+- Icons and decorative elements don't interfere with screen readers
 """
 @component function Input(;
     type::String = "text",
@@ -99,7 +132,7 @@ end
 """
     @Textarea
 
-A multi-line text input component.
+A multi-line text input component designed for longer form content like comments, descriptions, or messages. Textareas expand on the functionality of regular inputs by allowing multiple lines of text and providing resize controls for user convenience. They maintain visual consistency with other form elements while offering additional features like customizable row counts and resize behavior. The component includes the same state management and theming capabilities as other form inputs, ensuring a seamless form experience.
 
 # Props
 - `rows::Int`: Number of visible rows (default: `4`)
@@ -171,7 +204,7 @@ end
 """
     @Select
 
-A dropdown select element.
+A dropdown select element that allows users to choose from a predefined list of options. Select components are essential for forms where users need to pick from a constrained set of choices, providing a cleaner interface than radio buttons when dealing with many options. This implementation features a custom-styled dropdown arrow for consistency across browsers, support for placeholder text, and full integration with form validation states. The component maintains accessibility standards while offering a modern appearance.
 
 # Props
 - `size::Union{Symbol,String}`: Select size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
@@ -249,7 +282,7 @@ end
 """
     @Checkbox
 
-A styled checkbox input.
+A styled checkbox input that allows users to toggle between checked and unchecked states. Checkboxes are fundamental form controls for binary choices, terms acceptance, or selecting multiple options from a list. This component enhances the native checkbox with custom styling that matches your design system while preserving full keyboard accessibility and screen reader support. It can be used standalone or with an integrated label, and supports different color schemes and sizes to fit various UI contexts.
 
 # Props
 - `size::Union{Symbol,String}`: Checkbox size (`:sm`, `:md`, `:lg`) (default: `:md`)
@@ -321,7 +354,7 @@ end
 """
     @Radio
 
-Radio button component for single selection.
+A radio button component that enables users to select a single option from a group of mutually exclusive choices. Radio buttons are ideal when you want to present all available options upfront and ensure users can only select one. This component renders a complete radio group with proper ARIA attributes and keyboard navigation support. Each option can include a label, and the entire group maintains visual consistency with other form elements while providing clear feedback about the selected state.
 
 # Props
 - `size::Union{Symbol,String}`: Radio size (`:sm`, `:md`, `:lg`) (default: `:md`)
@@ -385,7 +418,7 @@ end
 """
     @FormGroup
 
-Form field wrapper with label and help text.
+A form field wrapper that provides consistent layout and structure for form controls with their associated labels, help text, and error messages. FormGroup acts as a container that ensures proper spacing, alignment, and accessibility relationships between form elements and their descriptive text. It automatically generates unique IDs to connect labels with inputs and error messages with fields for screen readers. This component is essential for creating well-organized, accessible forms that provide clear guidance and feedback to users.
 
 # Props
 - `label::Union{String,Nothing}`: Field label (optional)
@@ -393,6 +426,34 @@ Form field wrapper with label and help text.
 - `error::Union{String,Nothing}`: Error message (optional)
 - `required::Bool`: Whether field is required (default: `false`)
 - `id::Union{String,Nothing}`: ID for the form field (will be auto-generated if not provided) (optional)
+
+# Slots
+- Form control element(s) - typically Input, Textarea, Select, Checkbox, or Radio components
+
+# Example
+```julia
+# Basic form field
+@FormGroup {label = "Email", help = "We'll never share your email."} begin
+    @Input {type = "email", placeholder = "name@example.com"}
+end
+
+# Required field with error
+@FormGroup {label = "Password", required = true, error = "Password must be at least 8 characters"} begin
+    @Input {type = "password", state = :error}
+end
+
+# Checkbox group
+@FormGroup {label = "Preferences"} begin
+    @Checkbox {label = "Send me updates"}
+end
+```
+
+# See also
+- [`Input`](@ref) - Text input component
+- [`Textarea`](@ref) - Multi-line text input
+- [`Select`](@ref) - Dropdown select component
+- [`Checkbox`](@ref) - Checkbox input
+- [`Radio`](@ref) - Radio button group
 """
 @component function FormGroup(;
     label::Union{String,Nothing} = nothing,
@@ -442,7 +503,7 @@ end
 """
     @Button
 
-A modern styled button component with multiple variants and sizes.
+A versatile button component that serves as the primary interactive element for triggering actions in your application. Buttons are carefully designed to provide clear visual hierarchy through multiple variants (primary, secondary, danger, etc.), support various sizes for different contexts, and include states like loading and disabled. They can incorporate icons for enhanced visual communication, support full-width layouts for mobile interfaces, and include smooth transitions and micro-interactions that provide satisfying user feedback. The component ensures accessibility with proper focus states and ARIA attributes.
 
 # Props
 - `variant::Union{Symbol,String}`: Button variant (`:primary`, `:secondary`, `:neutral`, `:success`, `:warning`, `:danger`, `:gradient`, `:ghost`, `:outline`) (default: `:primary`)
@@ -454,6 +515,76 @@ A modern styled button component with multiple variants and sizes.
 - `icon_left::Union{String,Nothing}`: Icon HTML to display on the left (optional)
 - `icon_right::Union{String,Nothing}`: Icon HTML to display on the right (optional)
 - `rounded::Union{Symbol,String}`: Border radius (`:base`, `:lg`, `:xl`, `:full`) (default: `:xl`)
+
+# Slots
+- Button label text or content
+
+# Example
+```julia
+# Basic buttons
+@Button "Click me"
+@Button {variant = :secondary} "Cancel"
+@Button {variant = :danger, size = :sm} "Delete"
+
+# Button with icon
+@Button {icon_left = @Icon {name = "save"}} "Save changes"
+
+# Loading state
+@Button {loading = true} "Processing..."
+
+# Full width button
+@Button {variant = :gradient, full_width = true} "Get Started"
+
+# Icon-only button
+@Button {variant = :ghost, size = :sm, rounded = :full} begin
+    @Icon {name = "settings"}
+end
+```
+
+# Accessibility
+This component implements comprehensive button accessibility standards:
+
+**ARIA Patterns:**
+- Uses semantic `<button>` element with proper `type` attribute
+- Loading state is communicated through visual spinner and button text
+- Disabled state prevents interaction and is announced to screen readers
+- Icon-only buttons should include `aria-label` for context
+
+**Keyboard Navigation:**
+- **Enter/Space**: Activates button action
+- **Tab**: Moves focus to button
+- **Shift+Tab**: Moves focus to previous element
+- Disabled buttons are skipped in tab order
+
+**Screen Reader Support:**
+- Button purpose is communicated through text content or `aria-label`
+- Loading state is announced when button text changes
+- Disabled state is communicated to assistive technology
+- Icon content is either decorative or properly labeled
+
+**Visual Design:**
+- Focus indicators are clearly visible with high contrast ring
+- Sufficient color contrast maintained across all variants (4.5:1 minimum)
+- Loading spinner provides visual feedback for processing states
+- Button states (hover, active, disabled) have distinct visual appearances
+
+**Form Integration:**
+- Submit buttons (type="submit") integrate with form submission
+- Button clicks can trigger form validation
+- Loading states prevent multiple submissions
+- Disabled state preserves form structure while preventing interaction
+
+**Usage Guidelines:**
+- Use descriptive button text that explains the action
+- Provide `aria-label` for icon-only buttons
+- Consider loading states for async operations
+- Use appropriate variants to convey action importance/consequences
+
+# See also
+- [`Link`](@ref) - For navigation links
+- [`Icon`](@ref) - For button icons
+- [`DropdownMenu`](@ref) - For button dropdowns
+- [`Badge`](@ref) - For button badges/counters
 """
 @component function Button(;
     variant::Union{Symbol,String} = :primary,
@@ -536,8 +667,7 @@ end
 """
     @SelectDropdown
 
-An enhanced dropdown select with search, keyboard navigation, and multiple selection support.
-Requires Alpine.js.
+An enhanced dropdown select component that elevates the standard select experience with advanced features like search functionality, keyboard navigation, and multiple selection support. This component is ideal for scenarios requiring more sophisticated selection interfaces, such as tag selection, filterable lists, or multi-select forms. It provides a fully accessible experience with proper ARIA attributes and keyboard controls, while offering modern UI patterns like type-ahead search and clear buttons. The component requires Alpine.js for its interactive features and provides smooth animations and transitions for a polished feel.
 
 # Props
 - `options::Vector{Tuple{String,String}}`: Options as (value, label) tuples
@@ -553,6 +683,61 @@ Requires Alpine.js.
 - `disabled::Bool`: Whether component is disabled (default: `false`)
 - `required::Bool`: Whether field is required (default: `false`)
 - `id::Union{String,Nothing}`: Component ID (optional)
+
+# Requirements
+This component requires Alpine.js and Alpine Anchor for intelligent positioning:
+
+```html
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@latest/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+```
+
+**Browser Compatibility:** Modern browsers with ES6 support  
+**Dependencies:** Tailwind CSS for styling classes
+
+**Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
+
+# Accessibility
+This component implements comprehensive accessibility for enhanced select experiences:
+
+**ARIA Patterns:**
+- Uses `role="listbox"` for dropdown options with proper option roles
+- Maintains `aria-expanded` state synchronized with dropdown visibility  
+- Implements `aria-selected` for option selection states
+- Supports `aria-label` and `aria-describedby` for additional context
+
+**Keyboard Navigation:**
+- **Space/Enter**: Opens dropdown and shows options
+- **Arrow Down/Up**: Navigate between options
+- **Home/End**: Jump to first/last option
+- **Escape**: Closes dropdown and returns focus to trigger
+- **Type-ahead**: Search functionality with character typing
+- **Tab**: Closes dropdown and moves to next form element
+
+**Screen Reader Support:**
+- Selection changes are announced with selected option text
+- Option count and position are communicated during navigation
+- Search functionality is announced when enabled
+- Multi-select states are properly communicated
+- Clear action is announced when selection is removed
+
+**Form Integration:**
+- Works with standard form submission and validation
+- Maintains proper name/value relationships for form data
+- Integrates with form validation frameworks
+- Supports required field validation
+
+**Advanced Features:**
+- Search input is properly labeled and accessible
+- Clear button has appropriate ARIA label
+- Multiple selection states are tracked and announced
+- Loading and disabled states are communicated appropriately
+
+**Visual Design:**
+- High contrast focus indicators on all interactive elements
+- Clear visual feedback for hover, focus, and selection states
+- Error states use multiple visual indicators (color, border, icons)
+- Sufficient spacing for touch targets on mobile devices
 """
 @component function SelectDropdown(;
     options::Vector{Tuple{String,String}} = Tuple{String,String}[],

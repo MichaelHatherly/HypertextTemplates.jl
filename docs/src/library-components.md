@@ -10,7 +10,7 @@ using HypertextTemplates.Elements
 using HypertextTemplates.Library
 ```
 
-All component props and detailed API documentation can be found in the [API Reference](api.md).
+All component props and detailed API documentation can be found in the [Library Components API](api-library.md).
 
 ## Interactive Components
 
@@ -42,17 +42,19 @@ All interactive components follow progressive enhancement principles:
 
 Explore complete, interactive examples organized by category:
 
-- [Layout Components](examples/layout-components.html) - Container, Stack, Grid, and Section
-- [Typography Components](examples/typography-components.html) - Headings, Text, and Links
-- [Form Components](examples/form-components.html) - Complete form with all input types
-- [Feedback Components](examples/feedback-components.html) - Alerts, Progress bars, Spinners, and Badges
-- [Navigation Components](examples/navigation-components.html) - Breadcrumbs, Tabs, and Pagination
-- [Table & List Components](examples/table-list-components.html) - Data tables and styled lists
-- [Utility Components](examples/utility-components.html) - Dividers, Avatars, and Icons
-- [Modern Styling](examples/modern-styling.html) - Showcase of new design features
-- [Advanced Components](examples/advanced-components.html) - Complex component compositions
-- [Dark Mode](examples/dark-mode.html) - Dark mode optimized examples
-- [Complete Application](examples/complete-app.html) - Full dashboard example
+- [Layout Components](examples/layout-components.html) - Container, Stack, and Grid components
+- [Typography Components](examples/typography-components.html) - Heading, Text, and Link components
+- [Form Components](examples/form-components.html) - Input, Select, Textarea, and form controls
+- [Feedback Components](examples/feedback-components.html) - Alert, Progress, Spinner, and Badge components
+- [Navigation Components](examples/navigation-components.html) - Breadcrumb, Tabs, and Pagination components
+- [Table & List Components](examples/table-list-components.html) - Table and List components
+- [Utility Components](examples/utility-components.html) - Divider, Avatar, and Icon components
+- [Icon Gallery](examples/icon-gallery.html) - Complete collection of available icons
+- [Modern Styling](examples/modern-styling.html) - Glass morphism, gradients, and modern effects
+- [Advanced Components](examples/advanced-components.html) - Complex component patterns and compositions
+- [Dark Mode](examples/dark-mode.html) - Dark mode showcase and theming
+- [Dropdown Menu](examples/dropdown-menu.html) - Dropdown menus with submenus
+- [Complete Application](examples/complete-app.html) - Full dashboard application example
 
 ## Modern Design System
 

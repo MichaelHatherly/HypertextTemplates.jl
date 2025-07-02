@@ -1,3 +1,7 @@
+using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
 # Advanced Component Examples
 # Showcases complex component compositions and advanced features
 

@@ -1,7 +1,7 @@
 """
     @Card
 
-A content container with border and shadow.
+A versatile content container component with customizable styling, borders, and shadows. Cards are fundamental building blocks for modern web interfaces, providing a clean way to group related content and actions. They create visual separation between different pieces of information while maintaining a cohesive design language through consistent padding, borders, and shadow effects. Cards can be used for everything from simple content blocks to complex interactive components like product listings, user profiles, or dashboard widgets.
 
 # Props
 - `padding::Union{Symbol,String}`: Padding size (`:none`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
@@ -10,6 +10,36 @@ A content container with border and shadow.
 - `rounded::Union{Symbol,String}`: Border radius (`:none`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:lg`)
 - `variant::Union{Symbol,String}`: Card variant (`:default`, `:glass`, `:gradient`) (default: `:default`)
 - `hoverable::Bool`: Whether card has hover effects (default: `false`)
+
+# Slots
+- Card content - can be any elements like text, images, buttons, or other components
+
+# Example
+```julia
+# Basic card
+@Card begin
+    @Heading {level = 3} "Card Title"
+    @Text "This is the card content."
+    @Button {variant = :primary} "Action"
+end
+
+# Hoverable card with gradient border
+@Card {border = :gradient, hoverable = true} begin
+    @Text "Hover over me!"
+end
+
+# Glass morphism card
+@Card {variant = :glass, shadow = :lg} begin
+    @Badge "New"
+    @Text "Glass effect card"
+end
+```
+
+# See also
+- [`Badge`](@ref) - For status indicators within cards
+- [`Alert`](@ref) - For notification messages
+- [`Container`](@ref) - For page-level containers
+- [`Stack`](@ref) - For arranging multiple cards
 """
 @component function Card(;
     padding::Union{Symbol,String} = :base,
@@ -99,7 +129,7 @@ end
 """
     @Badge
 
-Small status indicator component with modern styling.
+A small label component for displaying status, counts, or categorization. Badges are compact visual indicators that draw attention to important information without disrupting the flow of content. They're commonly used to show notification counts, status indicators, tags, or to highlight new features. With support for multiple color variants and sizes, badges can effectively communicate different states and priorities while maintaining visual hierarchy in your interface.
 
 # Props
 - `variant::Union{Symbol,String}`: Badge variant (`:default`, `:primary`, `:secondary`, `:success`, `:warning`, `:danger`, `:gradient`) (default: `:default`)
@@ -107,6 +137,31 @@ Small status indicator component with modern styling.
 - `role::Union{String,Nothing}`: ARIA role (e.g., "status" for dynamic updates) (optional)
 - `animated::Bool`: Whether badge has subtle animation (default: `false`)
 - `outline::Bool`: Whether badge has outline style (default: `false`)
+
+# Slots
+- Badge text or content (typically short text, numbers, or icons)
+
+# Example
+```julia
+# Status badges
+@Badge {variant = :success} "Active"
+@Badge {variant = :danger} "Expired"
+@Badge {variant = :warning} "Pending"
+
+# Count badge
+@Badge {variant = :primary, size = :sm} "99+"
+
+# Animated badge for live updates
+@Badge {variant = :gradient, animated = true, role = "status"} "Live"
+
+# Outline style
+@Badge {variant = :secondary, outline = true} "Beta"
+```
+
+# See also
+- [`Card`](@ref) - Container component often used with badges
+- [`Button`](@ref) - Interactive element with similar variants
+- [`Alert`](@ref) - For larger notification messages
 """
 @component function Badge(;
     variant::Union{Symbol,String} = :default,

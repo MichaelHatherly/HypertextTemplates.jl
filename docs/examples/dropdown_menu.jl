@@ -1,3 +1,7 @@
+using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
 # Dropdown Menu Component Examples
 # Showcases the flexible dropdown menu component with automatic positioning and nesting support
 

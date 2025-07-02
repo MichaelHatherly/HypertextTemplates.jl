@@ -60,7 +60,11 @@ makedocs(
             "Advanced Features" => "advanced-features.md",
             "Markdown Integration" => "markdown-integration.md",
         ],
-        "API Reference" => "api.md",
+        "API Reference" => [
+            "Public API" => "api-public.md",
+            "Library Components" => "api-library.md", 
+            "Internal API" => "api-internal.md",
+        ],
     ],
 )
 

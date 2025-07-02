@@ -1,3 +1,7 @@
+using HypertextTemplates
+using HypertextTemplates.Elements
+using HypertextTemplates.Library
+
 # Icon Gallery Examples
 
 # Navigation Icons Component
@@ -493,3 +497,25 @@ icon_gallery_examples = [
         component = IconsInButtons,
     ),
 ]
+
+@component function IconGalleryExample()
+    @Container {class = "py-8"} begin
+        @Stack {gap = 6} begin
+            @Heading {level = 1, class = "text-center mb-8"} "Icon Gallery"
+            @Text {variant = :lead, class = "text-center mb-8"} "Complete collection of available icons in the HypertextTemplates Library"
+
+            for example in icon_gallery_examples
+                @Card {padding = :lg, class = "mb-6"} begin
+                    @Stack {gap = 4} begin
+                        @Heading {level = 2} example.title
+                        if haskey(example, :description) && !isnothing(example.description)
+                            @Text {color = "text-gray-600 dark:text-gray-400"} example.description
+                        end
+                        @<example.component
+                    end
+                end
+            end
+        end
+    end
+end
+@deftag macro IconGalleryExample end
