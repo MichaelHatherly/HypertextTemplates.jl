@@ -5,6 +5,7 @@ using Test
     include("typography-tests.jl")
     include("cards-tests.jl")
     include("tables-tests.jl")
+    include("lists-tests.jl")
     include("forms-tests.jl")
     include("feedback-tests.jl")
     include("navigation-tests.jl")

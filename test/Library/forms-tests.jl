@@ -132,4 +132,78 @@ using HypertextTemplates.Library
             end
         end
     end
+
+    @testset "Button" begin
+        render_test("references/library/button-default.txt") do io
+            @render io @Button "Click me"
+        end
+
+        render_test("references/library/button-variants.txt") do io
+            @render io begin
+                @Button {variant = :primary} "Primary"
+                @Button {variant = :secondary} "Secondary"
+                @Button {variant = :danger} "Danger"
+                @Button {variant = :ghost} "Ghost"
+                @Button {variant = :link} "Link"
+                @Button {variant = :gradient} "Gradient"
+            end
+        end
+
+        render_test("references/library/button-sizes.txt") do io
+            @render io begin
+                @Button {size = :xs} "Extra Small"
+                @Button {size = :sm} "Small"
+                @Button {size = :md} "Medium"
+                @Button {size = :lg} "Large"
+                @Button {size = :xl} "Extra Large"
+            end
+        end
+
+        render_test("references/library/button-states.txt") do io
+            @render io begin
+                @Button {disabled = true} "Disabled"
+                @Button {loading = true} "Loading"
+                @Button {full_width = true} "Full Width"
+            end
+        end
+
+        render_test("references/library/button-with-icons.txt") do io
+            @render io begin
+                @Button {icon = "<svg><path/></svg>"} "With Icon"
+                @Button {icon_right = "<svg><path/></svg>"} "Icon Right"
+            end
+        end
+    end
+
+    @testset "SelectDropdown" begin
+        render_test("references/library/select-dropdown-default.txt") do io
+            @render io @SelectDropdown {
+                options =
+                    [("us", "United States"), ("uk", "United Kingdom"), ("ca", "Canada")],
+                placeholder = "Select a country",
+                _hash = 0,
+            }
+        end
+
+        render_test("references/library/select-dropdown-multiple.txt") do io
+            @render io @SelectDropdown {
+                options = [("red", "Red"), ("green", "Green"), ("blue", "Blue")],
+                multiple = true,
+                value = ["red", "blue"],
+                placeholder = "Select colors",
+                _hash = 0,
+            }
+        end
+
+        render_test("references/library/select-dropdown-custom.txt") do io
+            @render io @SelectDropdown {
+                options = [("sm", "Small"), ("md", "Medium"), ("lg", "Large")],
+                searchable = true,
+                size = :lg,
+                state = :success,
+                disabled = false,
+                _hash = 0,
+            }
+        end
+    end
 end
