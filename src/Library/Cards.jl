@@ -1,7 +1,7 @@
 """
     @Card
 
-A versatile content container component with customizable styling, borders, and shadows. Cards are fundamental building blocks for modern web interfaces, providing a clean way to group related content and actions. They create visual separation between different pieces of information while maintaining a cohesive design language through consistent padding, borders, and shadow effects. Cards can be used for everything from simple content blocks to complex interactive components like product listings, user profiles, or dashboard widgets.
+A versatile content container with customizable styling, borders, and shadows. Cards provide clean visual separation for grouped content and can be used for content blocks, product listings, user profiles, or dashboard widgets.
 
 # Props
 - `padding::Union{Symbol,String}`: Padding size (`:none`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)

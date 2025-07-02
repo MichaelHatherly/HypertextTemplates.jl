@@ -249,7 +249,7 @@ end
 """
     @Tooltip
 
-A simple tooltip component that displays contextual information when users hover over or focus on elements, with intelligent positioning to stay within viewport bounds. Tooltips are invaluable for providing additional context without cluttering the interface, perfect for explaining icons, showing keyboard shortcuts, or offering helpful hints. This component features customizable delays to prevent accidental triggers, smooth fade animations for polished interactions, and automatic positioning adjustments using Alpine Anchor. It supports both dark and light variants to ensure readability in different contexts while maintaining accessibility through proper ARIA attributes.
+A simple tooltip component that displays contextual information on hover or focus with intelligent positioning. Features customizable delays, smooth animations, and automatic positioning using Alpine Anchor with dark and light variants.
 
 # Props
 - `text::String`: The tooltip text to display (required)
@@ -299,29 +299,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 **Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
 
 # Accessibility
-This component follows WAI-ARIA best practices for tooltip implementation:
+**ARIA:** Uses `role="tooltip"` with `aria-describedby` relationship to trigger element.
 
-**ARIA Patterns:**
-- Tooltip content uses `role="tooltip"` for proper identification
-- Trigger element maintains `aria-describedby` relationship with tooltip
-- Tooltip visibility state is managed through show/hide rather than DOM manipulation
+**Keyboard:** Escape dismisses, Tab moves focus away. Appears on both hover and focus events.
 
-**Keyboard Navigation:**
-- **Escape**: Dismisses tooltip when trigger is focused
-- **Tab**: Moves focus away from trigger (hides tooltip)
-- **Enter/Space**: Shows tooltip when trigger button is focused
-
-**Screen Reader Support:**
-- Tooltip text is announced when trigger receives focus
-- Tooltip content is available to screen readers via `aria-describedby`
-- Dismissal of tooltip is communicated to assistive technology
-- Tooltip text is read in context with trigger element
-
-**Focus Management:**
-- Tooltip appears on both hover and focus events
-- Focus remains on trigger element (tooltip is non-interactive)
-- Tooltip dismisses when focus moves away from trigger
-- Keyboard users get equivalent experience to mouse users
+**Focus Management:** Non-interactive tooltip keeps focus on trigger element.
 
 # See also
 - [`TooltipWrapper`](@ref) - For rich tooltip content
@@ -409,7 +391,7 @@ end
 """
     @TooltipWrapper
 
-A wrapper component that enables rich, interactive tooltips with custom content through a flexible composition pattern. While simple tooltips handle text, many interfaces need tooltips that can display formatted content, multiple lines, icons, or even interactive elements. This wrapper component provides the infrastructure for such advanced tooltips, supporting different trigger types (hover, click, focus), optional interaction with the tooltip content itself, and smooth positioning behavior. It coordinates with child components to create sophisticated tooltip experiences while maintaining the ease of use and accessibility standards users expect.
+A wrapper component for rich, interactive tooltips with custom content. Supports different trigger types (hover, click, focus) and interactive tooltip content with proper positioning and accessibility.
 
 # Props
 - `placement::Union{Symbol,String}`: Tooltip placement (default: `:top`)
@@ -461,35 +443,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 **Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
 
 # Accessibility
-This component enables rich, accessible tooltip experiences:
+**ARIA & Focus:** Proper tooltip roles and ARIA relationships. Interactive tooltips support keyboard navigation with Escape to dismiss.
 
-**ARIA Patterns:**
-- Maintains proper tooltip role and ARIA relationships
-- Supports interactive tooltip content when configured appropriately
-- Manages focus and tooltip visibility states correctly
+**Content:** Rich content (headings, links, buttons) is announced and navigable by screen readers.
 
-**Keyboard Navigation:**
-- **Escape**: Dismisses tooltip and returns focus to trigger
-- **Tab**: Navigates through tooltip content when interactive
-- **Enter/Space**: Activates trigger to show/hide tooltip
-- Supports both hover and focus-based tooltip display
-
-**Screen Reader Support:**
-- Rich tooltip content is properly announced
-- Interactive elements within tooltips are keyboard accessible
-- Tooltip dismissal is communicated to assistive technology
-- Content structure (headings, lists) is preserved for screen readers
-
-**Focus Management:**
-- Interactive tooltips can receive and maintain focus
-- Focus returns to trigger when tooltip is dismissed
-- Keyboard navigation works within complex tooltip content
-- Non-interactive tooltips don't interfere with tab order
-
-**Usage Guidelines:**
-- Use interactive tooltips sparingly for essential actions only
-- Ensure tooltip content is also available via other means
-- Consider mobile users who may not have hover capabilities
+**Guidelines:** Use interactive tooltips sparingly; ensure content is available via other means for mobile users.
 
 # See also
 - [`Tooltip`](@ref) - Simple text tooltips
@@ -539,7 +497,7 @@ end
 """
     @TooltipTrigger
 
-The trigger element within TooltipWrapper that designates which element should activate the tooltip display. This component acts as a transparent wrapper that can encompass any element—from simple text to complex components—transforming it into an interactive trigger. It handles all the necessary event bindings and ARIA attributes automatically, ensuring that the wrapped element maintains its original functionality while gaining tooltip capabilities. The trigger component coordinates with its parent wrapper to manage tooltip visibility and positioning without interfering with the wrapped element's behavior.
+The trigger element within TooltipWrapper that activates tooltip display. Acts as a transparent wrapper for any element, handling event bindings and ARIA attributes while maintaining original functionality.
 
 # Props
 - `class::String`: Additional CSS classes (optional)
@@ -556,26 +514,11 @@ end
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Maintains semantic relationship with tooltip content
-- Preserves trigger element's original accessibility properties
-- Adds tooltip-specific ARIA attributes without overriding existing ones
+**ARIA:** Maintains semantic relationship with tooltip while preserving original element accessibility.
 
-**Keyboard Navigation:**
-- **Enter/Space**: Shows tooltip when trigger is button-like
-- **Escape**: Dismisses tooltip (handled by parent wrapper)
-- **Tab**: Normal tab behavior; tooltip shows/hides based on focus
+**Keyboard:** Enter/Space shows tooltip, Escape dismisses, Tab for normal behavior.
 
-**Screen Reader Support:**
-- Trigger element's role and label are preserved
-- Tooltip relationship is announced to screen readers
-- Original element functionality remains intact
-- Works with any trigger element type (button, link, span, etc.)
-
-**Integration Guidelines:**
-- Wrap any element that should trigger tooltips
-- Maintain original element's accessibility properties
-- Ensure trigger has sufficient color contrast and focus indicators
+**Guidelines:** Works with any trigger element type while maintaining original functionality.
 
 # See also
 - [`TooltipWrapper`](@ref) - Parent wrapper component
@@ -592,7 +535,7 @@ end
 """
     @TooltipContent
 
-The content component within TooltipWrapper that defines what appears in the tooltip popup, supporting rich formatting and complex layouts. Unlike simple text tooltips, this component can contain any valid HTML content including headings, paragraphs, lists, images, or even interactive elements when used with appropriate trigger settings. It provides consistent styling with customizable variants (dark or light), manages its appearance with smooth transitions, and positions itself intelligently relative to the trigger. The content component ensures that rich tooltips maintain visual coherence with the rest of the interface while providing the flexibility needed for advanced use cases.
+The content component within TooltipWrapper that defines tooltip popup content with rich formatting support. Can contain any HTML content including headings, lists, images, or interactive elements with consistent styling and smooth transitions.
 
 # Props
 - `variant::Union{Symbol,String}`: Visual style (`:dark`, `:light`) (default: `:dark`)
@@ -619,33 +562,11 @@ end
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Uses `role="tooltip"` for proper identification
-- Supports rich content while maintaining tooltip semantics
-- Preserves content structure for assistive technology
+**ARIA:** Uses `role="tooltip"` while preserving rich content structure for assistive technology.
 
-**Keyboard Navigation:**
-- Content is keyboard accessible when tooltip is interactive
-- **Escape**: Dismisses tooltip and returns focus to trigger
-- **Tab**: Navigates through interactive elements within tooltip
+**Keyboard:** Interactive content is accessible with Tab navigation, Escape dismisses.
 
-**Screen Reader Support:**
-- Rich content (headings, links, buttons) is properly announced
-- Content structure is preserved and navigable
-- Interactive elements within tooltip are accessible
-- Tooltip content is associated with trigger element
-
-**Content Guidelines:**
-- Use headings to structure complex tooltip content
-- Ensure interactive elements have proper labels
-- Maintain sufficient color contrast for all content
-- Consider content length and readability
-
-**Visual Design:**
-- Light and dark variants ensure proper contrast
-- Content is clearly separated from page background
-- Focus indicators work within tooltip content
-- Responsive design adapts to different screen sizes
+**Guidelines:** Use headings for structure, ensure proper labels, maintain color contrast.
 
 # See also
 - [`TooltipWrapper`](@ref) - Parent wrapper component

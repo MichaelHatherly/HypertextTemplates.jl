@@ -62,7 +62,7 @@ makedocs(
         ],
         "API Reference" => [
             "Public API" => "api-public.md",
-            "Library Components" => "api-library.md", 
+            "Library Components" => "api-library.md",
             "Internal API" => "api-internal.md",
         ],
     ],

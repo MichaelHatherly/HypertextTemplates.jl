@@ -12,37 +12,11 @@ A navigation breadcrumb component that displays the hierarchical path to the cur
 - `separator::String`: Separator character/string (default: `"/"`)
 
 # Accessibility
-This component implements WAI-ARIA breadcrumb navigation pattern:
+**ARIA:** Uses `<nav aria-label="Breadcrumb">` with `aria-current="page"` for current page. Ordered list conveys hierarchy.
 
-**ARIA Patterns:**
-- Uses `<nav aria-label="Breadcrumb">` for proper navigation identification
-- Current page marked with `aria-current="page"` for screen reader context
-- Ordered list structure (`<ol>`) conveys hierarchical relationship
-- Separators marked with `aria-hidden="true"` to avoid redundant announcements
+**Keyboard:** Tab through breadcrumb links, Enter follows navigation. Current page is skipped in tab order.
 
-**Keyboard Navigation:**
-- **Tab**: Moves focus through breadcrumb links
-- **Shift+Tab**: Moves focus to previous breadcrumb link
-- **Enter**: Follows breadcrumb link navigation
-- Current page (non-link) is skipped in tab order
-
-**Screen Reader Support:**
-- Navigation structure is announced as "breadcrumb navigation"
-- Each link's purpose and hierarchy level are communicated
-- Current page is identified and distinguished from links
-- Separators are treated as visual elements only
-
-**Visual Design:**
-- Clear visual hierarchy showing navigation path
-- Current page has distinct styling (no link, different color)
-- Focus indicators are clearly visible on interactive links
-- Sufficient color contrast maintained for all text elements
-
-**Usage Guidelines:**
-- Include home/root page as first breadcrumb item
-- Use descriptive page titles rather than URLs
-- Keep breadcrumb text concise but meaningful
-- Consider mobile responsive behavior for long paths
+**Guidelines:** Include home page as first item, use descriptive titles, keep text concise.
 """
 @component function Breadcrumb(;
     items::Vector{Tuple{String,String}} = Tuple{String,String}[],
@@ -93,38 +67,13 @@ A page navigation component that provides intuitive controls for navigating thro
 - `base_url::String`: Base URL for page links (default: `"#"`)
 
 # Accessibility
-This component implements comprehensive pagination accessibility:
+**ARIA:** Uses `<nav aria-label="Pagination">` with `aria-current="page"` and `aria-disabled` for states.
 
-**ARIA Patterns:**
-- Uses `<nav aria-label="Pagination">` for proper navigation identification
-- Current page marked with `aria-current="page"` for screen reader context
-- Disabled buttons use `aria-disabled="true"` and `aria-label` for state communication
-- Page numbers and navigation buttons have descriptive labels
+**Keyboard:** Tab through pagination controls, Enter activates navigation. Disabled controls are skipped.
 
-**Keyboard Navigation:**
-- **Tab**: Moves focus through pagination controls (Previous → Page Numbers → Next)
-- **Shift+Tab**: Moves focus to previous pagination control
-- **Enter**: Activates page navigation links
-- Disabled controls are properly skipped in tab order
+**Screen Reader:** Current page and button states are announced with positional context.
 
-**Screen Reader Support:**
-- Pagination structure is announced as "pagination navigation"
-- Current page is identified distinctly from other page links
-- Previous/Next button states (enabled/disabled) are communicated
-- Page numbers include positional context ("Page 3 of 10")
-- Ellipsis indicators are treated as visual elements only
-
-**Visual Design:**
-- Clear visual distinction between current page and other pages
-- Disabled states have reduced opacity and are visually distinct
-- Focus indicators are clearly visible with high contrast on all interactive elements
-- Sufficient spacing for touch targets on mobile devices
-
-**Usage Guidelines:**
-- Provide meaningful `base_url` patterns for SEO and direct access
-- Consider mobile responsive behavior for many pages
-- Include total count context when helpful ("Page 3 of 10")
-- Ensure pagination updates content and focus appropriately
+**Guidelines:** Provide meaningful URLs, consider mobile behavior, include page count context.
 """
 @component function Pagination(;
     current::Int = 1,
@@ -280,31 +229,11 @@ end
 ```
 
 # Accessibility
-This component implements WAI-ARIA tab pattern for accessible content switching:
+**ARIA:** Uses `role="tab"`, `role="tablist"`, and `aria-controls` with proper `aria-selected` states.
 
-**ARIA Patterns:**
-- Tab buttons use `role="tab"` with proper `aria-controls` associations
-- Tab list container uses `role="tablist"` with appropriate `aria-label`
-- Each tab maintains `aria-selected` state synchronized with active state
-- Tab panels are associated via `id`/`aria-controls` relationships
+**Keyboard:** Arrow Left/Right navigate tabs, Home/End jump to first/last, Tab moves to panel content.
 
-**Keyboard Navigation:**
-- **Arrow Left/Right**: Navigate between tab buttons
-- **Home/End**: Jump to first/last tab
-- **Enter/Space**: Activate focused tab
-- **Tab**: Move focus to tab panel content
-
-**Screen Reader Support:**
-- Tab list structure and tab count are announced
-- Active tab state changes are communicated
-- Tab labels and associated panel content are linked
-- Navigation between tabs provides positional feedback
-
-**Focus Management:**
-- Focus moves logically between tabs using arrow keys
-- Tab activation follows focus (automatic tab switching)
-- Focus moves to panel content when Tab key is pressed
-- Visual focus indicators are clearly visible on tab buttons
+**Focus Management:** Automatic tab switching follows focus with clear visual indicators.
 
 # See also
 - [`TabPanel`](@ref) - Tab content panels
@@ -383,26 +312,11 @@ end
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Uses `role="tabpanel"` to identify as tab panel content
-- Associates with tab button via `aria-controls`/`id` relationship
-- Properly hidden/shown based on tab selection state
+**ARIA:** Uses `role="tabpanel"` with proper `aria-controls`/`id` relationships.
 
-**Keyboard Navigation:**
-- **Tab**: Allows normal tab order through panel content
-- **Shift+Tab**: Returns focus to associated tab button
-- Panel content participates in normal document tab flow
+**Keyboard:** Normal tab order through panel content, Shift+Tab returns to tab button.
 
-**Screen Reader Support:**
-- Panel visibility changes are announced when tabs switch
-- Panel content is only announced when visible
-- Maintains semantic relationship with controlling tab
-- Panel role and association are communicated to assistive technology
-
-**Content Guidelines:**
-- Panel content should start with a heading for structure
-- Focus management within panels follows normal document flow
-- Interactive elements in panels are keyboard accessible
+**Guidelines:** Panel content should start with a heading for structure.
 
 # See also
 - [`Tabs`](@ref) - Parent tabs container
@@ -432,7 +346,7 @@ end
 """
     @DropdownMenu
 
-A flexible dropdown menu component that creates contextual menus with support for nested submenus, powered by Alpine.js and Alpine Anchor for intelligent positioning. Dropdown menus are versatile UI elements used for navigation, actions, and options that would otherwise clutter the interface. This component provides a complete dropdown system with trigger buttons, menu items, dividers, and even nested submenus for complex hierarchies. It handles click-outside behavior, keyboard navigation, and automatic repositioning to stay within viewport bounds. The menu system coordinates multiple dropdowns on the same page, ensuring only one menu is open at a time.
+A flexible dropdown menu component with support for nested submenus, powered by Alpine.js and Alpine Anchor. Provides trigger buttons, menu items, dividers, and intelligent positioning with click-outside behavior and keyboard navigation.
 
 # Requirements
 This component requires Alpine.js and Alpine Anchor for intelligent positioning:
@@ -448,32 +362,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 **Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
 
 # Accessibility
-This component implements WAI-ARIA best practices for dropdown menus:
+**ARIA:** Uses `role="menu"` with `aria-haspopup` and `aria-expanded` states. Menu items have proper roles and state attributes.
 
-**ARIA Patterns:**
-- Uses `role="menu"` on dropdown content with `aria-orientation="vertical"`
-- Menu items have `role="menuitem"` with proper state attributes
-- Trigger button uses `aria-haspopup="true"` and `aria-expanded` states
-- Supports `aria-label` and `aria-describedby` for additional context
+**Keyboard:** Escape to close, Arrow keys to navigate, Enter/Space to activate, Tab to exit.
 
-**Keyboard Navigation:**
-- **Escape**: Closes dropdown and returns focus to trigger
-- **Arrow Down/Up**: Navigate between menu items
-- **Home/End**: Jump to first/last menu item
-- **Enter/Space**: Activate menu item or trigger
-- **Tab**: Move focus outside dropdown (closes menu)
-
-**Screen Reader Support:**
-- Menu state changes are announced ("expanded"/"collapsed")
-- Menu items are read with their role and position
-- Keyboard navigation is announced as users move through options
-- Submenu relationships are properly communicated
-
-**Focus Management:**
-- Focus returns to trigger when menu closes
-- Focus moves to first menu item when opened via keyboard
-- Focus is trapped within dropdown during navigation
-- Visual focus indicators are clearly visible
+**Focus Management:** Returns to trigger when closed, moves to first item when opened via keyboard.
 
 # Props
 - `class::String`: Additional CSS classes
@@ -566,20 +459,9 @@ end
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Uses `aria-haspopup="true"` to indicate dropdown relationship
-- Maintains `aria-expanded` state synchronized with dropdown visibility
-- Properly associates trigger with dropdown content via ARIA
+**ARIA:** Uses `aria-haspopup="true"` and maintains `aria-expanded` state.
 
-**Keyboard Navigation:**
-- **Enter/Space**: Opens dropdown and moves focus to first item
-- **Arrow Down**: Opens dropdown and moves focus to first item
-- **Escape**: Closes dropdown (handled by parent DropdownMenu)
-
-**Screen Reader Support:**
-- Button role and expanded state are announced
-- Changes in dropdown state are communicated
-- Maintains semantic relationship with dropdown content
+**Keyboard:** Enter/Space and Arrow Down open dropdown, Escape closes (handled by parent).
 
 # See also
 - [`DropdownMenu`](@ref) - Parent dropdown container
@@ -630,29 +512,11 @@ end
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Uses `role="menu"` with `aria-orientation="vertical"`
-- Maintains focus management within menu boundaries
-- Provides proper ARIA relationships with trigger element
+**ARIA:** Uses `role="menu"` with proper ARIA relationships and focus management.
 
-**Keyboard Navigation:**
-- **Arrow Down/Up**: Navigate between menu items
-- **Home/End**: Jump to first/last menu item
-- **Escape**: Close dropdown and return focus to trigger
-- **Tab**: Exit dropdown and continue normal tab order
-- **Enter/Space**: Activate focused menu item
+**Keyboard:** Arrow keys navigate, Home/End jump to first/last, Enter/Space activate, Escape closes.
 
-**Screen Reader Support:**
-- Menu structure and item count are announced
-- Navigation between items provides positional feedback
-- Item states (selected, disabled) are communicated
-- Menu open/close state changes are announced
-
-**Focus Management:**
-- Focus moves to first item when opened via keyboard
-- Focus is trapped within menu during navigation
-- Focus returns to trigger when menu closes
-- Visual focus indicators are clearly visible on all items
+**Screen Reader:** Menu structure and item states are announced with positional feedback.
 
 # See also
 - [`DropdownMenu`](@ref) - Parent dropdown container
@@ -723,27 +587,11 @@ An individual menu item within dropdown menus that represents a selectable actio
 ```
 
 # Accessibility
-**ARIA Patterns:**
-- Uses `role="menuitem"` for proper menu item semantics
-- Maintains disabled state with `aria-disabled` when applicable
-- Supports focus and selection states for screen readers
+**ARIA:** Uses `role="menuitem"` with proper disabled states via `aria-disabled`.
 
-**Keyboard Navigation:**
-- **Enter/Space**: Activates the menu item action
-- **Arrow Down/Up**: Navigate to next/previous menu item (handled by parent)
-- All items participate in menu's keyboard navigation flow
+**Keyboard:** Enter/Space activates, participates in parent menu's navigation flow.
 
-**Screen Reader Support:**
-- Item text and any icons are announced together
-- Disabled state is communicated when applicable
-- Item type (link vs button) is announced appropriately
-- Variant states (danger, success) are conveyed through color contrast
-
-**Visual Design:**
-- Sufficient color contrast for all variants (4.5:1 minimum)
-- Focus indicators are clearly visible and distinct
-- Disabled items have reduced opacity and pointer events disabled
-- Hover states provide clear interactive feedback
+**Visual Design:** High contrast focus indicators and disabled states with reduced opacity.
 
 # See also
 - [`DropdownContent`](@ref) - Parent content container
@@ -867,28 +715,11 @@ The submenu state is managed by the parent dropdown's Alpine component through t
 `openSubmenus` object, allowing multiple submenus to be open simultaneously.
 
 # Accessibility
-**ARIA Patterns:**
-- Nested menu structure maintains proper ARIA hierarchy
-- Submenu trigger indicates expandable content to screen readers
-- Parent-child menu relationships are properly established
+**ARIA:** Maintains proper hierarchy for nested menus with expandable content indicators.
 
-**Keyboard Navigation:**
-- **Arrow Right**: Opens submenu and moves focus to first item
-- **Arrow Left**: Closes submenu and returns focus to trigger
-- **Escape**: Closes all menus and returns to root trigger
-- Full keyboard navigation through nested menu levels
+**Keyboard:** Arrow Right opens submenu, Arrow Left closes, Escape closes all menus.
 
-**Screen Reader Support:**
-- Submenu structure and nesting level are announced
-- Menu expansion state changes are communicated
-- Navigation between menu levels provides clear feedback
-- Chevron indicators are marked as decorative (`aria-hidden`)
-
-**Focus Management:**
-- Focus moves logically between menu levels
-- Submenu focus is trapped until closed or escaped
-- Focus returns to parent menu item when submenu closes
-- Visual focus indicators work across all nesting levels
+**Focus Management:** Logical movement between menu levels with proper focus return.
 
 # See also
 - [`DropdownMenu`](@ref) - Root dropdown component

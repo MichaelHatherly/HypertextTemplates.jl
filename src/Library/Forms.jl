@@ -1,7 +1,7 @@
 """
     @Input
 
-A styled text input field that provides a consistent and accessible way to collect user text input. This foundational form component handles various input types including text, email, password, number, and more, while maintaining a cohesive visual style across your application. It includes built-in support for different states (default, error, success), icons for visual context, and proper accessibility attributes. The component automatically adapts to light and dark themes and provides smooth focus transitions for a polished user experience.
+A styled text input field for collecting user input with support for various types (text, email, password, number). Features different states (default, error, success), optional icons, and full accessibility with smooth focus transitions.
 
 # Props
 - `type::String`: Input type (default: `"text"`)
@@ -418,7 +418,7 @@ end
 """
     @FormGroup
 
-A form field wrapper that provides consistent layout and structure for form controls with their associated labels, help text, and error messages. FormGroup acts as a container that ensures proper spacing, alignment, and accessibility relationships between form elements and their descriptive text. It automatically generates unique IDs to connect labels with inputs and error messages with fields for screen readers. This component is essential for creating well-organized, accessible forms that provide clear guidance and feedback to users.
+A form field wrapper that provides consistent layout for form controls with labels, help text, and error messages. Automatically generates unique IDs and establishes proper accessibility relationships between elements.
 
 # Props
 - `label::Union{String,Nothing}`: Field label (optional)
@@ -503,7 +503,7 @@ end
 """
     @Button
 
-A versatile button component that serves as the primary interactive element for triggering actions in your application. Buttons are carefully designed to provide clear visual hierarchy through multiple variants (primary, secondary, danger, etc.), support various sizes for different contexts, and include states like loading and disabled. They can incorporate icons for enhanced visual communication, support full-width layouts for mobile interfaces, and include smooth transitions and micro-interactions that provide satisfying user feedback. The component ensures accessibility with proper focus states and ARIA attributes.
+A versatile button component for triggering actions with multiple variants, sizes, and states. Supports icons, loading states, and full accessibility with proper ARIA attributes and keyboard navigation.
 
 # Props
 - `variant::Union{Symbol,String}`: Button variant (`:primary`, `:secondary`, `:neutral`, `:success`, `:warning`, `:danger`, `:gradient`, `:ghost`, `:outline`) (default: `:primary`)
@@ -542,43 +542,11 @@ end
 ```
 
 # Accessibility
-This component implements comprehensive button accessibility standards:
+**ARIA & Keyboard:** Semantic `<button>` element with standard Enter/Space activation. Disabled and loading states are properly announced to screen readers.
 
-**ARIA Patterns:**
-- Uses semantic `<button>` element with proper `type` attribute
-- Loading state is communicated through visual spinner and button text
-- Disabled state prevents interaction and is announced to screen readers
-- Icon-only buttons should include `aria-label` for context
+**Icon-only buttons:** Must include `aria-label` for screen reader context.
 
-**Keyboard Navigation:**
-- **Enter/Space**: Activates button action
-- **Tab**: Moves focus to button
-- **Shift+Tab**: Moves focus to previous element
-- Disabled buttons are skipped in tab order
-
-**Screen Reader Support:**
-- Button purpose is communicated through text content or `aria-label`
-- Loading state is announced when button text changes
-- Disabled state is communicated to assistive technology
-- Icon content is either decorative or properly labeled
-
-**Visual Design:**
-- Focus indicators are clearly visible with high contrast ring
-- Sufficient color contrast maintained across all variants (4.5:1 minimum)
-- Loading spinner provides visual feedback for processing states
-- Button states (hover, active, disabled) have distinct visual appearances
-
-**Form Integration:**
-- Submit buttons (type="submit") integrate with form submission
-- Button clicks can trigger form validation
-- Loading states prevent multiple submissions
-- Disabled state preserves form structure while preventing interaction
-
-**Usage Guidelines:**
-- Use descriptive button text that explains the action
-- Provide `aria-label` for icon-only buttons
-- Consider loading states for async operations
-- Use appropriate variants to convey action importance/consequences
+**Visual Design:** High contrast focus indicators and 4.5:1 color contrast across all variants.
 
 # See also
 - [`Link`](@ref) - For navigation links
@@ -667,7 +635,7 @@ end
 """
     @SelectDropdown
 
-An enhanced dropdown select component that elevates the standard select experience with advanced features like search functionality, keyboard navigation, and multiple selection support. This component is ideal for scenarios requiring more sophisticated selection interfaces, such as tag selection, filterable lists, or multi-select forms. It provides a fully accessible experience with proper ARIA attributes and keyboard controls, while offering modern UI patterns like type-ahead search and clear buttons. The component requires Alpine.js for its interactive features and provides smooth animations and transitions for a polished feel.
+An enhanced dropdown select component with search functionality, keyboard navigation, and multiple selection support. Features type-ahead search, clear buttons, and full accessibility with Alpine.js integration.
 
 # Props
 - `options::Vector{Tuple{String,String}}`: Options as (value, label) tuples
@@ -698,46 +666,13 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 **Note:** JavaScript assets are automatically loaded via `@__once__` for optimal performance.
 
 # Accessibility
-This component implements comprehensive accessibility for enhanced select experiences:
+**ARIA Patterns:** Uses `role="listbox"` with proper option roles, `aria-expanded` state, and `aria-selected` for selections.
 
-**ARIA Patterns:**
-- Uses `role="listbox"` for dropdown options with proper option roles
-- Maintains `aria-expanded` state synchronized with dropdown visibility  
-- Implements `aria-selected` for option selection states
-- Supports `aria-label` and `aria-describedby` for additional context
+**Keyboard Navigation:** Space/Enter to open, Arrow keys to navigate, Escape to close, type-ahead search support.
 
-**Keyboard Navigation:**
-- **Space/Enter**: Opens dropdown and shows options
-- **Arrow Down/Up**: Navigate between options
-- **Home/End**: Jump to first/last option
-- **Escape**: Closes dropdown and returns focus to trigger
-- **Type-ahead**: Search functionality with character typing
-- **Tab**: Closes dropdown and moves to next form element
+**Screen Reader Support:** Selection changes, option count, and search functionality are announced. Works with form validation.
 
-**Screen Reader Support:**
-- Selection changes are announced with selected option text
-- Option count and position are communicated during navigation
-- Search functionality is announced when enabled
-- Multi-select states are properly communicated
-- Clear action is announced when selection is removed
-
-**Form Integration:**
-- Works with standard form submission and validation
-- Maintains proper name/value relationships for form data
-- Integrates with form validation frameworks
-- Supports required field validation
-
-**Advanced Features:**
-- Search input is properly labeled and accessible
-- Clear button has appropriate ARIA label
-- Multiple selection states are tracked and announced
-- Loading and disabled states are communicated appropriately
-
-**Visual Design:**
-- High contrast focus indicators on all interactive elements
-- Clear visual feedback for hover, focus, and selection states
-- Error states use multiple visual indicators (color, border, icons)
-- Sufficient spacing for touch targets on mobile devices
+**Visual Design:** High contrast focus indicators and touch-friendly spacing on mobile devices.
 """
 @component function SelectDropdown(;
     options::Vector{Tuple{String,String}} = Tuple{String,String}[],

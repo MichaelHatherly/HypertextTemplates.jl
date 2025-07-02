@@ -1,7 +1,7 @@
 """
     @Table
 
-A responsive data table component designed for presenting structured data in a clear, scannable format. Tables are fundamental for displaying datasets, comparisons, and detailed information that benefits from row and column organization. This component provides extensive customization options including striped rows for easier scanning, hover effects for row highlighting, sticky headers for long tables, and responsive overflow handling. It maintains accessibility standards with proper table markup and ARIA attributes while offering modern styling options that work seamlessly with both light and dark themes.
+A responsive data table component for displaying structured data with extensive customization options. Features striped rows, hover effects, sticky headers, sortable columns, and full accessibility support.
 
 # Props
 - `striped::Bool`: Whether to show striped rows (default: `false`)
@@ -57,44 +57,13 @@ end
 ```
 
 # Accessibility
-This component implements comprehensive table accessibility standards:
+**Semantic Markup:** Uses proper `<table>`, `<thead>`, `<tbody>`, `<th>`, and `<td>` elements with scope attributes.
 
-**ARIA Patterns:**
-- Uses semantic table markup (`<table>`, `<thead>`, `<tbody>`, `<th>`, `<td>`)
-- Table captions provide context and summary for screen readers
-- Column headers (`<th>`) are properly associated with data cells
-- Sortable columns include appropriate ARIA attributes when enabled
+**Screen Readers:** Table structure, captions, and header relationships are announced to assistive technology.
 
-**Keyboard Navigation:**
-- **Tab**: Moves focus through interactive elements within table
-- **Shift+Tab**: Moves focus to previous interactive element
-- **Arrow keys**: Navigate between cells (in sortable mode)
-- **Enter/Space**: Activate sortable column headers
+**Keyboard Navigation:** Tab through any interactive elements within table cells.
 
-**Screen Reader Support:**
-- Table structure (headers, rows, columns) is announced
-- Caption text provides table context and purpose
-- Column relationships are communicated through header associations
-- Striped rows and hover states don't interfere with content reading
-- Row and column counts are announced when table receives focus
-
-**Data Presentation:**
-- Headers should be properly marked with `<th scope="col">` or `<th scope="row">`
-- Complex tables should use `<thead>`, `<tbody>`, and `<tfoot>` sections
-- Data relationships are clear through proper table structure
-- Sortable state changes are announced to assistive technology
-
-**Visual Design:**
-- Sufficient color contrast maintained across all styling options (4.5:1 minimum)
-- Focus indicators are clearly visible on interactive elements
-- Hover states provide clear feedback without relying solely on color
-- Sticky headers maintain visual association with content
-
-**Usage Guidelines:**
-- Provide meaningful captions that describe table purpose
-- Use column headers that clearly describe data content
-- Consider responsive alternatives for complex tables on mobile
-- Ensure interactive elements (sort buttons) have clear labels
+**Guidelines:** Provide meaningful captions, clear column headers, and consider responsive alternatives for mobile.
 
 # See also
 - [`List`](@ref) - For simpler list layouts
