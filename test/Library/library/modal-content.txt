@@ -1,0 +1,1 @@
+<div class="p-6 overflow-y-auto" data-htloc="/Users/mike/personal/HypertextTemplates/src/Library/Modals.jl:231"><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left" data-htloc="/Users/mike/personal/HypertextTemplates/src/Library/Typography.jl:207">Modal body content</p></div>

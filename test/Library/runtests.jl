@@ -8,6 +8,7 @@ using Test
     include("lists-tests.jl")
     include("forms-tests.jl")
     include("feedback-tests.jl")
+    include("modals-tests.jl")
     include("navigation-tests.jl")
     include("utilities-tests.jl")
 end

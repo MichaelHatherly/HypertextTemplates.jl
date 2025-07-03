@@ -1,0 +1,1 @@
+<div class="p-6 overflow-hidden"><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Non-scrollable content</p></div>

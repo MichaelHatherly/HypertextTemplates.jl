@@ -1,0 +1,1 @@
+<div class="p-6 overflow-y-auto"><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Modal body content</p></div>

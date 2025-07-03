@@ -1,0 +1,80 @@
+/**
+ * Modal Styles
+ * 
+ * This file contains all CSS styles for the Modal component.
+ * It handles dialog styling, animations, and backdrop effects
+ * for the standard centered modal variant.
+ * 
+ * Dependencies:
+ * - Native <dialog> element support
+ * - CSS custom properties for animations
+ */
+
+/* Hide Alpine.js cloaked elements */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* Hide dialog elements by default */
+dialog:not([open]) {
+    display: none;
+}
+
+/* Style the backdrop pseudo-element */
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    transition: all 0.3s ease-out;
+}
+
+/* Backdrop animation when open */
+dialog[open]::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Modal animation setup */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+}
+
+/* Ensure proper modal centering */
+dialog[open] {
+    /* Reset browser defaults */
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Ensure dialog doesn't exceed viewport */
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    /* Remove any default padding that might affect centering */
+    padding: 0;
+    border: none;
+    /* Animation */
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Closing animation class */
+dialog.closing {
+    animation: modalFadeOut 0.2s ease-in;
+}

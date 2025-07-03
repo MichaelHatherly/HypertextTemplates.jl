@@ -26,6 +26,10 @@ export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
 export Button, @Button
 # Feedback components
 export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
+# Modal components
+export Modal, @Modal, ModalTrigger, @ModalTrigger, ModalContent, @ModalContent
+export ModalHeader, @ModalHeader, ModalFooter, @ModalFooter
+export DrawerModal, @DrawerModal
 # Navigation components
 export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs, TabPanel, @TabPanel
 export DropdownMenu,
@@ -76,6 +80,9 @@ include("Forms.jl")
 
 # Feedback components
 include("Feedback.jl")
+
+# Modal components
+include("Modals.jl")
 
 # Navigation components
 include("Navigation.jl")

@@ -1,0 +1,274 @@
+<script>/**
+ * Alpine.data component for Modal
+ *
+ * This file defines the interactive behavior for Modal components.
+ * It uses Alpine.js's data component system to provide reusable modal functionality
+ * built on top of the native HTML <dialog> element for accessibility.
+ *
+ * Architecture Overview:
+ * - Registered as 'modal' Alpine.data component
+ * - Enhances native <dialog> element with configuration and custom behavior
+ * - Provides focus management and keyboard navigation
+ * - Supports persistent modals and backdrop click handling
+ *
+ * Dependencies:
+ * - Alpine.js v3
+ * - Native <dialog> element support (modern browsers)
+ *
+ * Usage in templates:
+ * x-data="modal(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('modal', (config = {}) => ({
+        // Configuration with defaults
+        persistent: config.persistent || false,
+        returnFocus: config.returnFocus !== false,
+
+        // State management
+        isOpen: false,
+        modalId: 'modal-' + Math.random().toString(36).substr(2, 9),
+
+        // Store reference to trigger element for focus return
+        triggerElement: null,
+
+        /**
+         * Initialize modal component
+         * Sets up event listeners and handles initial state
+         */
+        init() {
+            console.log('Modal Alpine component initialized for:', this.$el.id);
+            // Store reference to the native dialog element
+            this.dialog = this.$refs.dialog;
+
+            // Listen for dialog close events (e.g., Escape key)
+            this.dialog.addEventListener('close', () => {
+                this.handleClose();
+            });
+
+            // Listen for backdrop clicks on the dialog itself
+            this.dialog.addEventListener('click', (event) => {
+                this.handleBackdropClick(event);
+            });
+
+            // Listen for global modal-open events to close other modals
+            window.addEventListener('modal-open', (event) => {
+                this.handleModalOpen(event);
+            });
+
+            // Listen for modal-open events targeting this modal specifically
+            window.addEventListener('modal-open', (event) => {
+                console.log('Received modal-open event for:', event.detail?.id, 'this modal is:', this.$el.id);
+                if (event.detail && event.detail.id === this.$el.id) {
+                    console.log('Opening modal:', this.$el.id);
+                    this.open();
+                }
+            });
+        },
+
+        /**
+         * Open the modal
+         * Uses native showModal() for proper modal behavior
+         */
+        open() {
+            if (this.isOpen) return;
+
+            // Store current focused element for return focus
+            if (this.returnFocus) {
+                this.triggerElement = document.activeElement;
+            }
+
+            // Notify other modals to close
+            window.dispatchEvent(new CustomEvent('modal-open', {
+                detail: { id: this.modalId }
+            }));
+
+            // Open the native dialog as modal
+            this.dialog.showModal();
+            this.isOpen = true;
+
+            // Focus the first focusable element in modal content
+            this.$nextTick(() => {
+                this.focusFirstElement();
+            });
+        },
+
+        /**
+         * Close the modal
+         * Uses native close() method and handles focus return
+         */
+        close() {
+            if (!this.isOpen) return;
+
+            // Add closing class for animation
+            this.dialog.classList.add('closing');
+
+            // Wait for animation to complete before closing
+            setTimeout(() => {
+                this.dialog.close();
+                this.dialog.classList.remove('closing');
+                this.isOpen = false;
+
+                // Return focus to trigger element
+                if (this.returnFocus && this.triggerElement) {
+                    this.triggerElement.focus();
+                    this.triggerElement = null;
+                }
+            }, 200); // Match animation duration
+        },
+
+        /**
+         * Handle dialog close event (triggered by Escape key or programmatic close)
+         */
+        handleClose() {
+            this.isOpen = false;
+
+            // Return focus to trigger element
+            if (this.returnFocus && this.triggerElement) {
+                this.triggerElement.focus();
+                this.triggerElement = null;
+            }
+        },
+
+        /**
+         * Handle backdrop clicks
+         * Closes modal unless persistent mode is enabled
+         */
+        handleBackdropClick(event) {
+            // Only close if clicking on the dialog itself (backdrop)
+            // not on any content inside it
+            if (event.target === this.dialog && !this.persistent) {
+                this.close();
+            }
+        },
+
+        /**
+         * Handle global modal-open events
+         * Closes this modal if another modal is opened
+         */
+        handleModalOpen(event) {
+            if (event.detail.id !== this.modalId && this.isOpen) {
+                this.close();
+            }
+        },
+
+        /**
+         * Focus the first focusable element in the modal
+         * Provides good accessibility behavior on modal open
+         */
+        focusFirstElement() {
+            const focusableElements = this.dialog.querySelectorAll(`
+                button:not([disabled]),
+                [href]:not([disabled]),
+                input:not([disabled]),
+                select:not([disabled]),
+                textarea:not([disabled]),
+                [tabindex]:not([tabindex="-1"]):not([disabled])
+            `);
+
+            if (focusableElements.length > 0) {
+                focusableElements[0].focus();
+            } else {
+                // If no focusable elements, focus the dialog itself
+                this.dialog.focus();
+            }
+        },
+
+        /**
+         * Handle keyboard events in modal
+         * Provides additional keyboard support beyond native dialog
+         */
+        handleKeydown(event) {
+            // Additional keyboard handling can be added here if needed
+            // Native dialog already handles Escape key
+            switch (event.key) {
+                case 'Tab':
+                    // Tab key handling for focus trapping could be added here
+                    // but native dialog already provides focus trapping
+                    break;
+            }
+        }
+    }))
+});
+</script><style>/**
+ * Modal Styles
+ * 
+ * This file contains all CSS styles for the Modal component.
+ * It handles dialog styling, animations, and backdrop effects
+ * for the standard centered modal variant.
+ * 
+ * Dependencies:
+ * - Native <dialog> element support
+ * - CSS custom properties for animations
+ */
+
+/* Hide Alpine.js cloaked elements */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* Hide dialog elements by default */
+dialog:not([open]) {
+    display: none;
+}
+
+/* Style the backdrop pseudo-element */
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    transition: all 0.3s ease-out;
+}
+
+/* Backdrop animation when open */
+dialog[open]::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Modal animation setup */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+}
+
+/* Ensure proper modal centering */
+dialog[open] {
+    /* Reset browser defaults */
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Ensure dialog doesn't exceed viewport */
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    /* Remove any default padding that might affect centering */
+    padding: 0;
+    border: none;
+    /* Animation */
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Closing animation class */
+dialog.closing {
+    animation: modalFadeOut 0.2s ease-in;
+}</style><dialog id="persistent" x-data="modal({
+    persistent: true,
+    returnFocus: true
+})" x-ref="dialog" @keydown="handleKeydown" class="p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"><div class="relative p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-hidden max-w-md"><button type="button" @click="close()" class="absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200" aria-label="Close modal"><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></span></button><div class="p-6 overflow-y-auto">Cannot close by clicking backdrop</div></div></dialog>
