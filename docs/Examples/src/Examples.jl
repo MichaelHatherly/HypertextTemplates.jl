@@ -22,6 +22,7 @@ include("examples/ModalExample.jl")
 include("examples/ModernStylingExample.jl")
 include("examples/NavigationExample.jl")
 include("examples/TableListExample.jl")
+include("examples/ToggleExample.jl")
 include("examples/TypographyExample.jl")
 include("examples/UtilityExample.jl")
 

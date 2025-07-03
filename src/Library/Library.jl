@@ -23,7 +23,7 @@ export Timeline, @Timeline, TimelineItem, @TimelineItem, TimelineContent, @Timel
 # Form components
 export Input, @Input, Textarea, @Textarea, Select, @Select, SelectDropdown, @SelectDropdown
 export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
-export Button, @Button
+export Button, @Button, Toggle, @Toggle
 # Feedback components
 export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
 # Modal components

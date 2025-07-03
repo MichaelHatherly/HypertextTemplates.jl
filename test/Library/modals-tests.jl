@@ -26,19 +26,13 @@ using HypertextTemplates.Library
         end
 
         render_test("references/library/modal-persistent.txt") do io
-            @render io @Modal {
-                id = "persistent",
-                persistent = true,
-            } begin
+            @render io @Modal {id = "persistent", persistent = true} begin
                 @ModalContent "Cannot close by clicking backdrop"
             end
         end
 
         render_test("references/library/modal-no-close.txt") do io
-            @render io @Modal {
-                id = "no-close",
-                show_close = false,
-            } begin
+            @render io @Modal {id = "no-close", show_close = false} begin
                 @ModalContent "No close button"
             end
         end
@@ -46,9 +40,7 @@ using HypertextTemplates.Library
 
     @testset "Modal Sub-components" begin
         render_test("references/library/modal-trigger.txt") do io
-            @render io @ModalTrigger {
-                target = "my-modal",
-            } "Open Modal"
+            @render io @ModalTrigger {target = "my-modal"} "Open Modal"
         end
 
         render_test("references/library/modal-content.txt") do io
@@ -58,9 +50,7 @@ using HypertextTemplates.Library
         end
 
         render_test("references/library/modal-content-no-scroll.txt") do io
-            @render io @ModalContent {
-                scrollable = false,
-            } begin
+            @render io @ModalContent {scrollable = false} begin
                 @Text "Non-scrollable content"
             end
         end
@@ -115,28 +105,19 @@ using HypertextTemplates.Library
 
     @testset "Drawer Modals" begin
         render_test("references/library/drawer-modal-right.txt") do io
-            @render io @DrawerModal {
-                id = "drawer-right",
-            } begin
+            @render io @DrawerModal {id = "drawer-right"} begin
                 @ModalContent "Right drawer content"
             end
         end
 
         render_test("references/library/drawer-modal-left.txt") do io
-            @render io @DrawerModal {
-                id = "drawer-left",
-                position = :left,
-            } begin
+            @render io @DrawerModal {id = "drawer-left", position = :left} begin
                 @ModalContent "Left drawer content"
             end
         end
 
         render_test("references/library/drawer-modal-top.txt") do io
-            @render io @DrawerModal {
-                id = "drawer-top",
-                position = :top,
-                size = :sm,
-            } begin
+            @render io @DrawerModal {id = "drawer-top", position = :top, size = :sm} begin
                 @ModalContent "Top drawer content"
             end
         end

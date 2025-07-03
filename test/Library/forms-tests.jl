@@ -206,4 +206,54 @@ using HypertextTemplates.Library
             }
         end
     end
+
+    @testset "Toggle" begin
+        render_test("references/library/toggle-switch-default.txt") do io
+            @render io @Toggle {_hash = 0}
+        end
+
+        render_test("references/library/toggle-switch-with-label.txt") do io
+            @render io @Toggle {
+                label = "Enable notifications",
+                name = "notifications",
+                _hash = 0,
+            }
+        end
+
+        render_test("references/library/toggle-switch-sizes.txt") do io
+            @render io begin
+                @Toggle {_hash = 0, size = :xs, label = "Extra Small"}
+                @Toggle {_hash = 0, size = :sm, label = "Small"}
+                @Toggle {_hash = 0, size = :base, label = "Base"}
+                @Toggle {_hash = 0, size = :lg, label = "Large"}
+                @Toggle {_hash = 0, size = :xl, label = "Extra Large"}
+            end
+        end
+
+        render_test("references/library/toggle-switch-colors.txt") do io
+            @render io begin
+                @Toggle {_hash = 0, color = :primary, label = "Primary", checked = true}
+                @Toggle {_hash = 0, color = :success, label = "Success", checked = true}
+                @Toggle {_hash = 0, color = :danger, label = "Danger", checked = true}
+            end
+        end
+
+        render_test("references/library/toggle-button-variant.txt") do io
+            @render io begin
+                @Toggle {_hash = 0, variant = :button, name = "bold"} begin
+                    @strong "B"
+                end
+                @Toggle {_hash = 0, variant = :button, name = "italic", checked = true} begin
+                    @em "I"
+                end
+            end
+        end
+
+        render_test("references/library/toggle-switch-with-icons.txt") do io
+            @render io @Toggle {label = "Theme", show_icons = true, _hash = 0} begin
+                icon_on := @span "🌙"
+                icon_off := @span "☀️"
+            end
+        end
+    end
 end
