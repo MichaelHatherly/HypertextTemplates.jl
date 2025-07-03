@@ -2,6 +2,16 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 using HypertextTemplates.Library
 
+function get_example_names()
+    root = joinpath(@__DIR__, "..", "examples")
+    return Base.map(readdir(root)) do file
+        component = getfield(@__MODULE__, Symbol(first(splitext(file))))
+        title = component_title(component)
+        output_file = replace(file, r"\.jl$" => ".html")
+        return (; file, component, title, output_file)
+    end
+end
+
 @component function HTMLDocument(; title::String, current_page::String = "")
     @html {lang = "en"} begin
         @head begin
@@ -36,16 +46,16 @@ using HypertextTemplates.Library
                 [x-cloak] { display: none !important; }
                 """)
             end
-            # Load dropdown.js globally for dropdown components
-            # This ensures Alpine.data('dropdown', ...) is available for all dropdowns
-            @script begin
-                @text HypertextTemplates.SafeString(
-                    read(
-                        joinpath(dirname(@__DIR__), "..", "src/Library/assets/dropdown.js"),
-                        String,
-                    ),
-                )
-            end
+            # # Load dropdown.js globally for dropdown components
+            # # This ensures Alpine.data('dropdown', ...) is available for all dropdowns
+            # @script begin
+            #     @text HypertextTemplates.SafeString(
+            #         read(
+            #             joinpath(dirname(@__DIR__), "..", "src/Library/assets/dropdown.js"),
+            #             String,
+            #         ),
+            #     )
+            # end
         end
         @body {
             class = "bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex",
@@ -64,21 +74,9 @@ using HypertextTemplates.Library
 
                         # Navigation links
                         @Stack {gap = 1} begin
-                            for (href, label) in [
-                                ("layout-components.html", "Layout Components"),
-                                ("typography-components.html", "Typography Components"),
-                                ("form-components.html", "Form Components"),
-                                ("feedback-components.html", "Feedback Components"),
-                                ("navigation-components.html", "Navigation Components"),
-                                ("dropdown-menu.html", "Dropdown Menus"),
-                                ("table-list-components.html", "Table & List Components"),
-                                ("utility-components.html", "Utility Components"),
-                                ("icon-gallery.html", "Icon Gallery"),
-                                ("modern-styling.html", "Modern Styling"),
-                                ("advanced-components.html", "Advanced Components"),
-                                ("dark-mode.html", "Dark Mode"),
-                                ("complete-app.html", "Complete Application"),
-                            ]
+                            for each in get_example_names()
+                                href = each.output_file
+                                label = each.title
                                 is_current = href == current_page
                                 link_class = if is_current
                                     "block px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium"

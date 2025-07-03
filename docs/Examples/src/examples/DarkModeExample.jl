@@ -293,5 +293,6 @@ using HypertextTemplates.Library
         end
     end
 end
-
 @deftag macro DarkModeExample end
+
+component_title(::typeof(DarkModeExample)) = "Dark Mode Optimized Components"

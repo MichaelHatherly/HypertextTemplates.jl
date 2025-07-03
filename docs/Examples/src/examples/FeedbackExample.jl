@@ -203,3 +203,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro FeedbackExample end
+
+component_title(::typeof(FeedbackExample)) = "Feedback Components"

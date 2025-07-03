@@ -402,3 +402,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro AppExample end
+
+component_title(::typeof(AppExample)) = "Complete Application Example"

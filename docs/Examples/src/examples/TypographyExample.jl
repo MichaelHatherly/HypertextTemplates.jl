@@ -77,3 +77,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro TypographyExample end
+
+component_title(::typeof(TypographyExample)) = "Typography Components"

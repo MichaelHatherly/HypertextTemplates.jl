@@ -1,15 +1,5 @@
 using HypertextTemplates
-using HypertextTemplates.Elements
-using HypertextTemplates.Library
-
-# Include shared components
-include("shared/html_document.jl")
-include("shared/example_registry.jl")
-
-# Include all example components
-for entry in EXAMPLE_REGISTRY
-    include(joinpath("examples", entry.filename))
-end
+using Examples
 
 # Ensure build directory exists
 build_dir = joinpath(@__DIR__, "src", "examples")
@@ -18,20 +8,16 @@ mkpath(build_dir)
 println("Generating component examples...")
 
 # Generate HTML for each example
-for entry in EXAMPLE_REGISTRY
+for entry in Examples.Templates.get_example_names()
     println("  Generating $(entry.output_file)...")
-
-    # Get the component based on the registry entry
-    component_symbol = Symbol(entry.component_name)
-    component = getfield(Main, component_symbol)
-
-    # Render the HTML
-    html = @render @HTMLDocument {title = entry.title, current_page = entry.output_file} begin
-        @<component {}
+    open(joinpath(build_dir, entry.output_file), "w") do io
+        @render io Examples.Templates.@HTMLDocument {
+            title = entry.title,
+            current_page = entry.output_file,
+        } begin
+            @<entry.component
+        end
     end
-
-    # Write to file
-    write(joinpath(build_dir, entry.output_file), html)
 end
 
 println("\nComponent examples generated successfully!")

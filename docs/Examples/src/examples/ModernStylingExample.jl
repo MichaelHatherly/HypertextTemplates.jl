@@ -442,3 +442,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro ModernStylingExample end
+
+component_title(::typeof(ModernStylingExample)) = "Modern Styling Features"

@@ -383,5 +383,6 @@ using HypertextTemplates.Library
         end
     end
 end
-
 @deftag macro DropdownMenuExample end
+
+component_title(::typeof(DropdownMenuExample)) = "Dropdown Menu Components"

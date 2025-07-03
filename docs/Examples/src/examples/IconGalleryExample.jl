@@ -519,3 +519,5 @@ icon_gallery_examples = [
     end
 end
 @deftag macro IconGalleryExample end
+
+component_title(::typeof(IconGalleryExample)) = "Icon Gallery"

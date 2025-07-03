@@ -228,3 +228,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro UtilityExample end
+
+component_title(::typeof(UtilityExample)) = "Utility Components"

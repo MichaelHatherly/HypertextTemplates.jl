@@ -82,3 +82,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro LayoutExample end
+
+component_title(::typeof(LayoutExample)) = "Layout Components"

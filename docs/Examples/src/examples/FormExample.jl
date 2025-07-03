@@ -401,3 +401,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro FormExample end
+
+component_title(::typeof(FormExample)) = "Form Components"

@@ -261,3 +261,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro TableListExample end
+
+component_title(::typeof(TableListExample)) = "Table & List Components"

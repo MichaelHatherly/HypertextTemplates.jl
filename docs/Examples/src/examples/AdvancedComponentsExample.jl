@@ -1005,3 +1005,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro AdvancedComponentsExample end
+
+component_title(::typeof(AdvancedComponentsExample)) = "Advanced Components"

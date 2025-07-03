@@ -1,0 +1,11 @@
+name = "Examples"
+uuid = "fb23777a-fa48-4d75-8f85-3fcfaae7dffe"
+authors = ["MichaelHatherly <michaelhatherly@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+HypertextTemplates = "c7d46f9d-34c3-4420-bf57-257f25aec718"
+ReloadableMiddleware = "6b39ad65-d4e1-4a6a-9d75-56e3fde28494"
+
+[sources]
+HypertextTemplates = {path = "../.."}

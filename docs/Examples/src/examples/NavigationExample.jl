@@ -169,3 +169,5 @@ using HypertextTemplates.Library
     end
 end
 @deftag macro NavigationExample end
+
+component_title(::typeof(NavigationExample)) = "Navigation Components"
