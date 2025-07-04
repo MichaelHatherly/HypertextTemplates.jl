@@ -65,6 +65,22 @@ end
     show_close::Bool = true,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Inject CSS variables if theme provides them
+    if haskey(theme.modal, :css_vars)
+        @__once__ #="modal-theme-vars"=# begin
+            @style @text SafeString(
+                """
+    :root {
+        $(join(["$k: $v;" for (k,v) in pairs(theme.modal.css_vars)], "\n                    "))
+    }
+""",
+            )
+        end
+    end
+
     # Load JavaScript and CSS once per render
     @__once__ begin
         @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
@@ -82,20 +98,15 @@ end
         returnFocus: true
     }""")
 
-    # Size classes
-    size_classes = Dict(
-        :sm => "max-w-sm",
-        :md => "max-w-md",
-        :lg => "max-w-lg",
-        :xl => "max-w-xl",
-        :fullscreen => "max-w-none w-full h-full m-0",
-    )
+    # Convert size to symbol
+    size_sym = Symbol(size)
 
-    size_class = get(size_classes, Symbol(size), size_classes[:md])
-
-    # Dialog styling - ensure proper centering and sizing
-    dialog_classes = "p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"
-    content_classes = "relative p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-hidden $size_class"
+    # Direct theme access
+    size_class = theme.modal.sizes[size_sym]
+    dialog_classes = theme.modal.dialog
+    content_base = theme.modal.content
+    content_classes = "$content_base $size_class"
+    close_button_classes = theme.modal.close_button
 
     @dialog {
         id = modal_id,
@@ -111,7 +122,7 @@ end
                 @button {
                     type = "button",
                     var"@click" = "close()",
-                    class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                    class = close_button_classes,
                     "aria-label" = "Close modal",
                 } begin
                     @Icon {name = "x", size = :md}

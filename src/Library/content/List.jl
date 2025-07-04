@@ -44,35 +44,31 @@ end
     spacing::Union{Symbol,String} = :normal,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     variant_sym = Symbol(variant)
     spacing_sym = Symbol(spacing)
 
-    spacing_classes = (tight = "space-y-1", normal = "space-y-2", loose = "space-y-4")
+    # Direct theme access
+    base_classes = theme.list.base
+    spacing_class = theme.list.spacing[spacing_sym]
+    variant_class = theme.list.variants[variant_sym]
 
-    spacing_class = get(spacing_classes, spacing_sym, "space-y-2")
-
-    # Base classes for all variants
-    base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
+    # Build final classes
+    final_classes = "$variant_class $base_classes $spacing_class"
 
     if variant_sym === :bullet
-        @ul {class = "list-disc list-inside $base_class", attrs...} begin
+        @ul {class = final_classes, attrs...} begin
             @__slot__()
         end
     elseif variant_sym === :number
-        @ol {class = "list-decimal list-inside $base_class", attrs...} begin
+        @ol {class = final_classes, attrs...} begin
             @__slot__()
         end
-    elseif variant_sym === :check
-        # For check variant, we'll style the list items with pseudo-elements
-        @ul {
-            class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
-            attrs...,
-        } begin
-            @__slot__()
-        end
-    else # :none
-        @ul {class = "list-none $base_class", attrs...} begin
+    else # :check or :none
+        @ul {class = final_classes, attrs...} begin
             @__slot__()
         end
     end

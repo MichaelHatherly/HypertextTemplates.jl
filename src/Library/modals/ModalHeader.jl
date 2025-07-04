@@ -28,13 +28,21 @@ end
 - [`ModalFooter`](@ref) - Modal footer section
 """
 @component function ModalHeader(; subtitle::Union{String,Nothing} = nothing, attrs...)
-    @div {class = "px-6 py-4 border-b border-gray-200 dark:border-gray-700", attrs...} begin
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.modal_header.base
+    title_class = theme.modal_header.title
+    subtitle_class = theme.modal_header.subtitle
+
+    @div {class = base_class, attrs...} begin
         # Always wrap content in proper styling
-        @div {class = "text-xl font-semibold text-gray-900 dark:text-gray-100"} begin
+        @div {class = title_class} begin
             @__slot__()
         end
         if !isnothing(subtitle)
-            @Text {size = :sm, class = "mt-1 text-gray-600 dark:text-gray-400"} $subtitle
+            @Text {size = :sm, class = subtitle_class} $subtitle
         end
     end
 end

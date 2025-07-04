@@ -19,12 +19,12 @@
 dialog.drawer-modal::backdrop {
     background-color: rgba(0, 0, 0, 0);
     backdrop-filter: blur(0px);
-    transition: all 0.3s ease-out;
+    transition: all var(--drawer-animation-duration, 0.3s) ease-out;
 }
 
 dialog.drawer-modal[open]::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background-color: var(--drawer-backdrop-color, rgba(0, 0, 0, 0.5));
+    backdrop-filter: blur(var(--drawer-backdrop-blur, 4px));
 }
 
 /* Drawer animations */
@@ -82,7 +82,7 @@ dialog.drawer-modal.drawer-left[open] {
     left: 0;
     bottom: 0;
     right: auto;
-    animation: slideInLeft 0.3s ease-out;
+    animation: slideInLeft var(--drawer-animation-duration, 0.3s) ease-out;
 }
 
 dialog.drawer-modal.drawer-right[open] {
@@ -90,7 +90,7 @@ dialog.drawer-modal.drawer-right[open] {
     right: 0;
     bottom: 0;
     left: auto;
-    animation: slideInRight 0.3s ease-out;
+    animation: slideInRight var(--drawer-animation-duration, 0.3s) ease-out;
 }
 
 dialog.drawer-modal.drawer-top[open] {
@@ -98,7 +98,7 @@ dialog.drawer-modal.drawer-top[open] {
     left: 0;
     right: 0;
     bottom: auto;
-    animation: slideInTop 0.3s ease-out;
+    animation: slideInTop var(--drawer-animation-duration, 0.3s) ease-out;
 }
 
 dialog.drawer-modal.drawer-bottom[open] {
@@ -106,22 +106,22 @@ dialog.drawer-modal.drawer-bottom[open] {
     left: 0;
     right: 0;
     top: auto;
-    animation: slideInBottom 0.3s ease-out;
+    animation: slideInBottom var(--drawer-animation-duration, 0.3s) ease-out;
 }
 
 /* Closing animations */
 dialog.drawer-modal.drawer-left.closing {
-    animation: slideOutLeft 0.2s ease-in;
+    animation: slideOutLeft var(--drawer-close-duration, 0.2s) ease-in;
 }
 
 dialog.drawer-modal.drawer-right.closing {
-    animation: slideOutRight 0.2s ease-in;
+    animation: slideOutRight var(--drawer-close-duration, 0.2s) ease-in;
 }
 
 dialog.drawer-modal.drawer-top.closing {
-    animation: slideOutTop 0.2s ease-in;
+    animation: slideOutTop var(--drawer-close-duration, 0.2s) ease-in;
 }
 
 dialog.drawer-modal.drawer-bottom.closing {
-    animation: slideOutBottom 0.2s ease-in;
+    animation: slideOutBottom var(--drawer-close-duration, 0.2s) ease-in;
 }

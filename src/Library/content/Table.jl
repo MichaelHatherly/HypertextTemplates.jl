@@ -80,130 +80,90 @@ end
     overflow::Bool = true,
     attrs...,
 )
-    # Base wrapper classes
-    wrapper_classes = ["w-full", "relative"]
+    # Get theme from context
+    theme = @get_context(:theme)
+    table_theme = theme.table
+
+    # Get wrapper theme
+    wrapper_theme = table_theme.wrapper
+    wrapper_base = wrapper_theme.base
+    wrapper_sticky = wrapper_theme.sticky
+    wrapper_overflow = wrapper_theme.overflow
+
+    # Build wrapper classes
+    wrapper_classes = [wrapper_base]
     if sticky_header
-        push!(wrapper_classes, "overflow-auto", "max-h-[600px]")
+        push!(wrapper_classes, wrapper_sticky)
     elseif overflow
-        push!(wrapper_classes, "overflow-x-auto")
+        push!(wrapper_classes, wrapper_overflow)
     end
 
-    # Table container classes for styling
-    container_classes = ["w-full"]
+    # Get container theme
+    container_theme = table_theme.container
+    container_base = container_theme.base
+    container_bordered = container_theme.bordered
+    container_overflow = container_theme.overflow
+
+    # Build container classes
+    container_classes = [container_base]
     if bordered
-        push!(
-            container_classes,
-            "rounded-lg",
-            "border",
-            "border-gray-200",
-            "dark:border-gray-700",
-        )
+        push!(container_classes, container_bordered)
         if overflow
-            push!(container_classes, "overflow-hidden")
+            push!(container_classes, container_overflow)
         end
     end
 
+    # Get table styles theme
+    table_styles = table_theme.table
+
     # Base table classes
-    table_classes = ["w-full", "text-sm"]
+    table_base = table_styles.base
+    table_classes = [table_base]
 
-    # Base styling for clean appearance
-    push!(table_classes, "border-separate", "border-spacing-0")
-
-    # Header styling - cleaner approach
-    push!(table_classes, "[&>thead>tr>th]:bg-white", "dark:[&>thead>tr>th]:bg-gray-900")
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:text-left",
-        "[&>thead>tr>th]:text-xs",
-        "[&>thead>tr>th]:font-semibold",
-    )
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:text-gray-600",
-        "dark:[&>thead>tr>th]:text-gray-400",
-    )
-    push!(table_classes, "[&>thead>tr>th]:uppercase", "[&>thead>tr>th]:tracking-wider")
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:border-b",
-        "[&>thead>tr>th]:border-gray-200",
-        "dark:[&>thead>tr>th]:border-gray-700",
-    )
+    # Header styling
+    header_base = table_styles.header_base
+    push!(table_classes, header_base)
 
     # Header padding
-    if compact
-        push!(table_classes, "[&>thead>tr>th]:px-4", "[&>thead>tr>th]:py-2")
-    else
-        push!(table_classes, "[&>thead>tr>th]:px-6", "[&>thead>tr>th]:py-4")
-    end
+    header_padding = table_styles.header_padding
+    header_padding_class = compact ? header_padding.compact : header_padding.normal
+    push!(table_classes, header_padding_class)
 
-    # Cell styling - cleaner with better spacing
-    push!(table_classes, "[&>tbody>tr>td]:bg-white", "dark:[&>tbody>tr>td]:bg-gray-900")
-    push!(
-        table_classes,
-        "[&>tbody>tr>td]:text-gray-700",
-        "dark:[&>tbody>tr>td]:text-gray-300",
-    )
-    push!(
-        table_classes,
-        "[&>tbody>tr>td]:border-b",
-        "[&>tbody>tr>td]:border-gray-100",
-        "dark:[&>tbody>tr>td]:border-gray-800",
-    )
+    # Cell styling
+    cell_base = table_styles.cell_base
+    push!(table_classes, cell_base)
 
     # Cell padding
-    if compact
-        push!(table_classes, "[&>tbody>tr>td]:px-4", "[&>tbody>tr>td]:py-2")
-    else
-        push!(table_classes, "[&>tbody>tr>td]:px-6", "[&>tbody>tr>td]:py-4")
-    end
+    cell_padding = table_styles.cell_padding
+    cell_padding_class = compact ? cell_padding.compact : cell_padding.normal
+    push!(table_classes, cell_padding_class)
 
-    # Remove bottom border from last row
-    push!(table_classes, "[&>tbody>tr:last-child>td]:border-b-0")
-
-    # Striped rows - more subtle
+    # Striped rows
     if striped
-        push!(
-            table_classes,
-            "[&>tbody>tr:nth-child(even)>td]:bg-gray-50/50",
-            "dark:[&>tbody>tr:nth-child(even)>td]:bg-gray-800/50",
-        )
+        striped_class = table_styles.striped
+        push!(table_classes, striped_class)
     end
 
-    # Hover effect - more subtle
+    # Hover effect
     if hover
-        push!(table_classes, "[&>tbody>tr]:transition-all", "[&>tbody>tr]:duration-200")
-        push!(
-            table_classes,
-            "[&>tbody>tr:hover>td]:bg-gray-50",
-            "dark:[&>tbody>tr:hover>td]:bg-gray-800/70",
-        )
+        hover_class = table_styles.hover
+        push!(table_classes, hover_class)
     end
 
     # Sticky header
     if sticky_header
-        push!(table_classes, "[&>thead]:sticky", "[&>thead]:top-0", "[&>thead]:z-20")
-        push!(table_classes, "[&>thead]:shadow-sm")
+        sticky_class = table_styles.sticky_header
+        push!(table_classes, sticky_class)
     end
 
     # Sortable columns
     if sortable
-        push!(
-            table_classes,
-            "[&>thead>tr>th]:cursor-pointer",
-            "[&>thead>tr>th]:select-none",
-        )
-        push!(
-            table_classes,
-            "[&>thead>tr>th]:transition-colors",
-            "[&>thead>tr>th]:duration-150",
-        )
-        push!(
-            table_classes,
-            "[&>thead>tr>th:hover]:bg-gray-50",
-            "dark:[&>thead>tr>th:hover]:bg-gray-800",
-        )
+        sortable_class = table_styles.sortable
+        push!(table_classes, sortable_class)
     end
+
+    # Caption styling
+    caption_class = table_theme.caption
 
     # Build component default attributes
     component_attrs = (class = SafeString(join(table_classes, " ")),)
@@ -213,7 +173,7 @@ end
 
     @div {class = join(wrapper_classes, " ")} begin
         if !isnothing(caption)
-            @p {class = "mb-2 text-sm text-gray-600 dark:text-gray-400 italic"} caption
+            @p {class = caption_class} caption
         end
 
         @div {class = SafeString(join(container_classes, " "))} begin

@@ -66,17 +66,51 @@ end
     persistent::Bool = false,
     attrs...,
 )
+    # Convert to symbols
+    position_sym = Symbol(position)
+    size_sym = Symbol(size)
+
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Inject CSS variables if theme provides them
+    if haskey(theme.drawer_modal, :css_vars)
+        @__once__ #="drawer-theme-vars"=# begin
+            @style @text SafeString(
+                """
+    :root {
+        $(join(["$k: $v;" for (k,v) in pairs(theme.drawer_modal.css_vars)], "\n                    "))
+    }
+""",
+            )
+        end
+    end
+
+    # Load JavaScript and CSS once per render
+    @__once__ begin
+        @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
+        @style @text SafeString(
+            read(joinpath(@__DIR__, "../assets/drawer-modal.css"), String),
+        )
+    end
+
+    # Configuration object for Alpine.js
+    config = SafeString("""{
+        persistent: $(persistent ? "true" : "false"),
+        returnFocus: true
+    }""")
+
     # Position classes for different slide directions
     position_classes = Dict(
         :left => Dict(
             :container => "items-stretch justify-start",
             :drawer => "h-full max-h-none my-0 ml-0 rounded-none",
-            :sizes => Dict(:sm => "max-w-xs", :md => "max-w-sm", :lg => "max-w-md"),
+            :sizes => Dict(:sm => "w-64", :md => "w-80", :lg => "w-96"),
         ),
         :right => Dict(
             :container => "items-stretch justify-end",
             :drawer => "h-full max-h-none my-0 mr-0 rounded-none",
-            :sizes => Dict(:sm => "max-w-xs", :md => "max-w-sm", :lg => "max-w-md"),
+            :sizes => Dict(:sm => "w-64", :md => "w-80", :lg => "w-96"),
         ),
         :top => Dict(
             :container => "items-start justify-center",
@@ -94,22 +128,15 @@ end
         ),
     )
 
-    pos_config = get(position_classes, Symbol(position), position_classes[:right])
-    size_class = get(pos_config[:sizes], Symbol(size), pos_config[:sizes][:md])
+    pos_config = get(position_classes, position_sym, position_classes[:right])
 
-    # Load JavaScript and CSS once per render
-    @__once__ begin
-        @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
-        @style @text SafeString(
-            read(joinpath(@__DIR__, "../assets/drawer-modal.css"), String),
-        )
-    end
-
-    # Configuration object for Alpine.js
-    config = SafeString("""{
-        persistent: $(persistent ? "true" : "false"),
-        returnFocus: true
-    }""")
+    # Direct theme access
+    size_class = get(theme.drawer_modal.sizes, size_sym, get(pos_config[:sizes], size_sym, pos_config[:sizes][:md]))
+    dialog_classes = theme.drawer_modal.dialog
+    content_classes = theme.drawer_modal.content
+    close_position = theme.drawer_modal.positions[position_sym].close_position
+    close_button_base = theme.drawer_modal.close_button
+    close_button_classes = replace(close_button_base, "right-4" => close_position)
 
     # Add position-specific class for CSS targeting
     position_class = "drawer-" * string(position)
@@ -119,17 +146,17 @@ end
         var"x-data" = SafeString("modal($config)"),
         var"x-ref" = "dialog",
         var"@keydown" = "handleKeydown",
-        class = "drawer-modal $position_class fixed inset-0 z-[10001] w-full h-full bg-transparent flex $(pos_config[:container])",
+        class = "drawer-modal $position_class fixed inset-0 z-[10001] w-full h-full $dialog_classes flex $(pos_config[:container])",
         attrs...,
     } begin
         @div {
-            class = "relative bg-white dark:bg-gray-800 shadow-xl border-0 $(pos_config[:drawer]) $size_class flex flex-col",
+            class = "relative $content_classes border-0 $(pos_config[:drawer]) $size_class flex flex-col",
         } begin
             # Close button
             @button {
                 type = "button",
                 var"@click" = "close()",
-                class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                class = close_button_classes,
                 "aria-label" = "Close drawer",
             } begin
                 @Icon {name = "x", size = :md}

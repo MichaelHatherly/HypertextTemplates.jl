@@ -18,32 +18,35 @@ A user profile image component that displays user avatars with automatic fallbac
     fallback::Union{AbstractString,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    avatar_theme = theme.avatar
+    base_class = avatar_theme.base
+    image_class = avatar_theme.image
+    fallback_container_class = avatar_theme.fallback_container
+    default_icon = avatar_theme.default_icon
+    sizes_theme = avatar_theme.sizes
+    shapes_theme = avatar_theme.shapes
+    backgrounds_theme = avatar_theme.backgrounds
+
     # Convert to symbols
     size_sym = Symbol(size)
     shape_sym = Symbol(shape)
 
-    size_classes = (
-        xs = "h-6 w-6 text-xs",
-        sm = "h-8 w-8 text-sm",
-        md = "h-10 w-10 text-base",
-        lg = "h-12 w-12 text-lg",
-        xl = "h-16 w-16 text-xl",
-    )
-
-    size_class = get(size_classes, size_sym, size_classes.md)
-    shape_class = shape_sym === :circle ? "rounded-full" : "rounded-lg"
+    size_class = get(sizes_theme, size_sym, sizes_theme.md)
+    shape_class = get(shapes_theme, shape_sym, shapes_theme.circle)
 
     # Default background color for fallback avatars
     default_bg = if !isnothing(src)
-        "bg-slate-100 dark:bg-slate-800"
+        backgrounds_theme.with_image
     else
-        "bg-blue-500 dark:bg-blue-600"
+        backgrounds_theme.fallback
     end
 
     # Build component default attributes
-    component_attrs = (
-        class = "relative inline-flex $size_class $shape_class overflow-hidden $default_bg",
-    )
+    component_attrs = (class = "$base_class $size_class $shape_class $default_bg",)
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)
@@ -54,19 +57,15 @@ A user profile image component that displays user avatars with automatic fallbac
             if isnothing(alt)
                 error("Avatar: alt text is required when src is provided")
             end
-            @img {src = src, alt = alt, class = "h-full w-full object-cover"}
+            @img {src = src, alt = alt, class = image_class}
         else
             # Fallback content
-            @div {
-                class = "flex h-full w-full items-center justify-center font-medium text-white",
-            } begin
+            @div {class = fallback_container_class} begin
                 if !isnothing(fallback)
                     @text fallback
                 else
                     # Default user icon
-                    @text HypertextTemplates.SafeString(
-                        """<svg class="h-1/2 w-1/2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>""",
-                    )
+                    @text HypertextTemplates.SafeString(default_icon)
                 end
             end
         end

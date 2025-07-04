@@ -39,28 +39,21 @@ end
     glass::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbol
     size_sym = Symbol(size)
 
-    size_classes = (
-        sm = "max-w-screen-sm",
-        md = "max-w-screen-md",
-        lg = "max-w-screen-lg",
-        xl = "max-w-screen-xl",
-        var"2xl" = "max-w-screen-2xl",
-        full = "max-w-full",
-    )
-
-    size_class = get(size_classes, size_sym, "max-w-screen-xl")
-    padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
-    centered_class = centered ? "mx-auto" : ""
-    glass_class =
-        glass ?
-        "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" :
-        ""
+    # Direct theme access
+    base_class = theme.container.base
+    size_class = theme.container.sizes[size_sym]
+    padding_class = padding ? theme.container.padding : ""
+    centered_class = centered ? theme.container.centered : ""
+    glass_class = glass ? theme.container.glass : ""
 
     @div {
-        class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300",
+        class = "$size_class $padding_class $centered_class $glass_class $base_class",
         role = role,
         attrs...,
     } begin

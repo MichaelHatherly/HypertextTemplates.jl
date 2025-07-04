@@ -57,55 +57,16 @@ end
     variant_sym = Symbol(variant)
     border_sym = border isa Symbol ? border : (border ? :default : :none)
 
-    padding_classes = (
-        none = "",
-        sm = "p-3 md:p-4",
-        base = "p-5 md:p-6",
-        md = "p-5 md:p-6",  # For backward compatibility
-        lg = "p-6 md:p-8",
-        xl = "p-8 md:p-10",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    shadow_classes = (
-        none = "",
-        sm = "shadow-sm",
-        base = "shadow",
-        md = "shadow",  # For backward compatibility
-        lg = "shadow-lg",
-        colored = "shadow-lg shadow-blue-500/10 dark:shadow-blue-400/10",
-    )
-
-    rounded_classes = (
-        none = "",
-        sm = "rounded",
-        base = "rounded-lg",
-        md = "rounded-lg",  # For backward compatibility
-        lg = "rounded-xl",
-        xl = "rounded-2xl",
-    )
-
-    border_classes = (
-        none = "",
-        default = "border border-slate-200 dark:border-slate-800",
-        gradient = "border border-transparent bg-gradient-to-r from-blue-500 to-indigo-500 p-[1px]",
-    )
-
-    variant_classes = (
-        default = "bg-white dark:bg-slate-900",
-        glass = "backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50",
-        gradient = "bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900",
-    )
-
-    padding_class = get(padding_classes, padding_sym, padding_classes.base)
-    shadow_class = get(shadow_classes, shadow_sym, shadow_classes.base)
-    border_class = get(border_classes, border_sym, "")
-    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.lg)
-    variant_class = get(variant_classes, variant_sym, variant_classes.default)
-
-    hover_class =
-        hoverable ?
-        "transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5" :
-        ""
+    # Direct theme access
+    padding_class = theme.card.padding[padding_sym]
+    shadow_class = theme.card.shadow[shadow_sym]
+    border_class = theme.card.border[border_sym]
+    rounded_class = theme.card.rounded[rounded_sym]
+    variant_class = theme.card.variants[variant_sym]
+    hover_class = hoverable ? theme.card.states.hoverable : ""
 
     # Handle gradient border special case
     if border_sym === :gradient

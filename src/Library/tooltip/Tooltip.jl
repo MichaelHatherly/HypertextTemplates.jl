@@ -74,6 +74,23 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     class::String = "",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+    tooltip_theme = theme.tooltip
+
+    # Get container and trigger wrapper classes
+    container_class = tooltip_theme.container
+    trigger_wrapper_class = tooltip_theme.trigger_wrapper
+
+    # Get content theme
+    content_theme = tooltip_theme.content
+    content_base_class = content_theme.base
+    content_padding_class = content_theme.padding
+
+    # Get variants and sizes
+    variants_theme = tooltip_theme.variants
+    sizes_theme = tooltip_theme.sizes
+
     # Load JavaScript for tooltip functionality
     @__once__ begin
         @script @text SafeString(read(joinpath(@__DIR__, "../assets/tooltip.js"), String))
@@ -93,25 +110,13 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         offset: $offset
     }""")
 
-    # Variant styles
-    variant_classes = (
-        dark = "bg-gray-900 text-white",
-        light = "bg-white text-gray-900 border border-gray-200",
-    )
+    # Get variant and size classes
+    variant_class = get(variants_theme, variant_sym, variants_theme.dark)
+    size_class = get(sizes_theme, size_sym, sizes_theme.sm)
 
-    # Size classes
-    size_classes = (sm = "text-sm", base = "text-base")
-
-    variant_class = get(variant_classes, variant_sym, variant_classes.dark)
-    size_class = get(size_classes, size_sym, size_classes.sm)
-
-    @div {
-        var"x-data" = SafeString("tooltip($config)"),
-        class = "relative inline-block",
-        attrs...,
-    } begin
+    @div {var"x-data" = SafeString("tooltip($config)"), class = container_class, attrs...} begin
         # Trigger wrapper
-        @div {var"x-ref" = "trigger", class = "inline-block"} begin
+        @div {var"x-ref" = "trigger", class = trigger_wrapper_class} begin
             @__slot__()
         end
 
@@ -127,11 +132,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
             var"x-transition:leave" = "transition ease-in duration-150",
             var"x-transition:leave-start" = "opacity-100 scale-100",
             var"x-transition:leave-end" = "opacity-0 scale-95",
-            class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
+            class = "$content_base_class $variant_class $class",
             style = "max-width: $max_width; width: max-content;",
             role = "tooltip",
         } begin
-            @div {class = "px-3 py-2 $size_class"} begin
+            @div {class = "$content_padding_class $size_class"} begin
                 @text text
             end
         end

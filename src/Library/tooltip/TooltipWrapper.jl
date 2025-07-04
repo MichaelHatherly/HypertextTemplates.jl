@@ -74,6 +74,12 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     interactive::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.tooltip_wrapper.base
+
     # Load JavaScript for tooltip functionality
     @__once__ begin
         @script @text SafeString(read(joinpath(@__DIR__, "../assets/tooltip.js"), String))
@@ -93,11 +99,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         interactive: $(interactive ? "true" : "false")
     }""")
 
-    @div {
-        var"x-data" = SafeString("tooltip($config)"),
-        class = "relative inline-block",
-        attrs...,
-    } begin
+    @div {var"x-data" = SafeString("tooltip($config)"), class = base_class, attrs...} begin
         @__slot__()
     end
 end

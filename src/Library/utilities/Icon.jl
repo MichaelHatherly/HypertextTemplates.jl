@@ -63,20 +63,23 @@ end
     decorative::Bool = true,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbol
     size_sym = Symbol(size)
 
-    size_classes =
-        (xs = "h-3 w-3", sm = "h-4 w-4", md = "h-5 w-5", lg = "h-6 w-6", xl = "h-8 w-8")
-
-    size_class = get(size_classes, size_sym, size_classes.md)
-    color_class = isnothing(color) ? "text-current" : color
+    # Direct theme access
+    base_class = theme.icon.base
+    default_color = theme.icon.default_color
+    size_class = theme.icon.sizes[size_sym]
+    color_class = isnothing(color) ? default_color : color
 
     # Set aria-hidden for decorative icons, or aria-label for interactive ones
     aria_hidden = decorative && isnothing(aria_label) ? "true" : nothing
 
     @span {
-        class = "inline-flex items-center justify-center $size_class $color_class",
+        class = "$base_class $size_class $color_class",
         "aria-hidden" = aria_hidden,
         "aria-label" = aria_label,
         attrs...,

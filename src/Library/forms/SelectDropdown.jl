@@ -67,6 +67,9 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
+    # Get theme from context
+    theme = @get_context(:theme)
+
     # Generate unique ID if not provided
     component_id = isnothing(id) ? "select-dropdown-$(_hash)" : id
     dropdown_id = "$(component_id)-dropdown"
@@ -114,30 +117,26 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
     alpine_config = SafeString("{" * join(config_parts, ", ") * "}")
 
-    # Size classes (matching Input component)
-    size_classes = (
-        xs = "px-2.5 py-1.5 text-xs",
-        sm = "px-3 py-2 text-sm",
-        base = "px-4 py-2.5 text-base",
-        lg = "px-5 py-3 text-lg",
-        xl = "px-6 py-3.5 text-xl",
-    )
+    # Get size class
+    size_class = theme.select_dropdown.sizes[size_sym]
 
-    state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
-    )
+    # Get state class
+    state_class = theme.select_dropdown.states[state_sym]
 
-    size_class = get(size_classes, size_sym, size_classes.base)
-    state_class = get(state_classes, state_sym, state_classes.default)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+    # Get disabled/enabled class
+    disabled_class = disabled ? theme.select_dropdown.disabled : theme.select_dropdown.enabled
+
+    # Get theme classes
+    container_class = theme.select_dropdown.container
+    button_class = theme.select_dropdown.button
+    placeholder_color = theme.select_dropdown.placeholder_color
+    dropdown_arrow_class = theme.select_dropdown.dropdown_arrow
 
     # Build the component
     @div {
         var"x-data" = SafeString("selectDropdown($alpine_config)"),
         var"@keydown" = "handleKeydown(\$event)",
-        class = "relative",
+        class = container_class,
         attrs...,
     } begin
         # Hidden inputs container will be managed by Alpine component
@@ -155,12 +154,15 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                 var"aria-controls" = dropdown_id,
                 disabled = disabled,
                 required = required,
-                class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
+                class = "$button_class $size_class $state_class $disabled_class",
             } begin
                 @span {
                     var"x-text" = "selectedLabel",
-                    var":class" = "{ 'text-gray-500 dark:text-gray-400': !hasSelection }",
-                    class = clearable ? "pr-12" : "pr-8",
+                    var":class" = "{ '$placeholder_color': !hasSelection }",
+                    class =
+                        clearable ?
+                        theme.select_dropdown.selected_label_padding.with_clear :
+                        theme.select_dropdown.selected_label_padding.without_clear,
                 } begin
                     if !isnothing(placeholder)
                         @text placeholder
@@ -169,8 +171,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
                 # Dropdown arrow
                 @svg {
-                    class = "absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none",
-                    var":class" = "{ 'rotate-180': open }",
+                    class = dropdown_arrow_class,
+                    var":class" = "{ 'rotate-180': open },",
                     xmlns = "http://www.w3.org/2000/svg",
                     viewBox = "0 0 20 20",
                     fill = "currentColor",
@@ -185,6 +187,9 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
             # Clear button (outside main button)
             if clearable
+                clear_button_class = theme.select_dropdown.clear_button
+                clear_icon_class = theme.select_dropdown.clear_icon
+
                 @button {
                     type = "button",
                     var"@click.stop" = "clearSelection()",
@@ -195,11 +200,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     var"x-transition:leave" = "transition ease-in duration-100",
                     var"x-transition:leave-start" = "opacity-100 scale-100",
                     var"x-transition:leave-end" = "opacity-0 scale-75",
-                    class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                    class = clear_button_class,
                     var"aria-label" = "Clear selection",
                 } begin
                     @svg {
-                        class = "h-4 w-4 text-gray-500 dark:text-gray-400",
+                        class = clear_icon_class,
                         xmlns = "http://www.w3.org/2000/svg",
                         viewBox = "0 0 20 20",
                         fill = "currentColor",
@@ -215,6 +220,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         end
 
         # Dropdown panel
+        dropdown_panel_class = theme.select_dropdown.dropdown_panel
+
         @div {
             var"x-show" = "open",
             var"x-anchor.bottom-start.offset.4" = SafeString("\$refs.button"),
@@ -226,27 +233,32 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
             var"x-transition:leave-end" = "opacity-0 transform scale-95",
             var"@click.away" = "handleClickOutside()",
             id = dropdown_id,
-            class = "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            class = dropdown_panel_class,
             role = "listbox",
             var"aria-label" = placeholder,
         } begin
             # Search input (if searchable)
             if searchable
-                @div {class = "p-2 border-b border-gray-200 dark:border-gray-800"} begin
+                search_wrapper_class = theme.select_dropdown.search_wrapper
+                search_input_class = theme.select_dropdown.search_input
+
+                @div {class = search_wrapper_class} begin
                     @input {
                         type = "text",
                         var"x-ref" = "search",
                         var"x-model" = "search",
                         var"@click.stop" = "",
                         placeholder = "Search...",
-                        class = "w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                        class = search_input_class,
                     }
                 end
             end
 
             # Options list
+            options_list_class = theme.select_dropdown.options_list
+
             @div {
-                class = "overflow-y-auto",
+                class = options_list_class,
                 style = "max-height: $max_height",
                 var"x-ref" = "optionsList",
             } begin
@@ -254,32 +266,43 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     var"x-for" = "(option, index) in filteredOptions",
                     var":key" = "option[0]",
                 } begin
+                    option_button_class = theme.select_dropdown.option_button
+                    option_highlighted = theme.select_dropdown.option_highlighted
+                    option_selected = theme.select_dropdown.option_selected
+                    option_wrapper_class = theme.select_dropdown.option_wrapper
+
                     @button {
                         type = "button",
                         var"@click" = "selectOption(option[0])",
                         var":class" = """{
-                            'bg-blue-50 dark:bg-blue-900/20': highlighted === index,
-                            'bg-blue-100 dark:bg-blue-900/40': isSelected(option[0])
+                            '$option_highlighted': highlighted === index,
+                            '$option_selected': isSelected(option[0])
                         }""",
                         var"@mouseenter" = "highlighted = index",
                         var":data-index" = "index",
-                        class = "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150",
+                        class = option_button_class,
                         role = "option",
                         var":aria-selected" = "isSelected(option[0])",
                     } begin
-                        @div {class = "flex items-center"} begin
+                        @div {class = option_wrapper_class} begin
                             if multiple
-                                @div {class = "mr-3"} begin
+                                checkbox_wrapper_class = theme.select_dropdown.checkbox_wrapper
+                                checkbox_class = theme.select_dropdown.checkbox
+                                checkbox_unchecked = theme.select_dropdown.checkbox_unchecked
+                                checkbox_checked = theme.select_dropdown.checkbox_checked
+                                checkbox_icon_class = theme.select_dropdown.checkbox_icon
+
+                                @div {class = checkbox_wrapper_class} begin
                                     @div {
-                                        class = "h-4 w-4 rounded border-2 transition-all duration-200",
+                                        class = checkbox_class,
                                         var":class" = """{
-                                            'border-blue-500 bg-blue-500': isSelected(option[0]),
-                                            'border-gray-300 dark:border-gray-600': !isSelected(option[0])
+                                            '$checkbox_checked': isSelected(option[0]),
+                                            '$checkbox_unchecked': !isSelected(option[0])
                                         }""",
                                     } begin
                                         @svg {
                                             var"x-show" = "isSelected(option[0])",
-                                            class = "h-3 w-3 text-white",
+                                            class = checkbox_icon_class,
                                             fill = "none",
                                             viewBox = "0 0 24 24",
                                             stroke = "currentColor",
@@ -294,18 +317,19 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                                     end
                                 end
                             end
-                            @span {
-                                var"x-text" = "option[1]",
-                                class = "text-gray-900 dark:text-gray-100",
-                            }
+                            option_text_class = theme.select_dropdown.option_text
+
+                            @span {var"x-text" = "option[1]", class = option_text_class}
                         end
                     end
                 end
 
                 # No results message
+                no_results_class = theme.select_dropdown.no_results
+
                 @div {
                     var"x-show" = "search && filteredOptions.length === 0",
-                    class = "px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400",
+                    class = no_results_class,
                 } "No options found"
             end
         end

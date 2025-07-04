@@ -37,6 +37,15 @@ end
 - [`DropdownSubmenu`](@ref) - Nested menus
 """
 @component function DropdownContent(; class::String = "", attrs...)
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.dropdown_content.base
+
+    # Combine base class with user-provided class
+    final_class = "$base_class $class"
+
     # Hardcoded positioning: bottom-start with automatic flipping to top if no space
     # Alpine Anchor with Floating UI handles the automatic repositioning
     component_attrs = (
@@ -52,7 +61,7 @@ end
         var"x-transition:leave-end" = "transform opacity-0 scale-95",
         var"@keydown" = "handleKeydown(\$event)",
         var"@focus" = "focusFirstItem",
-        class = "absolute z-[9999] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 $class",
+        class = final_class,
         role = "menu",
         var"aria-orientation" = "vertical",
         tabindex = "-1",

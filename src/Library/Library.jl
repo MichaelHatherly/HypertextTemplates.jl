@@ -13,6 +13,10 @@ using HypertextTemplates: SafeString
 # Utility functions
 include("utils.jl")
 
+# Theme system
+include("theme/DefaultTheme.jl")
+include("theme/ThemeUtils.jl")
+
 # Utility components
 include("utilities/Icon.jl")
 include("utilities/Divider.jl")
@@ -118,5 +122,8 @@ export @Card, @Table, @List
 
 export Icon, Divider, Avatar, ThemeToggle
 export @Icon, @Divider, @Avatar, @ThemeToggle
+
+# Theme system exports
+export default_theme, get_theme_value, merge_theme, create_theme
 
 end # module

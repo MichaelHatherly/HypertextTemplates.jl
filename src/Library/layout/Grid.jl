@@ -47,15 +47,28 @@ end
     gap::Int = 4,
     attrs...,
 )
-    base_cols = "grid-cols-$cols"
-    sm_cols = isnothing(sm) ? "" : "sm:grid-cols-$sm"
-    md_cols = isnothing(md) ? "" : "md:grid-cols-$md"
-    lg_cols = isnothing(lg) ? "" : "lg:grid-cols-$lg"
-    xl_cols = isnothing(xl) ? "" : "xl:grid-cols-$xl"
-    gap_class = "gap-$gap"
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.grid.base
+    cols_prefix = theme.grid.cols_prefix
+    sm_prefix = theme.grid.sm_prefix
+    md_prefix = theme.grid.md_prefix
+    lg_prefix = theme.grid.lg_prefix
+    xl_prefix = theme.grid.xl_prefix
+    gap_prefix = theme.grid.gap_prefix
+
+    # Build dynamic classes
+    base_cols = "$(cols_prefix)$(cols)"
+    sm_cols = isnothing(sm) ? "" : "$(sm_prefix)$(sm)"
+    md_cols = isnothing(md) ? "" : "$(md_prefix)$(md)"
+    lg_cols = isnothing(lg) ? "" : "$(lg_prefix)$(lg)"
+    xl_cols = isnothing(xl) ? "" : "$(xl_prefix)$(xl)"
+    gap_class = "$(gap_prefix)$(gap)"
 
     @div {
-        class = "grid $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class",
+        class = "$base_class $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class",
         attrs...,
     } begin
         @__slot__()

@@ -42,46 +42,32 @@ end
     wrap::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     direction_sym = Symbol(direction)
     align_sym = Symbol(align)
     justify_sym = Symbol(justify)
 
-    direction_class = direction_sym == :horizontal ? "flex-row" : "flex-col"
-
+    # Direct theme access
+    base_class = theme.stack.base
+    direction_class = theme.stack.direction[direction_sym]
+    align_class = theme.stack.align[align_sym]
+    justify_class = theme.stack.justify[justify_sym]
+    wrap_class = wrap ? theme.stack.wrap : ""
+    
     # Handle gap as symbol or int
-    gap_presets = (xs = "gap-1", sm = "gap-2", base = "gap-4", lg = "gap-6", xl = "gap-8")
-
     gap_class = if gap isa Symbol
-        get(gap_presets, gap, "gap-4")
+        theme.stack.gap[gap]
     else
-        "gap-$gap"
+        # Use gap prefix for numeric values
+        "$(theme.stack.gap_prefix)$(gap)"
     end
-
-    wrap_class = wrap ? "flex-wrap" : ""
-
-    align_classes = (
-        start = "items-start",
-        center = "items-center",
-        var"end" = "items-end",
-        stretch = "items-stretch",
-    )
-
-    justify_classes = (
-        start = "justify-start",
-        center = "justify-center",
-        var"end" = "justify-end",
-        between = "justify-between",
-        around = "justify-around",
-        evenly = "justify-evenly",
-    )
-
-    align_class = get(align_classes, align_sym, "items-stretch")
-    justify_class = get(justify_classes, justify_sym, "justify-start")
 
     # Build component default attributes
     component_attrs = (
-        class = "flex $direction_class $gap_class $align_class $justify_class $wrap_class",
+        class = "$base_class $direction_class $gap_class $align_class $justify_class $wrap_class",
     )
 
     # Merge with user attributes

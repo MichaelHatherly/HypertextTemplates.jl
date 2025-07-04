@@ -51,19 +51,35 @@ end
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    container_class = theme.tabs.container
+    panels_container_class = theme.tabs.panels_container
+    nav_base_class = theme.tabs.nav.base
+    aria_label_default = theme.tabs.nav.aria_label_default
+    button_base_class = theme.tabs.button.base
+    button_active_class = theme.tabs.button.active
+    button_inactive_class = theme.tabs.button.inactive
+
     # Use first item as active if not specified
     active_id = isempty(active) && !isempty(items) ? items[1][1] : active
 
     # Build component default attributes with Alpine.js
-    component_attrs = (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"),)
+    component_attrs = if isempty(container_class)
+        (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"),)
+    else
+        (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"), class = container_class)
+    end
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)
 
     @div {merged_attrs...} begin
         @nav {
-            class = "flex gap-2 border-b-2 border-gray-200 dark:border-gray-700",
-            "aria-label" = isnothing(aria_label) ? "Tabs" : aria_label,
+            class = nav_base_class,
+            "aria-label" = isnothing(aria_label) ? aria_label_default : aria_label,
             role = "tablist",
         } begin
             for (id, label) in items
@@ -74,7 +90,7 @@ end
                     "aria-controls" = "tabpanel-$id",
                     "@click" = "activeTab = '$id'",
                     ":class" = SafeString(
-                        """activeTab === '$id' ? 'px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 dark:border-blue-400 -mb-[2px] transition-all duration-200 rounded-t-lg bg-blue-50 dark:bg-blue-950/30' : 'px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 border-b-2 border-transparent -mb-[2px] hover:text-gray-900 hover:bg-gray-50 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-t-lg'""",
+                        """activeTab === '$id' ? '$(button_base_class) $(button_active_class)' : '$(button_base_class) $(button_inactive_class)'""",
                     ),
                     ":aria-selected" = "activeTab === '$id'",
                 } $label
@@ -82,7 +98,7 @@ end
         end
 
         # Tab panels container
-        @div {class = "mt-4"} begin
+        @div {class = panels_container_class} begin
             # The slot should contain @TabPanel components
             @__slot__()
         end
