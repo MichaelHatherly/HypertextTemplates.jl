@@ -2,6 +2,7 @@ module Library
 
 using HypertextTemplates
 using HypertextTemplates.Elements
+using HypertextTemplates: SafeString
 
 @element svg
 @deftag macro svg end
@@ -9,85 +10,113 @@ using HypertextTemplates.Elements
 @element path
 @deftag macro path end
 
-# Export all components (both functions and macros)
-# Layout components
-export Container, @Container, Stack, @Stack, Grid, @Grid, Section, @Section
-# Typography components
-export Heading, @Heading, Text, @Text, Link, @Link
-# Card components
-export Card, @Card, Badge, @Badge
-# Table components
-export Table, @Table, List, @List
-# List components
-export Timeline, @Timeline, TimelineItem, @TimelineItem, TimelineContent, @TimelineContent
-# Form components
-export Input, @Input, Textarea, @Textarea, Select, @Select, SelectDropdown, @SelectDropdown
-export Checkbox, @Checkbox, Radio, @Radio, FormGroup, @FormGroup
-export Button, @Button, Toggle, @Toggle
-# Feedback components
-export Alert, @Alert, Progress, @Progress, Spinner, @Spinner
-# Modal components
-export Modal, @Modal, ModalTrigger, @ModalTrigger, ModalContent, @ModalContent
-export ModalHeader, @ModalHeader, ModalFooter, @ModalFooter
-export DrawerModal, @DrawerModal
-# Navigation components
-export Breadcrumb, @Breadcrumb, Pagination, @Pagination, Tabs, @Tabs, TabPanel, @TabPanel
-export DropdownMenu,
-    @DropdownMenu, DropdownTrigger, @DropdownTrigger, DropdownContent, @DropdownContent
-export DropdownItem,
-    @DropdownItem, DropdownDivider, @DropdownDivider, DropdownSubmenu, @DropdownSubmenu
-# Utility components
-export Divider,
-    @Divider,
-    Avatar,
-    @Avatar,
-    Icon,
-    @Icon,
-    ThemeToggle,
-    @ThemeToggle,
-    Tooltip,
-    @Tooltip,
-    TooltipWrapper,
-    @TooltipWrapper,
-    TooltipTrigger,
-    @TooltipTrigger,
-    TooltipContent,
-    @TooltipContent
-
 # Utility functions
 include("utils.jl")
 
-# Icon components (needed by many other components)
-include("Icons.jl")
-
-# Layout components
-include("Layout.jl")
+# Utility components
+include("utilities/Icon.jl")
+include("utilities/Divider.jl")
+include("utilities/Avatar.jl")
+include("utilities/ThemeToggle.jl")
 
 # Typography components
-include("Typography.jl")
-
-# Card components
-include("Cards.jl")
-
-# Table components
-include("Tables.jl")
-
-# List components
-include("Lists.jl")
+include("typography/Heading.jl")
+include("typography/Text.jl")
+include("typography/Link.jl")
 
 # Form components
-include("Forms.jl")
-
-# Feedback components
-include("Feedback.jl")
+include("forms/Input.jl")
+include("forms/Textarea.jl")
+include("forms/Select.jl")
+include("forms/Checkbox.jl")
+include("forms/Radio.jl")
+include("forms/FormGroup.jl")
+include("forms/Button.jl")
+include("forms/SelectDropdown.jl")
+include("forms/Toggle.jl")
 
 # Modal components
-include("Modals.jl")
+include("modals/Modal.jl")
+include("modals/ModalTrigger.jl")
+include("modals/ModalContent.jl")
+include("modals/ModalHeader.jl")
+include("modals/ModalFooter.jl")
+include("modals/DrawerModal.jl")
 
 # Navigation components
-include("Navigation.jl")
+include("navigation/Breadcrumb.jl")
+include("navigation/Pagination.jl")
+include("navigation/Tabs.jl")
+include("navigation/TabPanel.jl")
+include("navigation/dropdown/DropdownMenu.jl")
+include("navigation/dropdown/DropdownTrigger.jl")
+include("navigation/dropdown/DropdownContent.jl")
+include("navigation/dropdown/DropdownItem.jl")
+include("navigation/dropdown/DropdownDivider.jl")
+include("navigation/dropdown/DropdownSubmenu.jl")
 
-# Utility components
-include("Utilities.jl")
+# Feedback components
+include("feedback/Alert.jl")
+include("feedback/Progress.jl")
+include("feedback/Spinner.jl")
+include("feedback/Badge.jl")
 
-end # module Library
+# Layout components
+include("layout/Container.jl")
+include("layout/Stack.jl")
+include("layout/Grid.jl")
+include("layout/Section.jl")
+
+# Timeline components
+include("timeline/Timeline.jl")
+include("timeline/TimelineItem.jl")
+include("timeline/TimelineContent.jl")
+
+# Tooltip components
+include("tooltip/Tooltip.jl")
+include("tooltip/TooltipWrapper.jl")
+include("tooltip/TooltipTrigger.jl")
+include("tooltip/TooltipContent.jl")
+
+# Content components
+include("content/Card.jl")
+include("content/Table.jl")
+include("content/List.jl")
+
+export Input, Textarea, Select, Checkbox, Radio, FormGroup, Button, SelectDropdown, Toggle
+export @Input,
+    @Textarea, @Select, @Checkbox, @Radio, @FormGroup, @Button, @SelectDropdown, @Toggle
+
+export Modal, ModalTrigger, ModalContent, ModalHeader, ModalFooter, DrawerModal
+export @Modal, @ModalTrigger, @ModalContent, @ModalHeader, @ModalFooter, @DrawerModal
+
+export Breadcrumb, Pagination, Tabs, TabPanel
+export @Breadcrumb, @Pagination, @Tabs, @TabPanel
+
+export DropdownMenu,
+    DropdownTrigger, DropdownContent, DropdownItem, DropdownDivider, DropdownSubmenu
+export @DropdownMenu,
+    @DropdownTrigger, @DropdownContent, @DropdownItem, @DropdownDivider, @DropdownSubmenu
+
+export Alert, Progress, Spinner, Badge
+export @Alert, @Progress, @Spinner, @Badge
+
+export Container, Stack, Grid, Section
+export @Container, @Stack, @Grid, @Section
+
+export Heading, Text, Link
+export @Heading, @Text, @Link
+
+export Timeline, TimelineItem, TimelineContent
+export @Timeline, @TimelineItem, @TimelineContent
+
+export Tooltip, TooltipWrapper, TooltipTrigger, TooltipContent
+export @Tooltip, @TooltipWrapper, @TooltipTrigger, @TooltipContent
+
+export Card, Table, List
+export @Card, @Table, @List
+
+export Icon, Divider, Avatar, ThemeToggle
+export @Icon, @Divider, @Avatar, @ThemeToggle
+
+end # module

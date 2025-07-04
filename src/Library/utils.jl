@@ -19,3 +19,10 @@ function merge_attrs(component_attrs::NamedTuple, user_attrs)
         return merged_nt
     end
 end
+
+# TODO: remove when dropping Julia 1.6 support.
+if VERSION < v"1.7"
+    _get(t::Tuple, i::Integer, default) = i in 1:length(t) ? getindex(t, i) : default
+else
+    _get(t::Tuple, i::Integer, default) = Base.get(t, i, default)
+end

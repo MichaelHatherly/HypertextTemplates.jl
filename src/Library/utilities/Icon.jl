@@ -1,28 +1,3 @@
-# Icon components
-
-using HypertextTemplates: SafeString
-using ..Library: merge_attrs
-
-# Module-level icon cache to avoid repeated file I/O
-const ICON_CACHE = Dict{String,Union{String,Nothing}}()
-
-function load_icon(name::String)
-    # Check cache first
-    haskey(ICON_CACHE, name) && return ICON_CACHE[name]
-
-    # Try to load from file
-    icon_path = joinpath(@__DIR__, "assets", "icons", "$name.svg")
-    if isfile(icon_path)
-        icon_content = read(icon_path, String)
-        ICON_CACHE[name] = icon_content
-        return icon_content
-    end
-
-    # Cache the miss to avoid repeated file checks
-    ICON_CACHE[name] = nothing
-    return nothing
-end
-
 """
     @Icon
 
@@ -122,3 +97,23 @@ end
 end
 
 @deftag macro Icon end
+
+# Module-level icon cache to avoid repeated file I/O
+const ICON_CACHE = Dict{String,Union{String,Nothing}}()
+
+function load_icon(name::String)
+    # Check cache first
+    haskey(ICON_CACHE, name) && return ICON_CACHE[name]
+
+    # Try to load from file
+    icon_path = joinpath(@__DIR__, "../assets/icons/$name.svg")
+    if isfile(icon_path)
+        icon_content = read(icon_path, String)
+        ICON_CACHE[name] = icon_content
+        return icon_content
+    end
+
+    # Cache the miss to avoid repeated file checks
+    ICON_CACHE[name] = nothing
+    return nothing
+end
