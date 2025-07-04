@@ -707,6 +707,470 @@ Main.display_html(html2) #hide
 3. **Leverage `$` interpolation** - Cleaner than multiple `@text` calls
 4. **Cache expensive operations** - Use memoization for complex computations
 
+## Context System
+
+The context system provides a way to pass data through the component tree without manually passing props through every level. This solves the "prop drilling" problem common in component-based architectures.
+
+### Introduction to Context
+
+Context allows you to share values between components without explicitly passing them as props. It's particularly useful for cross-cutting concerns like themes, user authentication, localization, and feature flags.
+
+### Basic Usage
+
+Use `@context` to provide values and `@get_context` to consume them:
+
+```@example context-basic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define a component that uses context
+@component function themed_button(; text = "Click me")
+    theme = @get_context(:theme, "light")  # Get theme with default
+    @button {class = "btn btn-$theme"} $text
+end
+
+@deftag macro themed_button end
+
+# Provide context and render
+html = @render @context {theme = "dark"} begin
+    @div begin
+        @h1 "Dark Theme Example"
+        @themed_button {text = "Save"}
+        @themed_button {text = "Cancel"}
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+### Context with Default Values
+
+The `@get_context` macro supports default values for when context is not provided:
+
+```@example context-defaults
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function user_greeting()
+    # Provide defaults for missing context
+    user = @get_context(:user_name, "Guest")
+    locale = @get_context(:locale, "en")
+
+    greeting = locale == "es" ? "Hola" : "Hello"
+    @p "$greeting, $(user)!"
+end
+
+@deftag macro user_greeting end
+
+# Without context - uses defaults
+html1 = @render @user_greeting
+Main.display_html(html1) #hide
+```
+
+```@example context-defaults
+# With partial context
+html2 = @render @context {user_name = "Alice"} begin
+    @user_greeting
+end
+Main.display_html(html2) #hide
+```
+
+```@example context-defaults
+# With full context
+html3 = @render @context {user_name = "Carlos", locale = "es"} begin
+    @user_greeting
+end
+Main.display_html(html3) #hide
+```
+
+### Nested Contexts
+
+Context values can be overridden in nested scopes:
+
+```@example context-nested
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function theme_display()
+    theme = @get_context(:theme, "light")
+    mode = @get_context(:mode, "normal")
+    @div {class = "theme-info"} begin
+        @span "Theme: $theme, Mode: $mode"
+    end
+end
+
+@deftag macro theme_display end
+
+html = @render @context {theme = "dark", mode = "compact"} begin
+    @div begin
+        @h2 "Outer context"
+        @theme_display  # Shows: dark, compact
+
+        @context {theme = "light"} begin  # Override theme only
+            @h2 "Inner context"
+            @theme_display  # Shows: light, compact
+        end
+
+        @h2 "Back to outer"
+        @theme_display  # Shows: dark, compact
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+### Context and Slots
+
+Context flows naturally through slots with dynamic scoping - slots see the context from where they execute:
+
+```@example context-slots
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function card_with_theme(; title)
+    @context {card_theme = "elevated"} begin
+        @div {class = "card"} begin
+            @h3 $title
+            @div {class = "card-body"} begin
+                @__slot__  # Slot executes with card's context
+            end
+        end
+    end
+end
+
+@deftag macro card_with_theme end
+
+@component function theme_aware_content()
+    outer = @get_context(:page_theme, "none")
+    inner = @get_context(:card_theme, "none")
+    @p "Page theme: $outer, Card theme: $inner"
+end
+
+@deftag macro theme_aware_content end
+
+html = @render @context {page_theme = "bright"} begin
+    @card_with_theme {title = "My Card"} begin
+        @theme_aware_content  # Sees both contexts!
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+### Common Use Cases
+
+#### Theme Provider
+
+```@example context-theme-provider
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Theme configuration
+const THEMES = Dict(
+    :light => (bg = "white", fg = "black", primary = "#007bff"),
+    :dark => (bg = "#1a1a1a", fg = "white", primary = "#66b3ff")
+)
+
+@component function theme_provider(; theme = :light)
+    theme_config = THEMES[theme]
+    @context {theme = theme_config} begin
+        @div {style = "background: $(theme_config.bg); color: $(theme_config.fg)"} begin
+            @__slot__
+        end
+    end
+end
+
+@deftag macro theme_provider end
+
+@component function primary_button(; text)
+    theme = @get_context(:theme, THEMES[:light])
+    @button {
+        style = "background: $(theme.primary); color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px"
+    } $text
+end
+
+@deftag macro primary_button end
+
+# Usage
+html = @render @div begin
+    @theme_provider {theme = :light} begin
+        @h2 "Light Theme"
+        @primary_button {text = "Light Button"}
+    end
+
+    @theme_provider {theme = :dark} begin
+        @h2 "Dark Theme"  
+        @primary_button {text = "Dark Button"}
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+#### User Authentication Context
+
+```@example context-auth
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Mock user type
+struct User
+    name::String
+    role::Symbol
+    permissions::Set{Symbol}
+end
+
+@component function auth_provider(; user = nothing)
+    @context {current_user = user} begin
+        @__slot__
+    end
+end
+
+@deftag macro auth_provider end
+
+@component function protected_content(; required_permission = nothing)
+    user = @get_context(:current_user, nothing)
+
+    if isnothing(user)
+        @div {class = "error"} "Please log in to view this content"
+    elseif !isnothing(required_permission) && !(required_permission in user.permissions)
+        @div {class = "error"} "You don't have permission to view this"
+    else
+        @div {class = "protected"} begin
+            @__slot__
+        end
+    end
+end
+
+@deftag macro protected_content end
+
+@component function user_info()
+    user = @get_context(:current_user, nothing)
+    if !isnothing(user)
+        @span "Logged in as: $(user.name) ($(user.role))"
+    else
+        @span "Not logged in"
+    end
+end
+
+@deftag macro user_info end
+
+# Example usage
+admin_user = User("Alice", :admin, Set([:read, :write, :delete]))
+
+html = @render @auth_provider {user = admin_user} begin
+    @div begin
+        @p @user_info
+
+        @protected_content begin
+            @p "This content is visible to logged-in users"
+        end
+
+        @protected_content {required_permission = :delete} begin
+            @p "This content requires delete permission"
+        end
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+#### Feature Flags
+
+```@example context-features
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function feature_provider(; features = Set{Symbol}())
+    @context {enabled_features = features} begin
+        @__slot__
+    end
+end
+
+@deftag macro feature_provider end
+
+@component function feature(; name::Symbol, fallback = nothing)
+    features = @get_context(:enabled_features, Set{Symbol}())
+
+    if name in features
+        @__slot__
+    elseif !isnothing(fallback)
+        @<fallback
+    end
+    # Otherwise render nothing
+end
+
+@deftag macro feature end
+
+# Beta component shown only when beta feature is enabled
+@component function beta_banner()
+    @div {class = "beta-banner", style = "background: yellow; padding: 0.5rem"} begin
+        "🚀 Beta Feature: Try our new dashboard!"
+    end
+end
+
+@deftag macro beta_banner end
+
+@component function legacy_banner()
+    @div {class = "legacy-banner"} "Classic dashboard"
+end
+
+@deftag macro legacy_banner end
+
+# Usage
+html = @render @div begin
+    @h2 "Production User"
+    @feature_provider {features = Set([:stable_feature])} begin
+        @feature {name = :beta_dashboard, fallback = legacy_banner} begin
+            @beta_banner
+        end
+    end
+
+    @h2 "Beta User"
+    @feature_provider {features = Set([:stable_feature, :beta_dashboard])} begin
+        @feature {name = :beta_dashboard, fallback = legacy_banner} begin
+            @beta_banner
+        end
+    end
+end
+
+Main.display_html(html) #hide
+```
+
+### Complex Context Patterns
+
+#### Multiple Context Values
+
+```@example context-multiple
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function app_providers(; user, theme, locale)
+    @context {user = user, theme = theme, locale = locale} begin
+        @__slot__
+    end
+end
+
+@deftag macro app_providers end
+
+@component function locale_aware_date(; date)
+    locale = @get_context(:locale, "en-US")
+    # Simplified formatting
+    formatted = locale == "en-US" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+    @span "$date ($formatted)"
+end
+
+@deftag macro locale_aware_date end
+
+html = @render @app_providers {
+    user = "John",
+    theme = "dark",
+    locale = "en-GB"
+} begin
+    @p "User: " $(@get_context(:user))
+    @p "Theme: " $(@get_context(:theme))
+    @p "Date format: " @locale_aware_date {date = "2024-01-15"}
+end
+
+Main.display_html(html) #hide
+```
+
+#### Context with Dynamic Values
+
+```@example context-dynamic
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Shopping cart context
+@component function cart_provider(; initial_items = [])
+    total = sum(item.price * item.quantity for item in initial_items; init = 0.0)
+
+    @context {cart_items = initial_items, cart_total = total} begin
+        @__slot__
+    end
+end
+
+@deftag macro cart_provider end
+
+@component function cart_summary()
+    items = @get_context(:cart_items, [])
+    total = @get_context(:cart_total, 0.0)
+
+    @div {class = "cart-summary"} begin
+        @p "Items in cart: $(length(items))"
+        @p "Total: \$$(round(total, digits=2))"
+    end
+end
+
+@deftag macro cart_summary end
+
+# Usage
+cart_items = [
+    (name = "Book", price = 15.99, quantity = 2),
+    (name = "Pen", price = 1.99, quantity = 5)
+]
+
+html = @render @cart_provider {initial_items = cart_items} begin
+    @h2 "Shopping Cart"
+    @cart_summary
+end
+
+Main.display_html(html) #hide
+```
+
+### Best Practices
+
+1. **Use Context for Cross-Cutting Concerns**
+   - Themes, authentication, localization
+   - Feature flags and configuration
+   - Shared state that many components need
+
+2. **Provide Sensible Defaults**
+   ```julia
+   theme = @get_context(:theme, "light")  # Always provide defaults
+   ```
+
+3. **Keep Context Values Immutable**
+   - Context should be read-only data
+   - For mutable state, pass update functions as context
+
+4. **Document Context Dependencies**
+   ```julia
+   # This component requires :user and :theme context
+   @component function authenticated_view()
+       # ...
+   end
+   ```
+
+5. **Avoid Overusing Context**
+   - Direct props are clearer for parent-child communication
+   - Context is best for deeply nested components
+
+### Integration with Streaming
+
+Context works seamlessly with streaming renders:
+
+```@example context-streaming
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function streaming_with_context(; items)
+    @context {render_mode = "streaming"} begin
+        @ul begin
+            for (i, item) in enumerate(items)
+                @li begin
+                    mode = @get_context(:render_mode, "normal")
+                    "$item (rendered in $mode mode)"
+                end
+            end
+        end
+    end
+end
+
+# Works with StreamingRender
+# See Rendering & Performance guide for details
+```
+
 ## Summary
 
 Advanced features in HypertextTemplates.jl enable:
@@ -714,6 +1178,7 @@ Advanced features in HypertextTemplates.jl enable:
 - **Dependency management** with `@__once__`
 - **Custom DSLs** via `@deftag`
 - **Dynamic rendering** with `@<`
-- **Sophisticated patterns** like render props
+- **Context propagation** with `@context` and `@get_context`
+- **Sophisticated patterns** like render props and theme providers
 
 These features combine to support complex application architectures while maintaining the simplicity and performance that makes HypertextTemplates.jl powerful.

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Added context system with `@context` and `@get_context` macros for passing data through component trees without prop drilling [#40]
+
 ## [v2.2.3] - 2025-06-25
 
 ### Fixed
@@ -143,3 +147,4 @@ Initial release.
 [#34]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/34
 [#35]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/35
 [#37]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/37
+[#40]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/40

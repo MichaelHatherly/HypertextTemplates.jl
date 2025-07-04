@@ -1,0 +1,1 @@
+<div><span id="theme">blue</span><span id="mode">compact</span></div>

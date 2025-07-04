@@ -1,0 +1,1 @@
+<div><span class="component-direct">component_value</span><span class="slot-content">component_value</span></div>

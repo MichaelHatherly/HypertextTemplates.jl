@@ -1,0 +1,1 @@
+<div class="parent"><h2>Parent</h2><p class="child">propagated</p></div>

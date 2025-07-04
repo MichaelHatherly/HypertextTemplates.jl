@@ -925,6 +925,58 @@ Main.display_html(ans) #hide
 Main.display_html(ans) #hide
 ```
 
+## Context: Avoiding Prop Drilling
+
+For cross-cutting concerns like themes, authentication, or localization, passing props through every component level becomes cumbersome. The context system provides a cleaner solution:
+
+```@example context-intro
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+@deftag macro app_without_context end
+@deftag macro navbar end
+@deftag macro user_menu end
+@deftag macro navbar_ctx end
+@deftag macro user_menu_ctx end
+
+# Without context - props passed through every level
+@component function app_without_context(; user)
+    @navbar {user}  # Pass to navbar
+end
+
+@component function navbar(; user)
+    @user_menu {user}  # Pass to user menu
+end
+
+@component function user_menu(; user)
+    @span "Welcome, $(user.name)!"
+end
+
+# With context - cleaner and more maintainable
+@component function app_with_context(; user)
+    @context {current_user = user} begin
+        @navbar_ctx  # No need to pass user
+    end
+end
+
+@component function navbar_ctx()
+    @user_menu_ctx  # No need to pass user
+end
+
+@component function user_menu_ctx()
+    user = @get_context(:current_user)
+    @span "Welcome, $(user.name)!"
+end
+```
+
+Context is particularly useful for:
+- **Theme systems** - Colors, styles, dark/light mode
+- **Authentication** - Current user, permissions
+- **Localization** - Language, date/number formats
+- **Feature flags** - Enable/disable features globally
+
+For detailed context usage and patterns, see the [Context System](advanced-features.md#context-system) section in the Advanced Features guide.
+
 ## Summary
 
-Components combine reusability, composition through slots, type safety, and flexible rendering to create maintainable templates. Use these patterns to structure your applications effectively.
+Components combine reusability, composition through slots, type safety, flexible rendering, and context support to create maintainable templates. Use these patterns to structure your applications effectively.
