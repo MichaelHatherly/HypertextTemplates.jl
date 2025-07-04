@@ -1,0 +1,1 @@
+<span class="custom-class" id="my-badge">Custom Badge</span>

@@ -68,5 +68,7 @@ Main.display_html(ans) #hide
 - [Markdown Integration](markdown-integration.md) - Using Markdown with templates
 
 ### API Reference
-- [API Reference](api.md) - Complete API documentation
+- [Public API](api-public.md) - Core functions, macros, and types
+- [Library Components](api-library.md) - Pre-built UI component library
+- [Internal API](api-internal.md) - Implementation details and internals
 

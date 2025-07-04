@@ -1,0 +1,1 @@
+<section class="py-12 sm:py-16 md:py-20 bg-slate-100">Section with background</section>

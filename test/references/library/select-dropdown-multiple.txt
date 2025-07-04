@@ -1,0 +1,272 @@
+<script>/**
+ * Alpine.data component for SelectDropdown
+ * 
+ * This file defines the interactive behavior for the SelectDropdown component.
+ * It uses Alpine.js's data component system to provide reusable dropdown select functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'selectDropdown' Alpine.data component
+ * - Manages dropdown state, search, and selection
+ * - Supports single and multiple selection modes
+ * - Provides keyboard navigation and search filtering
+ * - Handles automatic positioning (drop up/down)
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * 
+ * Usage in templates:
+ * x-data="selectDropdown(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('selectDropdown', (config = {}) => ({
+        // State management
+        open: false,
+        search: '',
+        selected: config.value || (config.multiple ? [] : ''),
+        highlighted: 0,
+        
+        // Configuration from component props
+        options: config.options || [],
+        multiple: config.multiple || false,
+        searchable: config.searchable || false,
+        clearable: config.clearable || false,
+        placeholder: config.placeholder || 'Select...',
+        maxHeight: parseInt(config.maxHeight) || 300,
+        disabled: config.disabled || false,
+        name: config.name || null,
+        
+        /**
+         * Initialize component
+         * Sets up initial state and watchers
+         */
+        init() {
+            // Watch for selection changes to update form inputs
+            this.$watch('selected', () => {
+                this.updateFormInputs();
+                // Dispatch custom event for external listeners
+                this.$dispatch('select-change', { 
+                    value: this.selected,
+                    name: this.name 
+                });
+            });
+            
+            // Set initial form inputs
+            this.updateFormInputs();
+        },
+        
+        /**
+         * Get filtered options based on search query
+         * @returns {Array} Filtered options array
+         */
+        get filteredOptions() {
+            if (!this.search) return this.options;
+            
+            const searchLower = this.search.toLowerCase();
+            return this.options.filter(([value, label]) => 
+                label.toLowerCase().includes(searchLower)
+            );
+        },
+        
+        /**
+         * Get display label for selected value(s)
+         * @returns {string} Label to display in the button
+         */
+        get selectedLabel() {
+            if (this.multiple) {
+                const labels = this.selected.map(v => {
+                    const opt = this.options.find(([val]) => val === v);
+                    return opt ? opt[1] : v;
+                });
+                return labels.length > 0 ? labels.join(', ') : this.placeholder;
+            } else {
+                if (!this.selected) return this.placeholder;
+                const opt = this.options.find(([val]) => val === this.selected);
+                return opt ? opt[1] : this.selected;
+            }
+        },
+        
+        /**
+         * Check if there's a selection
+         * @returns {boolean} True if something is selected
+         */
+        get hasSelection() {
+            return this.multiple ? this.selected.length > 0 : !!this.selected;
+        },
+        
+        
+        /**
+         * Select or deselect an option
+         * @param {string} value - The option value to select
+         */
+        selectOption(value) {
+            if (this.multiple) {
+                const idx = this.selected.indexOf(value);
+                if (idx > -1) {
+                    this.selected.splice(idx, 1);
+                } else {
+                    this.selected.push(value);
+                }
+            } else {
+                this.selected = value;
+                this.open = false;
+                this.search = '';
+            }
+        },
+        
+        /**
+         * Clear all selections
+         */
+        clearSelection() {
+            this.selected = this.multiple ? [] : '';
+            this.search = '';
+        },
+        
+        /**
+         * Check if a value is selected
+         * @param {string} value - The value to check
+         * @returns {boolean} True if selected
+         */
+        isSelected(value) {
+            return this.multiple 
+                ? this.selected.includes(value) 
+                : this.selected === value;
+        },
+        
+        /**
+         * Handle keyboard navigation
+         * @param {KeyboardEvent} e - The keyboard event
+         */
+        handleKeydown(e) {
+            // Open dropdown on Enter, Space, or ArrowDown when closed
+            if (!this.open && ['Enter', ' ', 'ArrowDown'].includes(e.key)) {
+                e.preventDefault();
+                this.open = true;
+                if (this.searchable) {
+                    this.$nextTick(() => this.$refs.search?.focus());
+                }
+                return;
+            }
+            
+            if (!this.open) return;
+            
+            switch(e.key) {
+                case 'Escape':
+                    e.preventDefault();
+                    this.open = false;
+                    this.$refs.button.focus();
+                    break;
+                    
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.highlighted = Math.min(
+                        this.highlighted + 1, 
+                        this.filteredOptions.length - 1
+                    );
+                    this.scrollToHighlighted();
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.highlighted = Math.max(this.highlighted - 1, 0);
+                    this.scrollToHighlighted();
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (this.filteredOptions[this.highlighted]) {
+                        this.selectOption(this.filteredOptions[this.highlighted][0]);
+                    }
+                    break;
+                    
+                case 'Tab':
+                    // Let tab close the dropdown
+                    this.open = false;
+                    break;
+            }
+        },
+        
+        /**
+         * Scroll to keep highlighted option in view
+         */
+        scrollToHighlighted() {
+            this.$nextTick(() => {
+                const container = this.$refs.optionsList;
+                const highlighted = container?.querySelector(`[data-index="${this.highlighted}"]`);
+                
+                if (highlighted && container) {
+                    const containerRect = container.getBoundingClientRect();
+                    const highlightedRect = highlighted.getBoundingClientRect();
+                    
+                    if (highlightedRect.bottom > containerRect.bottom) {
+                        container.scrollTop += highlightedRect.bottom - containerRect.bottom;
+                    } else if (highlightedRect.top < containerRect.top) {
+                        container.scrollTop -= containerRect.top - highlightedRect.top;
+                    }
+                }
+            });
+        },
+        
+        /**
+         * Update hidden form inputs for form submission
+         */
+        updateFormInputs() {
+            if (!this.name) return;
+            
+            // Find or create container for hidden inputs
+            let container = this.$el.querySelector('[data-select-inputs]');
+            if (!container) {
+                container = document.createElement('div');
+                container.setAttribute('data-select-inputs', '');
+                container.style.display = 'none';
+                this.$el.appendChild(container);
+            }
+            
+            // Clear existing inputs
+            container.innerHTML = '';
+            
+            // Create new inputs
+            if (this.multiple) {
+                this.selected.forEach(value => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = this.name;
+                    input.value = value;
+                    container.appendChild(input);
+                });
+            } else if (this.selected) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = this.name;
+                input.value = this.selected;
+                container.appendChild(input);
+            }
+        },
+        
+        /**
+         * Toggle dropdown open/closed
+         */
+        toggle() {
+            if (this.disabled) return;
+            
+            this.open = !this.open;
+            
+            if (this.open && this.searchable) {
+                this.$nextTick(() => this.$refs.search?.focus());
+            }
+        },
+        
+        /**
+         * Handle clicks outside to close dropdown
+         */
+        handleClickOutside() {
+            this.open = false;
+            this.search = '';
+        }
+    }))
+});</script><div x-data="selectDropdown({options: [['red', 'Red'], ['green', 'Green'], ['blue', 'Blue']], multiple: true, searchable: false, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Select colors', value: ['red', 'blue']})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-0-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select colors</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-0-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select colors"><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><div class="mr-3"><div class="h-4 w-4 rounded border-2 transition-all duration-200" :class="{
+    &#39;border-blue-500 bg-blue-500&#39;: isSelected(option[0]),
+    &#39;border-gray-300 dark:border-gray-600&#39;: !isSelected(option[0])
+}"><svg x-show="isSelected(option[0])" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div></div><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div>

@@ -1,0 +1,1 @@
+<p class="text-base leading-relaxed text-lg font-semibold text-slate-600 dark:text-slate-400 text-left">Large semibold text</p><p class="text-base leading-relaxed  font-normal text-green-600 text-left">Green text</p>

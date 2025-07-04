@@ -1,0 +1,1 @@
+<section class="py-8 sm:py-12 ">Small spacing</section><section class="py-16 sm:py-20 md:py-24 lg:py-32 ">Large spacing</section>
