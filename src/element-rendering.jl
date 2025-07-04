@@ -40,7 +40,7 @@ function _render_tag(
     _is_revise_loaded() && _render_source_prop(io, source, revise)
     print(io, ">")
     children = get(slots, S"default", nothing)
-    isnothing(children) || children()
+    isnothing(children) || children(io)
     _void_element(name) || print(io, "</", name, ">")
     return nothing
 end

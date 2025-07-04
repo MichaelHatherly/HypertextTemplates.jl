@@ -117,6 +117,9 @@ function _process_args(args)
     slot_names = Set{Symbol}([])
     default_slot_contents = Expr(:block)
 
+    io = S"io"
+    eio = esc(io)
+
     function slot_fn(arg)
         if Meta.isexpr(arg, :(:=), 2)
             name, content = arg.args
@@ -127,7 +130,7 @@ function _process_args(args)
                 if isa(content, String) || Meta.isexpr(content, :string)
                     content = :($(HypertextTemplates).@text $content)
                 end
-                push!(slot_args, Expr(:(=), esc(name), :(() -> $(esc(content)))))
+                push!(slot_args, Expr(:(=), esc(name), :(($eio,) -> $(esc(content)))))
             end
         else
             if isa(arg, String) || Meta.isexpr(arg, :string)
@@ -156,8 +159,7 @@ function _process_args(args)
         end
     end
 
-    slots = :((; $(slot_args...), V"default" = () -> $(default_slot_contents)))
-
+    slots = :((; $(slot_args...), V"default" = ($eio,) -> $(default_slot_contents)))
     return static_props, something(props, :((;))), slots
 end
 

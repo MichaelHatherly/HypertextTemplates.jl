@@ -11,6 +11,7 @@ HypertextTemplates.jl provides a Julian approach to writing HTML using macros th
 
 - **Native Julia syntax** - Write HTML using macros that integrate seamlessly with Julia's control flow
 - **Component system** - Create reusable components with props and slots
+- **Context system** - Pass data through component trees without prop drilling using `@context` and `@get_context`
 - **Zero-allocation rendering** - Direct IO streaming without intermediate DOM construction
 - **Automatic HTML escaping** - Secure by default with automatic escaping, use `SafeString` for trusted content
 - **Development tools** - Source location tracking and editor integration for debugging

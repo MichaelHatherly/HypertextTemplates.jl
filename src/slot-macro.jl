@@ -70,5 +70,5 @@ julia> @render @modal {title = "Confirm"} begin
 See also: [`@component`](@ref)
 """
 macro __slot__(name = S"default")
-    esc(:(getfield($(S"slots"), $(QuoteNode(name)))()))
+    esc(:(getfield($(S"slots"), $(QuoteNode(name)))($(S"io"))))
 end

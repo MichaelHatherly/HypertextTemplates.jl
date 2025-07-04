@@ -259,6 +259,9 @@ end
         @test output == func()
     end
 
+    # Include context tests
+    include("context-tests.jl")
+
     # Include Library tests
     include("Library/runtests.jl")
 end

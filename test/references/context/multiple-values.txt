@@ -1,0 +1,1 @@
+<div><span class="theme">dark</span><span class="user">alice</span><span class="lang">fr</span></div>
