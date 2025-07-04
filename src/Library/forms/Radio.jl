@@ -29,50 +29,14 @@ A radio button component that enables users to select a single option from a gro
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract radio theme safely
-    radio_theme = if isa(theme, NamedTuple) && haskey(theme, :radio)
-        theme.radio
-    else
-        HypertextTemplates.Library.default_theme().radio
-    end
-
-    # Get classes
-    wrapper_class =
-        get(radio_theme, :wrapper, HypertextTemplates.Library.default_theme().radio.wrapper)
-    base_classes =
-        get(radio_theme, :base, HypertextTemplates.Library.default_theme().radio.base)
-
-    # Get size class with fallback
-    size_class = if haskey(radio_theme, :sizes) && haskey(radio_theme.sizes, size_sym)
-        radio_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().radio.sizes[size_sym]
-    end
-
-    # Get color class with fallback
-    color_class = if haskey(radio_theme, :colors) && haskey(radio_theme.colors, color_sym)
-        radio_theme.colors[color_sym]
-    else
-        HypertextTemplates.Library.default_theme().radio.colors[color_sym]
-    end
-
-    # Get disabled class
-    disabled_class =
-        disabled ?
-        get(
-            radio_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().radio.disabled,
-        ) : ""
-
-    # Get label classes
-    label_wrapper = get(
-        radio_theme,
-        :label_wrapper,
-        HypertextTemplates.Library.default_theme().radio.label_wrapper,
-    )
-    label_class =
-        get(radio_theme, :label, HypertextTemplates.Library.default_theme().radio.label)
+    # Direct theme access
+    wrapper_class = theme.radio.wrapper
+    base_classes = theme.radio.base
+    size_class = theme.radio.sizes[size_sym]
+    color_class = theme.radio.colors[color_sym]
+    disabled_class = disabled ? theme.radio.disabled : ""
+    label_wrapper = theme.radio.label_wrapper
+    label_class = theme.radio.label
 
     # Note: WebKit/Safari may clip the right edge of radio buttons in some cases.
     # This is a known rendering issue with Safari's implementation of form controls.

@@ -92,12 +92,6 @@ This component implements comprehensive accessibility for toggle controls:
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract toggle theme safely
-    toggle_theme = if isa(theme, NamedTuple) && haskey(theme, :toggle)
-        theme.toggle
-    else
-        HypertextTemplates.Library.default_theme().toggle
-    end
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
@@ -107,61 +101,12 @@ This component implements comprehensive accessibility for toggle controls:
     component_id = isnothing(id) ? "toggle-$(_hash)" : id
 
     if variant_sym === :switch
-        # Get switch theme
-        switch_theme = if isa(toggle_theme, NamedTuple) && haskey(toggle_theme, :switch)
-            toggle_theme.switch
-        else
-            HypertextTemplates.Library.default_theme().toggle.switch
-        end
-
-        # Get size classes
-        size_classes = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :sizes)
-            switch_theme.sizes
-        else
-            HypertextTemplates.Library.default_theme().toggle.switch.sizes
-        end
-
-        # Get color classes
-        color_classes = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :colors)
-            switch_theme.colors
-        else
-            HypertextTemplates.Library.default_theme().toggle.switch.colors
-        end
-
-        size_class = get(
-            size_classes,
-            size_sym,
-            get(
-                size_classes,
-                :base,
-                HypertextTemplates.Library.default_theme().toggle.switch.sizes.base,
-            ),
-        )
-        color_class = get(
-            color_classes,
-            color_sym,
-            get(
-                color_classes,
-                :primary,
-                HypertextTemplates.Library.default_theme().toggle.switch.colors.primary,
-            ),
-        )
-
-        # Get state classes
-        disabled_class =
-            disabled ?
-            get(
-                switch_theme,
-                :disabled,
-                HypertextTemplates.Library.default_theme().toggle.switch.disabled,
-            ) : ""
-        cursor_class =
-            disabled ? "" :
-            get(
-                switch_theme,
-                :cursor,
-                HypertextTemplates.Library.default_theme().toggle.switch.cursor,
-            )
+        # Direct theme access
+        size_class = theme.toggle.switch.sizes[size_sym]
+        color_class = theme.toggle.switch.colors[color_sym]
+        disabled_class = disabled ? theme.toggle.switch.disabled : ""
+        cursor_class = disabled ? "" : theme.toggle.switch.cursor
+        switch_style = theme.toggle.switch.styles[size_sym]
 
         # Check for icon slots
         has_icon_on = haskey(slots, :icon_on)
@@ -169,23 +114,6 @@ This component implements comprehensive accessibility for toggle controls:
         has_icons = show_icons && (has_icon_on || has_icon_off)
 
         wrapper_el = isnothing(label) ? :div : Elements.label
-
-        # Get switch styles from theme
-        switch_styles = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :styles)
-            switch_theme.styles
-        else
-            HypertextTemplates.Library.default_theme().toggle.switch.styles
-        end
-
-        switch_style = get(
-            switch_styles,
-            size_sym,
-            get(
-                switch_styles,
-                :base,
-                HypertextTemplates.Library.default_theme().toggle.switch.styles.base,
-            ),
-        )
 
         if isnothing(label)
             @div {class = "inline-flex items-center gap-3 $disabled_class"} begin
@@ -206,26 +134,10 @@ This component implements comprehensive accessibility for toggle controls:
 
                     if has_icons
                         # Get icon classes from theme
-                        icon_container_class = get(
-                            switch_theme,
-                            :icon_container,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_container,
-                        )
-                        icon_off_class = get(
-                            switch_theme,
-                            :icon_off,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_off,
-                        )
-                        icon_on_class = get(
-                            switch_theme,
-                            :icon_on,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_on,
-                        )
-                        icon_size_class = get(
-                            switch_theme,
-                            :icon_size,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_size,
-                        )
+                        icon_container_class = theme.toggle.switch.icon_container
+                        icon_off_class = theme.toggle.switch.icon_off
+                        icon_on_class = theme.toggle.switch.icon_on
+                        icon_size_class = theme.toggle.switch.icon_size
 
                         # Icon overlay container
                         @div {class = icon_container_class} begin
@@ -275,11 +187,7 @@ This component implements comprehensive accessibility for toggle controls:
                 end
 
                 if !isnothing(label)
-                    label_class = get(
-                        switch_theme,
-                        :label,
-                        HypertextTemplates.Library.default_theme().toggle.switch.label,
-                    )
+                    label_class = theme.toggle.switch.label
                     @span {class = label_class} $label
                 end
             end
@@ -305,26 +213,10 @@ This component implements comprehensive accessibility for toggle controls:
 
                     if has_icons
                         # Get icon classes from theme
-                        icon_container_class = get(
-                            switch_theme,
-                            :icon_container,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_container,
-                        )
-                        icon_off_class = get(
-                            switch_theme,
-                            :icon_off,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_off,
-                        )
-                        icon_on_class = get(
-                            switch_theme,
-                            :icon_on,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_on,
-                        )
-                        icon_size_class = get(
-                            switch_theme,
-                            :icon_size,
-                            HypertextTemplates.Library.default_theme().toggle.switch.icon_size,
-                        )
+                        icon_container_class = theme.toggle.switch.icon_container
+                        icon_off_class = theme.toggle.switch.icon_off
+                        icon_on_class = theme.toggle.switch.icon_on
+                        icon_size_class = theme.toggle.switch.icon_size
 
                         # Icon overlay container
                         @div {class = icon_container_class} begin
@@ -373,78 +265,18 @@ This component implements comprehensive accessibility for toggle controls:
                     end
                 end
 
-                label_class = get(
-                    switch_theme,
-                    :label,
-                    HypertextTemplates.Library.default_theme().toggle.switch.label,
-                )
+                label_class = theme.toggle.switch.label
                 @span {class = label_class} $label
             end
         end
     else  # button variant
-        # Get button theme
-        button_theme = if isa(toggle_theme, NamedTuple) && haskey(toggle_theme, :button)
-            toggle_theme.button
-        else
-            HypertextTemplates.Library.default_theme().toggle.button
-        end
-
-        # Get wrapper and input classes
-        wrapper_class = get(
-            button_theme,
-            :wrapper,
-            HypertextTemplates.Library.default_theme().toggle.button.wrapper,
-        )
-        input_class = get(
-            button_theme,
-            :input,
-            HypertextTemplates.Library.default_theme().toggle.button.input,
-        )
-        base_class = get(
-            button_theme,
-            :base,
-            HypertextTemplates.Library.default_theme().toggle.button.base,
-        )
-
-        # Get size classes
-        size_map = if isa(button_theme, NamedTuple) && haskey(button_theme, :sizes)
-            button_theme.sizes
-        else
-            HypertextTemplates.Library.default_theme().toggle.button.sizes
-        end
-
-        # Get color classes
-        color_map = if isa(button_theme, NamedTuple) && haskey(button_theme, :colors)
-            button_theme.colors
-        else
-            HypertextTemplates.Library.default_theme().toggle.button.colors
-        end
-
-        size_data = get(
-            size_map,
-            size_sym,
-            get(
-                size_map,
-                :base,
-                HypertextTemplates.Library.default_theme().toggle.button.sizes.base,
-            ),
-        )
-        color_class = get(
-            color_map,
-            color_sym,
-            get(
-                color_map,
-                :primary,
-                HypertextTemplates.Library.default_theme().toggle.button.colors.primary,
-            ),
-        )
-        disabled_class =
-            disabled ?
-            get(
-                button_theme,
-                :disabled,
-                HypertextTemplates.Library.default_theme().toggle.button.disabled,
-            ) : ""
+        # Direct theme access
+        wrapper_class = theme.toggle.button.wrapper
+        input_class = theme.toggle.button.input
+        base_class = theme.toggle.button.base
+        size_data = theme.toggle.button.sizes[size_sym]
+        color_class = theme.toggle.button.colors[color_sym]
+        disabled_class = disabled ? theme.toggle.button.disabled : ""
 
         # Use label as button wrapper for proper click handling
         Elements.@label {class = wrapper_class, "for" := component_id} begin

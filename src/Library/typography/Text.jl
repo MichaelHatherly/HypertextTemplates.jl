@@ -50,44 +50,13 @@ A paragraph text component that provides consistent typography styling for body 
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract text theme safely
-    text_theme = if isa(theme, NamedTuple) && haskey(theme, :text)
-        theme.text
-    else
-        HypertextTemplates.Library.default_theme().text
-    end
-
-    # Get default color
-    default_color = get(
-        text_theme,
-        :default_color,
-        HypertextTemplates.Library.default_theme().text.default_color,
-    )
-
-    # Get nested themes
-    variants_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :variants)
-        text_theme.variants
-    else
-        HypertextTemplates.Library.default_theme().text.variants
-    end
-
-    sizes_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :sizes)
-        text_theme.sizes
-    else
-        HypertextTemplates.Library.default_theme().text.sizes
-    end
-
-    weights_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :weights)
-        text_theme.weights
-    else
-        HypertextTemplates.Library.default_theme().text.weights
-    end
-
-    align_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :align)
-        text_theme.align
-    else
-        HypertextTemplates.Library.default_theme().text.align
-    end
+    # Direct theme access
+    text_theme = theme.text
+    default_color = text_theme.default_color
+    variants_theme = text_theme.variants
+    sizes_theme = text_theme.sizes
+    weights_theme = text_theme.weights
+    align_theme = text_theme.align
 
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
@@ -95,31 +64,11 @@ A paragraph text component that provides consistent typography styling for body 
     weight_sym = Symbol(weight)
     align_sym = Symbol(align)
 
-    base_class = get(
-        variants_theme,
-        variant_sym,
-        get(
-            variants_theme,
-            :body,
-            HypertextTemplates.Library.default_theme().text.variants.body,
-        ),
-    )
+    base_class = get(variants_theme, variant_sym, variants_theme.body)
     size_class = isnothing(size_sym) ? "" : get(sizes_theme, size_sym, "")
-    weight_class = get(
-        weights_theme,
-        weight_sym,
-        get(
-            weights_theme,
-            :normal,
-            HypertextTemplates.Library.default_theme().text.weights.normal,
-        ),
-    )
+    weight_class = get(weights_theme, weight_sym, weights_theme.normal)
     color_class = isnothing(color) ? default_color : color
-    align_class = get(
-        align_theme,
-        align_sym,
-        get(align_theme, :left, HypertextTemplates.Library.default_theme().text.align.left),
-    )
+    align_class = get(align_theme, align_sym, align_theme.left)
 
     @p {class = "$base_class $size_class $weight_class $color_class $align_class", attrs...} begin
         @__slot__()

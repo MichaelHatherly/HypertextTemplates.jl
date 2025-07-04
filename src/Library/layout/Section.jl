@@ -41,26 +41,14 @@ end
     background::Union{String,Nothing} = nothing,
     attrs...,
 )
-    # Convert to symbol
-    spacing_sym = Symbol(spacing)
-
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract section theme safely
-    section_theme = if isa(theme, NamedTuple) && haskey(theme, :section)
-        theme.section
-    else
-        HypertextTemplates.Library.default_theme().section
-    end
+    # Convert to symbol
+    spacing_sym = Symbol(spacing)
 
-    # Get spacing class with fallback
-    spacing_class =
-        if haskey(section_theme, :spacing) && haskey(section_theme.spacing, spacing_sym)
-            section_theme.spacing[spacing_sym]
-        else
-            HypertextTemplates.Library.default_theme().section.spacing[spacing_sym]
-        end
+    # Direct theme access
+    spacing_class = theme.section.spacing[spacing_sym]
 
     bg_class = isnothing(background) ? "" : background
 

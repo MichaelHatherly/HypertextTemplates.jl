@@ -21,81 +21,28 @@ A user profile image component that displays user avatars with automatic fallbac
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract avatar theme safely
-    avatar_theme = if isa(theme, NamedTuple) && haskey(theme, :avatar)
-        theme.avatar
-    else
-        HypertextTemplates.Library.default_theme().avatar
-    end
-
-    # Get base classes and content
-    base_class =
-        get(avatar_theme, :base, HypertextTemplates.Library.default_theme().avatar.base)
-    image_class =
-        get(avatar_theme, :image, HypertextTemplates.Library.default_theme().avatar.image)
-    fallback_container_class = get(
-        avatar_theme,
-        :fallback_container,
-        HypertextTemplates.Library.default_theme().avatar.fallback_container,
-    )
-    default_icon = get(
-        avatar_theme,
-        :default_icon,
-        HypertextTemplates.Library.default_theme().avatar.default_icon,
-    )
-
-    # Get nested themes
-    sizes_theme = if isa(avatar_theme, NamedTuple) && haskey(avatar_theme, :sizes)
-        avatar_theme.sizes
-    else
-        HypertextTemplates.Library.default_theme().avatar.sizes
-    end
-
-    shapes_theme = if isa(avatar_theme, NamedTuple) && haskey(avatar_theme, :shapes)
-        avatar_theme.shapes
-    else
-        HypertextTemplates.Library.default_theme().avatar.shapes
-    end
-
-    backgrounds_theme =
-        if isa(avatar_theme, NamedTuple) && haskey(avatar_theme, :backgrounds)
-            avatar_theme.backgrounds
-        else
-            HypertextTemplates.Library.default_theme().avatar.backgrounds
-        end
+    # Direct theme access
+    avatar_theme = theme.avatar
+    base_class = avatar_theme.base
+    image_class = avatar_theme.image
+    fallback_container_class = avatar_theme.fallback_container
+    default_icon = avatar_theme.default_icon
+    sizes_theme = avatar_theme.sizes
+    shapes_theme = avatar_theme.shapes
+    backgrounds_theme = avatar_theme.backgrounds
 
     # Convert to symbols
     size_sym = Symbol(size)
     shape_sym = Symbol(shape)
 
-    size_class = get(
-        sizes_theme,
-        size_sym,
-        get(sizes_theme, :md, HypertextTemplates.Library.default_theme().avatar.sizes.md),
-    )
-    shape_class = get(
-        shapes_theme,
-        shape_sym,
-        get(
-            shapes_theme,
-            :circle,
-            HypertextTemplates.Library.default_theme().avatar.shapes.circle,
-        ),
-    )
+    size_class = get(sizes_theme, size_sym, sizes_theme.md)
+    shape_class = get(shapes_theme, shape_sym, shapes_theme.circle)
 
     # Default background color for fallback avatars
     default_bg = if !isnothing(src)
-        get(
-            backgrounds_theme,
-            :with_image,
-            HypertextTemplates.Library.default_theme().avatar.backgrounds.with_image,
-        )
+        backgrounds_theme.with_image
     else
-        get(
-            backgrounds_theme,
-            :fallback,
-            HypertextTemplates.Library.default_theme().avatar.backgrounds.fallback,
-        )
+        backgrounds_theme.fallback
     end
 
     # Build component default attributes

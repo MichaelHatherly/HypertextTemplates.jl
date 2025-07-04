@@ -39,56 +39,18 @@ end
     glass::Bool = false,
     attrs...,
 )
-    # Convert to symbol
-    size_sym = Symbol(size)
-
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract container theme safely
-    container_theme = if isa(theme, NamedTuple) && haskey(theme, :container)
-        theme.container
-    else
-        HypertextTemplates.Library.default_theme().container
-    end
+    # Convert to symbol
+    size_sym = Symbol(size)
 
-    # Get base classes
-    base_class = get(
-        container_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().container.base,
-    )
-
-    # Get size class with fallback
-    size_class =
-        if haskey(container_theme, :sizes) && haskey(container_theme.sizes, size_sym)
-            container_theme.sizes[size_sym]
-        else
-            HypertextTemplates.Library.default_theme().container.sizes[size_sym]
-        end
-
-    # Get conditional classes
-    padding_class =
-        padding ?
-        get(
-            container_theme,
-            :padding,
-            HypertextTemplates.Library.default_theme().container.padding,
-        ) : ""
-    centered_class =
-        centered ?
-        get(
-            container_theme,
-            :centered,
-            HypertextTemplates.Library.default_theme().container.centered,
-        ) : ""
-    glass_class =
-        glass ?
-        get(
-            container_theme,
-            :glass,
-            HypertextTemplates.Library.default_theme().container.glass,
-        ) : ""
+    # Direct theme access
+    base_class = theme.container.base
+    size_class = theme.container.sizes[size_sym]
+    padding_class = padding ? theme.container.padding : ""
+    centered_class = centered ? theme.container.centered : ""
+    glass_class = glass ? theme.container.glass : ""
 
     @div {
         class = "$size_class $padding_class $centered_class $glass_class $base_class",

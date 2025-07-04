@@ -53,43 +53,18 @@ end
     animated::Bool = true,
     attrs...,
 )
-    # Convert to symbol
-    variant_sym = Symbol(variant)
-
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract alert theme safely
-    alert_theme = if isa(theme, NamedTuple) && haskey(theme, :alert)
-        theme.alert
-    else
-        HypertextTemplates.Library.default_theme().alert
-    end
+    # Convert to symbol
+    variant_sym = Symbol(variant)
 
-    # Get base classes
-    base_classes =
-        get(alert_theme, :base, HypertextTemplates.Library.default_theme().alert.base)
-
-    # Get variant class with fallback
-    variant_class =
-        if haskey(alert_theme, :variants) && haskey(alert_theme.variants, variant_sym)
-            alert_theme.variants[variant_sym]
-        else
-            HypertextTemplates.Library.default_theme().alert.variants[variant_sym]
-        end
-
-    # Get icon SVG with fallback
-    icon_svg = if haskey(alert_theme, :icons) && haskey(alert_theme.icons, variant_sym)
-        alert_theme.icons[variant_sym]
-    else
-        HypertextTemplates.Library.default_theme().alert.icons[variant_sym]
-    end
-
-    # Get state classes
-    states =
-        get(alert_theme, :states, HypertextTemplates.Library.default_theme().alert.states)
-    animation_class = animated ? get(states, :animated, "") : ""
-    transition_class = get(states, :transition, "transition-all duration-300")
+    # Direct theme access
+    base_classes = theme.alert.base
+    variant_class = theme.alert.variants[variant_sym]
+    icon_svg = theme.alert.icons[variant_sym]
+    animation_class = animated ? theme.alert.states.animated : ""
+    transition_class = theme.alert.states.transition
 
     # Build component default attributes
     component_attrs = (
@@ -117,31 +92,11 @@ end
     merged_attrs = merge_attrs(component_attrs, attrs)
 
     # Get other theme classes
-    icon_wrapper = get(
-        alert_theme,
-        :icon_wrapper,
-        HypertextTemplates.Library.default_theme().alert.icon_wrapper,
-    )
-    content_with_icon = get(
-        alert_theme,
-        :content_with_icon,
-        HypertextTemplates.Library.default_theme().alert.content_with_icon,
-    )
-    content_wrapper = get(
-        alert_theme,
-        :content_wrapper,
-        HypertextTemplates.Library.default_theme().alert.content_wrapper,
-    )
-    dismiss_button = get(
-        alert_theme,
-        :dismiss_button,
-        HypertextTemplates.Library.default_theme().alert.dismiss_button,
-    )
-    dismiss_icon = get(
-        alert_theme,
-        :dismiss_icon,
-        HypertextTemplates.Library.default_theme().alert.dismiss_icon,
-    )
+    icon_wrapper = theme.alert.icon_wrapper
+    content_with_icon = theme.alert.content_with_icon
+    content_wrapper = theme.alert.content_wrapper
+    dismiss_button = theme.alert.dismiss_button
+    dismiss_icon = theme.alert.dismiss_icon
 
     @div {merged_attrs...} begin
         @div {class = "flex"} begin

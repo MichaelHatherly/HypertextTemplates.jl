@@ -64,54 +64,21 @@ end
     rounded::Union{Symbol,String} = :xl,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
     rounded_sym = Symbol(rounded)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract button theme safely
-    button_theme = if isa(theme, NamedTuple) && haskey(theme, :button)
-        theme.button
-    else
-        HypertextTemplates.Library.default_theme().button
-    end
-
-    # Get base classes
-    base_classes =
-        get(button_theme, :base, HypertextTemplates.Library.default_theme().button.base)
-
-    # Get variant classes with fallback
-    variant_class =
-        if haskey(button_theme, :variants) && haskey(button_theme.variants, variant_sym)
-            button_theme.variants[variant_sym]
-        else
-            HypertextTemplates.Library.default_theme().button.variants[variant_sym]
-        end
-
-    # Get size data with fallback
-    size_data = if haskey(button_theme, :sizes) && haskey(button_theme.sizes, size_sym)
-        button_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().button.sizes[size_sym]
-    end
-
-    # Get rounded classes with fallback
-    rounded_class =
-        if haskey(button_theme, :rounded) && haskey(button_theme.rounded, rounded_sym)
-            button_theme.rounded[rounded_sym]
-        else
-            HypertextTemplates.Library.default_theme().button.rounded[rounded_sym]
-        end
-
-    # Get state classes
-    states =
-        get(button_theme, :states, HypertextTemplates.Library.default_theme().button.states)
-    width_class = full_width ? get(states, :full_width, "w-full") : ""
-    disabled_class =
-        disabled || loading ? get(states, :disabled, "opacity-60 cursor-not-allowed") : ""
+    # Direct theme access
+    base_classes = theme.button.base
+    variant_class = theme.button.variants[variant_sym]
+    size_data = theme.button.sizes[size_sym]
+    rounded_class = theme.button.rounded[rounded_sym]
+    width_class = full_width ? theme.button.states.full_width : ""
+    disabled_class = disabled || loading ? theme.button.states.disabled : ""
 
     final_classes = "$base_classes $rounded_class $(size_data.padding) $(size_data.text) $(size_data.gap) $variant_class $width_class $disabled_class"
 

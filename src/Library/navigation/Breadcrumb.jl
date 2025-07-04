@@ -22,39 +22,12 @@ A navigation breadcrumb component that displays the hierarchical path to the cur
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract breadcrumb theme safely
-    breadcrumb_theme = if isa(theme, NamedTuple) && haskey(theme, :breadcrumb)
-        theme.breadcrumb
-    else
-        HypertextTemplates.Library.default_theme().breadcrumb
-    end
-
-    # Get classes
-    list_class = get(
-        breadcrumb_theme,
-        :list,
-        HypertextTemplates.Library.default_theme().breadcrumb.list,
-    )
-    item_class = get(
-        breadcrumb_theme,
-        :item,
-        HypertextTemplates.Library.default_theme().breadcrumb.item,
-    )
-    current_class = get(
-        breadcrumb_theme,
-        :current,
-        HypertextTemplates.Library.default_theme().breadcrumb.current,
-    )
-    link_class = get(
-        breadcrumb_theme,
-        :link,
-        HypertextTemplates.Library.default_theme().breadcrumb.link,
-    )
-    separator_class = get(
-        breadcrumb_theme,
-        :separator,
-        HypertextTemplates.Library.default_theme().breadcrumb.separator,
-    )
+    # Direct theme access
+    list_class = theme.breadcrumb.list
+    item_class = theme.breadcrumb.item
+    current_class = theme.breadcrumb.current
+    link_class = theme.breadcrumb.link
+    separator_class = theme.breadcrumb.separator
 
     @nav {"aria-label" = "Breadcrumb", attrs...} begin
         @ol {class = list_class} begin

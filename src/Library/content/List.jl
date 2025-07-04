@@ -44,39 +44,17 @@ end
     spacing::Union{Symbol,String} = :normal,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     variant_sym = Symbol(variant)
     spacing_sym = Symbol(spacing)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract list theme safely
-    list_theme = if isa(theme, NamedTuple) && haskey(theme, :list)
-        theme.list
-    else
-        HypertextTemplates.Library.default_theme().list
-    end
-
-    # Get base classes
-    base_classes =
-        get(list_theme, :base, HypertextTemplates.Library.default_theme().list.base)
-
-    # Get spacing class with fallback
-    spacing_class =
-        if haskey(list_theme, :spacing) && haskey(list_theme.spacing, spacing_sym)
-            list_theme.spacing[spacing_sym]
-        else
-            HypertextTemplates.Library.default_theme().list.spacing[spacing_sym]
-        end
-
-    # Get variant class with fallback
-    variant_class =
-        if haskey(list_theme, :variants) && haskey(list_theme.variants, variant_sym)
-            list_theme.variants[variant_sym]
-        else
-            HypertextTemplates.Library.default_theme().list.variants[variant_sym]
-        end
+    # Direct theme access
+    base_classes = theme.list.base
+    spacing_class = theme.list.spacing[spacing_sym]
+    variant_class = theme.list.variants[variant_sym]
 
     # Build final classes
     final_classes = "$variant_class $base_classes $spacing_class"

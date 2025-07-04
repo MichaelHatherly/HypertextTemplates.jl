@@ -60,55 +60,13 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract card theme safely
-    card_theme = if isa(theme, NamedTuple) && haskey(theme, :card)
-        theme.card
-    else
-        HypertextTemplates.Library.default_theme().card
-    end
-
-    # Get padding class with fallback
-    padding_class =
-        if haskey(card_theme, :padding) && haskey(card_theme.padding, padding_sym)
-            card_theme.padding[padding_sym]
-        else
-            HypertextTemplates.Library.default_theme().card.padding[padding_sym]
-        end
-
-    # Get shadow class with fallback
-    shadow_class = if haskey(card_theme, :shadow) && haskey(card_theme.shadow, shadow_sym)
-        card_theme.shadow[shadow_sym]
-    else
-        HypertextTemplates.Library.default_theme().card.shadow[shadow_sym]
-    end
-
-    # Get border class with fallback
-    border_class = if haskey(card_theme, :border) && haskey(card_theme.border, border_sym)
-        card_theme.border[border_sym]
-    else
-        HypertextTemplates.Library.default_theme().card.border[border_sym]
-    end
-
-    # Get rounded class with fallback
-    rounded_class =
-        if haskey(card_theme, :rounded) && haskey(card_theme.rounded, rounded_sym)
-            card_theme.rounded[rounded_sym]
-        else
-            HypertextTemplates.Library.default_theme().card.rounded[rounded_sym]
-        end
-
-    # Get variant class with fallback
-    variant_class =
-        if haskey(card_theme, :variants) && haskey(card_theme.variants, variant_sym)
-            card_theme.variants[variant_sym]
-        else
-            HypertextTemplates.Library.default_theme().card.variants[variant_sym]
-        end
-
-    # Get hoverable state
-    states =
-        get(card_theme, :states, HypertextTemplates.Library.default_theme().card.states)
-    hover_class = hoverable ? get(states, :hoverable, "") : ""
+    # Direct theme access
+    padding_class = theme.card.padding[padding_sym]
+    shadow_class = theme.card.shadow[shadow_sym]
+    border_class = theme.card.border[border_sym]
+    rounded_class = theme.card.rounded[rounded_sym]
+    variant_class = theme.card.variants[variant_sym]
+    hover_class = hoverable ? theme.card.states.hoverable : ""
 
     # Handle gradient border special case
     if border_sym === :gradient

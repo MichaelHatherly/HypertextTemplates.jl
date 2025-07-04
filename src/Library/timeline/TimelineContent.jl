@@ -41,39 +41,12 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract timeline_content theme safely
-    timeline_content_theme = if isa(theme, NamedTuple) && haskey(theme, :timeline_content)
-        theme.timeline_content
-    else
-        HypertextTemplates.Library.default_theme().timeline_content
-    end
-
-    # Get classes with fallbacks
-    card_wrapper_class = get(
-        timeline_content_theme,
-        :card_wrapper,
-        HypertextTemplates.Library.default_theme().timeline_content.card_wrapper,
-    )
-    plain_wrapper_class = get(
-        timeline_content_theme,
-        :plain_wrapper,
-        HypertextTemplates.Library.default_theme().timeline_content.plain_wrapper,
-    )
-    content_spacing_class = get(
-        timeline_content_theme,
-        :content_spacing,
-        HypertextTemplates.Library.default_theme().timeline_content.content_spacing,
-    )
-    title_class = get(
-        timeline_content_theme,
-        :title,
-        HypertextTemplates.Library.default_theme().timeline_content.title,
-    )
-    subtitle_class = get(
-        timeline_content_theme,
-        :subtitle,
-        HypertextTemplates.Library.default_theme().timeline_content.subtitle,
-    )
+    # Direct theme access
+    card_wrapper_class = theme.timeline_content.card_wrapper
+    plain_wrapper_class = theme.timeline_content.plain_wrapper
+    content_spacing_class = theme.timeline_content.content_spacing
+    title_class = theme.timeline_content.title
+    subtitle_class = theme.timeline_content.subtitle
 
     wrapper_class = card ? card_wrapper_class : plain_wrapper_class
 

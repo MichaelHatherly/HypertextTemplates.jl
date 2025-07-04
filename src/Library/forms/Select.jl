@@ -35,39 +35,11 @@ A dropdown select element that allows users to choose from a predefined list of 
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract select theme safely
-    select_theme = if isa(theme, NamedTuple) && haskey(theme, :select)
-        theme.select
-    else
-        HypertextTemplates.Library.default_theme().select
-    end
-
-    # Get base classes
-    base_classes =
-        get(select_theme, :base, HypertextTemplates.Library.default_theme().select.base)
-
-    # Get size class with fallback
-    size_class = if haskey(select_theme, :sizes) && haskey(select_theme.sizes, size_sym)
-        select_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().select.sizes[size_sym]
-    end
-
-    # Get state class with fallback
-    state_class = if haskey(select_theme, :states) && haskey(select_theme.states, state_sym)
-        select_theme.states[state_sym]
-    else
-        HypertextTemplates.Library.default_theme().select.states[state_sym]
-    end
-
-    # Get disabled class
-    disabled_class =
-        disabled ?
-        get(
-            select_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().select.disabled,
-        ) : ""
+    # Direct theme access
+    base_classes = theme.select.base
+    size_class = theme.select.sizes[size_sym]
+    state_class = theme.select.states[state_sym]
+    disabled_class = disabled ? theme.select.disabled : ""
 
     aria_invalid = state_sym === :error ? "true" : nothing
 

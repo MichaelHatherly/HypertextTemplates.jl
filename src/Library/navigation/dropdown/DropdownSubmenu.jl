@@ -55,48 +55,16 @@ The submenu state is managed by the parent dropdown's Alpine component through t
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract dropdown_submenu theme safely
-    dropdown_submenu_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_submenu)
-        theme.dropdown_submenu
-    else
-        HypertextTemplates.Library.default_theme().dropdown_submenu
-    end
-
-    # Get container class
-    container_class = get(
-        dropdown_submenu_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().dropdown_submenu.container,
-    )
-    content_class = get(
-        dropdown_submenu_theme,
-        :content,
-        HypertextTemplates.Library.default_theme().dropdown_submenu.content,
-    )
+    # Direct theme access
+    dropdown_submenu_theme = theme.dropdown_submenu
+    container_class = dropdown_submenu_theme.container
+    content_class = dropdown_submenu_theme.content
 
     # Get trigger theme
-    trigger_theme =
-        if isa(dropdown_submenu_theme, NamedTuple) &&
-           haskey(dropdown_submenu_theme, :trigger)
-            dropdown_submenu_theme.trigger
-        else
-            HypertextTemplates.Library.default_theme().dropdown_submenu.trigger
-        end
-    trigger_base_class = get(
-        trigger_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().dropdown_submenu.trigger.base,
-    )
-    icon_wrapper_class = get(
-        trigger_theme,
-        :icon_wrapper,
-        HypertextTemplates.Library.default_theme().dropdown_submenu.trigger.icon_wrapper,
-    )
-    chevron_icon = get(
-        trigger_theme,
-        :chevron_icon,
-        HypertextTemplates.Library.default_theme().dropdown_submenu.trigger.chevron_icon,
-    )
+    trigger_theme = dropdown_submenu_theme.trigger
+    trigger_base_class = trigger_theme.base
+    icon_wrapper_class = trigger_theme.icon_wrapper
+    chevron_icon = trigger_theme.chevron_icon
 
     # Generate unique ID for this submenu to track its open/closed state
     submenu_id = "submenu-$(hash(label))"

@@ -51,39 +51,15 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract link theme safely
-    link_theme = if isa(theme, NamedTuple) && haskey(theme, :link)
-        theme.link
-    else
-        HypertextTemplates.Library.default_theme().link
-    end
-
-    # Get default color
-    default_color = get(
-        link_theme,
-        :default_color,
-        HypertextTemplates.Library.default_theme().link.default_color,
-    )
-
-    # Get variants
-    variants_theme = if isa(link_theme, NamedTuple) && haskey(link_theme, :variants)
-        link_theme.variants
-    else
-        HypertextTemplates.Library.default_theme().link.variants
-    end
+    # Direct theme access
+    link_theme = theme.link
+    default_color = link_theme.default_color
+    variants_theme = link_theme.variants
 
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    variant_class = get(
-        variants_theme,
-        variant_sym,
-        get(
-            variants_theme,
-            :default,
-            HypertextTemplates.Library.default_theme().link.variants.default,
-        ),
-    )
+    variant_class = get(variants_theme, variant_sym, variants_theme.default)
     color_class = isnothing(color) ? default_color : color
 
     if external

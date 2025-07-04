@@ -50,39 +50,12 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract form_group theme safely
-    form_group_theme = if isa(theme, NamedTuple) && haskey(theme, :form_group)
-        theme.form_group
-    else
-        HypertextTemplates.Library.default_theme().form_group
-    end
-
-    # Get classes
-    wrapper_class = get(
-        form_group_theme,
-        :wrapper,
-        HypertextTemplates.Library.default_theme().form_group.wrapper,
-    )
-    label_class = get(
-        form_group_theme,
-        :label,
-        HypertextTemplates.Library.default_theme().form_group.label,
-    )
-    required_class = get(
-        form_group_theme,
-        :required_indicator,
-        HypertextTemplates.Library.default_theme().form_group.required_indicator,
-    )
-    error_class = get(
-        form_group_theme,
-        :error_text,
-        HypertextTemplates.Library.default_theme().form_group.error_text,
-    )
-    help_class = get(
-        form_group_theme,
-        :help_text,
-        HypertextTemplates.Library.default_theme().form_group.help_text,
-    )
+    # Direct theme access
+    wrapper_class = theme.form_group.wrapper
+    label_class = theme.form_group.label
+    required_class = theme.form_group.required_indicator
+    error_class = theme.form_group.error_text
+    help_class = theme.form_group.help_text
 
     # Generate unique ID if not provided
     field_id = isnothing(id) ? "form-field-$(_hash)" : id

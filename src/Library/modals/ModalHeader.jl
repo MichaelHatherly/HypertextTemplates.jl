@@ -31,29 +31,10 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract modal_header theme safely
-    modal_header_theme = if isa(theme, NamedTuple) && haskey(theme, :modal_header)
-        theme.modal_header
-    else
-        HypertextTemplates.Library.default_theme().modal_header
-    end
-
-    # Get classes
-    base_class = get(
-        modal_header_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().modal_header.base,
-    )
-    title_class = get(
-        modal_header_theme,
-        :title,
-        HypertextTemplates.Library.default_theme().modal_header.title,
-    )
-    subtitle_class = get(
-        modal_header_theme,
-        :subtitle,
-        HypertextTemplates.Library.default_theme().modal_header.subtitle,
-    )
+    # Direct theme access
+    base_class = theme.modal_header.base
+    title_class = theme.modal_header.title
+    subtitle_class = theme.modal_header.subtitle
 
     @div {class = base_class, attrs...} begin
         # Always wrap content in proper styling

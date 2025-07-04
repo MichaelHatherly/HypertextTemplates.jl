@@ -12,50 +12,19 @@ A loading spinner component that provides visual feedback during asynchronous op
     color::Union{Symbol,String} = :primary,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+    
     # Convert to symbols
     size_sym = Symbol(size)
     color_sym = Symbol(color)
-
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract spinner theme safely
-    spinner_theme = if isa(theme, NamedTuple) && haskey(theme, :spinner)
-        theme.spinner
-    else
-        HypertextTemplates.Library.default_theme().spinner
-    end
-
-    # Get container class
-    container_class = get(
-        spinner_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().spinner.container,
-    )
-    svg_base = get(
-        spinner_theme,
-        :svg_base,
-        HypertextTemplates.Library.default_theme().spinner.svg_base,
-    )
-
-    # Get size class with fallback
-    size_class = if haskey(spinner_theme, :sizes) && haskey(spinner_theme.sizes, size_sym)
-        spinner_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().spinner.sizes[size_sym]
-    end
-
-    # Get color class with fallback
-    color_class =
-        if haskey(spinner_theme, :colors) && haskey(spinner_theme.colors, color_sym)
-            spinner_theme.colors[color_sym]
-        else
-            HypertextTemplates.Library.default_theme().spinner.colors[color_sym]
-        end
-
-    # Get SVG template
-    svg_template =
-        get(spinner_theme, :svg, HypertextTemplates.Library.default_theme().spinner.svg)
+    
+    # Direct theme access
+    container_class = theme.spinner.container
+    svg_base = theme.spinner.svg_base
+    size_class = theme.spinner.sizes[size_sym]
+    color_class = theme.spinner.colors[color_sym]
+    svg_template = theme.spinner.svg
 
     # Replace :classes placeholder with actual classes
     svg_content = replace(svg_template, ":classes" => "$svg_base $size_class $color_class")

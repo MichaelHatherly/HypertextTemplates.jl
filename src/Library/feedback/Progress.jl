@@ -36,75 +36,30 @@ Without Alpine.js, the progress bar will display at its final value without anim
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract progress theme safely
-    progress_theme = if isa(theme, NamedTuple) && haskey(theme, :progress)
-        theme.progress
-    else
-        HypertextTemplates.Library.default_theme().progress
-    end
-
-    # Get container and bar classes
-    container_class = get(
-        progress_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().progress.container,
-    )
-    bar_class =
-        get(progress_theme, :bar, HypertextTemplates.Library.default_theme().progress.bar)
-
-    # Get size class with fallback
-    size_class = if haskey(progress_theme, :sizes) && haskey(progress_theme.sizes, size_sym)
-        progress_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().progress.sizes[size_sym]
-    end
-
-    # Get color class with fallback
-    color_class =
-        if haskey(progress_theme, :colors) && haskey(progress_theme.colors, color_sym)
-            progress_theme.colors[color_sym]
-        else
-            HypertextTemplates.Library.default_theme().progress.colors[color_sym]
-        end
+    # Direct theme access
+    container_class = theme.progress.container
+    bar_class = theme.progress.bar
+    size_class = theme.progress.sizes[size_sym]
+    color_class = theme.progress.colors[color_sym]
+    striped_base = theme.progress.striped
+    animated_stripe = theme.progress.animated_stripe
+    label_class = theme.progress.label
+    label_value_class = theme.progress.label_value
 
     percentage = Base.min(100, Base.max(0, round(Int, (value / max) * 100)))
-
-    # Get striped classes
-    striped_base = get(
-        progress_theme,
-        :striped,
-        HypertextTemplates.Library.default_theme().progress.striped,
-    )
-    animated_stripe = get(
-        progress_theme,
-        :animated_stripe,
-        HypertextTemplates.Library.default_theme().progress.animated_stripe,
-    )
 
     striped_class = if striped
         animated ? "$striped_base $animated_stripe" : striped_base
     else
         ""
     end
-
-    # Get label classes
-    label_class = get(
-        progress_theme,
-        :label,
-        HypertextTemplates.Library.default_theme().progress.label,
-    )
-    label_value_class = get(
-        progress_theme,
-        :label_value,
-        HypertextTemplates.Library.default_theme().progress.label_value,
-    )
 
     # Build component attributes
     component_attrs = if animated_fill

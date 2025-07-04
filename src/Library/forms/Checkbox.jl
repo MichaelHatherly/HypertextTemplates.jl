@@ -24,59 +24,20 @@ A styled checkbox input that allows users to toggle between checked and unchecke
     disabled::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract checkbox theme safely
-    checkbox_theme = if isa(theme, NamedTuple) && haskey(theme, :checkbox)
-        theme.checkbox
-    else
-        HypertextTemplates.Library.default_theme().checkbox
-    end
-
-    # Get base classes
-    base_classes =
-        get(checkbox_theme, :base, HypertextTemplates.Library.default_theme().checkbox.base)
-
-    # Get size class with fallback
-    size_class = if haskey(checkbox_theme, :sizes) && haskey(checkbox_theme.sizes, size_sym)
-        checkbox_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().checkbox.sizes[size_sym]
-    end
-
-    # Get color class with fallback
-    color_class =
-        if haskey(checkbox_theme, :colors) && haskey(checkbox_theme.colors, color_sym)
-            checkbox_theme.colors[color_sym]
-        else
-            HypertextTemplates.Library.default_theme().checkbox.colors[color_sym]
-        end
-
-    # Get disabled class
-    disabled_class =
-        disabled ?
-        get(
-            checkbox_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().checkbox.disabled,
-        ) : ""
-
-    # Get label classes
-    label_wrapper = get(
-        checkbox_theme,
-        :label_wrapper,
-        HypertextTemplates.Library.default_theme().checkbox.label_wrapper,
-    )
-    label_class = get(
-        checkbox_theme,
-        :label,
-        HypertextTemplates.Library.default_theme().checkbox.label,
-    )
+    # Direct theme access
+    base_classes = theme.checkbox.base
+    size_class = theme.checkbox.sizes[size_sym]
+    color_class = theme.checkbox.colors[color_sym]
+    disabled_class = disabled ? theme.checkbox.disabled : ""
+    label_wrapper = theme.checkbox.label_wrapper
+    label_class = theme.checkbox.label
 
     if !isnothing(label)
         Elements.@label {class = "$label_wrapper $disabled_class"} begin

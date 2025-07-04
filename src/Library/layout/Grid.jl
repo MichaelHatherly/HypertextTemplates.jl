@@ -50,48 +50,14 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract grid theme safely
-    grid_theme = if isa(theme, NamedTuple) && haskey(theme, :grid)
-        theme.grid
-    else
-        HypertextTemplates.Library.default_theme().grid
-    end
-
-    # Get base class
-    base_class =
-        get(grid_theme, :base, HypertextTemplates.Library.default_theme().grid.base)
-
-    # Get prefixes for dynamic classes
-    cols_prefix = get(
-        grid_theme,
-        :cols_prefix,
-        HypertextTemplates.Library.default_theme().grid.cols_prefix,
-    )
-    sm_prefix = get(
-        grid_theme,
-        :sm_prefix,
-        HypertextTemplates.Library.default_theme().grid.sm_prefix,
-    )
-    md_prefix = get(
-        grid_theme,
-        :md_prefix,
-        HypertextTemplates.Library.default_theme().grid.md_prefix,
-    )
-    lg_prefix = get(
-        grid_theme,
-        :lg_prefix,
-        HypertextTemplates.Library.default_theme().grid.lg_prefix,
-    )
-    xl_prefix = get(
-        grid_theme,
-        :xl_prefix,
-        HypertextTemplates.Library.default_theme().grid.xl_prefix,
-    )
-    gap_prefix = get(
-        grid_theme,
-        :gap_prefix,
-        HypertextTemplates.Library.default_theme().grid.gap_prefix,
-    )
+    # Direct theme access
+    base_class = theme.grid.base
+    cols_prefix = theme.grid.cols_prefix
+    sm_prefix = theme.grid.sm_prefix
+    md_prefix = theme.grid.md_prefix
+    lg_prefix = theme.grid.lg_prefix
+    xl_prefix = theme.grid.xl_prefix
+    gap_prefix = theme.grid.gap_prefix
 
     # Build dynamic classes
     base_cols = "$(cols_prefix)$(cols)"

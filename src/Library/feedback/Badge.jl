@@ -43,54 +43,26 @@ A small label component for displaying status, counts, or categorization. Badges
     outline::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract badge theme safely
-    badge_theme = if isa(theme, NamedTuple) && haskey(theme, :badge)
-        theme.badge
-    else
-        HypertextTemplates.Library.default_theme().badge
-    end
-
-    # Get base classes
-    base_classes =
-        get(badge_theme, :base, HypertextTemplates.Library.default_theme().badge.base)
-
+    # Direct theme access
+    base_classes = theme.badge.base
+    
     # Get variant classes based on outline prop
-    if outline
-        variant_class =
-            if haskey(badge_theme, :outline_variants) &&
-               haskey(badge_theme.outline_variants, variant_sym)
-                badge_theme.outline_variants[variant_sym]
-            else
-                HypertextTemplates.Library.default_theme().badge.outline_variants[variant_sym]
-            end
+    variant_class = if outline
+        theme.badge.outline_variants[variant_sym]
     else
-        variant_class =
-            if haskey(badge_theme, :variants) && haskey(badge_theme.variants, variant_sym)
-                badge_theme.variants[variant_sym]
-            else
-                HypertextTemplates.Library.default_theme().badge.variants[variant_sym]
-            end
+        theme.badge.variants[variant_sym]
     end
-
-    # Get size class with fallback
-    size_class = if haskey(badge_theme, :sizes) && haskey(badge_theme.sizes, size_sym)
-        badge_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().badge.sizes[size_sym]
-    end
-
-    # Get state classes
-    states =
-        get(badge_theme, :states, HypertextTemplates.Library.default_theme().badge.states)
-    animation_class = animated ? get(states, :animated, "animate-pulse") : ""
-    transition_class = get(states, :transition, "transition-all duration-200")
+    
+    size_class = theme.badge.sizes[size_sym]
+    animation_class = animated ? theme.badge.states.animated : ""
+    transition_class = theme.badge.states.transition
 
     @span {
         class = "$base_classes $variant_class $size_class $animation_class $transition_class",

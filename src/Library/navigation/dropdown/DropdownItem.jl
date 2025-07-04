@@ -53,51 +53,19 @@ An individual menu item within dropdown menus that represents a selectable actio
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract dropdown_item theme safely
-    dropdown_item_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_item)
-        theme.dropdown_item
-    else
-        HypertextTemplates.Library.default_theme().dropdown_item
-    end
-
-    # Get base classes
-    base_classes = get(
-        dropdown_item_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().dropdown_item.base,
-    )
-    disabled_class = get(
-        dropdown_item_theme,
-        :disabled,
-        HypertextTemplates.Library.default_theme().dropdown_item.disabled,
-    )
-    icon_wrapper_class = get(
-        dropdown_item_theme,
-        :icon_wrapper,
-        HypertextTemplates.Library.default_theme().dropdown_item.icon_wrapper,
-    )
-
-    # Get variants
-    variants_theme =
-        if isa(dropdown_item_theme, NamedTuple) && haskey(dropdown_item_theme, :variants)
-            dropdown_item_theme.variants
-        else
-            HypertextTemplates.Library.default_theme().dropdown_item.variants
-        end
+    # Direct theme access
+    dropdown_item_theme = theme.dropdown_item
+    base_classes = dropdown_item_theme.base
+    disabled_class = dropdown_item_theme.disabled
+    icon_wrapper_class = dropdown_item_theme.icon_wrapper
+    variants_theme = dropdown_item_theme.variants
 
     # Variant classes
     variant_classes = if disabled
         disabled_class
     else
-        get(
-            variants_theme,
-            variant,
-            get(
-                variants_theme,
-                :default,
-                HypertextTemplates.Library.default_theme().dropdown_item.variants.default,
-            ),
-        )
+        # Use get() for variant lookup since it might not exist
+        get(variants_theme, variant, variants_theme.default)
     end
 
     # Combine classes

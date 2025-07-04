@@ -30,19 +30,8 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract dropdown_trigger theme safely
-    dropdown_trigger_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_trigger)
-        theme.dropdown_trigger
-    else
-        HypertextTemplates.Library.default_theme().dropdown_trigger
-    end
-
-    # Get base class with fallback
-    base_class = get(
-        dropdown_trigger_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().dropdown_trigger.base,
-    )
+    # Direct theme access
+    base_class = theme.dropdown_trigger.base
 
     component_attrs = (
         var"x-ref" = "trigger",

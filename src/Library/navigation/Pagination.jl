@@ -28,59 +28,16 @@ A page navigation component that provides intuitive controls for navigating thro
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract pagination theme safely
-    pagination_theme = if isa(theme, NamedTuple) && haskey(theme, :pagination)
-        theme.pagination
-    else
-        HypertextTemplates.Library.default_theme().pagination
-    end
-
-    # Get classes
-    wrapper_class = get(
-        pagination_theme,
-        :wrapper,
-        HypertextTemplates.Library.default_theme().pagination.wrapper,
-    )
-    list_class = get(
-        pagination_theme,
-        :list,
-        HypertextTemplates.Library.default_theme().pagination.list,
-    )
-    button_class = get(
-        pagination_theme,
-        :button,
-        HypertextTemplates.Library.default_theme().pagination.button,
-    )
-    button_disabled_class = get(
-        pagination_theme,
-        :button_disabled,
-        HypertextTemplates.Library.default_theme().pagination.button_disabled,
-    )
-    page_class = get(
-        pagination_theme,
-        :page,
-        HypertextTemplates.Library.default_theme().pagination.page,
-    )
-    page_current_class = get(
-        pagination_theme,
-        :page_current,
-        HypertextTemplates.Library.default_theme().pagination.page_current,
-    )
-    ellipsis_class = get(
-        pagination_theme,
-        :ellipsis,
-        HypertextTemplates.Library.default_theme().pagination.ellipsis,
-    )
-    prev_icon = get(
-        pagination_theme,
-        :prev_icon,
-        HypertextTemplates.Library.default_theme().pagination.prev_icon,
-    )
-    next_icon = get(
-        pagination_theme,
-        :next_icon,
-        HypertextTemplates.Library.default_theme().pagination.next_icon,
-    )
+    # Direct theme access
+    wrapper_class = theme.pagination.wrapper
+    list_class = theme.pagination.list
+    button_class = theme.pagination.button
+    button_disabled_class = theme.pagination.button_disabled
+    page_class = theme.pagination.page
+    page_current_class = theme.pagination.page_current
+    ellipsis_class = theme.pagination.ellipsis
+    prev_icon = theme.pagination.prev_icon
+    next_icon = theme.pagination.next_icon
 
     # Calculate which page numbers to show
     pages = Int[]

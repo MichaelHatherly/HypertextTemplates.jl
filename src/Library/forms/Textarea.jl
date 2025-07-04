@@ -35,41 +35,11 @@ A multi-line text input component designed for longer form content like comments
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract textarea theme safely
-    textarea_theme = if isa(theme, NamedTuple) && haskey(theme, :textarea)
-        theme.textarea
-    else
-        HypertextTemplates.Library.default_theme().textarea
-    end
-
-    # Get base classes
-    base_classes =
-        get(textarea_theme, :base, HypertextTemplates.Library.default_theme().textarea.base)
-
-    # Get resize class with fallback
-    resize_class =
-        if haskey(textarea_theme, :resize) && haskey(textarea_theme.resize, resize_sym)
-            textarea_theme.resize[resize_sym]
-        else
-            HypertextTemplates.Library.default_theme().textarea.resize[resize_sym]
-        end
-
-    # Get state class with fallback
-    state_class =
-        if haskey(textarea_theme, :states) && haskey(textarea_theme.states, state_sym)
-            textarea_theme.states[state_sym]
-        else
-            HypertextTemplates.Library.default_theme().textarea.states[state_sym]
-        end
-
-    # Get disabled class
-    disabled_class =
-        disabled ?
-        get(
-            textarea_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().textarea.disabled,
-        ) : ""
+    # Direct theme access
+    base_classes = theme.textarea.base
+    resize_class = theme.textarea.resize[resize_sym]
+    state_class = theme.textarea.states[state_sym]
+    disabled_class = disabled ? theme.textarea.disabled : ""
     aria_invalid = state_sym === :error ? "true" : nothing
 
     @textarea {

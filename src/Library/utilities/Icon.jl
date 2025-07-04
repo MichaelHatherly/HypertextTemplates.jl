@@ -66,37 +66,13 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract icon theme safely
-    icon_theme = if isa(theme, NamedTuple) && haskey(theme, :icon)
-        theme.icon
-    else
-        HypertextTemplates.Library.default_theme().icon
-    end
-
-    # Get base class and default color
-    base_class =
-        get(icon_theme, :base, HypertextTemplates.Library.default_theme().icon.base)
-    default_color = get(
-        icon_theme,
-        :default_color,
-        HypertextTemplates.Library.default_theme().icon.default_color,
-    )
-
-    # Get sizes theme
-    sizes_theme = if isa(icon_theme, NamedTuple) && haskey(icon_theme, :sizes)
-        icon_theme.sizes
-    else
-        HypertextTemplates.Library.default_theme().icon.sizes
-    end
-
     # Convert to symbol
     size_sym = Symbol(size)
 
-    size_class = get(
-        sizes_theme,
-        size_sym,
-        get(sizes_theme, :md, HypertextTemplates.Library.default_theme().icon.sizes.md),
-    )
+    # Direct theme access
+    base_class = theme.icon.base
+    default_color = theme.icon.default_color
+    size_class = theme.icon.sizes[size_sym]
     color_class = isnothing(color) ? default_color : color
 
     # Set aria-hidden for decorative icons, or aria-label for interactive ones

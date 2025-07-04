@@ -45,23 +45,10 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract timeline theme safely
-    timeline_theme = if isa(theme, NamedTuple) && haskey(theme, :timeline)
-        theme.timeline
-    else
-        HypertextTemplates.Library.default_theme().timeline
-    end
-
     variant_sym = Symbol(variant)
 
-    # Get variant class with fallback
-    variant_class = get(
-        timeline_theme,
-        variant_sym,
-        variant_sym == :horizontal ?
-        HypertextTemplates.Library.default_theme().timeline.horizontal :
-        HypertextTemplates.Library.default_theme().timeline.vertical,
-    )
+    # Direct theme access
+    variant_class = theme.timeline[variant_sym]
 
     # Build component default attributes
     component_attrs = (class = variant_class,)

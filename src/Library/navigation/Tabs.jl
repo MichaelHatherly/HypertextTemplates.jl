@@ -54,60 +54,14 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract tabs theme safely
-    tabs_theme = if isa(theme, NamedTuple) && haskey(theme, :tabs)
-        theme.tabs
-    else
-        HypertextTemplates.Library.default_theme().tabs
-    end
-
-    # Get all theme values with fallbacks
-    container_class = get(
-        tabs_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().tabs.container,
-    )
-    panels_container_class = get(
-        tabs_theme,
-        :panels_container,
-        HypertextTemplates.Library.default_theme().tabs.panels_container,
-    )
-
-    # Nav theme
-    nav_theme = if isa(tabs_theme, NamedTuple) && haskey(tabs_theme, :nav)
-        tabs_theme.nav
-    else
-        HypertextTemplates.Library.default_theme().tabs.nav
-    end
-    nav_base_class =
-        get(nav_theme, :base, HypertextTemplates.Library.default_theme().tabs.nav.base)
-    aria_label_default = get(
-        nav_theme,
-        :aria_label_default,
-        HypertextTemplates.Library.default_theme().tabs.nav.aria_label_default,
-    )
-
-    # Button theme
-    button_theme = if isa(tabs_theme, NamedTuple) && haskey(tabs_theme, :button)
-        tabs_theme.button
-    else
-        HypertextTemplates.Library.default_theme().tabs.button
-    end
-    button_base_class = get(
-        button_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().tabs.button.base,
-    )
-    button_active_class = get(
-        button_theme,
-        :active,
-        HypertextTemplates.Library.default_theme().tabs.button.active,
-    )
-    button_inactive_class = get(
-        button_theme,
-        :inactive,
-        HypertextTemplates.Library.default_theme().tabs.button.inactive,
-    )
+    # Direct theme access
+    container_class = theme.tabs.container
+    panels_container_class = theme.tabs.panels_container
+    nav_base_class = theme.tabs.nav.base
+    aria_label_default = theme.tabs.nav.aria_label_default
+    button_base_class = theme.tabs.button.base
+    button_active_class = theme.tabs.button.active
+    button_inactive_class = theme.tabs.button.inactive
 
     # Use first item as active if not specified
     active_id = isempty(active) && !isempty(items) ? items[1][1] : active

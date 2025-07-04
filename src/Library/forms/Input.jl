@@ -63,67 +63,27 @@ This component implements comprehensive form accessibility standards:
     aria_describedby::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract input theme safely
-    input_theme = if isa(theme, NamedTuple) && haskey(theme, :input)
-        theme.input
-    else
-        HypertextTemplates.Library.default_theme().input
-    end
-
-    # Get base classes
-    base_classes =
-        get(input_theme, :base, HypertextTemplates.Library.default_theme().input.base)
-
-    # Get size class with fallback
-    size_class = if haskey(input_theme, :sizes) && haskey(input_theme.sizes, size_sym)
-        input_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().input.sizes[size_sym]
-    end
-
-    # Get state class with fallback
-    state_class = if haskey(input_theme, :states) && haskey(input_theme.states, state_sym)
-        input_theme.states[state_sym]
-    else
-        HypertextTemplates.Library.default_theme().input.states[state_sym]
-    end
-
-    # Get disabled class
-    disabled_class =
-        disabled ?
-        get(
-            input_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().input.disabled,
-        ) : ""
+    # Direct theme access
+    base_classes = theme.input.base
+    size_class = theme.input.sizes[size_sym]
+    state_class = theme.input.states[state_sym]
+    disabled_class = disabled ? theme.input.disabled : ""
 
     final_classes = "$base_classes $size_class $state_class $disabled_class"
     aria_invalid = state_sym === :error ? "true" : nothing
 
     if !isnothing(icon)
         # Get icon styling from theme
-        icon_wrapper = get(
-            input_theme,
-            :icon_wrapper,
-            HypertextTemplates.Library.default_theme().input.icon_wrapper,
-        )
-        icon_container = get(
-            input_theme,
-            :icon_container,
-            HypertextTemplates.Library.default_theme().input.icon_container,
-        )
-        icon_padding = get(
-            input_theme,
-            :icon_input_padding,
-            HypertextTemplates.Library.default_theme().input.icon_input_padding,
-        )
+        icon_wrapper = theme.input.icon_wrapper
+        icon_container = theme.input.icon_container
+        icon_padding = theme.input.icon_input_padding
 
         @div {class = icon_wrapper} begin
             @div {class = icon_container} begin

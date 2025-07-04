@@ -67,15 +67,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract select_dropdown theme safely
-    sd_theme = if isa(theme, NamedTuple) && haskey(theme, :select_dropdown)
-        theme.select_dropdown
-    else
-        HypertextTemplates.Library.default_theme().select_dropdown
-    end
+    # Get theme from context
+    theme = @get_context(:theme)
 
     # Generate unique ID if not provided
     component_id = isnothing(id) ? "select-dropdown-$(_hash)" : id
@@ -124,55 +117,20 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
     alpine_config = SafeString("{" * join(config_parts, ", ") * "}")
 
-    # Get size class with fallback
-    size_class = if haskey(sd_theme, :sizes) && haskey(sd_theme.sizes, size_sym)
-        sd_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().select_dropdown.sizes[size_sym]
-    end
+    # Get size class
+    size_class = theme.select_dropdown.sizes[size_sym]
 
-    # Get state class with fallback
-    state_class = if haskey(sd_theme, :states) && haskey(sd_theme.states, state_sym)
-        sd_theme.states[state_sym]
-    else
-        HypertextTemplates.Library.default_theme().select_dropdown.states[state_sym]
-    end
+    # Get state class
+    state_class = theme.select_dropdown.states[state_sym]
 
     # Get disabled/enabled class
-    disabled_class =
-        disabled ?
-        get(
-            sd_theme,
-            :disabled,
-            HypertextTemplates.Library.default_theme().select_dropdown.disabled,
-        ) :
-        get(
-            sd_theme,
-            :enabled,
-            HypertextTemplates.Library.default_theme().select_dropdown.enabled,
-        )
+    disabled_class = disabled ? theme.select_dropdown.disabled : theme.select_dropdown.enabled
 
     # Get theme classes
-    container_class = get(
-        sd_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().select_dropdown.container,
-    )
-    button_class = get(
-        sd_theme,
-        :button,
-        HypertextTemplates.Library.default_theme().select_dropdown.button,
-    )
-    placeholder_color = get(
-        sd_theme,
-        :placeholder_color,
-        HypertextTemplates.Library.default_theme().select_dropdown.placeholder_color,
-    )
-    dropdown_arrow_class = get(
-        sd_theme,
-        :dropdown_arrow,
-        HypertextTemplates.Library.default_theme().select_dropdown.dropdown_arrow,
-    )
+    container_class = theme.select_dropdown.container
+    button_class = theme.select_dropdown.button
+    placeholder_color = theme.select_dropdown.placeholder_color
+    dropdown_arrow_class = theme.select_dropdown.dropdown_arrow
 
     # Build the component
     @div {
@@ -203,8 +161,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     var":class" = "{ '$placeholder_color': !hasSelection }",
                     class =
                         clearable ?
-                        get(sd_theme.selected_label_padding, :with_clear, "pr-12") :
-                        get(sd_theme.selected_label_padding, :without_clear, "pr-8"),
+                        theme.select_dropdown.selected_label_padding.with_clear :
+                        theme.select_dropdown.selected_label_padding.without_clear,
                 } begin
                     if !isnothing(placeholder)
                         @text placeholder
@@ -229,16 +187,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
             # Clear button (outside main button)
             if clearable
-                clear_button_class = get(
-                    sd_theme,
-                    :clear_button,
-                    HypertextTemplates.Library.default_theme().select_dropdown.clear_button,
-                )
-                clear_icon_class = get(
-                    sd_theme,
-                    :clear_icon,
-                    HypertextTemplates.Library.default_theme().select_dropdown.clear_icon,
-                )
+                clear_button_class = theme.select_dropdown.clear_button
+                clear_icon_class = theme.select_dropdown.clear_icon
 
                 @button {
                     type = "button",
@@ -270,11 +220,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         end
 
         # Dropdown panel
-        dropdown_panel_class = get(
-            sd_theme,
-            :dropdown_panel,
-            HypertextTemplates.Library.default_theme().select_dropdown.dropdown_panel,
-        )
+        dropdown_panel_class = theme.select_dropdown.dropdown_panel
 
         @div {
             var"x-show" = "open",
@@ -293,16 +239,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         } begin
             # Search input (if searchable)
             if searchable
-                search_wrapper_class = get(
-                    sd_theme,
-                    :search_wrapper,
-                    HypertextTemplates.Library.default_theme().select_dropdown.search_wrapper,
-                )
-                search_input_class = get(
-                    sd_theme,
-                    :search_input,
-                    HypertextTemplates.Library.default_theme().select_dropdown.search_input,
-                )
+                search_wrapper_class = theme.select_dropdown.search_wrapper
+                search_input_class = theme.select_dropdown.search_input
 
                 @div {class = search_wrapper_class} begin
                     @input {
@@ -317,11 +255,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
             end
 
             # Options list
-            options_list_class = get(
-                sd_theme,
-                :options_list,
-                HypertextTemplates.Library.default_theme().select_dropdown.options_list,
-            )
+            options_list_class = theme.select_dropdown.options_list
 
             @div {
                 class = options_list_class,
@@ -332,26 +266,10 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     var"x-for" = "(option, index) in filteredOptions",
                     var":key" = "option[0]",
                 } begin
-                    option_button_class = get(
-                        sd_theme,
-                        :option_button,
-                        HypertextTemplates.Library.default_theme().select_dropdown.option_button,
-                    )
-                    option_highlighted = get(
-                        sd_theme,
-                        :option_highlighted,
-                        HypertextTemplates.Library.default_theme().select_dropdown.option_highlighted,
-                    )
-                    option_selected = get(
-                        sd_theme,
-                        :option_selected,
-                        HypertextTemplates.Library.default_theme().select_dropdown.option_selected,
-                    )
-                    option_wrapper_class = get(
-                        sd_theme,
-                        :option_wrapper,
-                        HypertextTemplates.Library.default_theme().select_dropdown.option_wrapper,
-                    )
+                    option_button_class = theme.select_dropdown.option_button
+                    option_highlighted = theme.select_dropdown.option_highlighted
+                    option_selected = theme.select_dropdown.option_selected
+                    option_wrapper_class = theme.select_dropdown.option_wrapper
 
                     @button {
                         type = "button",
@@ -368,31 +286,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     } begin
                         @div {class = option_wrapper_class} begin
                             if multiple
-                                checkbox_wrapper_class = get(
-                                    sd_theme,
-                                    :checkbox_wrapper,
-                                    HypertextTemplates.Library.default_theme().select_dropdown.checkbox_wrapper,
-                                )
-                                checkbox_class = get(
-                                    sd_theme,
-                                    :checkbox,
-                                    HypertextTemplates.Library.default_theme().select_dropdown.checkbox,
-                                )
-                                checkbox_unchecked = get(
-                                    sd_theme,
-                                    :checkbox_unchecked,
-                                    HypertextTemplates.Library.default_theme().select_dropdown.checkbox_unchecked,
-                                )
-                                checkbox_checked = get(
-                                    sd_theme,
-                                    :checkbox_checked,
-                                    HypertextTemplates.Library.default_theme().select_dropdown.checkbox_checked,
-                                )
-                                checkbox_icon_class = get(
-                                    sd_theme,
-                                    :checkbox_icon,
-                                    HypertextTemplates.Library.default_theme().select_dropdown.checkbox_icon,
-                                )
+                                checkbox_wrapper_class = theme.select_dropdown.checkbox_wrapper
+                                checkbox_class = theme.select_dropdown.checkbox
+                                checkbox_unchecked = theme.select_dropdown.checkbox_unchecked
+                                checkbox_checked = theme.select_dropdown.checkbox_checked
+                                checkbox_icon_class = theme.select_dropdown.checkbox_icon
 
                                 @div {class = checkbox_wrapper_class} begin
                                     @div {
@@ -419,11 +317,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                                     end
                                 end
                             end
-                            option_text_class = get(
-                                sd_theme,
-                                :option_text,
-                                HypertextTemplates.Library.default_theme().select_dropdown.option_text,
-                            )
+                            option_text_class = theme.select_dropdown.option_text
 
                             @span {var"x-text" = "option[1]", class = option_text_class}
                         end
@@ -431,11 +325,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                 end
 
                 # No results message
-                no_results_class = get(
-                    sd_theme,
-                    :no_results,
-                    HypertextTemplates.Library.default_theme().select_dropdown.no_results,
-                )
+                no_results_class = theme.select_dropdown.no_results
 
                 @div {
                     var"x-show" = "search && filteredOptions.length === 0",

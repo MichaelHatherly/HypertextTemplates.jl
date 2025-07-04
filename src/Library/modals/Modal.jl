@@ -68,21 +68,13 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract modal theme safely
-    modal_theme = if isa(theme, NamedTuple) && haskey(theme, :modal)
-        theme.modal
-    else
-        HypertextTemplates.Library.default_theme().modal
-    end
-
     # Inject CSS variables if theme provides them
-    css_vars = get(modal_theme, :css_vars, nothing)
-    if css_vars !== nothing
+    if haskey(theme.modal, :css_vars)
         @__once__ #="modal-theme-vars"=# begin
             @style @text SafeString(
                 """
     :root {
-        $(join(["$k: $v;" for (k,v) in pairs(css_vars)], "\n                    "))
+        $(join(["$k: $v;" for (k,v) in pairs(theme.modal.css_vars)], "\n                    "))
     }
 """,
             )
@@ -109,24 +101,12 @@ end
     # Convert size to symbol
     size_sym = Symbol(size)
 
-    # Get size class with fallback
-    size_class = if haskey(modal_theme, :sizes) && haskey(modal_theme.sizes, size_sym)
-        modal_theme.sizes[size_sym]
-    else
-        HypertextTemplates.Library.default_theme().modal.sizes[size_sym]
-    end
-
-    # Get classes from theme
-    dialog_classes =
-        get(modal_theme, :dialog, HypertextTemplates.Library.default_theme().modal.dialog)
-    content_base =
-        get(modal_theme, :content, HypertextTemplates.Library.default_theme().modal.content)
+    # Direct theme access
+    size_class = theme.modal.sizes[size_sym]
+    dialog_classes = theme.modal.dialog
+    content_base = theme.modal.content
     content_classes = "$content_base $size_class"
-    close_button_classes = get(
-        modal_theme,
-        :close_button,
-        HypertextTemplates.Library.default_theme().modal.close_button,
-    )
+    close_button_classes = theme.modal.close_button
 
     @dialog {
         id = modal_id,

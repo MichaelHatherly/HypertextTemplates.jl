@@ -57,19 +57,8 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract dropdown_menu theme safely
-    dropdown_menu_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_menu)
-        theme.dropdown_menu
-    else
-        HypertextTemplates.Library.default_theme().dropdown_menu
-    end
-
-    # Get base class with fallback
-    base_class = get(
-        dropdown_menu_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().dropdown_menu.base,
-    )
+    # Direct theme access
+    base_class = theme.dropdown_menu.base
 
     # Combine base class with user-provided class
     final_class = "$base_class $class"

@@ -77,19 +77,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract tooltip_wrapper theme safely
-    tooltip_wrapper_theme = if isa(theme, NamedTuple) && haskey(theme, :tooltip_wrapper)
-        theme.tooltip_wrapper
-    else
-        HypertextTemplates.Library.default_theme().tooltip_wrapper
-    end
-
-    # Get base class with fallback
-    base_class = get(
-        tooltip_wrapper_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().tooltip_wrapper.base,
-    )
+    # Direct theme access
+    base_class = theme.tooltip_wrapper.base
 
     # Load JavaScript for tooltip functionality
     @__once__ begin

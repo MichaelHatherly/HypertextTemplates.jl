@@ -80,22 +80,15 @@ end
     overflow::Bool = true,
     attrs...,
 )
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract table theme safely
-    table_theme = if isa(theme, NamedTuple) && haskey(theme, :table)
-        theme.table
-    else
-        HypertextTemplates.Library.default_theme().table
-    end
+    # Get theme from context
+    theme = @get_context(:theme)
+    table_theme = theme.table
 
     # Get wrapper theme
-    wrapper_theme =
-        get(table_theme, :wrapper, HypertextTemplates.Library.default_theme().table.wrapper)
-    wrapper_base = get(wrapper_theme, :base, "w-full relative")
-    wrapper_sticky = get(wrapper_theme, :sticky, "overflow-auto max-h-[600px]")
-    wrapper_overflow = get(wrapper_theme, :overflow, "overflow-x-auto")
+    wrapper_theme = table_theme.wrapper
+    wrapper_base = wrapper_theme.base
+    wrapper_sticky = wrapper_theme.sticky
+    wrapper_overflow = wrapper_theme.overflow
 
     # Build wrapper classes
     wrapper_classes = [wrapper_base]
@@ -106,18 +99,10 @@ end
     end
 
     # Get container theme
-    container_theme = get(
-        table_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().table.container,
-    )
-    container_base = get(container_theme, :base, "w-full")
-    container_bordered = get(
-        container_theme,
-        :bordered,
-        "rounded-lg border border-gray-200 dark:border-gray-700",
-    )
-    container_overflow = get(container_theme, :overflow, "overflow-hidden")
+    container_theme = table_theme.container
+    container_base = container_theme.base
+    container_bordered = container_theme.bordered
+    container_overflow = container_theme.overflow
 
     # Build container classes
     container_classes = [container_base]
@@ -129,92 +114,56 @@ end
     end
 
     # Get table styles theme
-    table_styles =
-        get(table_theme, :table, HypertextTemplates.Library.default_theme().table.table)
+    table_styles = table_theme.table
 
     # Base table classes
-    table_base = get(table_styles, :base, "w-full text-sm border-separate border-spacing-0")
+    table_base = table_styles.base
     table_classes = [table_base]
 
     # Header styling
-    header_base = get(
-        table_styles,
-        :header_base,
-        HypertextTemplates.Library.default_theme().table.table.header_base,
-    )
+    header_base = table_styles.header_base
     push!(table_classes, header_base)
 
     # Header padding
-    header_padding = get(
-        table_styles,
-        :header_padding,
-        HypertextTemplates.Library.default_theme().table.table.header_padding,
-    )
-    header_padding_class =
-        compact ? get(header_padding, :compact, "") : get(header_padding, :normal, "")
+    header_padding = table_styles.header_padding
+    header_padding_class = compact ? header_padding.compact : header_padding.normal
     push!(table_classes, header_padding_class)
 
     # Cell styling
-    cell_base = get(
-        table_styles,
-        :cell_base,
-        HypertextTemplates.Library.default_theme().table.table.cell_base,
-    )
+    cell_base = table_styles.cell_base
     push!(table_classes, cell_base)
 
     # Cell padding
-    cell_padding = get(
-        table_styles,
-        :cell_padding,
-        HypertextTemplates.Library.default_theme().table.table.cell_padding,
-    )
-    cell_padding_class =
-        compact ? get(cell_padding, :compact, "") : get(cell_padding, :normal, "")
+    cell_padding = table_styles.cell_padding
+    cell_padding_class = compact ? cell_padding.compact : cell_padding.normal
     push!(table_classes, cell_padding_class)
 
     # Striped rows
     if striped
-        striped_class = get(
-            table_styles,
-            :striped,
-            HypertextTemplates.Library.default_theme().table.table.striped,
-        )
+        striped_class = table_styles.striped
         push!(table_classes, striped_class)
     end
 
     # Hover effect
     if hover
-        hover_class = get(
-            table_styles,
-            :hover,
-            HypertextTemplates.Library.default_theme().table.table.hover,
-        )
+        hover_class = table_styles.hover
         push!(table_classes, hover_class)
     end
 
     # Sticky header
     if sticky_header
-        sticky_class = get(
-            table_styles,
-            :sticky_header,
-            HypertextTemplates.Library.default_theme().table.table.sticky_header,
-        )
+        sticky_class = table_styles.sticky_header
         push!(table_classes, sticky_class)
     end
 
     # Sortable columns
     if sortable
-        sortable_class = get(
-            table_styles,
-            :sortable,
-            HypertextTemplates.Library.default_theme().table.table.sortable,
-        )
+        sortable_class = table_styles.sortable
         push!(table_classes, sortable_class)
     end
 
     # Caption styling
-    caption_class =
-        get(table_theme, :caption, HypertextTemplates.Library.default_theme().table.caption)
+    caption_class = table_theme.caption
 
     # Build component default attributes
     component_attrs = (class = SafeString(join(table_classes, " ")),)

@@ -42,69 +42,28 @@ end
     wrap::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     direction_sym = Symbol(direction)
     align_sym = Symbol(align)
     justify_sym = Symbol(justify)
 
-    # Get theme from context with fallback to default
-    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract stack theme safely
-    stack_theme = if isa(theme, NamedTuple) && haskey(theme, :stack)
-        theme.stack
-    else
-        HypertextTemplates.Library.default_theme().stack
-    end
-
-    # Get base class
-    base_class =
-        get(stack_theme, :base, HypertextTemplates.Library.default_theme().stack.base)
-
-    # Get direction class with fallback
-    direction_class =
-        if haskey(stack_theme, :direction) && haskey(stack_theme.direction, direction_sym)
-            stack_theme.direction[direction_sym]
-        else
-            HypertextTemplates.Library.default_theme().stack.direction[direction_sym]
-        end
-
+    # Direct theme access
+    base_class = theme.stack.base
+    direction_class = theme.stack.direction[direction_sym]
+    align_class = theme.stack.align[align_sym]
+    justify_class = theme.stack.justify[justify_sym]
+    wrap_class = wrap ? theme.stack.wrap : ""
+    
     # Handle gap as symbol or int
     gap_class = if gap isa Symbol
-        if haskey(stack_theme, :gap) && haskey(stack_theme.gap, gap)
-            stack_theme.gap[gap]
-        else
-            HypertextTemplates.Library.default_theme().stack.gap[gap]
-        end
+        theme.stack.gap[gap]
     else
         # Use gap prefix for numeric values
-        gap_prefix = get(
-            stack_theme,
-            :gap_prefix,
-            HypertextTemplates.Library.default_theme().stack.gap_prefix,
-        )
-        "$(gap_prefix)$(gap)"
+        "$(theme.stack.gap_prefix)$(gap)"
     end
-
-    # Get wrap class
-    wrap_class =
-        wrap ?
-        get(stack_theme, :wrap, HypertextTemplates.Library.default_theme().stack.wrap) : ""
-
-    # Get align class with fallback
-    align_class = if haskey(stack_theme, :align) && haskey(stack_theme.align, align_sym)
-        stack_theme.align[align_sym]
-    else
-        HypertextTemplates.Library.default_theme().stack.align[align_sym]
-    end
-
-    # Get justify class with fallback
-    justify_class =
-        if haskey(stack_theme, :justify) && haskey(stack_theme.justify, justify_sym)
-            stack_theme.justify[justify_sym]
-        else
-            HypertextTemplates.Library.default_theme().stack.justify[justify_sym]
-        end
 
     # Build component default attributes
     component_attrs = (

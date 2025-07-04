@@ -76,55 +76,20 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 )
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
-
-    # Extract tooltip theme safely
-    tooltip_theme = if isa(theme, NamedTuple) && haskey(theme, :tooltip)
-        theme.tooltip
-    else
-        HypertextTemplates.Library.default_theme().tooltip
-    end
+    tooltip_theme = theme.tooltip
 
     # Get container and trigger wrapper classes
-    container_class = get(
-        tooltip_theme,
-        :container,
-        HypertextTemplates.Library.default_theme().tooltip.container,
-    )
-    trigger_wrapper_class = get(
-        tooltip_theme,
-        :trigger_wrapper,
-        HypertextTemplates.Library.default_theme().tooltip.trigger_wrapper,
-    )
+    container_class = tooltip_theme.container
+    trigger_wrapper_class = tooltip_theme.trigger_wrapper
 
     # Get content theme
-    content_theme = if isa(tooltip_theme, NamedTuple) && haskey(tooltip_theme, :content)
-        tooltip_theme.content
-    else
-        HypertextTemplates.Library.default_theme().tooltip.content
-    end
-    content_base_class = get(
-        content_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().tooltip.content.base,
-    )
-    content_padding_class = get(
-        content_theme,
-        :padding,
-        HypertextTemplates.Library.default_theme().tooltip.content.padding,
-    )
+    content_theme = tooltip_theme.content
+    content_base_class = content_theme.base
+    content_padding_class = content_theme.padding
 
     # Get variants and sizes
-    variants_theme = if isa(tooltip_theme, NamedTuple) && haskey(tooltip_theme, :variants)
-        tooltip_theme.variants
-    else
-        HypertextTemplates.Library.default_theme().tooltip.variants
-    end
-
-    sizes_theme = if isa(tooltip_theme, NamedTuple) && haskey(tooltip_theme, :sizes)
-        tooltip_theme.sizes
-    else
-        HypertextTemplates.Library.default_theme().tooltip.sizes
-    end
+    variants_theme = tooltip_theme.variants
+    sizes_theme = tooltip_theme.sizes
 
     # Load JavaScript for tooltip functionality
     @__once__ begin
@@ -146,20 +111,8 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     }""")
 
     # Get variant and size classes
-    variant_class = get(
-        variants_theme,
-        variant_sym,
-        get(
-            variants_theme,
-            :dark,
-            HypertextTemplates.Library.default_theme().tooltip.variants.dark,
-        ),
-    )
-    size_class = get(
-        sizes_theme,
-        size_sym,
-        get(sizes_theme, :sm, HypertextTemplates.Library.default_theme().tooltip.sizes.sm),
-    )
+    variant_class = get(variants_theme, variant_sym, variants_theme.dark)
+    size_class = get(sizes_theme, size_sym, sizes_theme.sm)
 
     @div {var"x-data" = SafeString("tooltip($config)"), class = container_class, attrs...} begin
         # Trigger wrapper

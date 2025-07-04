@@ -37,19 +37,8 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract tab_panel theme safely
-    tab_panel_theme = if isa(theme, NamedTuple) && haskey(theme, :tab_panel)
-        theme.tab_panel
-    else
-        HypertextTemplates.Library.default_theme().tab_panel
-    end
-
-    # Get base class with fallback
-    base_class = get(
-        tab_panel_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().tab_panel.base,
-    )
+    # Direct theme access
+    base_class = theme.tab_panel.base
 
     # Combine base class with user-provided class
     final_class =

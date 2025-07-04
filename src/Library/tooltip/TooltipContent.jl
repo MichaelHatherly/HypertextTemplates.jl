@@ -49,64 +49,19 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract tooltip_content theme safely
-    tooltip_content_theme = if isa(theme, NamedTuple) && haskey(theme, :tooltip_content)
-        theme.tooltip_content
-    else
-        HypertextTemplates.Library.default_theme().tooltip_content
-    end
-
-    # Get base classes
-    base_class = get(
-        tooltip_content_theme,
-        :base,
-        HypertextTemplates.Library.default_theme().tooltip_content.base,
-    )
-    padding_class = get(
-        tooltip_content_theme,
-        :padding,
-        HypertextTemplates.Library.default_theme().tooltip_content.padding,
-    )
-
-    # Get variants
-    variants_theme =
-        if isa(tooltip_content_theme, NamedTuple) &&
-           haskey(tooltip_content_theme, :variants)
-            tooltip_content_theme.variants
-        else
-            HypertextTemplates.Library.default_theme().tooltip_content.variants
-        end
-
-    arrow_variants_theme =
-        if isa(tooltip_content_theme, NamedTuple) &&
-           haskey(tooltip_content_theme, :arrow_variants)
-            tooltip_content_theme.arrow_variants
-        else
-            HypertextTemplates.Library.default_theme().tooltip_content.arrow_variants
-        end
+    # Direct theme access
+    tooltip_content_theme = theme.tooltip_content
+    base_class = tooltip_content_theme.base
+    padding_class = tooltip_content_theme.padding
+    variants_theme = tooltip_content_theme.variants
+    arrow_variants_theme = tooltip_content_theme.arrow_variants
 
     # Convert to symbol
     variant_sym = Symbol(variant)
 
     # Get variant classes
-    variant_class = get(
-        variants_theme,
-        variant_sym,
-        get(
-            variants_theme,
-            :dark,
-            HypertextTemplates.Library.default_theme().tooltip_content.variants.dark,
-        ),
-    )
-    arrow_class = get(
-        arrow_variants_theme,
-        variant_sym,
-        get(
-            arrow_variants_theme,
-            :dark,
-            HypertextTemplates.Library.default_theme().tooltip_content.arrow_variants.dark,
-        ),
-    )
+    variant_class = get(variants_theme, variant_sym, variants_theme.dark)
+    arrow_class = get(arrow_variants_theme, variant_sym, arrow_variants_theme.dark)
 
     @div {
         var"x-ref" = "content",

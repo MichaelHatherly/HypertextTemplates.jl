@@ -73,21 +73,13 @@ end
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract drawer_modal theme safely
-    drawer_theme = if isa(theme, NamedTuple) && haskey(theme, :drawer_modal)
-        theme.drawer_modal
-    else
-        HypertextTemplates.Library.default_theme().drawer_modal
-    end
-
     # Inject CSS variables if theme provides them
-    css_vars = get(drawer_theme, :css_vars, nothing)
-    if css_vars !== nothing
+    if haskey(theme.drawer_modal, :css_vars)
         @__once__ #="drawer-theme-vars"=# begin
             @style @text SafeString(
                 """
     :root {
-        $(join(["$k: $v;" for (k,v) in pairs(css_vars)], "\n                    "))
+        $(join(["$k: $v;" for (k,v) in pairs(theme.drawer_modal.css_vars)], "\n                    "))
     }
 """,
             )
@@ -138,39 +130,12 @@ end
 
     pos_config = get(position_classes, position_sym, position_classes[:right])
 
-    # Get size class from theme with fallback
-    size_class = if haskey(drawer_theme, :sizes) && haskey(drawer_theme.sizes, size_sym)
-        drawer_theme.sizes[size_sym]
-    else
-        # Fallback to position-specific sizes
-        get(pos_config[:sizes], size_sym, pos_config[:sizes][:md])
-    end
-
-    # Get theme classes
-    dialog_classes = get(
-        drawer_theme,
-        :dialog,
-        HypertextTemplates.Library.default_theme().drawer_modal.dialog,
-    )
-    content_classes = get(
-        drawer_theme,
-        :content,
-        HypertextTemplates.Library.default_theme().drawer_modal.content,
-    )
-
-    # Get close button position based on drawer position
-    close_position =
-        if haskey(drawer_theme, :positions) && haskey(drawer_theme.positions, position_sym)
-            drawer_theme.positions[position_sym].close_position
-        else
-            HypertextTemplates.Library.default_theme().drawer_modal.positions[position_sym].close_position
-        end
-
-    close_button_base = get(
-        drawer_theme,
-        :close_button,
-        HypertextTemplates.Library.default_theme().drawer_modal.close_button,
-    )
+    # Direct theme access
+    size_class = get(theme.drawer_modal.sizes, size_sym, get(pos_config[:sizes], size_sym, pos_config[:sizes][:md]))
+    dialog_classes = theme.drawer_modal.dialog
+    content_classes = theme.drawer_modal.content
+    close_position = theme.drawer_modal.positions[position_sym].close_position
+    close_button_base = theme.drawer_modal.close_button
     close_button_classes = replace(close_button_base, "right-4" => close_position)
 
     # Add position-specific class for CSS targeting

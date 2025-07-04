@@ -48,48 +48,14 @@ A semantic heading component that establishes clear visual hierarchy and structu
     # Get theme from context with fallback to default
     theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Extract heading theme safely
-    heading_theme = if isa(theme, NamedTuple) && haskey(theme, :heading)
-        theme.heading
-    else
-        HypertextTemplates.Library.default_theme().heading
-    end
-
-    # Get theme values
-    default_sizes = get(
-        heading_theme,
-        :default_sizes,
-        HypertextTemplates.Library.default_theme().heading.default_sizes,
-    )
-    default_color = get(
-        heading_theme,
-        :default_color,
-        HypertextTemplates.Library.default_theme().heading.default_color,
-    )
-    gradient_color = get(
-        heading_theme,
-        :gradient_color,
-        HypertextTemplates.Library.default_theme().heading.gradient_color,
-    )
-
-    # Get nested themes
-    sizes_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :sizes)
-        heading_theme.sizes
-    else
-        HypertextTemplates.Library.default_theme().heading.sizes
-    end
-
-    weights_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :weights)
-        heading_theme.weights
-    else
-        HypertextTemplates.Library.default_theme().heading.weights
-    end
-
-    tracking_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :tracking)
-        heading_theme.tracking
-    else
-        HypertextTemplates.Library.default_theme().heading.tracking
-    end
+    # Direct theme access
+    heading_theme = theme.heading
+    default_sizes = heading_theme.default_sizes
+    default_color = heading_theme.default_color
+    gradient_color = heading_theme.gradient_color
+    sizes_theme = heading_theme.sizes
+    weights_theme = heading_theme.weights
+    tracking_theme = heading_theme.tracking
 
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
