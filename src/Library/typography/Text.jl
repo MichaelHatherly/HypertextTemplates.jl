@@ -47,28 +47,47 @@ A paragraph text component that provides consistent typography styling for body 
     align::Union{Symbol,String} = :left,
     attrs...,
 )
-    variant_classes = (
-        body = "text-base leading-relaxed",
-        lead = "text-lg sm:text-xl leading-relaxed",
-        small = "text-sm leading-normal",
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract text theme safely
+    text_theme = if isa(theme, NamedTuple) && haskey(theme, :text)
+        theme.text
+    else
+        HypertextTemplates.Library.default_theme().text
+    end
+
+    # Get default color
+    default_color = get(
+        text_theme,
+        :default_color,
+        HypertextTemplates.Library.default_theme().text.default_color,
     )
 
-    size_classes =
-        (xs = "text-xs", sm = "text-sm", base = "text-base", lg = "text-lg", xl = "text-xl")
+    # Get nested themes
+    variants_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :variants)
+        text_theme.variants
+    else
+        HypertextTemplates.Library.default_theme().text.variants
+    end
 
-    weight_classes = (
-        normal = "font-normal",
-        medium = "font-medium",
-        semibold = "font-semibold",
-        bold = "font-bold",
-    )
+    sizes_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :sizes)
+        text_theme.sizes
+    else
+        HypertextTemplates.Library.default_theme().text.sizes
+    end
 
-    align_classes = (
-        left = "text-left",
-        center = "text-center",
-        right = "text-right",
-        justify = "text-justify",
-    )
+    weights_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :weights)
+        text_theme.weights
+    else
+        HypertextTemplates.Library.default_theme().text.weights
+    end
+
+    align_theme = if isa(text_theme, NamedTuple) && haskey(text_theme, :align)
+        text_theme.align
+    else
+        HypertextTemplates.Library.default_theme().text.align
+    end
 
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
@@ -76,11 +95,31 @@ A paragraph text component that provides consistent typography styling for body 
     weight_sym = Symbol(weight)
     align_sym = Symbol(align)
 
-    base_class = get(variant_classes, variant_sym, "text-base")
-    size_class = isnothing(size_sym) ? "" : get(size_classes, size_sym, "")
-    weight_class = get(weight_classes, weight_sym, "font-normal")
-    color_class = isnothing(color) ? "text-slate-600 dark:text-slate-400" : color
-    align_class = get(align_classes, align_sym, "text-left")
+    base_class = get(
+        variants_theme,
+        variant_sym,
+        get(
+            variants_theme,
+            :body,
+            HypertextTemplates.Library.default_theme().text.variants.body,
+        ),
+    )
+    size_class = isnothing(size_sym) ? "" : get(sizes_theme, size_sym, "")
+    weight_class = get(
+        weights_theme,
+        weight_sym,
+        get(
+            weights_theme,
+            :normal,
+            HypertextTemplates.Library.default_theme().text.weights.normal,
+        ),
+    )
+    color_class = isnothing(color) ? default_color : color
+    align_class = get(
+        align_theme,
+        align_sym,
+        get(align_theme, :left, HypertextTemplates.Library.default_theme().text.align.left),
+    )
 
     @p {class = "$base_class $size_class $weight_class $color_class $align_class", attrs...} begin
         @__slot__()

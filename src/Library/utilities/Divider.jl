@@ -14,18 +14,80 @@ A horizontal or vertical separator component that creates visual boundaries betw
     color::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract divider theme safely
+    divider_theme = if isa(theme, NamedTuple) && haskey(theme, :divider)
+        theme.divider
+    else
+        HypertextTemplates.Library.default_theme().divider
+    end
+
+    # Get default color
+    default_color = get(
+        divider_theme,
+        :default_color,
+        HypertextTemplates.Library.default_theme().divider.default_color,
+    )
+
+    # Get orientation themes
+    horizontal_theme =
+        if isa(divider_theme, NamedTuple) && haskey(divider_theme, :horizontal)
+            divider_theme.horizontal
+        else
+            HypertextTemplates.Library.default_theme().divider.horizontal
+        end
+
+    vertical_theme = if isa(divider_theme, NamedTuple) && haskey(divider_theme, :vertical)
+        divider_theme.vertical
+    else
+        HypertextTemplates.Library.default_theme().divider.vertical
+    end
+
     # Convert to symbol
     orientation_sym = Symbol(orientation)
 
-    default_spacing = orientation_sym === :horizontal ? "my-4" : "mx-4"
-    spacing_class = isnothing(spacing) ? default_spacing : spacing
-    color_class = isnothing(color) ? "border-slate-200 dark:border-slate-800" : color
-
     if orientation_sym === :horizontal
-        @hr {class = "border-t $color_class $spacing_class", role = "separator", attrs...}
+        base_class = get(
+            horizontal_theme,
+            :base,
+            HypertextTemplates.Library.default_theme().divider.horizontal.base,
+        )
+        default_spacing = get(
+            horizontal_theme,
+            :default_spacing,
+            HypertextTemplates.Library.default_theme().divider.horizontal.default_spacing,
+        )
+        spacing_class = isnothing(spacing) ? default_spacing : spacing
+        color_class = isnothing(color) ? default_color : color
+
+        @hr {
+            class = "$base_class $color_class $spacing_class",
+            role = "separator",
+            attrs...,
+        }
     else
+        base_class = get(
+            vertical_theme,
+            :base,
+            HypertextTemplates.Library.default_theme().divider.vertical.base,
+        )
+        default_spacing = get(
+            vertical_theme,
+            :default_spacing,
+            HypertextTemplates.Library.default_theme().divider.vertical.default_spacing,
+        )
+        default_bg = get(
+            vertical_theme,
+            :default_bg,
+            HypertextTemplates.Library.default_theme().divider.vertical.default_bg,
+        )
+        spacing_class = isnothing(spacing) ? default_spacing : spacing
+        color_class = isnothing(color) ? default_bg : color
+
         @div {
-            class = "inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 $spacing_class",
+            class = "$base_class $color_class $spacing_class",
             role = "separator",
             "aria-orientation" = "vertical",
             attrs...,

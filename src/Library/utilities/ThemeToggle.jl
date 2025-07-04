@@ -75,6 +75,53 @@ This component implements comprehensive accessibility for theme switching:
     class::String = "",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract theme_toggle theme safely
+    theme_toggle_theme = if isa(theme, NamedTuple) && haskey(theme, :theme_toggle)
+        theme.theme_toggle
+    else
+        HypertextTemplates.Library.default_theme().theme_toggle
+    end
+
+    # Get base classes and defaults
+    base_classes = get(
+        theme_toggle_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().theme_toggle.base,
+    )
+    screen_reader_text_class = get(
+        theme_toggle_theme,
+        :screen_reader_text,
+        HypertextTemplates.Library.default_theme().theme_toggle.screen_reader_text,
+    )
+    default_text = get(
+        theme_toggle_theme,
+        :default_text,
+        HypertextTemplates.Library.default_theme().theme_toggle.default_text,
+    )
+    default_icon = get(
+        theme_toggle_theme,
+        :default_icon,
+        HypertextTemplates.Library.default_theme().theme_toggle.default_icon,
+    )
+
+    # Get nested themes
+    variants_theme =
+        if isa(theme_toggle_theme, NamedTuple) && haskey(theme_toggle_theme, :variants)
+            theme_toggle_theme.variants
+        else
+            HypertextTemplates.Library.default_theme().theme_toggle.variants
+        end
+
+    sizes_theme =
+        if isa(theme_toggle_theme, NamedTuple) && haskey(theme_toggle_theme, :sizes)
+            theme_toggle_theme.sizes
+        else
+            HypertextTemplates.Library.default_theme().theme_toggle.sizes
+        end
+
     # Load JavaScript for theme functionality
     @__once__ begin
         @script @text SafeString(
@@ -86,25 +133,24 @@ This component implements comprehensive accessibility for theme switching:
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
 
-    # Base classes
-    base_classes = "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
-
-    # Variant classes
-    variant_classes = (
-        default = "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300",
-        ghost = "hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
-        outline = "border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300",
+    variant_class = get(
+        variants_theme,
+        variant_sym,
+        get(
+            variants_theme,
+            :default,
+            HypertextTemplates.Library.default_theme().theme_toggle.variants.default,
+        ),
     )
-
-    # Size classes
-    size_classes = (
-        sm = "px-2.5 py-1.5 text-sm rounded",
-        md = "px-3 py-2 text-sm rounded-lg",
-        lg = "px-4 py-2.5 text-base rounded-lg",
+    size_class = get(
+        sizes_theme,
+        size_sym,
+        get(
+            sizes_theme,
+            :md,
+            HypertextTemplates.Library.default_theme().theme_toggle.sizes.md,
+        ),
     )
-
-    variant_class = get(variant_classes, variant_sym, variant_classes.default)
-    size_class = get(size_classes, size_sym, size_classes.md)
 
     # Build component attributes with Alpine.js
     component_attrs = (
@@ -121,11 +167,11 @@ This component implements comprehensive accessibility for theme switching:
 
     @button {merged_attrs...} begin
         if show_label
-            @span {var"x-text" = "`\${currentIcon} \${currentLabel}`"} "💻 System"
+            @span {var"x-text" = "`\${currentIcon} \${currentLabel}`"} default_text
         else
             # Icon only - still needs text for screen readers
-            @span {"aria-hidden" = "true", var"x-text" = "currentIcon"} "💻"
-            @span {class = "sr-only"} "Toggle theme"
+            @span {"aria-hidden" = "true", var"x-text" = "currentIcon"} default_icon
+            @span {class = screen_reader_text_class} "Toggle theme"
         end
     end
 end

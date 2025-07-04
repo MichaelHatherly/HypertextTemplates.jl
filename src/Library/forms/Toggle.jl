@@ -89,6 +89,15 @@ This component implements comprehensive accessibility for toggle controls:
     slots::NamedTuple = (;),
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract toggle theme safely
+    toggle_theme = if isa(theme, NamedTuple) && haskey(theme, :toggle)
+        theme.toggle
+    else
+        HypertextTemplates.Library.default_theme().toggle
+    end
     # Convert to symbols
     variant_sym = Symbol(variant)
     size_sym = Symbol(size)
@@ -98,28 +107,61 @@ This component implements comprehensive accessibility for toggle controls:
     component_id = isnothing(id) ? "toggle-$(_hash)" : id
 
     if variant_sym === :switch
-        # Size classes for switch appearance
-        size_classes = (
-            xs = "h-4 w-8",
-            sm = "h-5 w-10",
-            base = "h-6 w-12",
-            lg = "h-7 w-14",
-            xl = "h-8 w-16",
+        # Get switch theme
+        switch_theme = if isa(toggle_theme, NamedTuple) && haskey(toggle_theme, :switch)
+            toggle_theme.switch
+        else
+            HypertextTemplates.Library.default_theme().toggle.switch
+        end
+
+        # Get size classes
+        size_classes = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :sizes)
+            switch_theme.sizes
+        else
+            HypertextTemplates.Library.default_theme().toggle.switch.sizes
+        end
+
+        # Get color classes
+        color_classes = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :colors)
+            switch_theme.colors
+        else
+            HypertextTemplates.Library.default_theme().toggle.switch.colors
+        end
+
+        size_class = get(
+            size_classes,
+            size_sym,
+            get(
+                size_classes,
+                :base,
+                HypertextTemplates.Library.default_theme().toggle.switch.sizes.base,
+            ),
+        )
+        color_class = get(
+            color_classes,
+            color_sym,
+            get(
+                color_classes,
+                :primary,
+                HypertextTemplates.Library.default_theme().toggle.switch.colors.primary,
+            ),
         )
 
-        color_classes = (
-            primary = "checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
-     dark:checked:from-blue-500 dark:checked:to-blue-700",
-            success = "checked:bg-gradient-to-b checked:from-emerald-400 checked:to-emerald-600
-     dark:checked:from-emerald-500 dark:checked:to-emerald-700",
-            danger = "checked:bg-gradient-to-b checked:from-rose-400 checked:to-rose-600
-     dark:checked:from-rose-500 dark:checked:to-rose-700",
-        )
-
-        size_class = get(size_classes, size_sym, size_classes.base)
-        color_class = get(color_classes, color_sym, color_classes.primary)
-        disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
-        cursor_class = disabled ? "" : "cursor-pointer"
+        # Get state classes
+        disabled_class =
+            disabled ?
+            get(
+                switch_theme,
+                :disabled,
+                HypertextTemplates.Library.default_theme().toggle.switch.disabled,
+            ) : ""
+        cursor_class =
+            disabled ? "" :
+            get(
+                switch_theme,
+                :cursor,
+                HypertextTemplates.Library.default_theme().toggle.switch.cursor,
+            )
 
         # Check for icon slots
         has_icon_on = haskey(slots, :icon_on)
@@ -128,76 +170,22 @@ This component implements comprehensive accessibility for toggle controls:
 
         wrapper_el = isnothing(label) ? :div : Elements.label
 
-        # Switch-specific styles based on size with skeuomorphic effects
-        switch_styles = (
-            xs = """
-            appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
-            before:h-3 before:w-3 before:absolute before:left-0.5 before:top-0.5
-            checked:before:translate-x-4 checked:shadow-inner
-            """,
-            sm = """
-            appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
-            before:h-4 before:w-4 before:absolute before:left-0.5 before:top-0.5
-            checked:before:translate-x-5 checked:shadow-inner
-            """,
-            base = """
-            appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
-            before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
-            checked:before:translate-x-6 checked:shadow-inner
-            """,
-            lg = """
-            appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
-            before:h-6 before:w-6 before:absolute before:left-0.5 before:top-0.5
-            checked:before:translate-x-7 checked:shadow-inner
-            """,
-            xl = """
-            appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
-            before:h-7 before:w-7 before:absolute before:left-0.5 before:top-0.5
-            checked:before:translate-x-8 checked:shadow-inner
-            """,
-        )
+        # Get switch styles from theme
+        switch_styles = if isa(switch_theme, NamedTuple) && haskey(switch_theme, :styles)
+            switch_theme.styles
+        else
+            HypertextTemplates.Library.default_theme().toggle.switch.styles
+        end
 
-        switch_style = get(switch_styles, size_sym, switch_styles.base)
+        switch_style = get(
+            switch_styles,
+            size_sym,
+            get(
+                switch_styles,
+                :base,
+                HypertextTemplates.Library.default_theme().toggle.switch.styles.base,
+            ),
+        )
 
         if isnothing(label)
             @div {class = "inline-flex items-center gap-3 $disabled_class"} begin
@@ -217,13 +205,33 @@ This component implements comprehensive accessibility for toggle controls:
                     }
 
                     if has_icons
+                        # Get icon classes from theme
+                        icon_container_class = get(
+                            switch_theme,
+                            :icon_container,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_container,
+                        )
+                        icon_off_class = get(
+                            switch_theme,
+                            :icon_off,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_off,
+                        )
+                        icon_on_class = get(
+                            switch_theme,
+                            :icon_on,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_on,
+                        )
+                        icon_size_class = get(
+                            switch_theme,
+                            :icon_size,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_size,
+                        )
+
                         # Icon overlay container
-                        @div {
-                            class = "absolute inset-0 flex items-center justify-between px-1 pointer-events-none",
-                        } begin
+                        @div {class = icon_container_class} begin
                             # Off icon (left side)
                             @div {
-                                class = "text-gray-500 dark:text-gray-400 transition-opacity duration-200",
+                                class = icon_off_class,
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.previousElementSibling.checked', value => checked = value)",
@@ -235,7 +243,7 @@ This component implements comprehensive accessibility for toggle controls:
                                 else
                                     # Default X icon
                                     @text SafeString(
-                                        """<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        """<svg class="$icon_size_class" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                        </svg>""",
                                     )
@@ -244,7 +252,7 @@ This component implements comprehensive accessibility for toggle controls:
 
                             # On icon (right side)
                             @div {
-                                class = "text-white transition-opacity duration-200",
+                                class = icon_on_class,
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.parentElement.previousElementSibling.checked', value => checked = value)",
@@ -256,7 +264,7 @@ This component implements comprehensive accessibility for toggle controls:
                                 else
                                     # Default check icon
                                     @text SafeString(
-                                        """<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        """<svg class="$icon_size_class" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                        </svg>""",
                                     )
@@ -267,7 +275,12 @@ This component implements comprehensive accessibility for toggle controls:
                 end
 
                 if !isnothing(label)
-                    @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+                    label_class = get(
+                        switch_theme,
+                        :label,
+                        HypertextTemplates.Library.default_theme().toggle.switch.label,
+                    )
+                    @span {class = label_class} $label
                 end
             end
         else
@@ -291,13 +304,33 @@ This component implements comprehensive accessibility for toggle controls:
                     }
 
                     if has_icons
+                        # Get icon classes from theme
+                        icon_container_class = get(
+                            switch_theme,
+                            :icon_container,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_container,
+                        )
+                        icon_off_class = get(
+                            switch_theme,
+                            :icon_off,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_off,
+                        )
+                        icon_on_class = get(
+                            switch_theme,
+                            :icon_on,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_on,
+                        )
+                        icon_size_class = get(
+                            switch_theme,
+                            :icon_size,
+                            HypertextTemplates.Library.default_theme().toggle.switch.icon_size,
+                        )
+
                         # Icon overlay container
-                        @div {
-                            class = "absolute inset-0 flex items-center justify-between px-1 pointer-events-none",
-                        } begin
+                        @div {class = icon_container_class} begin
                             # Off icon (left side)
                             @div {
-                                class = "text-gray-500 dark:text-gray-400 transition-opacity duration-200",
+                                class = icon_off_class,
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.previousElementSibling.checked', value => checked = value)",
@@ -309,7 +342,7 @@ This component implements comprehensive accessibility for toggle controls:
                                 else
                                     # Default X icon
                                     @text SafeString(
-                                        """<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        """<svg class="$icon_size_class" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                        </svg>""",
                                     )
@@ -318,7 +351,7 @@ This component implements comprehensive accessibility for toggle controls:
 
                             # On icon (right side)
                             @div {
-                                class = "text-white transition-opacity duration-200",
+                                class = icon_on_class,
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.parentElement.previousElementSibling.checked', value => checked = value)",
@@ -330,7 +363,7 @@ This component implements comprehensive accessibility for toggle controls:
                                 else
                                     # Default check icon
                                     @text SafeString(
-                                        """<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        """<svg class="$icon_size_class" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                        </svg>""",
                                     )
@@ -340,32 +373,81 @@ This component implements comprehensive accessibility for toggle controls:
                     end
                 end
 
-                @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+                label_class = get(
+                    switch_theme,
+                    :label,
+                    HypertextTemplates.Library.default_theme().toggle.switch.label,
+                )
+                @span {class = label_class} $label
             end
         end
     else  # button variant
-        # Size classes for button (matching Button component)
-        size_map = (
-            xs = (padding = "px-2.5 py-1.5", text = "text-xs", gap = "gap-1"),
-            sm = (padding = "px-3 py-2", text = "text-sm", gap = "gap-1.5"),
-            base = (padding = "px-4 py-2.5", text = "text-base", gap = "gap-2"),
-            lg = (padding = "px-5 py-3", text = "text-lg", gap = "gap-2.5"),
-            xl = (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
+        # Get button theme
+        button_theme = if isa(toggle_theme, NamedTuple) && haskey(toggle_theme, :button)
+            toggle_theme.button
+        else
+            HypertextTemplates.Library.default_theme().toggle.button
+        end
+
+        # Get wrapper and input classes
+        wrapper_class = get(
+            button_theme,
+            :wrapper,
+            HypertextTemplates.Library.default_theme().toggle.button.wrapper,
+        )
+        input_class = get(
+            button_theme,
+            :input,
+            HypertextTemplates.Library.default_theme().toggle.button.input,
+        )
+        base_class = get(
+            button_theme,
+            :base,
+            HypertextTemplates.Library.default_theme().toggle.button.base,
         )
 
-        # Color classes for button toggle
-        color_map = (
-            primary = "peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700",
-            success = "peer-checked:from-emerald-500 peer-checked:to-emerald-600 dark:peer-checked:from-emerald-600 dark:peer-checked:to-emerald-700 peer-checked:text-white peer-checked:border-emerald-600 dark:peer-checked:border-emerald-700",
-            danger = "peer-checked:from-rose-500 peer-checked:to-rose-600 dark:peer-checked:from-rose-600 dark:peer-checked:to-rose-700 peer-checked:text-white peer-checked:border-rose-600 dark:peer-checked:border-rose-700",
-        )
+        # Get size classes
+        size_map = if isa(button_theme, NamedTuple) && haskey(button_theme, :sizes)
+            button_theme.sizes
+        else
+            HypertextTemplates.Library.default_theme().toggle.button.sizes
+        end
 
-        size_data = get(size_map, size_sym, size_map.base)
-        color_class = get(color_map, color_sym, color_map.primary)
-        disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
+        # Get color classes
+        color_map = if isa(button_theme, NamedTuple) && haskey(button_theme, :colors)
+            button_theme.colors
+        else
+            HypertextTemplates.Library.default_theme().toggle.button.colors
+        end
+
+        size_data = get(
+            size_map,
+            size_sym,
+            get(
+                size_map,
+                :base,
+                HypertextTemplates.Library.default_theme().toggle.button.sizes.base,
+            ),
+        )
+        color_class = get(
+            color_map,
+            color_sym,
+            get(
+                color_map,
+                :primary,
+                HypertextTemplates.Library.default_theme().toggle.button.colors.primary,
+            ),
+        )
+        disabled_class =
+            disabled ?
+            get(
+                button_theme,
+                :disabled,
+                HypertextTemplates.Library.default_theme().toggle.button.disabled,
+            ) : ""
 
         # Use label as button wrapper for proper click handling
-        Elements.@label {class = "inline-block relative", "for" := component_id} begin
+        Elements.@label {class = wrapper_class, "for" := component_id} begin
             @input {
                 type = "checkbox",
                 id = component_id,
@@ -375,24 +457,14 @@ This component implements comprehensive accessibility for toggle controls:
                 disabled = disabled,
                 required = required,
                 "aria-describedby" = aria_describedby,
-                class = "sr-only peer",
+                class = input_class,
                 attrs...,
             }
 
             # Visual button that responds to checkbox state
             @div {
                 "aria-hidden" = "true",
-                class = """
-                inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
-                bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
-                border-gray-300 dark:border-gray-700
-                hover:bg-gray-50 dark:hover:bg-gray-900
-                peer-checked:bg-gradient-to-r
-                $color_class
-                peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
-                transition-all duration-200
-                $(size_data.padding) $(size_data.text) $(size_data.gap) $disabled_class
-                """,
+                class = "$base_class $color_class $(size_data.padding) $(size_data.text) $(size_data.gap) $disabled_class",
             } begin
                 if !isnothing(label)
                     @text label

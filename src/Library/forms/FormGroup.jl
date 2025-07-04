@@ -47,21 +47,55 @@ end
     _hash = hash(time_ns()),
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract form_group theme safely
+    form_group_theme = if isa(theme, NamedTuple) && haskey(theme, :form_group)
+        theme.form_group
+    else
+        HypertextTemplates.Library.default_theme().form_group
+    end
+
+    # Get classes
+    wrapper_class = get(
+        form_group_theme,
+        :wrapper,
+        HypertextTemplates.Library.default_theme().form_group.wrapper,
+    )
+    label_class = get(
+        form_group_theme,
+        :label,
+        HypertextTemplates.Library.default_theme().form_group.label,
+    )
+    required_class = get(
+        form_group_theme,
+        :required_indicator,
+        HypertextTemplates.Library.default_theme().form_group.required_indicator,
+    )
+    error_class = get(
+        form_group_theme,
+        :error_text,
+        HypertextTemplates.Library.default_theme().form_group.error_text,
+    )
+    help_class = get(
+        form_group_theme,
+        :help_text,
+        HypertextTemplates.Library.default_theme().form_group.help_text,
+    )
+
     # Generate unique ID if not provided
     field_id = isnothing(id) ? "form-field-$(_hash)" : id
     error_id = !isnothing(error) ? "$(field_id)-error" : nothing
     help_id = !isnothing(help) && isnothing(error) ? "$(field_id)-help" : nothing
     describedby_id = !isnothing(error_id) ? error_id : help_id
 
-    @div {class = "space-y-1", attrs...} begin
+    @div {class = wrapper_class, attrs...} begin
         if !isnothing(label)
-            Elements.@label {
-                class = "block text-sm font-medium text-gray-700 dark:text-gray-300",
-                "for" := field_id,
-            } begin
+            Elements.@label {class = label_class, "for" := field_id} begin
                 @text label
                 if required
-                    @span {class = "text-red-500 ml-1"} "*"
+                    @span {class = required_class} "*"
                 end
             end
         end
@@ -71,12 +105,9 @@ end
         @__slot__ #(field_id, describedby_id)
 
         if !isnothing(error)
-            @p {
-                class = "text-sm text-rose-600 dark:text-rose-400 animate-[fadeIn_0.3s_ease-in-out]",
-                id = error_id,
-            } error
+            @p {class = error_class, id = error_id} error
         elseif !isnothing(help)
-            @p {class = "text-sm text-gray-500 dark:text-gray-400", id = help_id} help
+            @p {class = help_class, id = help_id} help
         end
     end
 end

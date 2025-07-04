@@ -50,18 +50,54 @@ An individual menu item within dropdown menus that represents a selectable actio
     class::String = "",
     attrs...,
 )
-    # Base classes
-    base_classes = "block w-full text-left px-4 py-2 text-sm transition-colors duration-150"
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract dropdown_item theme safely
+    dropdown_item_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_item)
+        theme.dropdown_item
+    else
+        HypertextTemplates.Library.default_theme().dropdown_item
+    end
+
+    # Get base classes
+    base_classes = get(
+        dropdown_item_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().dropdown_item.base,
+    )
+    disabled_class = get(
+        dropdown_item_theme,
+        :disabled,
+        HypertextTemplates.Library.default_theme().dropdown_item.disabled,
+    )
+    icon_wrapper_class = get(
+        dropdown_item_theme,
+        :icon_wrapper,
+        HypertextTemplates.Library.default_theme().dropdown_item.icon_wrapper,
+    )
+
+    # Get variants
+    variants_theme =
+        if isa(dropdown_item_theme, NamedTuple) && haskey(dropdown_item_theme, :variants)
+            dropdown_item_theme.variants
+        else
+            HypertextTemplates.Library.default_theme().dropdown_item.variants
+        end
 
     # Variant classes
     variant_classes = if disabled
-        "text-gray-400 cursor-not-allowed dark:text-gray-500"
-    elseif variant === :danger
-        "text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/20 dark:hover:text-red-300"
-    elseif variant === :success
-        "text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/20 dark:hover:text-green-300"
+        disabled_class
     else
-        "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+        get(
+            variants_theme,
+            variant,
+            get(
+                variants_theme,
+                :default,
+                HypertextTemplates.Library.default_theme().dropdown_item.variants.default,
+            ),
+        )
     end
 
     # Combine classes
@@ -77,7 +113,7 @@ An individual menu item within dropdown menus that represents a selectable actio
     if !isnothing(href) && !disabled
         @a {href = href, merged_attrs...} begin
             if !isnothing(icon)
-                @span {class = "inline-flex items-center gap-2"} begin
+                @span {class = icon_wrapper_class} begin
                     @Icon {name = icon, size = :sm}
                     @__slot__()
                 end
@@ -88,7 +124,7 @@ An individual menu item within dropdown menus that represents a selectable actio
     else
         @button {type = "button", merged_attrs...} begin
             if !isnothing(icon)
-                @span {class = "inline-flex items-center gap-2"} begin
+                @span {class = icon_wrapper_class} begin
                     @Icon {name = icon, size = :sm}
                     @__slot__()
                 end

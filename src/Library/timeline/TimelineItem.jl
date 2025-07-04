@@ -27,35 +27,81 @@ end
 """
 @component function TimelineItem(;
     icon::Union{AbstractString,Nothing} = nothing,
-    icon_bg::Union{AbstractString,Nothing} = "bg-blue-500",
+    icon_bg::Union{AbstractString,Nothing} = nothing,
     connector::Bool = true,
     last::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract timeline_item theme safely
+    timeline_item_theme = if isa(theme, NamedTuple) && haskey(theme, :timeline_item)
+        theme.timeline_item
+    else
+        HypertextTemplates.Library.default_theme().timeline_item
+    end
+
+    # Get classes with fallbacks
+    container_class = get(
+        timeline_item_theme,
+        :container,
+        HypertextTemplates.Library.default_theme().timeline_item.container,
+    )
+    connector_line_class = get(
+        timeline_item_theme,
+        :connector_line,
+        HypertextTemplates.Library.default_theme().timeline_item.connector_line,
+    )
+    content_wrapper_class = get(
+        timeline_item_theme,
+        :content_wrapper,
+        HypertextTemplates.Library.default_theme().timeline_item.content_wrapper,
+    )
+    icon_wrapper_class = get(
+        timeline_item_theme,
+        :icon_wrapper,
+        HypertextTemplates.Library.default_theme().timeline_item.icon_wrapper,
+    )
+    default_icon_bg = get(
+        timeline_item_theme,
+        :default_icon_bg,
+        HypertextTemplates.Library.default_theme().timeline_item.default_icon_bg,
+    )
+    empty_icon_class = get(
+        timeline_item_theme,
+        :empty_icon,
+        HypertextTemplates.Library.default_theme().timeline_item.empty_icon,
+    )
+    content_container_class = get(
+        timeline_item_theme,
+        :content_container,
+        HypertextTemplates.Library.default_theme().timeline_item.content_container,
+    )
+
+    # Use provided icon_bg or fallback to theme default
+    final_icon_bg = something(icon_bg, default_icon_bg)
+
     show_connector = connector && !last
 
-    @li {class = "relative list-none", attrs...} begin
+    @li {class = container_class, attrs...} begin
         # Vertical connector line
         if show_connector
-            @div {
-                class = "absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700",
-            }
+            @div {class = connector_line_class}
         end
 
-        @div {class = "flex items-start gap-3"} begin
+        @div {class = content_wrapper_class} begin
             # Timeline marker/icon
-            @div {
-                class = "relative z-10 flex-shrink-0 w-8 h-8 rounded-full $icon_bg flex items-center justify-center text-white font-medium",
-            } begin
+            @div {class = "$icon_wrapper_class $final_icon_bg"} begin
                 if !isnothing(icon)
                     @text icon
                 else
-                    @div {class = "w-2 h-2 bg-white rounded-full"}
+                    @div {class = empty_icon_class}
                 end
             end
 
             # Content
-            @div {class = "flex-1 pb-8"} begin
+            @div {class = content_container_class} begin
                 @__slot__()
             end
         end

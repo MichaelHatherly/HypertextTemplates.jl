@@ -47,41 +47,68 @@ end
     align_sym = Symbol(align)
     justify_sym = Symbol(justify)
 
-    direction_class = direction_sym == :horizontal ? "flex-row" : "flex-col"
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Handle gap as symbol or int
-    gap_presets = (xs = "gap-1", sm = "gap-2", base = "gap-4", lg = "gap-6", xl = "gap-8")
-
-    gap_class = if gap isa Symbol
-        get(gap_presets, gap, "gap-4")
+    # Extract stack theme safely
+    stack_theme = if isa(theme, NamedTuple) && haskey(theme, :stack)
+        theme.stack
     else
-        "gap-$gap"
+        HypertextTemplates.Library.default_theme().stack
     end
 
-    wrap_class = wrap ? "flex-wrap" : ""
+    # Get base class
+    base_class =
+        get(stack_theme, :base, HypertextTemplates.Library.default_theme().stack.base)
 
-    align_classes = (
-        start = "items-start",
-        center = "items-center",
-        var"end" = "items-end",
-        stretch = "items-stretch",
-    )
+    # Get direction class with fallback
+    direction_class =
+        if haskey(stack_theme, :direction) && haskey(stack_theme.direction, direction_sym)
+            stack_theme.direction[direction_sym]
+        else
+            HypertextTemplates.Library.default_theme().stack.direction[direction_sym]
+        end
 
-    justify_classes = (
-        start = "justify-start",
-        center = "justify-center",
-        var"end" = "justify-end",
-        between = "justify-between",
-        around = "justify-around",
-        evenly = "justify-evenly",
-    )
+    # Handle gap as symbol or int
+    gap_class = if gap isa Symbol
+        if haskey(stack_theme, :gap) && haskey(stack_theme.gap, gap)
+            stack_theme.gap[gap]
+        else
+            HypertextTemplates.Library.default_theme().stack.gap[gap]
+        end
+    else
+        # Use gap prefix for numeric values
+        gap_prefix = get(
+            stack_theme,
+            :gap_prefix,
+            HypertextTemplates.Library.default_theme().stack.gap_prefix,
+        )
+        "$(gap_prefix)$(gap)"
+    end
 
-    align_class = get(align_classes, align_sym, "items-stretch")
-    justify_class = get(justify_classes, justify_sym, "justify-start")
+    # Get wrap class
+    wrap_class =
+        wrap ?
+        get(stack_theme, :wrap, HypertextTemplates.Library.default_theme().stack.wrap) : ""
+
+    # Get align class with fallback
+    align_class = if haskey(stack_theme, :align) && haskey(stack_theme.align, align_sym)
+        stack_theme.align[align_sym]
+    else
+        HypertextTemplates.Library.default_theme().stack.align[align_sym]
+    end
+
+    # Get justify class with fallback
+    justify_class =
+        if haskey(stack_theme, :justify) && haskey(stack_theme.justify, justify_sym)
+            stack_theme.justify[justify_sym]
+        else
+            HypertextTemplates.Library.default_theme().stack.justify[justify_sym]
+        end
 
     # Build component default attributes
     component_attrs = (
-        class = "flex $direction_class $gap_class $align_class $justify_class $wrap_class",
+        class = "$base_class $direction_class $gap_class $align_class $justify_class $wrap_class",
     )
 
     # Merge with user attributes

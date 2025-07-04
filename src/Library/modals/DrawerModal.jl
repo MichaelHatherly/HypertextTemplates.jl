@@ -66,17 +66,59 @@ end
     persistent::Bool = false,
     attrs...,
 )
+    # Convert to symbols
+    position_sym = Symbol(position)
+    size_sym = Symbol(size)
+
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract drawer_modal theme safely
+    drawer_theme = if isa(theme, NamedTuple) && haskey(theme, :drawer_modal)
+        theme.drawer_modal
+    else
+        HypertextTemplates.Library.default_theme().drawer_modal
+    end
+
+    # Inject CSS variables if theme provides them
+    css_vars = get(drawer_theme, :css_vars, nothing)
+    if css_vars !== nothing
+        @__once__ #="drawer-theme-vars"=# begin
+            @style @text SafeString(
+                """
+    :root {
+        $(join(["$k: $v;" for (k,v) in pairs(css_vars)], "\n                    "))
+    }
+""",
+            )
+        end
+    end
+
+    # Load JavaScript and CSS once per render
+    @__once__ begin
+        @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
+        @style @text SafeString(
+            read(joinpath(@__DIR__, "../assets/drawer-modal.css"), String),
+        )
+    end
+
+    # Configuration object for Alpine.js
+    config = SafeString("""{
+        persistent: $(persistent ? "true" : "false"),
+        returnFocus: true
+    }""")
+
     # Position classes for different slide directions
     position_classes = Dict(
         :left => Dict(
             :container => "items-stretch justify-start",
             :drawer => "h-full max-h-none my-0 ml-0 rounded-none",
-            :sizes => Dict(:sm => "max-w-xs", :md => "max-w-sm", :lg => "max-w-md"),
+            :sizes => Dict(:sm => "w-64", :md => "w-80", :lg => "w-96"),
         ),
         :right => Dict(
             :container => "items-stretch justify-end",
             :drawer => "h-full max-h-none my-0 mr-0 rounded-none",
-            :sizes => Dict(:sm => "max-w-xs", :md => "max-w-sm", :lg => "max-w-md"),
+            :sizes => Dict(:sm => "w-64", :md => "w-80", :lg => "w-96"),
         ),
         :top => Dict(
             :container => "items-start justify-center",
@@ -94,22 +136,42 @@ end
         ),
     )
 
-    pos_config = get(position_classes, Symbol(position), position_classes[:right])
-    size_class = get(pos_config[:sizes], Symbol(size), pos_config[:sizes][:md])
+    pos_config = get(position_classes, position_sym, position_classes[:right])
 
-    # Load JavaScript and CSS once per render
-    @__once__ begin
-        @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
-        @style @text SafeString(
-            read(joinpath(@__DIR__, "../assets/drawer-modal.css"), String),
-        )
+    # Get size class from theme with fallback
+    size_class = if haskey(drawer_theme, :sizes) && haskey(drawer_theme.sizes, size_sym)
+        drawer_theme.sizes[size_sym]
+    else
+        # Fallback to position-specific sizes
+        get(pos_config[:sizes], size_sym, pos_config[:sizes][:md])
     end
 
-    # Configuration object for Alpine.js
-    config = SafeString("""{
-        persistent: $(persistent ? "true" : "false"),
-        returnFocus: true
-    }""")
+    # Get theme classes
+    dialog_classes = get(
+        drawer_theme,
+        :dialog,
+        HypertextTemplates.Library.default_theme().drawer_modal.dialog,
+    )
+    content_classes = get(
+        drawer_theme,
+        :content,
+        HypertextTemplates.Library.default_theme().drawer_modal.content,
+    )
+
+    # Get close button position based on drawer position
+    close_position =
+        if haskey(drawer_theme, :positions) && haskey(drawer_theme.positions, position_sym)
+            drawer_theme.positions[position_sym].close_position
+        else
+            HypertextTemplates.Library.default_theme().drawer_modal.positions[position_sym].close_position
+        end
+
+    close_button_base = get(
+        drawer_theme,
+        :close_button,
+        HypertextTemplates.Library.default_theme().drawer_modal.close_button,
+    )
+    close_button_classes = replace(close_button_base, "right-4" => close_position)
 
     # Add position-specific class for CSS targeting
     position_class = "drawer-" * string(position)
@@ -119,17 +181,17 @@ end
         var"x-data" = SafeString("modal($config)"),
         var"x-ref" = "dialog",
         var"@keydown" = "handleKeydown",
-        class = "drawer-modal $position_class fixed inset-0 z-[10001] w-full h-full bg-transparent flex $(pos_config[:container])",
+        class = "drawer-modal $position_class fixed inset-0 z-[10001] w-full h-full $dialog_classes flex $(pos_config[:container])",
         attrs...,
     } begin
         @div {
-            class = "relative bg-white dark:bg-gray-800 shadow-xl border-0 $(pos_config[:drawer]) $size_class flex flex-col",
+            class = "relative $content_classes border-0 $(pos_config[:drawer]) $size_class flex flex-col",
         } begin
             # Close button
             @button {
                 type = "button",
                 var"@click" = "close()",
-                class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                class = close_button_classes,
                 "aria-label" = "Close drawer",
             } begin
                 @Icon {name = "x", size = :md}

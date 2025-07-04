@@ -19,29 +19,57 @@ A navigation breadcrumb component that displays the hierarchical path to the cur
     separator::String = "/",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract breadcrumb theme safely
+    breadcrumb_theme = if isa(theme, NamedTuple) && haskey(theme, :breadcrumb)
+        theme.breadcrumb
+    else
+        HypertextTemplates.Library.default_theme().breadcrumb
+    end
+
+    # Get classes
+    list_class = get(
+        breadcrumb_theme,
+        :list,
+        HypertextTemplates.Library.default_theme().breadcrumb.list,
+    )
+    item_class = get(
+        breadcrumb_theme,
+        :item,
+        HypertextTemplates.Library.default_theme().breadcrumb.item,
+    )
+    current_class = get(
+        breadcrumb_theme,
+        :current,
+        HypertextTemplates.Library.default_theme().breadcrumb.current,
+    )
+    link_class = get(
+        breadcrumb_theme,
+        :link,
+        HypertextTemplates.Library.default_theme().breadcrumb.link,
+    )
+    separator_class = get(
+        breadcrumb_theme,
+        :separator,
+        HypertextTemplates.Library.default_theme().breadcrumb.separator,
+    )
+
     @nav {"aria-label" = "Breadcrumb", attrs...} begin
-        @ol {class = "flex items-center space-x-2 text-sm"} begin
+        @ol {class = list_class} begin
             for (i, (href, label)) in enumerate(items)
-                @li {class = "flex items-center"} begin
+                @li {class = item_class} begin
                     if i == length(items)
                         # Current page
-                        @span {
-                            class = "text-gray-700 dark:text-gray-300 font-medium",
-                            "aria-current" = "page",
-                        } $label
+                        @span {class = current_class, "aria-current" = "page"} $label
                     else
                         # Link
-                        @a {
-                            href = href,
-                            class = "text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 hover:underline underline-offset-2",
-                        } $label
+                        @a {href = href, class = link_class} $label
                     end
 
                     if i < length(items)
-                        @span {
-                            class = "mx-2 text-gray-400 dark:text-gray-600",
-                            "aria-hidden" = "true",
-                        } $separator
+                        @span {class = separator_class, "aria-hidden" = "true"} $separator
                     end
                 end
             end

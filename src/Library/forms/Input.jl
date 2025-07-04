@@ -67,38 +67,71 @@ This component implements comprehensive form accessibility standards:
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    size_classes = (
-        xs = "px-2.5 py-1.5 text-xs",
-        sm = "px-3 py-2 text-sm",
-        base = "px-4 py-2.5 text-base",
-        md = "px-4 py-2.5 text-base",  # For backward compatibility
-        lg = "px-5 py-3 text-lg",
-        xl = "px-6 py-3.5 text-xl",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
-    )
+    # Extract input theme safely
+    input_theme = if isa(theme, NamedTuple) && haskey(theme, :input)
+        theme.input
+    else
+        HypertextTemplates.Library.default_theme().input
+    end
 
-    size_class = get(size_classes, size_sym, size_classes.base)
-    state_class = get(state_classes, state_sym, state_classes.default)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
+    # Get base classes
+    base_classes =
+        get(input_theme, :base, HypertextTemplates.Library.default_theme().input.base)
 
-    base_classes = "w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class"
+    # Get size class with fallback
+    size_class = if haskey(input_theme, :sizes) && haskey(input_theme.sizes, size_sym)
+        input_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().input.sizes[size_sym]
+    end
+
+    # Get state class with fallback
+    state_class = if haskey(input_theme, :states) && haskey(input_theme.states, state_sym)
+        input_theme.states[state_sym]
+    else
+        HypertextTemplates.Library.default_theme().input.states[state_sym]
+    end
+
+    # Get disabled class
+    disabled_class =
+        disabled ?
+        get(
+            input_theme,
+            :disabled,
+            HypertextTemplates.Library.default_theme().input.disabled,
+        ) : ""
+
+    final_classes = "$base_classes $size_class $state_class $disabled_class"
     aria_invalid = state_sym === :error ? "true" : nothing
 
     if !isnothing(icon)
-        @div {class = "relative"} begin
-            @div {
-                class = "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400",
-            } begin
+        # Get icon styling from theme
+        icon_wrapper = get(
+            input_theme,
+            :icon_wrapper,
+            HypertextTemplates.Library.default_theme().input.icon_wrapper,
+        )
+        icon_container = get(
+            input_theme,
+            :icon_container,
+            HypertextTemplates.Library.default_theme().input.icon_container,
+        )
+        icon_padding = get(
+            input_theme,
+            :icon_input_padding,
+            HypertextTemplates.Library.default_theme().input.icon_input_padding,
+        )
+
+        @div {class = icon_wrapper} begin
+            @div {class = icon_container} begin
                 @text HypertextTemplates.SafeString(icon)
             end
             @input {
                 type = type,
-                class = "pl-10 $base_classes",
+                class = "$icon_padding $final_classes",
                 placeholder = placeholder,
                 name = name,
                 value = value,
@@ -113,7 +146,7 @@ This component implements comprehensive form accessibility standards:
     else
         @input {
             type = type,
-            class = base_classes,
+            class = final_classes,
             placeholder = placeholder,
             name = name,
             value = value,

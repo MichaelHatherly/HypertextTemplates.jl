@@ -16,29 +16,52 @@ A loading spinner component that provides visual feedback during asynchronous op
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = (sm = "h-4 w-4", md = "h-6 w-6", lg = "h-8 w-8")
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    color_classes = (
-        slate = "text-slate-600 dark:text-slate-400",
-        primary = "text-slate-900 dark:text-slate-100",
-        white = "text-white",
+    # Extract spinner theme safely
+    spinner_theme = if isa(theme, NamedTuple) && haskey(theme, :spinner)
+        theme.spinner
+    else
+        HypertextTemplates.Library.default_theme().spinner
+    end
+
+    # Get container class
+    container_class = get(
+        spinner_theme,
+        :container,
+        HypertextTemplates.Library.default_theme().spinner.container,
+    )
+    svg_base = get(
+        spinner_theme,
+        :svg_base,
+        HypertextTemplates.Library.default_theme().spinner.svg_base,
     )
 
-    size_class = get(size_classes, size_sym, size_classes.md)
-    color_class = get(color_classes, color_sym, color_classes.primary)
+    # Get size class with fallback
+    size_class = if haskey(spinner_theme, :sizes) && haskey(spinner_theme.sizes, size_sym)
+        spinner_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().spinner.sizes[size_sym]
+    end
 
-    @div {
-        class = "inline-flex items-center",
-        role = "status",
-        "aria-label" = "Loading",
-        attrs...,
-    } begin
-        @text HypertextTemplates.SafeString(
-            """<svg class="animate-spin $size_class $color_class" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-</svg>""",
-        )
+    # Get color class with fallback
+    color_class =
+        if haskey(spinner_theme, :colors) && haskey(spinner_theme.colors, color_sym)
+            spinner_theme.colors[color_sym]
+        else
+            HypertextTemplates.Library.default_theme().spinner.colors[color_sym]
+        end
+
+    # Get SVG template
+    svg_template =
+        get(spinner_theme, :svg, HypertextTemplates.Library.default_theme().spinner.svg)
+
+    # Replace :classes placeholder with actual classes
+    svg_content = replace(svg_template, ":classes" => "$svg_base $size_class $color_class")
+
+    @div {class = container_class, role = "status", "aria-label" = "Loading", attrs...} begin
+        @text HypertextTemplates.SafeString(svg_content)
     end
 end
 

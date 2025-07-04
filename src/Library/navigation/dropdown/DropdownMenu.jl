@@ -54,6 +54,26 @@ end
 - [`Button`](@ref) - Common trigger element
 """
 @component function DropdownMenu(; class::String = "", attrs...)
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract dropdown_menu theme safely
+    dropdown_menu_theme = if isa(theme, NamedTuple) && haskey(theme, :dropdown_menu)
+        theme.dropdown_menu
+    else
+        HypertextTemplates.Library.default_theme().dropdown_menu
+    end
+
+    # Get base class with fallback
+    base_class = get(
+        dropdown_menu_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().dropdown_menu.base,
+    )
+
+    # Combine base class with user-provided class
+    final_class = "$base_class $class"
+
     # Load JavaScript and CSS for dropdown functionality
     @__once__ begin
         @script @text SafeString(
@@ -78,7 +98,7 @@ end
     # The @click handler is crucial for proper UX: without it, clicking empty space within
     # the dropdown container wouldn't close the dropdown, which feels broken to users.
     component_attrs = (
-        class = "inline-block text-left $class",
+        class = final_class,
         var"x-data" = alpine_data,
         var"data-dropdown" = "true",
         var"@keydown.escape" = "close()",

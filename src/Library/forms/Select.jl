@@ -32,28 +32,47 @@ A dropdown select element that allows users to choose from a predefined list of 
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    size_classes = (
-        xs = "px-2.5 py-1.5 pr-8 text-xs",
-        sm = "px-3 py-2 pr-9 text-sm",
-        base = "px-4 py-2.5 pr-10 text-base",
-        md = "px-4 py-2.5 pr-10 text-base",  # For backward compatibility
-        lg = "px-5 py-3 pr-11 text-lg",
-        xl = "px-6 py-3.5 pr-12 text-xl",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
-    )
+    # Extract select theme safely
+    select_theme = if isa(theme, NamedTuple) && haskey(theme, :select)
+        theme.select
+    else
+        HypertextTemplates.Library.default_theme().select
+    end
 
-    size_class = get(size_classes, size_sym, size_classes.base)
-    state_class = get(state_classes, state_sym, state_classes.default)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
+    # Get base classes
+    base_classes =
+        get(select_theme, :base, HypertextTemplates.Library.default_theme().select.base)
+
+    # Get size class with fallback
+    size_class = if haskey(select_theme, :sizes) && haskey(select_theme.sizes, size_sym)
+        select_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().select.sizes[size_sym]
+    end
+
+    # Get state class with fallback
+    state_class = if haskey(select_theme, :states) && haskey(select_theme.states, state_sym)
+        select_theme.states[state_sym]
+    else
+        HypertextTemplates.Library.default_theme().select.states[state_sym]
+    end
+
+    # Get disabled class
+    disabled_class =
+        disabled ?
+        get(
+            select_theme,
+            :disabled,
+            HypertextTemplates.Library.default_theme().select.disabled,
+        ) : ""
+
     aria_invalid = state_sym === :error ? "true" : nothing
 
     @select {
-        class = "w-full appearance-none rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"%3e%3cpolyline points=\"6 9 12 15 18 9\"%3e%3c/polyline%3e%3c/svg%3e')] bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat $size_class $state_class $disabled_class",
+        class = "$base_classes $size_class $state_class $disabled_class",
         name = name,
         required = required,
         disabled = disabled,

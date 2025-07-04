@@ -46,21 +46,67 @@ end
     class::String = "",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract tooltip_content theme safely
+    tooltip_content_theme = if isa(theme, NamedTuple) && haskey(theme, :tooltip_content)
+        theme.tooltip_content
+    else
+        HypertextTemplates.Library.default_theme().tooltip_content
+    end
+
+    # Get base classes
+    base_class = get(
+        tooltip_content_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().tooltip_content.base,
+    )
+    padding_class = get(
+        tooltip_content_theme,
+        :padding,
+        HypertextTemplates.Library.default_theme().tooltip_content.padding,
+    )
+
+    # Get variants
+    variants_theme =
+        if isa(tooltip_content_theme, NamedTuple) &&
+           haskey(tooltip_content_theme, :variants)
+            tooltip_content_theme.variants
+        else
+            HypertextTemplates.Library.default_theme().tooltip_content.variants
+        end
+
+    arrow_variants_theme =
+        if isa(tooltip_content_theme, NamedTuple) &&
+           haskey(tooltip_content_theme, :arrow_variants)
+            tooltip_content_theme.arrow_variants
+        else
+            HypertextTemplates.Library.default_theme().tooltip_content.arrow_variants
+        end
+
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    # Variant styles
-    variant_classes = (
-        dark = "bg-gray-900 text-white",
-        light = "bg-white text-gray-900 border border-gray-200",
+    # Get variant classes
+    variant_class = get(
+        variants_theme,
+        variant_sym,
+        get(
+            variants_theme,
+            :dark,
+            HypertextTemplates.Library.default_theme().tooltip_content.variants.dark,
+        ),
     )
-
-    variant_class = get(variant_classes, variant_sym, variant_classes.dark)
-
-    # Arrow classes based on variant
-    arrow_classes = (dark = "bg-gray-900", light = "bg-white border-gray-200")
-
-    arrow_class = get(arrow_classes, variant_sym, arrow_classes.dark)
+    arrow_class = get(
+        arrow_variants_theme,
+        variant_sym,
+        get(
+            arrow_variants_theme,
+            :dark,
+            HypertextTemplates.Library.default_theme().tooltip_content.arrow_variants.dark,
+        ),
+    )
 
     @div {
         var"x-ref" = "content",
@@ -73,7 +119,7 @@ end
         var"x-transition:leave" = "transition ease-in duration-150",
         var"x-transition:leave-start" = "opacity-100 scale-100",
         var"x-transition:leave-end" = "opacity-0 scale-95",
-        class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
+        class = "$base_class $variant_class $class",
         style = "max-width: $max_width; width: max-content;",
         role = "tooltip",
         attrs...,
@@ -84,7 +130,7 @@ end
             # For now, we'll skip the visual arrow but keep the prop for future enhancement
         end
 
-        @div {class = "px-4 py-3"} begin
+        @div {class = padding_class} begin
             @__slot__()
         end
     end

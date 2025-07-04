@@ -48,31 +48,49 @@ end
     variant_sym = Symbol(variant)
     spacing_sym = Symbol(spacing)
 
-    spacing_classes = (tight = "space-y-1", normal = "space-y-2", loose = "space-y-4")
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    spacing_class = get(spacing_classes, spacing_sym, "space-y-2")
+    # Extract list theme safely
+    list_theme = if isa(theme, NamedTuple) && haskey(theme, :list)
+        theme.list
+    else
+        HypertextTemplates.Library.default_theme().list
+    end
 
-    # Base classes for all variants
-    base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
+    # Get base classes
+    base_classes =
+        get(list_theme, :base, HypertextTemplates.Library.default_theme().list.base)
+
+    # Get spacing class with fallback
+    spacing_class =
+        if haskey(list_theme, :spacing) && haskey(list_theme.spacing, spacing_sym)
+            list_theme.spacing[spacing_sym]
+        else
+            HypertextTemplates.Library.default_theme().list.spacing[spacing_sym]
+        end
+
+    # Get variant class with fallback
+    variant_class =
+        if haskey(list_theme, :variants) && haskey(list_theme.variants, variant_sym)
+            list_theme.variants[variant_sym]
+        else
+            HypertextTemplates.Library.default_theme().list.variants[variant_sym]
+        end
+
+    # Build final classes
+    final_classes = "$variant_class $base_classes $spacing_class"
 
     if variant_sym === :bullet
-        @ul {class = "list-disc list-inside $base_class", attrs...} begin
+        @ul {class = final_classes, attrs...} begin
             @__slot__()
         end
     elseif variant_sym === :number
-        @ol {class = "list-decimal list-inside $base_class", attrs...} begin
+        @ol {class = final_classes, attrs...} begin
             @__slot__()
         end
-    elseif variant_sym === :check
-        # For check variant, we'll style the list items with pseudo-elements
-        @ul {
-            class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
-            attrs...,
-        } begin
-            @__slot__()
-        end
-    else # :none
-        @ul {class = "list-none $base_class", attrs...} begin
+    else # :check or :none
+        @ul {class = final_classes, attrs...} begin
             @__slot__()
         end
     end

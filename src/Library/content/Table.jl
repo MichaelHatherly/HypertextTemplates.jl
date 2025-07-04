@@ -80,130 +80,141 @@ end
     overflow::Bool = true,
     attrs...,
 )
-    # Base wrapper classes
-    wrapper_classes = ["w-full", "relative"]
-    if sticky_header
-        push!(wrapper_classes, "overflow-auto", "max-h-[600px]")
-    elseif overflow
-        push!(wrapper_classes, "overflow-x-auto")
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract table theme safely
+    table_theme = if isa(theme, NamedTuple) && haskey(theme, :table)
+        theme.table
+    else
+        HypertextTemplates.Library.default_theme().table
     end
 
-    # Table container classes for styling
-    container_classes = ["w-full"]
+    # Get wrapper theme
+    wrapper_theme =
+        get(table_theme, :wrapper, HypertextTemplates.Library.default_theme().table.wrapper)
+    wrapper_base = get(wrapper_theme, :base, "w-full relative")
+    wrapper_sticky = get(wrapper_theme, :sticky, "overflow-auto max-h-[600px]")
+    wrapper_overflow = get(wrapper_theme, :overflow, "overflow-x-auto")
+
+    # Build wrapper classes
+    wrapper_classes = [wrapper_base]
+    if sticky_header
+        push!(wrapper_classes, wrapper_sticky)
+    elseif overflow
+        push!(wrapper_classes, wrapper_overflow)
+    end
+
+    # Get container theme
+    container_theme = get(
+        table_theme,
+        :container,
+        HypertextTemplates.Library.default_theme().table.container,
+    )
+    container_base = get(container_theme, :base, "w-full")
+    container_bordered = get(
+        container_theme,
+        :bordered,
+        "rounded-lg border border-gray-200 dark:border-gray-700",
+    )
+    container_overflow = get(container_theme, :overflow, "overflow-hidden")
+
+    # Build container classes
+    container_classes = [container_base]
     if bordered
-        push!(
-            container_classes,
-            "rounded-lg",
-            "border",
-            "border-gray-200",
-            "dark:border-gray-700",
-        )
+        push!(container_classes, container_bordered)
         if overflow
-            push!(container_classes, "overflow-hidden")
+            push!(container_classes, container_overflow)
         end
     end
 
+    # Get table styles theme
+    table_styles =
+        get(table_theme, :table, HypertextTemplates.Library.default_theme().table.table)
+
     # Base table classes
-    table_classes = ["w-full", "text-sm"]
+    table_base = get(table_styles, :base, "w-full text-sm border-separate border-spacing-0")
+    table_classes = [table_base]
 
-    # Base styling for clean appearance
-    push!(table_classes, "border-separate", "border-spacing-0")
-
-    # Header styling - cleaner approach
-    push!(table_classes, "[&>thead>tr>th]:bg-white", "dark:[&>thead>tr>th]:bg-gray-900")
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:text-left",
-        "[&>thead>tr>th]:text-xs",
-        "[&>thead>tr>th]:font-semibold",
+    # Header styling
+    header_base = get(
+        table_styles,
+        :header_base,
+        HypertextTemplates.Library.default_theme().table.table.header_base,
     )
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:text-gray-600",
-        "dark:[&>thead>tr>th]:text-gray-400",
-    )
-    push!(table_classes, "[&>thead>tr>th]:uppercase", "[&>thead>tr>th]:tracking-wider")
-    push!(
-        table_classes,
-        "[&>thead>tr>th]:border-b",
-        "[&>thead>tr>th]:border-gray-200",
-        "dark:[&>thead>tr>th]:border-gray-700",
-    )
+    push!(table_classes, header_base)
 
     # Header padding
-    if compact
-        push!(table_classes, "[&>thead>tr>th]:px-4", "[&>thead>tr>th]:py-2")
-    else
-        push!(table_classes, "[&>thead>tr>th]:px-6", "[&>thead>tr>th]:py-4")
-    end
+    header_padding = get(
+        table_styles,
+        :header_padding,
+        HypertextTemplates.Library.default_theme().table.table.header_padding,
+    )
+    header_padding_class =
+        compact ? get(header_padding, :compact, "") : get(header_padding, :normal, "")
+    push!(table_classes, header_padding_class)
 
-    # Cell styling - cleaner with better spacing
-    push!(table_classes, "[&>tbody>tr>td]:bg-white", "dark:[&>tbody>tr>td]:bg-gray-900")
-    push!(
-        table_classes,
-        "[&>tbody>tr>td]:text-gray-700",
-        "dark:[&>tbody>tr>td]:text-gray-300",
+    # Cell styling
+    cell_base = get(
+        table_styles,
+        :cell_base,
+        HypertextTemplates.Library.default_theme().table.table.cell_base,
     )
-    push!(
-        table_classes,
-        "[&>tbody>tr>td]:border-b",
-        "[&>tbody>tr>td]:border-gray-100",
-        "dark:[&>tbody>tr>td]:border-gray-800",
-    )
+    push!(table_classes, cell_base)
 
     # Cell padding
-    if compact
-        push!(table_classes, "[&>tbody>tr>td]:px-4", "[&>tbody>tr>td]:py-2")
-    else
-        push!(table_classes, "[&>tbody>tr>td]:px-6", "[&>tbody>tr>td]:py-4")
-    end
+    cell_padding = get(
+        table_styles,
+        :cell_padding,
+        HypertextTemplates.Library.default_theme().table.table.cell_padding,
+    )
+    cell_padding_class =
+        compact ? get(cell_padding, :compact, "") : get(cell_padding, :normal, "")
+    push!(table_classes, cell_padding_class)
 
-    # Remove bottom border from last row
-    push!(table_classes, "[&>tbody>tr:last-child>td]:border-b-0")
-
-    # Striped rows - more subtle
+    # Striped rows
     if striped
-        push!(
-            table_classes,
-            "[&>tbody>tr:nth-child(even)>td]:bg-gray-50/50",
-            "dark:[&>tbody>tr:nth-child(even)>td]:bg-gray-800/50",
+        striped_class = get(
+            table_styles,
+            :striped,
+            HypertextTemplates.Library.default_theme().table.table.striped,
         )
+        push!(table_classes, striped_class)
     end
 
-    # Hover effect - more subtle
+    # Hover effect
     if hover
-        push!(table_classes, "[&>tbody>tr]:transition-all", "[&>tbody>tr]:duration-200")
-        push!(
-            table_classes,
-            "[&>tbody>tr:hover>td]:bg-gray-50",
-            "dark:[&>tbody>tr:hover>td]:bg-gray-800/70",
+        hover_class = get(
+            table_styles,
+            :hover,
+            HypertextTemplates.Library.default_theme().table.table.hover,
         )
+        push!(table_classes, hover_class)
     end
 
     # Sticky header
     if sticky_header
-        push!(table_classes, "[&>thead]:sticky", "[&>thead]:top-0", "[&>thead]:z-20")
-        push!(table_classes, "[&>thead]:shadow-sm")
+        sticky_class = get(
+            table_styles,
+            :sticky_header,
+            HypertextTemplates.Library.default_theme().table.table.sticky_header,
+        )
+        push!(table_classes, sticky_class)
     end
 
     # Sortable columns
     if sortable
-        push!(
-            table_classes,
-            "[&>thead>tr>th]:cursor-pointer",
-            "[&>thead>tr>th]:select-none",
+        sortable_class = get(
+            table_styles,
+            :sortable,
+            HypertextTemplates.Library.default_theme().table.table.sortable,
         )
-        push!(
-            table_classes,
-            "[&>thead>tr>th]:transition-colors",
-            "[&>thead>tr>th]:duration-150",
-        )
-        push!(
-            table_classes,
-            "[&>thead>tr>th:hover]:bg-gray-50",
-            "dark:[&>thead>tr>th:hover]:bg-gray-800",
-        )
+        push!(table_classes, sortable_class)
     end
+
+    # Caption styling
+    caption_class =
+        get(table_theme, :caption, HypertextTemplates.Library.default_theme().table.caption)
 
     # Build component default attributes
     component_attrs = (class = SafeString(join(table_classes, " ")),)
@@ -213,7 +224,7 @@ end
 
     @div {class = join(wrapper_classes, " ")} begin
         if !isnothing(caption)
-            @p {class = "mb-2 text-sm text-gray-600 dark:text-gray-400 italic"} caption
+            @p {class = caption_class} caption
         end
 
         @div {class = SafeString(join(container_classes, " "))} begin

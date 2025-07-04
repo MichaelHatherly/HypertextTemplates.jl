@@ -65,6 +65,30 @@ end
     show_close::Bool = true,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract modal theme safely
+    modal_theme = if isa(theme, NamedTuple) && haskey(theme, :modal)
+        theme.modal
+    else
+        HypertextTemplates.Library.default_theme().modal
+    end
+
+    # Inject CSS variables if theme provides them
+    css_vars = get(modal_theme, :css_vars, nothing)
+    if css_vars !== nothing
+        @__once__ #="modal-theme-vars"=# begin
+            @style @text SafeString(
+                """
+    :root {
+        $(join(["$k: $v;" for (k,v) in pairs(css_vars)], "\n                    "))
+    }
+""",
+            )
+        end
+    end
+
     # Load JavaScript and CSS once per render
     @__once__ begin
         @script @text SafeString(read(joinpath(@__DIR__, "../assets/modal.js"), String))
@@ -82,20 +106,27 @@ end
         returnFocus: true
     }""")
 
-    # Size classes
-    size_classes = Dict(
-        :sm => "max-w-sm",
-        :md => "max-w-md",
-        :lg => "max-w-lg",
-        :xl => "max-w-xl",
-        :fullscreen => "max-w-none w-full h-full m-0",
+    # Convert size to symbol
+    size_sym = Symbol(size)
+
+    # Get size class with fallback
+    size_class = if haskey(modal_theme, :sizes) && haskey(modal_theme.sizes, size_sym)
+        modal_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().modal.sizes[size_sym]
+    end
+
+    # Get classes from theme
+    dialog_classes =
+        get(modal_theme, :dialog, HypertextTemplates.Library.default_theme().modal.dialog)
+    content_base =
+        get(modal_theme, :content, HypertextTemplates.Library.default_theme().modal.content)
+    content_classes = "$content_base $size_class"
+    close_button_classes = get(
+        modal_theme,
+        :close_button,
+        HypertextTemplates.Library.default_theme().modal.close_button,
     )
-
-    size_class = get(size_classes, Symbol(size), size_classes[:md])
-
-    # Dialog styling - ensure proper centering and sizing
-    dialog_classes = "p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"
-    content_classes = "relative p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-hidden $size_class"
 
     @dialog {
         id = modal_id,
@@ -111,7 +142,7 @@ end
                 @button {
                     type = "button",
                     var"@click" = "close()",
-                    class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                    class = close_button_classes,
                     "aria-label" = "Close modal",
                 } begin
                     @Icon {name = "x", size = :md}

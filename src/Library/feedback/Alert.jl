@@ -56,27 +56,44 @@ end
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    variant_classes = (
-        info = "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/30 dark:border-blue-700 dark:text-blue-300",
-        success = "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300",
-        warning = "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/30 dark:border-amber-700 dark:text-amber-300",
-        error = "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/30 dark:border-rose-700 dark:text-rose-300",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    icon_svgs = (
-        info = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>""",
-        success = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>""",
-        warning = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>""",
-        error = """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>""",
-    )
+    # Extract alert theme safely
+    alert_theme = if isa(theme, NamedTuple) && haskey(theme, :alert)
+        theme.alert
+    else
+        HypertextTemplates.Library.default_theme().alert
+    end
 
-    variant_class = get(variant_classes, variant_sym, variant_classes.info)
-    icon_svg = get(icon_svgs, variant_sym, icon_svgs.info)
-    animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
+    # Get base classes
+    base_classes =
+        get(alert_theme, :base, HypertextTemplates.Library.default_theme().alert.base)
+
+    # Get variant class with fallback
+    variant_class =
+        if haskey(alert_theme, :variants) && haskey(alert_theme.variants, variant_sym)
+            alert_theme.variants[variant_sym]
+        else
+            HypertextTemplates.Library.default_theme().alert.variants[variant_sym]
+        end
+
+    # Get icon SVG with fallback
+    icon_svg = if haskey(alert_theme, :icons) && haskey(alert_theme.icons, variant_sym)
+        alert_theme.icons[variant_sym]
+    else
+        HypertextTemplates.Library.default_theme().alert.icons[variant_sym]
+    end
+
+    # Get state classes
+    states =
+        get(alert_theme, :states, HypertextTemplates.Library.default_theme().alert.states)
+    animation_class = animated ? get(states, :animated, "") : ""
+    transition_class = get(states, :transition, "transition-all duration-300")
 
     # Build component default attributes
     component_attrs = (
-        class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300",
+        class = "$base_classes $variant_class $animation_class $transition_class",
         role = "alert",
     )
 
@@ -99,26 +116,51 @@ end
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)
 
+    # Get other theme classes
+    icon_wrapper = get(
+        alert_theme,
+        :icon_wrapper,
+        HypertextTemplates.Library.default_theme().alert.icon_wrapper,
+    )
+    content_with_icon = get(
+        alert_theme,
+        :content_with_icon,
+        HypertextTemplates.Library.default_theme().alert.content_with_icon,
+    )
+    content_wrapper = get(
+        alert_theme,
+        :content_wrapper,
+        HypertextTemplates.Library.default_theme().alert.content_wrapper,
+    )
+    dismiss_button = get(
+        alert_theme,
+        :dismiss_button,
+        HypertextTemplates.Library.default_theme().alert.dismiss_button,
+    )
+    dismiss_icon = get(
+        alert_theme,
+        :dismiss_icon,
+        HypertextTemplates.Library.default_theme().alert.dismiss_icon,
+    )
+
     @div {merged_attrs...} begin
         @div {class = "flex"} begin
             if icon
-                @div {class = "flex-shrink-0"} begin
+                @div {class = icon_wrapper} begin
                     @text HypertextTemplates.SafeString(icon_svg)
                 end
             end
-            @div {class = icon ? "ml-3 flex-1" : "flex-1"} begin
+            @div {class = icon ? content_with_icon : content_wrapper} begin
                 @__slot__()
             end
             if dismissible
                 @button {
                     type = "button",
-                    class = "ml-3 inline-flex flex-shrink-0 rounded-lg p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-all duration-200",
+                    class = dismiss_button,
                     "aria-label" := "Dismiss",
                     "@click" := "show = false",
                 } begin
-                    @text HypertextTemplates.SafeString(
-                        """<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>""",
-                    )
+                    @text HypertextTemplates.SafeString(dismiss_icon)
                 end
             end
         end

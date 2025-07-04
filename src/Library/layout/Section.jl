@@ -44,13 +44,24 @@ end
     # Convert to symbol
     spacing_sym = Symbol(spacing)
 
-    spacing_classes = (
-        sm = "py-8 sm:py-12",
-        md = "py-12 sm:py-16 md:py-20",
-        lg = "py-16 sm:py-20 md:py-24 lg:py-32",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    spacing_class = get(spacing_classes, spacing_sym, "py-12 sm:py-16 md:py-20")
+    # Extract section theme safely
+    section_theme = if isa(theme, NamedTuple) && haskey(theme, :section)
+        theme.section
+    else
+        HypertextTemplates.Library.default_theme().section
+    end
+
+    # Get spacing class with fallback
+    spacing_class =
+        if haskey(section_theme, :spacing) && haskey(section_theme.spacing, spacing_sym)
+            section_theme.spacing[spacing_sym]
+        else
+            HypertextTemplates.Library.default_theme().section.spacing[spacing_sym]
+        end
+
     bg_class = isnothing(background) ? "" : background
 
     @section {class = "$spacing_class $bg_class", attrs...} begin

@@ -32,27 +32,49 @@ A multi-line text input component designed for longer form content like comments
     resize_sym = Symbol(resize)
     state_sym = Symbol(state)
 
-    resize_classes = (
-        none = "resize-none",
-        vertical = "resize-y",
-        horizontal = "resize-x",
-        both = "resize",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
-    )
+    # Extract textarea theme safely
+    textarea_theme = if isa(theme, NamedTuple) && haskey(theme, :textarea)
+        theme.textarea
+    else
+        HypertextTemplates.Library.default_theme().textarea
+    end
 
-    resize_class = get(resize_classes, resize_sym, "resize-y")
-    state_class = get(state_classes, state_sym, state_classes.default)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
+    # Get base classes
+    base_classes =
+        get(textarea_theme, :base, HypertextTemplates.Library.default_theme().textarea.base)
+
+    # Get resize class with fallback
+    resize_class =
+        if haskey(textarea_theme, :resize) && haskey(textarea_theme.resize, resize_sym)
+            textarea_theme.resize[resize_sym]
+        else
+            HypertextTemplates.Library.default_theme().textarea.resize[resize_sym]
+        end
+
+    # Get state class with fallback
+    state_class =
+        if haskey(textarea_theme, :states) && haskey(textarea_theme.states, state_sym)
+            textarea_theme.states[state_sym]
+        else
+            HypertextTemplates.Library.default_theme().textarea.states[state_sym]
+        end
+
+    # Get disabled class
+    disabled_class =
+        disabled ?
+        get(
+            textarea_theme,
+            :disabled,
+            HypertextTemplates.Library.default_theme().textarea.disabled,
+        ) : ""
     aria_invalid = state_sym === :error ? "true" : nothing
 
     @textarea {
         rows = rows,
-        class = "w-full px-4 py-2.5 text-base rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $resize_class $state_class $disabled_class",
+        class = "$base_classes $resize_class $state_class $disabled_class",
         placeholder = placeholder,
         name = name,
         required = required,

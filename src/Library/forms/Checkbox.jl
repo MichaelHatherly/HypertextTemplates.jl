@@ -28,23 +28,61 @@ A styled checkbox input that allows users to toggle between checked and unchecke
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = (sm = "h-3.5 w-3.5", md = "h-4 w-4", lg = "h-5 w-5")
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    color_classes = (
-        slate = "text-gray-600 focus:ring-gray-500",
-        primary = "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
-        success = "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
+    # Extract checkbox theme safely
+    checkbox_theme = if isa(theme, NamedTuple) && haskey(theme, :checkbox)
+        theme.checkbox
+    else
+        HypertextTemplates.Library.default_theme().checkbox
+    end
+
+    # Get base classes
+    base_classes =
+        get(checkbox_theme, :base, HypertextTemplates.Library.default_theme().checkbox.base)
+
+    # Get size class with fallback
+    size_class = if haskey(checkbox_theme, :sizes) && haskey(checkbox_theme.sizes, size_sym)
+        checkbox_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().checkbox.sizes[size_sym]
+    end
+
+    # Get color class with fallback
+    color_class =
+        if haskey(checkbox_theme, :colors) && haskey(checkbox_theme.colors, color_sym)
+            checkbox_theme.colors[color_sym]
+        else
+            HypertextTemplates.Library.default_theme().checkbox.colors[color_sym]
+        end
+
+    # Get disabled class
+    disabled_class =
+        disabled ?
+        get(
+            checkbox_theme,
+            :disabled,
+            HypertextTemplates.Library.default_theme().checkbox.disabled,
+        ) : ""
+
+    # Get label classes
+    label_wrapper = get(
+        checkbox_theme,
+        :label_wrapper,
+        HypertextTemplates.Library.default_theme().checkbox.label_wrapper,
+    )
+    label_class = get(
+        checkbox_theme,
+        :label,
+        HypertextTemplates.Library.default_theme().checkbox.label,
     )
 
-    size_class = get(size_classes, size_sym, size_classes.md)
-    color_class = get(color_classes, color_sym, color_classes.primary)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
-
     if !isnothing(label)
-        Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
+        Elements.@label {class = "$label_wrapper $disabled_class"} begin
             @input {
                 type = "checkbox",
-                class = "rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 $size_class $color_class",
+                class = "$base_classes $size_class $color_class",
                 name = name,
                 value = value,
                 checked = checked,
@@ -52,12 +90,12 @@ A styled checkbox input that allows users to toggle between checked and unchecke
                 disabled = disabled,
                 attrs...,
             }
-            @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+            @span {class = label_class} $label
         end
     else
         @input {
             type = "checkbox",
-            class = "rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 $size_class $color_class $disabled_class",
+            class = "$base_classes $size_class $color_class $disabled_class",
             name = name,
             value = value,
             checked = checked,

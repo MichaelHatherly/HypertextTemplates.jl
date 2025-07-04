@@ -29,7 +29,27 @@ end
 - [`TooltipContent`](@ref) - Tooltip content component
 """
 @component function TooltipTrigger(; class::String = "", attrs...)
-    @div {var"x-ref" = "trigger", class = "inline-block $class", attrs...} begin
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract tooltip_trigger theme safely
+    tooltip_trigger_theme = if isa(theme, NamedTuple) && haskey(theme, :tooltip_trigger)
+        theme.tooltip_trigger
+    else
+        HypertextTemplates.Library.default_theme().tooltip_trigger
+    end
+
+    # Get base class with fallback
+    base_class = get(
+        tooltip_trigger_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().tooltip_trigger.base,
+    )
+
+    # Combine base class with user-provided class
+    final_class = "$base_class $class"
+
+    @div {var"x-ref" = "trigger", class = final_class, attrs...} begin
         @__slot__()
     end
 end

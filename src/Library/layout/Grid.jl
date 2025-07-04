@@ -47,15 +47,62 @@ end
     gap::Int = 4,
     attrs...,
 )
-    base_cols = "grid-cols-$cols"
-    sm_cols = isnothing(sm) ? "" : "sm:grid-cols-$sm"
-    md_cols = isnothing(md) ? "" : "md:grid-cols-$md"
-    lg_cols = isnothing(lg) ? "" : "lg:grid-cols-$lg"
-    xl_cols = isnothing(xl) ? "" : "xl:grid-cols-$xl"
-    gap_class = "gap-$gap"
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract grid theme safely
+    grid_theme = if isa(theme, NamedTuple) && haskey(theme, :grid)
+        theme.grid
+    else
+        HypertextTemplates.Library.default_theme().grid
+    end
+
+    # Get base class
+    base_class =
+        get(grid_theme, :base, HypertextTemplates.Library.default_theme().grid.base)
+
+    # Get prefixes for dynamic classes
+    cols_prefix = get(
+        grid_theme,
+        :cols_prefix,
+        HypertextTemplates.Library.default_theme().grid.cols_prefix,
+    )
+    sm_prefix = get(
+        grid_theme,
+        :sm_prefix,
+        HypertextTemplates.Library.default_theme().grid.sm_prefix,
+    )
+    md_prefix = get(
+        grid_theme,
+        :md_prefix,
+        HypertextTemplates.Library.default_theme().grid.md_prefix,
+    )
+    lg_prefix = get(
+        grid_theme,
+        :lg_prefix,
+        HypertextTemplates.Library.default_theme().grid.lg_prefix,
+    )
+    xl_prefix = get(
+        grid_theme,
+        :xl_prefix,
+        HypertextTemplates.Library.default_theme().grid.xl_prefix,
+    )
+    gap_prefix = get(
+        grid_theme,
+        :gap_prefix,
+        HypertextTemplates.Library.default_theme().grid.gap_prefix,
+    )
+
+    # Build dynamic classes
+    base_cols = "$(cols_prefix)$(cols)"
+    sm_cols = isnothing(sm) ? "" : "$(sm_prefix)$(sm)"
+    md_cols = isnothing(md) ? "" : "$(md_prefix)$(md)"
+    lg_cols = isnothing(lg) ? "" : "$(lg_prefix)$(lg)"
+    xl_cols = isnothing(xl) ? "" : "$(xl_prefix)$(xl)"
+    gap_class = "$(gap_prefix)$(gap)"
 
     @div {
-        class = "grid $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class",
+        class = "$base_class $base_cols $sm_cols $md_cols $lg_cols $xl_cols $gap_class",
         attrs...,
     } begin
         @__slot__()

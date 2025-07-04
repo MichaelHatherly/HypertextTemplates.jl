@@ -24,13 +24,13 @@ dialog:not([open]) {
 dialog::backdrop {
     background-color: rgba(0, 0, 0, 0);
     backdrop-filter: blur(0px);
-    transition: all 0.3s ease-out;
+    transition: all var(--modal-animation-duration, 0.3s) ease-out;
 }
 
 /* Backdrop animation when open */
 dialog[open]::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background-color: var(--modal-backdrop-color, rgba(0, 0, 0, 0.5));
+    backdrop-filter: blur(var(--modal-backdrop-blur, 4px));
 }
 
 /* Modal animation setup */
@@ -71,10 +71,10 @@ dialog[open] {
     padding: 0;
     border: none;
     /* Animation */
-    animation: modalFadeIn 0.3s ease-out;
+    animation: modalFadeIn var(--modal-animation-duration, 0.3s) ease-out;
 }
 
 /* Closing animation class */
 dialog.closing {
-    animation: modalFadeOut 0.2s ease-in;
+    animation: modalFadeOut var(--modal-close-duration, 0.2s) ease-in;
 }

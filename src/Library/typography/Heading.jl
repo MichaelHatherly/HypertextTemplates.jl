@@ -45,56 +45,69 @@ A semantic heading component that establishes clear visual hierarchy and structu
     tracking::Union{Symbol,String} = :tight,
     attrs...,
 )
-    # Default sizes for each heading level
-    default_sizes = (
-        #= 1 =#"text-4xl sm:text-5xl",
-        #= 2 =#"text-3xl sm:text-4xl",
-        #= 3 =#"text-2xl sm:text-3xl",
-        #= 4 =#"text-xl sm:text-2xl",
-        #= 5 =#"text-lg sm:text-xl",
-        #= 6 =#"text-base sm:text-lg",
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract heading theme safely
+    heading_theme = if isa(theme, NamedTuple) && haskey(theme, :heading)
+        theme.heading
+    else
+        HypertextTemplates.Library.default_theme().heading
+    end
+
+    # Get theme values
+    default_sizes = get(
+        heading_theme,
+        :default_sizes,
+        HypertextTemplates.Library.default_theme().heading.default_sizes,
     )
+    default_color = get(
+        heading_theme,
+        :default_color,
+        HypertextTemplates.Library.default_theme().heading.default_color,
+    )
+    gradient_color = get(
+        heading_theme,
+        :gradient_color,
+        HypertextTemplates.Library.default_theme().heading.gradient_color,
+    )
+
+    # Get nested themes
+    sizes_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :sizes)
+        heading_theme.sizes
+    else
+        HypertextTemplates.Library.default_theme().heading.sizes
+    end
+
+    weights_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :weights)
+        heading_theme.weights
+    else
+        HypertextTemplates.Library.default_theme().heading.weights
+    end
+
+    tracking_theme = if isa(heading_theme, NamedTuple) && haskey(heading_theme, :tracking)
+        heading_theme.tracking
+    else
+        HypertextTemplates.Library.default_theme().heading.tracking
+    end
 
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
     weight_sym = Symbol(weight)
     tracking_sym = Symbol(tracking)
 
-    # Size overrides
-    size_classes = (
-        xs = "text-xs",
-        sm = "text-sm",
-        base = "text-base",
-        lg = "text-lg",
-        xl = "text-xl",
-        var"2xl" = "text-2xl",
-        var"3xl" = "text-3xl",
-        var"4xl" = "text-4xl",
-        var"5xl" = "text-5xl",
-    )
-
-    weight_classes = (
-        light = "font-light",
-        normal = "font-normal",
-        medium = "font-medium",
-        semibold = "font-semibold",
-        bold = "font-bold",
-        extrabold = "font-extrabold",
-    )
-
-    tracking_classes =
-        (tight = "tracking-tight", normal = "tracking-normal", wide = "tracking-wide")
-
+    # Get classes
     size_class =
         isnothing(size_sym) ? _get(default_sizes, level, "text-2xl") :
-        get(size_classes, size_sym, "text-2xl")
-    weight_class = get(weight_classes, weight_sym, "font-bold")
-    tracking_class = get(tracking_classes, tracking_sym, "tracking-tight")
+        get(sizes_theme, size_sym, "text-2xl")
+    weight_class = get(weights_theme, weight_sym, get(weights_theme, :bold, "font-bold"))
+    tracking_class =
+        get(tracking_theme, tracking_sym, get(tracking_theme, :tight, "tracking-tight"))
 
     if gradient
-        color_class = "bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
+        color_class = gradient_color
     else
-        color_class = isnothing(color) ? "text-gray-900 dark:text-gray-100" : color
+        color_class = isnothing(color) ? default_color : color
     end
 
     elements = (
@@ -107,7 +120,7 @@ A semantic heading component that establishes clear visual hierarchy and structu
     )
     element = _get(elements, level, Elements.h1)
 
-    @<element {class = "$size_class $weight_class $color_class", attrs...} begin
+    @<element {class = "$size_class $weight_class $color_class $tracking_class", attrs...} begin
         @__slot__()
     end
 end

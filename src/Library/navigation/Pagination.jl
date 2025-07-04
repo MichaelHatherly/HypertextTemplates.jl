@@ -25,6 +25,63 @@ A page navigation component that provides intuitive controls for navigating thro
     base_url::String = "#",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract pagination theme safely
+    pagination_theme = if isa(theme, NamedTuple) && haskey(theme, :pagination)
+        theme.pagination
+    else
+        HypertextTemplates.Library.default_theme().pagination
+    end
+
+    # Get classes
+    wrapper_class = get(
+        pagination_theme,
+        :wrapper,
+        HypertextTemplates.Library.default_theme().pagination.wrapper,
+    )
+    list_class = get(
+        pagination_theme,
+        :list,
+        HypertextTemplates.Library.default_theme().pagination.list,
+    )
+    button_class = get(
+        pagination_theme,
+        :button,
+        HypertextTemplates.Library.default_theme().pagination.button,
+    )
+    button_disabled_class = get(
+        pagination_theme,
+        :button_disabled,
+        HypertextTemplates.Library.default_theme().pagination.button_disabled,
+    )
+    page_class = get(
+        pagination_theme,
+        :page,
+        HypertextTemplates.Library.default_theme().pagination.page,
+    )
+    page_current_class = get(
+        pagination_theme,
+        :page_current,
+        HypertextTemplates.Library.default_theme().pagination.page_current,
+    )
+    ellipsis_class = get(
+        pagination_theme,
+        :ellipsis,
+        HypertextTemplates.Library.default_theme().pagination.ellipsis,
+    )
+    prev_icon = get(
+        pagination_theme,
+        :prev_icon,
+        HypertextTemplates.Library.default_theme().pagination.prev_icon,
+    )
+    next_icon = get(
+        pagination_theme,
+        :next_icon,
+        HypertextTemplates.Library.default_theme().pagination.next_icon,
+    )
+
     # Calculate which page numbers to show
     pages = Int[]
 
@@ -55,29 +112,25 @@ A page navigation component that provides intuitive controls for navigating thro
         push!(pages, total)
     end
 
-    @nav {class = "flex items-center justify-center", "aria-label" = "Pagination", attrs...} begin
-        @ul {class = "flex items-center gap-1"} begin
+    @nav {class = wrapper_class, "aria-label" = "Pagination", attrs...} begin
+        @ul {class = list_class} begin
             # Previous button
             @li begin
                 if current > 1
                     @a {
                         href = "$base_url$(current-1)",
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
+                        class = button_class,
                         "aria-label" = "Go to previous page",
                     } begin
-                        @text HypertextTemplates.SafeString(
-                            """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>""",
-                        )
+                        @text HypertextTemplates.SafeString(prev_icon)
                     end
                 else
                     @span {
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-xl cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 opacity-50",
+                        class = button_disabled_class,
                         "aria-label" = "Previous page (disabled)",
                         "aria-disabled" = "true",
                     } begin
-                        @text HypertextTemplates.SafeString(
-                            """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>""",
-                        )
+                        @text HypertextTemplates.SafeString(prev_icon)
                     end
                 end
             end
@@ -87,21 +140,15 @@ A page navigation component that provides intuitive controls for navigating thro
                 @li begin
                     if page == -1
                         # Ellipsis
-                        @span {
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg dark:bg-gray-900 dark:border-gray-700 dark:text-gray-500",
-                        } "..."
+                        @span {class = ellipsis_class} "..."
                     elseif page == current
                         # Current page
-                        @span {
-                            "aria-current" = "page",
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded-xl shadow-sm dark:bg-blue-600 dark:border-blue-600",
-                        } @text string(page)
+                        @span {"aria-current" = "page", class = page_current_class} @text string(
+                            page,
+                        )
                     else
                         # Other pages
-                        @a {
-                            href = "$base_url$page",
-                            class = "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
-                        } @text string(page)
+                        @a {href = "$base_url$page", class = page_class} @text string(page)
                     end
                 end
             end
@@ -111,22 +158,18 @@ A page navigation component that provides intuitive controls for navigating thro
                 if current < total
                     @a {
                         href = "$base_url$(current+1)",
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow",
+                        class = button_class,
                         "aria-label" = "Go to next page",
                     } begin
-                        @text HypertextTemplates.SafeString(
-                            """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>""",
-                        )
+                        @text HypertextTemplates.SafeString(next_icon)
                     end
                 else
                     @span {
-                        class = "relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-xl cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 opacity-50",
+                        class = button_disabled_class,
                         "aria-label" = "Next page (disabled)",
                         "aria-disabled" = "true",
                     } begin
-                        @text HypertextTemplates.SafeString(
-                            """<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>""",
-                        )
+                        @text HypertextTemplates.SafeString(next_icon)
                     end
                 end
             end

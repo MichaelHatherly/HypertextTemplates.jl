@@ -42,25 +42,56 @@ end
     # Convert to symbol
     size_sym = Symbol(size)
 
-    size_classes = (
-        sm = "max-w-screen-sm",
-        md = "max-w-screen-md",
-        lg = "max-w-screen-lg",
-        xl = "max-w-screen-xl",
-        var"2xl" = "max-w-screen-2xl",
-        full = "max-w-full",
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract container theme safely
+    container_theme = if isa(theme, NamedTuple) && haskey(theme, :container)
+        theme.container
+    else
+        HypertextTemplates.Library.default_theme().container
+    end
+
+    # Get base classes
+    base_class = get(
+        container_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().container.base,
     )
 
-    size_class = get(size_classes, size_sym, "max-w-screen-xl")
-    padding_class = padding ? "px-4 sm:px-6 lg:px-8" : ""
-    centered_class = centered ? "mx-auto" : ""
+    # Get size class with fallback
+    size_class =
+        if haskey(container_theme, :sizes) && haskey(container_theme.sizes, size_sym)
+            container_theme.sizes[size_sym]
+        else
+            HypertextTemplates.Library.default_theme().container.sizes[size_sym]
+        end
+
+    # Get conditional classes
+    padding_class =
+        padding ?
+        get(
+            container_theme,
+            :padding,
+            HypertextTemplates.Library.default_theme().container.padding,
+        ) : ""
+    centered_class =
+        centered ?
+        get(
+            container_theme,
+            :centered,
+            HypertextTemplates.Library.default_theme().container.centered,
+        ) : ""
     glass_class =
         glass ?
-        "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" :
-        ""
+        get(
+            container_theme,
+            :glass,
+            HypertextTemplates.Library.default_theme().container.glass,
+        ) : ""
 
     @div {
-        class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300",
+        class = "$size_class $padding_class $centered_class $glass_class $base_class",
         role = role,
         attrs...,
     } begin

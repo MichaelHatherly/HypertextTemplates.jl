@@ -42,14 +42,29 @@ end
     alternate::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract timeline theme safely
+    timeline_theme = if isa(theme, NamedTuple) && haskey(theme, :timeline)
+        theme.timeline
+    else
+        HypertextTemplates.Library.default_theme().timeline
+    end
+
     variant_sym = Symbol(variant)
 
+    # Get variant class with fallback
+    variant_class = get(
+        timeline_theme,
+        variant_sym,
+        variant_sym == :horizontal ?
+        HypertextTemplates.Library.default_theme().timeline.horizontal :
+        HypertextTemplates.Library.default_theme().timeline.vertical,
+    )
+
     # Build component default attributes
-    component_attrs = if variant_sym == :horizontal
-        (class = "flex flex-row items-start gap-4 overflow-x-auto",)
-    else
-        (class = "relative list-none",)
-    end
+    component_attrs = (class = variant_class,)
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)

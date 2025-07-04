@@ -69,41 +69,49 @@ end
     size_sym = Symbol(size)
     rounded_sym = Symbol(rounded)
 
-    # Size classes
-    size_map = (
-        xs = (padding = "px-2.5 py-1.5", text = "text-xs", gap = "gap-1"),
-        sm = (padding = "px-3 py-2", text = "text-sm", gap = "gap-1.5"),
-        base = (padding = "px-4 py-2.5", text = "text-base", gap = "gap-2"),
-        lg = (padding = "px-5 py-3", text = "text-lg", gap = "gap-2.5"),
-        xl = (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    # Variant classes
-    variant_map = (
-        primary = "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md",
-        secondary = "bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md",
-        neutral = "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md",
-        success = "bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-400 shadow-sm hover:shadow-md",
-        warning = "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400 shadow-sm hover:shadow-md",
-        danger = "bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-400 shadow-sm hover:shadow-md",
-        gradient = "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-blue-400 shadow-md hover:shadow-lg",
-        ghost = "bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
-        outline = "bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
-    )
+    # Extract button theme safely
+    button_theme = if isa(theme, NamedTuple) && haskey(theme, :button)
+        theme.button
+    else
+        HypertextTemplates.Library.default_theme().button
+    end
 
-    size_data = get(size_map, size_sym, size_map.base)
-    variant_class = get(variant_map, variant_sym, variant_map.primary)
+    # Get base classes
+    base_classes =
+        get(button_theme, :base, HypertextTemplates.Library.default_theme().button.base)
 
-    # Rounded classes
-    rounded_classes =
-        (base = "rounded-lg", lg = "rounded-xl", xl = "rounded-2xl", full = "rounded-full")
-    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.xl)
+    # Get variant classes with fallback
+    variant_class =
+        if haskey(button_theme, :variants) && haskey(button_theme.variants, variant_sym)
+            button_theme.variants[variant_sym]
+        else
+            HypertextTemplates.Library.default_theme().button.variants[variant_sym]
+        end
 
-    # Build classes
-    width_class = full_width ? "w-full" : ""
-    disabled_class = disabled || loading ? "opacity-60 cursor-not-allowed" : ""
+    # Get size data with fallback
+    size_data = if haskey(button_theme, :sizes) && haskey(button_theme.sizes, size_sym)
+        button_theme.sizes[size_sym]
+    else
+        HypertextTemplates.Library.default_theme().button.sizes[size_sym]
+    end
 
-    base_classes = "inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100"
+    # Get rounded classes with fallback
+    rounded_class =
+        if haskey(button_theme, :rounded) && haskey(button_theme.rounded, rounded_sym)
+            button_theme.rounded[rounded_sym]
+        else
+            HypertextTemplates.Library.default_theme().button.rounded[rounded_sym]
+        end
+
+    # Get state classes
+    states =
+        get(button_theme, :states, HypertextTemplates.Library.default_theme().button.states)
+    width_class = full_width ? get(states, :full_width, "w-full") : ""
+    disabled_class =
+        disabled || loading ? get(states, :disabled, "opacity-60 cursor-not-allowed") : ""
 
     final_classes = "$base_classes $rounded_class $(size_data.padding) $(size_data.text) $(size_data.gap) $variant_class $width_class $disabled_class"
 

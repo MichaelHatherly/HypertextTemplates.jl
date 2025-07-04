@@ -51,19 +51,81 @@ end
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Extract tabs theme safely
+    tabs_theme = if isa(theme, NamedTuple) && haskey(theme, :tabs)
+        theme.tabs
+    else
+        HypertextTemplates.Library.default_theme().tabs
+    end
+
+    # Get all theme values with fallbacks
+    container_class = get(
+        tabs_theme,
+        :container,
+        HypertextTemplates.Library.default_theme().tabs.container,
+    )
+    panels_container_class = get(
+        tabs_theme,
+        :panels_container,
+        HypertextTemplates.Library.default_theme().tabs.panels_container,
+    )
+
+    # Nav theme
+    nav_theme = if isa(tabs_theme, NamedTuple) && haskey(tabs_theme, :nav)
+        tabs_theme.nav
+    else
+        HypertextTemplates.Library.default_theme().tabs.nav
+    end
+    nav_base_class =
+        get(nav_theme, :base, HypertextTemplates.Library.default_theme().tabs.nav.base)
+    aria_label_default = get(
+        nav_theme,
+        :aria_label_default,
+        HypertextTemplates.Library.default_theme().tabs.nav.aria_label_default,
+    )
+
+    # Button theme
+    button_theme = if isa(tabs_theme, NamedTuple) && haskey(tabs_theme, :button)
+        tabs_theme.button
+    else
+        HypertextTemplates.Library.default_theme().tabs.button
+    end
+    button_base_class = get(
+        button_theme,
+        :base,
+        HypertextTemplates.Library.default_theme().tabs.button.base,
+    )
+    button_active_class = get(
+        button_theme,
+        :active,
+        HypertextTemplates.Library.default_theme().tabs.button.active,
+    )
+    button_inactive_class = get(
+        button_theme,
+        :inactive,
+        HypertextTemplates.Library.default_theme().tabs.button.inactive,
+    )
+
     # Use first item as active if not specified
     active_id = isempty(active) && !isempty(items) ? items[1][1] : active
 
     # Build component default attributes with Alpine.js
-    component_attrs = (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"),)
+    component_attrs = if isempty(container_class)
+        (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"),)
+    else
+        (var"x-data" = SafeString("{ activeTab: '$(active_id)' }"), class = container_class)
+    end
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)
 
     @div {merged_attrs...} begin
         @nav {
-            class = "flex gap-2 border-b-2 border-gray-200 dark:border-gray-700",
-            "aria-label" = isnothing(aria_label) ? "Tabs" : aria_label,
+            class = nav_base_class,
+            "aria-label" = isnothing(aria_label) ? aria_label_default : aria_label,
             role = "tablist",
         } begin
             for (id, label) in items
@@ -74,7 +136,7 @@ end
                     "aria-controls" = "tabpanel-$id",
                     "@click" = "activeTab = '$id'",
                     ":class" = SafeString(
-                        """activeTab === '$id' ? 'px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 dark:border-blue-400 -mb-[2px] transition-all duration-200 rounded-t-lg bg-blue-50 dark:bg-blue-950/30' : 'px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 border-b-2 border-transparent -mb-[2px] hover:text-gray-900 hover:bg-gray-50 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-t-lg'""",
+                        """activeTab === '$id' ? '$(button_base_class) $(button_active_class)' : '$(button_base_class) $(button_inactive_class)'""",
                     ),
                     ":aria-selected" = "activeTab === '$id'",
                 } $label
@@ -82,7 +144,7 @@ end
         end
 
         # Tab panels container
-        @div {class = "mt-4"} begin
+        @div {class = panels_container_class} begin
             # The slot should contain @TabPanel components
             @__slot__()
         end
