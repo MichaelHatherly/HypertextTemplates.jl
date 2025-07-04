@@ -1,0 +1,568 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Toggle Components</title><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script><style type="text/tailwindcss">/* Enable class-based dark mode for Tailwind CSS v4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* Keyframes for progress bar stripes animation */
+@keyframes stripes {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 1rem 0;
+    }
+}
+
+/* Hide elements with x-cloak until Alpine initializes */
+[x-cloak] { display: none !important; }
+</style></head><body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex"><div class="w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto flex-shrink-0"><div class="p-6"><div class="flex flex-col gap-6 items-stretch justify-start "><div class="flex flex-col gap-2 items-stretch justify-start "><h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Components</h3><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Browse all component examples</p></div><div class="flex flex-col gap-1 items-stretch justify-start "><a href="AdvancedComponentsExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Advanced Components</a><a href="AppExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Complete Application Example</a><a href="DarkModeExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dark Mode Optimized Components</a><a href="DropdownMenuExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dropdown Menu Components</a><a href="FeedbackExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Feedback Components</a><a href="FormExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Form Components</a><a href="IconGalleryExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Icon Gallery</a><a href="LayoutExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Layout Components</a><a href="ModalExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modal Components</a><a href="ModernStylingExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modern Styling Features</a><a href="NavigationExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Navigation Components</a><a href="TableListExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Table &amp; List Components</a><a href="ToggleExample.html" class="block px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium" aria-current="page">Toggle Components</a><a href="TypographyExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Typography Components</a><a href="UtilityExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Utility Components</a></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><script>/**
+ * Alpine.data component for ThemeToggle
+ *
+ * This file defines the interactive behavior for the ThemeToggle component.
+ * It uses Alpine.js's data component system to provide reusable theme switching functionality.
+ *
+ * Architecture Overview:
+ * - Registered as 'themeToggle' Alpine.data component
+ * - Manages theme state (light/dark/system) with localStorage persistence
+ * - Automatically detects and responds to system theme changes
+ * - Provides reactive properties for UI updates
+ *
+ * Dependencies:
+ * - Alpine.js v3
+ *
+ * Usage in templates:
+ * x-data="themeToggle()"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('themeToggle', () => ({
+        // Current theme state
+        theme: 'system',
+
+        // Theme configuration
+        themes: ['light', 'dark', 'system'],
+        icons: {
+            light: '☀️',
+            dark: '🌙',
+            system: '💻'
+        },
+        labels: {
+            light: 'Light',
+            dark: 'Dark',
+            system: 'System'
+        },
+
+        /**
+         * Initialize theme on component mount
+         * Loads saved theme from localStorage and sets up system theme listener
+         */
+        init() {
+            // Load saved theme from localStorage
+            this.theme = localStorage.getItem('theme') || 'system';
+
+            // Apply initial theme
+            this.applyTheme();
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (this.theme === 'system') {
+                    this.applyTheme();
+                }
+            });
+
+            // Listen for storage events to sync between tabs/windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'theme' && e.newValue) {
+                    this.theme = e.newValue;
+                    this.applyTheme();
+                }
+            });
+        },
+
+        /**
+         * Cycle through themes: light -> dark -> system
+         * Persists selection to localStorage and applies theme
+         */
+        toggle() {
+            const currentIndex = this.themes.indexOf(this.theme);
+            const nextIndex = (currentIndex + 1) % this.themes.length;
+            this.theme = this.themes[nextIndex];
+
+            // Persist to localStorage
+            localStorage.setItem('theme', this.theme);
+
+            // Apply theme changes
+            this.applyTheme();
+
+            // Dispatch custom event for other components to listen to
+            window.dispatchEvent(new CustomEvent('theme-changed', {
+                detail: { theme: this.theme }
+            }));
+        },
+
+        /**
+         * Apply the current theme to the document
+         * Handles system theme detection when in system mode
+         */
+        applyTheme() {
+            const effectiveTheme = this.theme === 'system'
+                ? this.getSystemTheme()
+                : this.theme;
+
+            if (effectiveTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
+
+        /**
+         * Get the current system theme preference
+         * @returns {string} 'dark' or 'light'
+         */
+        getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+        },
+
+        /**
+         * Computed property for current theme icon
+         * Used by x-text binding in the template
+         */
+        get currentIcon() {
+            return this.icons[this.theme];
+        },
+
+        /**
+         * Computed property for current theme label
+         * Used by x-text binding in the template
+         */
+        get currentLabel() {
+            return this.labels[this.theme];
+        }
+    }))
+});
+
+/**
+ * Apply initial theme before Alpine initializes to prevent flash
+ * This runs immediately when the script loads
+ */
+(function() {
+    const theme = localStorage.getItem('theme') || 'system';
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const effectiveTheme = theme === 'system' ? systemTheme : theme;
+
+    if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+})();
+</script><button id="theme-toggle" type="button" x-data="themeToggle()" @click="toggle()" class="inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-3 py-2 text-sm rounded-lg " title="Toggle theme"><span x-text="`${currentIcon} ${currentLabel}`">💻 System</span></button><a href="../library-components" class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">← Back to documentation</a></div></div></div><div class="flex-1 overflow-y-auto px-6 py-2"><div class="py-8"><div class="flex flex-col gap-8 items-stretch justify-start "><h1 class="text-center mb-8">Toggle Components</h1><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Switch Toggles</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">iOS-style sliding switches for settings and preferences.</p><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Basic Switches</h3><div class="flex flex-col gap-3 items-stretch justify-start "><label class="inline-flex items-center gap-3 " for="toggle-4283098798660371975"><div class="relative"><input type="checkbox" role="switch" id="toggle-4283098798660371975" name="notifications" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Enable notifications</span></label><label class="inline-flex items-center gap-3 " for="toggle-12212979549686064868"><div class="relative"><input type="checkbox" role="switch" id="toggle-12212979549686064868" name="autosave" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Auto-save documents</span></label><label class="inline-flex items-center gap-3 opacity-60 cursor-not-allowed" for="toggle-12832447315197690289"><div class="relative"><input type="checkbox" role="switch" id="toggle-12832447315197690289" name="maintenance" disabled class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700  opacity-60 cursor-not-allowed"></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Maintenance mode</span></label></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Sizes</h3><div class="flex flex-col gap-3 items-stretch justify-start "><label class="inline-flex items-center gap-3 " for="toggle-1186241357848734403"><div class="relative"><input type="checkbox" role="switch" id="toggle-1186241357848734403" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-3 before:w-3 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-4 checked:shadow-inner
+ h-4 w-8 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Extra small toggle</span></label><label class="inline-flex items-center gap-3 " for="toggle-9587418096074850472"><div class="relative"><input type="checkbox" role="switch" id="toggle-9587418096074850472" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-4 before:w-4 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-5 checked:shadow-inner
+ h-5 w-10 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Small toggle</span></label><label class="inline-flex items-center gap-3 " for="toggle-9673574055593233459"><div class="relative"><input type="checkbox" role="switch" id="toggle-9673574055593233459" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Base size toggle</span></label><label class="inline-flex items-center gap-3 " for="toggle-11052487598119777686"><div class="relative"><input type="checkbox" role="switch" id="toggle-11052487598119777686" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-6 before:w-6 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-7 checked:shadow-inner
+ h-7 w-14 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Large toggle</span></label><label class="inline-flex items-center gap-3 " for="toggle-6643103290423938710"><div class="relative"><input type="checkbox" role="switch" id="toggle-6643103290423938710" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-7 before:w-7 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-8 checked:shadow-inner
+ h-8 w-16 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Extra large toggle</span></label></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Color Variants</h3><div class="flex flex-col gap-3 items-stretch justify-start "><label class="inline-flex items-center gap-3 " for="toggle-5931578009632152445"><div class="relative"><input type="checkbox" role="switch" id="toggle-5931578009632152445" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Primary color</span></label><label class="inline-flex items-center gap-3 " for="toggle-4968877273221914961"><div class="relative"><input type="checkbox" role="switch" id="toggle-4968877273221914961" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-emerald-400 checked:to-emerald-600
+     dark:checked:from-emerald-500 dark:checked:to-emerald-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Success color</span></label><label class="inline-flex items-center gap-3 " for="toggle-18149769104159949824"><div class="relative"><input type="checkbox" role="switch" id="toggle-18149769104159949824" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-rose-400 checked:to-rose-600
+     dark:checked:from-rose-500 dark:checked:to-rose-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Danger color</span></label></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">With Icons</h3><div class="flex flex-col gap-3 items-stretch justify-start "><label class="inline-flex items-center gap-3 " for="toggle-11860331241523221959"><div class="relative"><input type="checkbox" role="switch" id="toggle-11860331241523221959" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Dark mode</span></label><label class="inline-flex items-center gap-3 " for="toggle-9051422398850128308"><div class="relative"><input type="checkbox" role="switch" id="toggle-9051422398850128308" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Sound</span></label><label class="inline-flex items-center gap-3 " for="toggle-7370158521642432435"><div class="relative"><input type="checkbox" role="switch" id="toggle-7370158521642432435" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Accept terms</span></label></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Button Toggles</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Use the button variant for toolbar-style toggles.</p><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Text Formatting</h3><div class="flex gap-2"><label class="inline-block relative" for="toggle-12417000738343736205"><input type="checkbox" id="toggle-12417000738343736205" name="bold" checked class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><strong>B</strong></div></label><label class="inline-block relative" for="toggle-6371040414718018103"><input type="checkbox" id="toggle-6371040414718018103" name="italic" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><em>I</em></div></label><label class="inline-block relative" for="toggle-12592869379929953227"><input type="checkbox" id="toggle-12592869379929953227" name="underline" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="underline">U</span></div></label><label class="inline-block relative" for="toggle-4199819722706996433"><input type="checkbox" id="toggle-4199819722706996433" name="strikethrough" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="line-through">S</span></div></label></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Icon Toggles</h3><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-sm text-gray-600">View options:</p><div class="flex gap-2"><label class="inline-block relative" for="toggle-4800397162726635426"><input type="checkbox" id="toggle-4800397162726635426" name="view_grid" checked class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg></span></div></label><label class="inline-block relative" for="toggle-14503601152896734629"><input type="checkbox" id="toggle-14503601152896734629" name="view_list" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg></span></div></label><label class="inline-block relative" for="toggle-637445932291738382"><input type="checkbox" id="toggle-637445932291738382" name="view_card" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"></span></div></label></div></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Mixed Content</h3><div class="flex gap-2"><label class="inline-block relative" for="toggle-2440520693325453440"><input type="checkbox" id="toggle-2440520693325453440" name="edit_mode" checked class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span><span class="ml-2">Edit</span></div></label><label class="inline-block relative" for="toggle-5287496563384469004"><input type="checkbox" id="toggle-5287496563384469004" name="preview_mode" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></span><span class="ml-2">Preview</span></div></label><label class="inline-block relative" for="toggle-12288966059243707629"><input type="checkbox" id="toggle-12288966059243707629" name="split_mode" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"></span><span class="ml-2">Split</span></div></label></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Button Sizes</h3><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex items-center gap-2"><label class="inline-block relative" for="toggle-9396008853697259643"><input type="checkbox" id="toggle-9396008853697259643" name="xs_toggle" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-2.5 py-1.5 text-xs gap-1 
+">XS</div></label><label class="inline-block relative" for="toggle-14531711402514404382"><input type="checkbox" id="toggle-14531711402514404382" name="sm_toggle" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+">Small</div></label><label class="inline-block relative" for="toggle-11746599940700486830"><input type="checkbox" id="toggle-11746599940700486830" name="base_toggle" checked class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-4 py-2.5 text-base gap-2 
+">Base</div></label><label class="inline-block relative" for="toggle-12242048910575838627"><input type="checkbox" id="toggle-12242048910575838627" name="lg_toggle" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-5 py-3 text-lg gap-2.5 
+">Large</div></label><label class="inline-block relative" for="toggle-12139205995934836739"><input type="checkbox" id="toggle-12139205995934836739" name="xl_toggle" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-6 py-3.5 text-xl gap-3 
+">XL</div></label></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-4 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Common Use Cases</h2><div class="flex flex-col gap-6 items-stretch justify-start "><div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-lg">Notification Settings</h3><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex items-center justify-between"><div class="flex flex-col gap-1 items-stretch justify-start  flex-1"><p class="font-medium">Email Notifications</p><p class="text-sm text-gray-600">Receive email updates about your account</p></div><div class="inline-flex items-center gap-3 "><div class="relative"><input type="checkbox" role="switch" id="toggle-12736658642155537857" name="email_notif" checked class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div></div></div><div class="flex items-center justify-between"><div class="flex flex-col gap-1 items-stretch justify-start  flex-1"><p class="font-medium">Push Notifications</p><p class="text-sm text-gray-600">Receive push notifications on your devices</p></div><div class="inline-flex items-center gap-3 "><div class="relative"><input type="checkbox" role="switch" id="toggle-12117219111320327816" name="push_notif" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
+     dark:checked:from-blue-500 dark:checked:to-blue-700 cursor-pointer "></div></div></div><div class="flex items-center justify-between"><div class="flex flex-col gap-1 items-stretch justify-start  flex-1"><p class="font-medium">SMS Alerts</p><p class="text-sm text-gray-600">Get important alerts via SMS</p></div><div class="inline-flex items-center gap-3 "><div class="relative"><input type="checkbox" role="switch" id="toggle-17355420678464034892" name="sms_alerts" class="appearance-none relative inline-block flex-shrink-0 rounded-full
+bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
+shadow-inner transition-all duration-200 ease-in-out
+focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
+before:content-[&#39;&#39;] before:inline-block before:rounded-full 
+before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
+before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
+before:border before:border-gray-200 dark:before:border-gray-400
+before:transition-all before:duration-200 before:ease-in-out
+before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
+checked:before:translate-x-6 checked:shadow-inner
+ h-6 w-12 checked:bg-gradient-to-b checked:from-rose-400 checked:to-rose-600
+     dark:checked:from-rose-500 dark:checked:to-rose-700 cursor-pointer "></div></div></div></div></div></div><div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-sm font-medium text-gray-700 dark:text-gray-300">Editor Toolbar</p><div class="flex items-center gap-2"><div class="flex gap-1"><label class="inline-block relative" for="toggle-1478910115528531140"><input type="checkbox" id="toggle-1478910115528531140" name="editor_bold" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><strong>B</strong></div></label><label class="inline-block relative" for="toggle-2076212048737543135"><input type="checkbox" id="toggle-2076212048737543135" name="editor_italic" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><em>I</em></div></label><label class="inline-block relative" for="toggle-1118663578720893730"><input type="checkbox" id="toggle-1118663578720893730" name="editor_underline" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="underline">U</span></div></label></div><div class="w-px h-6 bg-gray-300 dark:bg-gray-700"></div><div class="flex gap-1"><label class="inline-block relative" for="toggle-13326890447900681123"><input type="checkbox" id="toggle-13326890447900681123" name="editor_left" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"></span></div></label><label class="inline-block relative" for="toggle-2611748089376579269"><input type="checkbox" id="toggle-2611748089376579269" name="editor_center" checked class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"></span></div></label><label class="inline-block relative" for="toggle-9921978031807504129"><input type="checkbox" id="toggle-9921978031807504129" name="editor_right" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"></span></div></label></div><div class="w-px h-6 bg-gray-300 dark:bg-gray-700"></div><div class="flex gap-1"><label class="inline-block relative" for="toggle-2731799582680018394"><input type="checkbox" id="toggle-2731799582680018394" name="editor_list" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg></span></div></label><label class="inline-block relative" for="toggle-5829668379075166397"><input type="checkbox" id="toggle-5829668379075166397" name="editor_numbered" class="sr-only peer"><div aria-hidden="true" class="inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
+bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
+border-gray-300 dark:border-gray-700
+hover:bg-gray-50 dark:hover:bg-gray-900
+peer-checked:bg-gradient-to-r
+peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700
+peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
+transition-all duration-200
+px-3 py-2 text-sm gap-1.5 
+"><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"></span></div></label></div></div></div></div></div></div></div></div></div></div></body></html>
