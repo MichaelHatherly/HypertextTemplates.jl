@@ -30,9 +30,14 @@ end
 - [`ModalFooter`](@ref) - Modal footer section
 """
 @component function ModalContent(; scrollable::Bool = true, attrs...)
-    scroll_class = scrollable ? "overflow-y-auto" : "overflow-hidden"
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    @div {class = "p-6 $scroll_class", attrs...} begin
+    # Direct theme access
+    base_class = theme.modal_content.base
+    scroll_class = scrollable ? theme.modal_content.scrollable : theme.modal_content.fixed
+
+    @div {class = "$base_class $scroll_class", attrs...} begin
         @__slot__()
     end
 end

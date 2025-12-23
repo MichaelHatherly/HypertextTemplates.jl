@@ -19,29 +19,30 @@ A navigation breadcrumb component that displays the hierarchical path to the cur
     separator::String = "/",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    list_class = theme.breadcrumb.list
+    item_class = theme.breadcrumb.item
+    current_class = theme.breadcrumb.current
+    link_class = theme.breadcrumb.link
+    separator_class = theme.breadcrumb.separator
+
     @nav {"aria-label" = "Breadcrumb", attrs...} begin
-        @ol {class = "flex items-center space-x-2 text-sm"} begin
+        @ol {class = list_class} begin
             for (i, (href, label)) in enumerate(items)
-                @li {class = "flex items-center"} begin
+                @li {class = item_class} begin
                     if i == length(items)
                         # Current page
-                        @span {
-                            class = "text-gray-700 dark:text-gray-300 font-medium",
-                            "aria-current" = "page",
-                        } $label
+                        @span {class = current_class, "aria-current" = "page"} $label
                     else
                         # Link
-                        @a {
-                            href = href,
-                            class = "text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 hover:underline underline-offset-2",
-                        } $label
+                        @a {href = href, class = link_class} $label
                     end
 
                     if i < length(items)
-                        @span {
-                            class = "mx-2 text-gray-400 dark:text-gray-600",
-                            "aria-hidden" = "true",
-                        } $separator
+                        @span {class = separator_class, "aria-hidden" = "true"} $separator
                     end
                 end
             end

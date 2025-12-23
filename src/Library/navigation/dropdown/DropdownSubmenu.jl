@@ -52,27 +52,39 @@ The submenu state is managed by the parent dropdown's Alpine component through t
     class::AbstractString = "",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    dropdown_submenu_theme = theme.dropdown_submenu
+    container_class = dropdown_submenu_theme.container
+    content_class = dropdown_submenu_theme.content
+
+    # Get trigger theme
+    trigger_theme = dropdown_submenu_theme.trigger
+    trigger_base_class = trigger_theme.base
+    icon_wrapper_class = trigger_theme.icon_wrapper
+    chevron_icon = trigger_theme.chevron_icon
+
     # Generate unique ID for this submenu to track its open/closed state
     submenu_id = "submenu-$(hash(label))"
 
-    @div {class = "relative", "data-submenu-id" = submenu_id} begin
+    @div {class = container_class, "data-submenu-id" = submenu_id} begin
         # Trigger button - must come first in DOM for x-anchor to work
         @button {
             type = "button",
-            class = "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors duration-150 flex items-center justify-between",
+            class = trigger_base_class,
             "@click" = "toggleSubmenu('$submenu_id', \$event)",
             "x-ref" = "submenu_trigger_$submenu_id",  # Ref is kept for potential future use
         } begin
-            @span {class = "flex items-center gap-2"} begin
+            @span {class = icon_wrapper_class} begin
                 if !isnothing(icon)
                     @Icon {name = icon, size = :sm}
                 end
                 @text label
             end
             # Chevron icon
-            @text SafeString(
-                """<svg class="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>""",
-            )
+            @text SafeString(chevron_icon)
         end
 
         # Submenu content - positioned using Alpine Anchor
@@ -95,7 +107,7 @@ The submenu state is managed by the parent dropdown's Alpine component through t
             "x-transition:leave" = "transition ease-in duration-75",
             "x-transition:leave-start" = "transform opacity-100 scale-100",
             "x-transition:leave-end" = "transform opacity-0 scale-95",
-            class = "absolute z-[10000] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 $class",
+            class = "$content_class $class",
             role = "menu",
             "@click.stop" = "",  # Prevent clicks from bubbling up
         } begin

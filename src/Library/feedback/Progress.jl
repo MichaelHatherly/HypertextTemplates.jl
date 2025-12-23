@@ -36,27 +36,27 @@ Without Alpine.js, the progress bar will display at its final value without anim
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     size_sym = Symbol(size)
     color_sym = Symbol(color)
 
-    size_classes = (sm = "h-2", md = "h-3", lg = "h-5")
+    # Direct theme access
+    container_class = theme.progress.container
+    bar_class = theme.progress.bar
+    size_class = theme.progress.sizes[size_sym]
+    color_class = theme.progress.colors[color_sym]
+    striped_base = theme.progress.striped
+    animated_stripe = theme.progress.animated_stripe
+    label_class = theme.progress.label
+    label_value_class = theme.progress.label_value
 
-    color_classes = (
-        primary = "bg-blue-500 dark:bg-blue-400",
-        success = "bg-emerald-500 dark:bg-emerald-400",
-        warning = "bg-amber-500 dark:bg-amber-400",
-        danger = "bg-rose-500 dark:bg-rose-400",
-        gradient = "bg-gradient-to-r from-blue-500 to-purple-600",
-    )
-
-    size_class = get(size_classes, size_sym, size_classes.md)
-    color_class = get(color_classes, color_sym, color_classes.primary)
     percentage = Base.min(100, Base.max(0, round(Int, (value / max) * 100)))
 
     striped_class = if striped
-        base_stripe = "bg-[length:1rem_1rem] bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        animated ? "$base_stripe animate-[stripes_1s_linear_infinite]" : base_stripe
+        animated ? "$striped_base $animated_stripe" : striped_base
     else
         ""
     end
@@ -76,19 +76,20 @@ Without Alpine.js, the progress bar will display at its final value without anim
 
     @div {merged_attrs...} begin
         if !isnothing(label)
-            @div {
-                class = "mb-2 flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300",
-            } begin
+            @div {class = label_class} begin
                 @span $label
                 if animated_fill
-                    @span {class = "font-semibold", "x-text" = SafeString("progress + '%'")}
+                    @span {
+                        class = label_value_class,
+                        "x-text" = SafeString("progress + '%'"),
+                    }
                 else
-                    @span {class = "font-semibold"} @text "$percentage%"
+                    @span {class = label_value_class} @text "$percentage%"
                 end
             end
         end
         @div {
-            class = "w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner $size_class",
+            class = "$container_class $size_class",
             role = "progressbar",
             "aria-valuenow" = animated_fill ? nothing : value,
             ":aria-valuenow" =
@@ -103,7 +104,7 @@ Without Alpine.js, the progress bar will display at its final value without anim
                 SafeString("'Progress: ' + progress + '%'") : nothing,
         } begin
             @div {
-                class = "transition-all duration-500 ease-out rounded-full shadow-sm $color_class $striped_class $size_class",
+                class = "$bar_class $color_class $striped_class $size_class",
                 style = animated_fill ? nothing : "width: $percentage%",
                 ":style" =
                     animated_fill ? SafeString("'width: ' + progress + '%'") : nothing,

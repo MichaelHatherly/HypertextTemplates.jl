@@ -63,42 +63,35 @@ This component implements comprehensive form accessibility standards:
     aria_describedby::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbols
     size_sym = Symbol(size)
     state_sym = Symbol(state)
 
-    size_classes = (
-        xs = "px-2.5 py-1.5 text-xs",
-        sm = "px-3 py-2 text-sm",
-        base = "px-4 py-2.5 text-base",
-        md = "px-4 py-2.5 text-base",  # For backward compatibility
-        lg = "px-5 py-3 text-lg",
-        xl = "px-6 py-3.5 text-xl",
-    )
+    # Direct theme access
+    base_classes = theme.input.base
+    size_class = theme.input.sizes[size_sym]
+    state_class = theme.input.states[state_sym]
+    disabled_class = disabled ? theme.input.disabled : ""
 
-    state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
-    )
-
-    size_class = get(size_classes, size_sym, size_classes.base)
-    state_class = get(state_classes, state_sym, state_classes.default)
-    disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
-
-    base_classes = "w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class"
+    final_classes = "$base_classes $size_class $state_class $disabled_class"
     aria_invalid = state_sym === :error ? "true" : nothing
 
     if !isnothing(icon)
-        @div {class = "relative"} begin
-            @div {
-                class = "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400",
-            } begin
+        # Get icon styling from theme
+        icon_wrapper = theme.input.icon_wrapper
+        icon_container = theme.input.icon_container
+        icon_padding = theme.input.icon_input_padding
+
+        @div {class = icon_wrapper} begin
+            @div {class = icon_container} begin
                 @text HypertextTemplates.SafeString(icon)
             end
             @input {
                 type = type,
-                class = "pl-10 $base_classes",
+                class = "$icon_padding $final_classes",
                 placeholder = placeholder,
                 name = name,
                 value = value,
@@ -113,7 +106,7 @@ This component implements comprehensive form accessibility standards:
     else
         @input {
             type = type,
-            class = base_classes,
+            class = final_classes,
             placeholder = placeholder,
             name = name,
             value = value,

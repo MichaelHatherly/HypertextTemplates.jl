@@ -14,18 +14,35 @@ A horizontal or vertical separator component that creates visual boundaries betw
     color::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbol
     orientation_sym = Symbol(orientation)
 
-    default_spacing = orientation_sym === :horizontal ? "my-4" : "mx-4"
-    spacing_class = isnothing(spacing) ? default_spacing : spacing
-    color_class = isnothing(color) ? "border-slate-200 dark:border-slate-800" : color
-
+    # Direct theme access
+    default_color = theme.divider.default_color
+    
     if orientation_sym === :horizontal
-        @hr {class = "border-t $color_class $spacing_class", role = "separator", attrs...}
+        base_class = theme.divider.horizontal.base
+        default_spacing = theme.divider.horizontal.default_spacing
+        spacing_class = isnothing(spacing) ? default_spacing : spacing
+        color_class = isnothing(color) ? default_color : color
+
+        @hr {
+            class = "$base_class $color_class $spacing_class",
+            role = "separator",
+            attrs...,
+        }
     else
+        base_class = theme.divider.vertical.base
+        default_spacing = theme.divider.vertical.default_spacing
+        default_bg = theme.divider.vertical.default_bg
+        spacing_class = isnothing(spacing) ? default_spacing : spacing
+        color_class = isnothing(color) ? default_bg : color
+
         @div {
-            class = "inline-block min-h-[1em] w-0.5 self-stretch bg-slate-200 dark:bg-slate-800 $spacing_class",
+            class = "$base_class $color_class $spacing_class",
             role = "separator",
             "aria-orientation" = "vertical",
             attrs...,

@@ -42,14 +42,16 @@ end
     alternate::Bool = false,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     variant_sym = Symbol(variant)
 
+    # Direct theme access
+    variant_class = theme.timeline[variant_sym]
+
     # Build component default attributes
-    component_attrs = if variant_sym == :horizontal
-        (class = "flex flex-row items-start gap-4 overflow-x-auto",)
-    else
-        (class = "relative list-none",)
-    end
+    component_attrs = (class = variant_class,)
 
     # Merge with user attributes
     merged_attrs = merge_attrs(component_attrs, attrs)

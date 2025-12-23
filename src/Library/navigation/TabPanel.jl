@@ -34,6 +34,16 @@ end
 - [`Tabs`](@ref) - Parent tabs container
 """
 @component function TabPanel(; id::String, class::String = "", attrs...)
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.tab_panel.base
+
+    # Combine base class with user-provided class
+    final_class =
+        isempty(base_class) ? class : (isempty(class) ? base_class : "$base_class $class")
+
     # Build component attributes with Alpine.js directives
     component_attrs = (
         id = "tabpanel-$id",
@@ -42,7 +52,7 @@ end
         var"x-transition:enter" = "transition ease-out duration-150",
         var"x-transition:enter-start" = "opacity-0",
         var"x-transition:enter-end" = "opacity-100",
-        class = class,
+        class = final_class,
     )
 
     # Merge with user attributes

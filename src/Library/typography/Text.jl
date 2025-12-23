@@ -47,28 +47,16 @@ A paragraph text component that provides consistent typography styling for body 
     align::Union{Symbol,String} = :left,
     attrs...,
 )
-    variant_classes = (
-        body = "text-base leading-relaxed",
-        lead = "text-lg sm:text-xl leading-relaxed",
-        small = "text-sm leading-normal",
-    )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
 
-    size_classes =
-        (xs = "text-xs", sm = "text-sm", base = "text-base", lg = "text-lg", xl = "text-xl")
-
-    weight_classes = (
-        normal = "font-normal",
-        medium = "font-medium",
-        semibold = "font-semibold",
-        bold = "font-bold",
-    )
-
-    align_classes = (
-        left = "text-left",
-        center = "text-center",
-        right = "text-right",
-        justify = "text-justify",
-    )
+    # Direct theme access
+    text_theme = theme.text
+    default_color = text_theme.default_color
+    variants_theme = text_theme.variants
+    sizes_theme = text_theme.sizes
+    weights_theme = text_theme.weights
+    align_theme = text_theme.align
 
     # Convert to symbols
     size_sym = isnothing(size) ? size : Symbol(size)
@@ -76,11 +64,11 @@ A paragraph text component that provides consistent typography styling for body 
     weight_sym = Symbol(weight)
     align_sym = Symbol(align)
 
-    base_class = get(variant_classes, variant_sym, "text-base")
-    size_class = isnothing(size_sym) ? "" : get(size_classes, size_sym, "")
-    weight_class = get(weight_classes, weight_sym, "font-normal")
-    color_class = isnothing(color) ? "text-slate-600 dark:text-slate-400" : color
-    align_class = get(align_classes, align_sym, "text-left")
+    base_class = get(variants_theme, variant_sym, variants_theme.body)
+    size_class = isnothing(size_sym) ? "" : get(sizes_theme, size_sym, "")
+    weight_class = get(weights_theme, weight_sym, weights_theme.normal)
+    color_class = isnothing(color) ? default_color : color
+    align_class = get(align_theme, align_sym, align_theme.left)
 
     @p {class = "$base_class $size_class $weight_class $color_class $align_class", attrs...} begin
         @__slot__()

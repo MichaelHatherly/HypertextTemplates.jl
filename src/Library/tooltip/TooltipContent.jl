@@ -46,21 +46,22 @@ end
     class::String = "",
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    tooltip_content_theme = theme.tooltip_content
+    base_class = tooltip_content_theme.base
+    padding_class = tooltip_content_theme.padding
+    variants_theme = tooltip_content_theme.variants
+    arrow_variants_theme = tooltip_content_theme.arrow_variants
+
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    # Variant styles
-    variant_classes = (
-        dark = "bg-gray-900 text-white",
-        light = "bg-white text-gray-900 border border-gray-200",
-    )
-
-    variant_class = get(variant_classes, variant_sym, variant_classes.dark)
-
-    # Arrow classes based on variant
-    arrow_classes = (dark = "bg-gray-900", light = "bg-white border-gray-200")
-
-    arrow_class = get(arrow_classes, variant_sym, arrow_classes.dark)
+    # Get variant classes
+    variant_class = get(variants_theme, variant_sym, variants_theme.dark)
+    arrow_class = get(arrow_variants_theme, variant_sym, arrow_variants_theme.dark)
 
     @div {
         var"x-ref" = "content",
@@ -73,7 +74,7 @@ end
         var"x-transition:leave" = "transition ease-in duration-150",
         var"x-transition:leave-start" = "opacity-100 scale-100",
         var"x-transition:leave-end" = "opacity-0 scale-95",
-        class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
+        class = "$base_class $variant_class $class",
         style = "max-width: $max_width; width: max-content;",
         role = "tooltip",
         attrs...,
@@ -84,7 +85,7 @@ end
             # For now, we'll skip the visual arrow but keep the prop for future enhancement
         end
 
-        @div {class = "px-4 py-3"} begin
+        @div {class = padding_class} begin
             @__slot__()
         end
     end

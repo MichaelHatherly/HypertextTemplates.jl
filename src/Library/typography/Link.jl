@@ -48,20 +48,19 @@ end
     aria_label::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    link_theme = theme.link
+    default_color = link_theme.default_color
+    variants_theme = link_theme.variants
+
     # Convert to symbol
     variant_sym = Symbol(variant)
 
-    variant_classes = (
-        default = "transition-colors",
-        underline = "underline transition-colors",
-        hover_underline = "hover:underline transition-all",
-    )
-
-    variant_class = get(variant_classes, variant_sym, "transition-colors")
-    color_class =
-        isnothing(color) ?
-        "text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300" :
-        color
+    variant_class = get(variants_theme, variant_sym, variants_theme.default)
+    color_class = isnothing(color) ? default_color : color
 
     if external
         @a {

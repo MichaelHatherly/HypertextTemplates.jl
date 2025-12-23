@@ -41,16 +41,15 @@ end
     background::Union{String,Nothing} = nothing,
     attrs...,
 )
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
     # Convert to symbol
     spacing_sym = Symbol(spacing)
 
-    spacing_classes = (
-        sm = "py-8 sm:py-12",
-        md = "py-12 sm:py-16 md:py-20",
-        lg = "py-16 sm:py-20 md:py-24 lg:py-32",
-    )
+    # Direct theme access
+    spacing_class = theme.section.spacing[spacing_sym]
 
-    spacing_class = get(spacing_classes, spacing_sym, "py-12 sm:py-16 md:py-20")
     bg_class = isnothing(background) ? "" : background
 
     @section {class = "$spacing_class $bg_class", attrs...} begin

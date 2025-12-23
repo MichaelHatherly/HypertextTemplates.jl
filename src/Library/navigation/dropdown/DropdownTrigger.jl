@@ -27,12 +27,18 @@ end
 - [`Button`](@ref) - Common trigger element
 """
 @component function DropdownTrigger(; attrs...)
+    # Get theme from context with fallback to default
+    theme = @get_context(:theme, HypertextTemplates.Library.default_theme())
+
+    # Direct theme access
+    base_class = theme.dropdown_trigger.base
+
     component_attrs = (
         var"x-ref" = "trigger",
         var"@click" = "toggle()",
         var":aria-expanded" = "open",
         var"aria-haspopup" = "true",
-        class = "inline-block",
+        class = base_class,
     )
 
     merged_attrs = merge_attrs(component_attrs, attrs)
