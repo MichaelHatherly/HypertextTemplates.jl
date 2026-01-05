@@ -173,7 +173,6 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 
 # Create a streaming render iterator
-buffer = IOBuffer()
 stream = StreamingRender() do io
     @render io @div begin
         @h1 "Streaming Example"
