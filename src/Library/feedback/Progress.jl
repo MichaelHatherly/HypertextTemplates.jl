@@ -7,7 +7,7 @@ A modern progress bar component that visually represents the completion status o
 - `value::Int`: Current progress value (default: `0`)
 - `max::Int`: Maximum progress value (default: `100`)
 - `size::Union{Symbol,String}`: Progress bar size (`:sm`, `:md`, `:lg`) (default: `:md`)
-- `color::Union{Symbol,String}`: Progress bar color (`:primary`, `:success`, `:warning`, `:danger`, `:gradient`) (default: `:primary`)
+- `color::Union{Symbol,String}`: Progress bar color (`:primary`, `:success`, `:warning`, `:danger`) (default: `:primary`)
 - `striped::Bool`: Whether to show striped pattern (default: `false`)
 - `animated::Bool`: Whether to animate the stripes (default: `false`)
 - `animated_fill::Bool`: Whether to animate the progress fill on load (default: `false`)
@@ -43,11 +43,10 @@ Without Alpine.js, the progress bar will display at its final value without anim
     size_classes = (sm = "h-2", md = "h-3", lg = "h-5")
 
     color_classes = (
-        primary = "bg-blue-500 dark:bg-blue-400",
+        primary = "bg-indigo-500 dark:bg-indigo-400",
         success = "bg-emerald-500 dark:bg-emerald-400",
         warning = "bg-amber-500 dark:bg-amber-400",
         danger = "bg-rose-500 dark:bg-rose-400",
-        gradient = "bg-gradient-to-r from-blue-500 to-purple-600",
     )
 
     size_class = get(size_classes, size_sym, size_classes.md)
@@ -55,7 +54,7 @@ Without Alpine.js, the progress bar will display at its final value without anim
     percentage = Base.min(100, Base.max(0, round(Int, (value / max) * 100)))
 
     striped_class = if striped
-        base_stripe = "bg-[length:1rem_1rem] bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        base_stripe = "bg-[length:0.75rem_0.75rem] bg-gradient-to-r from-transparent via-white/15 to-transparent"
         animated ? "$base_stripe animate-[stripes_1s_linear_infinite]" : base_stripe
     else
         ""
@@ -77,18 +76,21 @@ Without Alpine.js, the progress bar will display at its final value without anim
     @div {merged_attrs...} begin
         if !isnothing(label)
             @div {
-                class = "mb-2 flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300",
+                class = "mb-1.5 flex justify-between text-sm font-medium text-slate-700 dark:text-slate-300",
             } begin
                 @span $label
                 if animated_fill
-                    @span {class = "font-semibold", "x-text" = SafeString("progress + '%'")}
+                    @span {
+                        class = "text-slate-500 dark:text-slate-400",
+                        "x-text" = SafeString("progress + '%'"),
+                    }
                 else
-                    @span {class = "font-semibold"} @text "$percentage%"
+                    @span {class = "text-slate-500 dark:text-slate-400"} @text "$percentage%"
                 end
             end
         end
         @div {
-            class = "w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner $size_class",
+            class = "w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden $size_class",
             role = "progressbar",
             "aria-valuenow" = animated_fill ? nothing : value,
             ":aria-valuenow" =

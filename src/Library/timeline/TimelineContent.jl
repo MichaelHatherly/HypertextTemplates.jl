@@ -40,19 +40,19 @@ end
 )
     wrapper_class =
         card ?
-        "bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700" :
+        "bg-white dark:bg-slate-800 rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-slate-200 dark:ring-slate-700" :
         ""
 
     @div {class = wrapper_class, attrs...} begin
         @div {class = "space-y-1"} begin
             if !isnothing(title)
-                @h3 {class = "font-semibold text-gray-900 dark:text-gray-100"} title
+                @h3 {class = "font-semibold text-slate-900 dark:text-slate-100"} title
             end
 
             @__slot__()
 
             if !isnothing(subtitle)
-                @p {class = "text-sm text-gray-500 dark:text-gray-400 mt-1"} subtitle
+                @p {class = "text-sm text-slate-500 dark:text-slate-400 mt-1"} subtitle
             end
         end
     end

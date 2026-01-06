@@ -4,7 +4,7 @@
 A versatile button component for triggering actions with multiple variants, sizes, and states. Supports icons, loading states, and full accessibility with proper ARIA attributes and keyboard navigation.
 
 # Props
-- `variant::Union{Symbol,String}`: Button variant (`:primary`, `:secondary`, `:neutral`, `:success`, `:warning`, `:danger`, `:gradient`, `:ghost`, `:outline`) (default: `:primary`)
+- `variant::Union{Symbol,String}`: Button variant (`:primary`, `:secondary`, `:neutral`, `:success`, `:warning`, `:danger`, `:ghost`, `:outline`) (default: `:primary`)
 - `size::Union{Symbol,String}`: Button size (`:xs`, `:sm`, `:base`, `:lg`, `:xl`) (default: `:base`)
 - `type::String`: Button type attribute (default: `"button"`)
 - `disabled::Bool`: Whether button is disabled (default: `false`)
@@ -12,7 +12,7 @@ A versatile button component for triggering actions with multiple variants, size
 - `full_width::Bool`: Whether button should be full width (default: `false`)
 - `icon_left::Union{String,Nothing}`: Icon HTML to display on the left (optional)
 - `icon_right::Union{String,Nothing}`: Icon HTML to display on the right (optional)
-- `rounded::Union{Symbol,String}`: Border radius (`:base`, `:lg`, `:xl`, `:full`) (default: `:xl`)
+- `rounded::Union{Symbol,String}`: Border radius (`:sm`, `:base`, `:lg`, `:full`) (default: `:base`)
 
 # Slots
 - Button label text or content
@@ -31,7 +31,7 @@ A versatile button component for triggering actions with multiple variants, size
 @Button {loading = true} "Processing..."
 
 # Full width button
-@Button {variant = :gradient, full_width = true} "Get Started"
+@Button {variant = :primary, full_width = true} "Get Started"
 
 # Icon-only button
 @Button {variant = :ghost, size = :sm, rounded = :full} begin
@@ -61,7 +61,7 @@ end
     full_width::Bool = false,
     icon_left::Union{String,Nothing} = nothing,
     icon_right::Union{String,Nothing} = nothing,
-    rounded::Union{Symbol,String} = :xl,
+    rounded::Union{Symbol,String} = :base,
     attrs...,
 )
     # Convert to symbols
@@ -78,32 +78,31 @@ end
         xl = (padding = "px-6 py-3.5", text = "text-xl", gap = "gap-3"),
     )
 
-    # Variant classes
+    # Variant classes - refined minimal palette with indigo primary
     variant_map = (
-        primary = "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md",
-        secondary = "bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md",
-        neutral = "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 shadow-sm hover:shadow-md",
-        success = "bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-400 shadow-sm hover:shadow-md",
-        warning = "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400 shadow-sm hover:shadow-md",
-        danger = "bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-400 shadow-sm hover:shadow-md",
-        gradient = "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-blue-400 shadow-md hover:shadow-lg",
-        ghost = "bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
-        outline = "bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300",
+        primary = "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500/30 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:bg-indigo-500 dark:hover:bg-indigo-600",
+        secondary = "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus:ring-slate-500/20 shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:border-slate-600",
+        neutral = "bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500/20 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700",
+        success = "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500/30 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:bg-emerald-500 dark:hover:bg-emerald-600",
+        warning = "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500/30 shadow-[0_1px_2px_rgba(0,0,0,0.05)]",
+        danger = "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500/30 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:bg-rose-500 dark:hover:bg-rose-600",
+        ghost = "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-slate-500/20 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200",
+        outline = "bg-transparent border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 focus:ring-slate-500/20 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:border-slate-500",
     )
 
     size_data = get(size_map, size_sym, size_map.base)
     variant_class = get(variant_map, variant_sym, variant_map.primary)
 
-    # Rounded classes
+    # Rounded classes - more restrained defaults
     rounded_classes =
-        (base = "rounded-lg", lg = "rounded-xl", xl = "rounded-2xl", full = "rounded-full")
-    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.xl)
+        (sm = "rounded", base = "rounded-md", lg = "rounded-lg", full = "rounded-full")
+    rounded_class = get(rounded_classes, rounded_sym, rounded_classes.base)
 
     # Build classes
     width_class = full_width ? "w-full" : ""
     disabled_class = disabled || loading ? "opacity-60 cursor-not-allowed" : ""
 
-    base_classes = "inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100"
+    base_classes = "inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors duration-150 ease-out"
 
     final_classes = "$base_classes $rounded_class $(size_data.padding) $(size_data.text) $(size_data.gap) $variant_class $width_class $disabled_class"
 

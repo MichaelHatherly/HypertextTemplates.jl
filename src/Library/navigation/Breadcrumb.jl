@@ -26,20 +26,20 @@ A navigation breadcrumb component that displays the hierarchical path to the cur
                     if i == length(items)
                         # Current page
                         @span {
-                            class = "text-gray-700 dark:text-gray-300 font-medium",
+                            class = "text-slate-900 dark:text-slate-100 font-medium",
                             "aria-current" = "page",
                         } $label
                     else
                         # Link
                         @a {
                             href = href,
-                            class = "text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200 hover:underline underline-offset-2",
+                            class = "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors duration-150",
                         } $label
                     end
 
                     if i < length(items)
                         @span {
-                            class = "mx-2 text-gray-400 dark:text-gray-600",
+                            class = "mx-2 text-slate-300 dark:text-slate-600",
                             "aria-hidden" = "true",
                         } $separator
                     end

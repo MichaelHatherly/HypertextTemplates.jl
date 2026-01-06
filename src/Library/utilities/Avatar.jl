@@ -37,7 +37,7 @@ A user profile image component that displays user avatars with automatic fallbac
     default_bg = if !isnothing(src)
         "bg-slate-100 dark:bg-slate-800"
     else
-        "bg-blue-500 dark:bg-blue-600"
+        "bg-indigo-500 dark:bg-indigo-600"
     end
 
     # Build component default attributes

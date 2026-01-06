@@ -70,29 +70,28 @@ This component implements comprehensive form accessibility standards:
     size_classes = (
         xs = "px-2.5 py-1.5 text-xs",
         sm = "px-3 py-2 text-sm",
-        base = "px-4 py-2.5 text-base",
-        md = "px-4 py-2.5 text-base",  # For backward compatibility
-        lg = "px-5 py-3 text-lg",
-        xl = "px-6 py-3.5 text-xl",
+        base = "px-3.5 py-2 text-sm",
+        lg = "px-4 py-2.5 text-base",
+        xl = "px-5 py-3 text-lg",
     )
 
     state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+        default = "border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 dark:border-slate-600 dark:focus:border-indigo-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-600 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-emerald-600 dark:focus:border-emerald-400",
     )
 
     size_class = get(size_classes, size_sym, size_classes.base)
     state_class = get(state_classes, state_sym, state_classes.default)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
-    base_classes = "w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class"
+    base_classes = "w-full rounded-md border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors duration-150 hover:border-slate-400 dark:hover:border-slate-500 $size_class $state_class $disabled_class"
     aria_invalid = state_sym === :error ? "true" : nothing
 
     if !isnothing(icon)
         @div {class = "relative"} begin
             @div {
-                class = "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400",
+                class = "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 dark:text-slate-500",
             } begin
                 @text HypertextTemplates.SafeString(icon)
             end

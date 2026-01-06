@@ -380,7 +380,7 @@ using HypertextTemplates.Library
                         end
 
                         # Status card with icons
-                        @Card {padding = :base, border = :glow, glow = :primary} begin
+                        @Card {padding = :base, border = true, shadow = :md} begin
                             @Stack {gap = 3} begin
                                 @Stack {direction = :horizontal, justify = :between} begin
                                     @Text {weight = :semibold} "System Status"

@@ -56,11 +56,11 @@ using HypertextTemplates.Library
                             end
                         end
 
-                        # Card with glow
-                        @Card {padding = :base, glow = :primary, shadow = :lg} begin
+                        # Elevated card
+                        @Card {padding = :base, variant = :elevated, shadow = :lg} begin
                             @Stack {gap = 2} begin
-                                @Heading {level = 4} "Glow Effect"
-                                @Text {size = :sm} "Card with colored glow shadow"
+                                @Heading {level = 4} "Elevated Card"
+                                @Text {size = :sm} "Card with elevated styling"
                             end
                         end
                     end
@@ -72,19 +72,19 @@ using HypertextTemplates.Library
                         @Heading {level = 3} "Border & Shadow Options"
 
                         @Grid {cols = 1, md = 3, gap = 4} begin
-                            @Card {border = :gradient, padding = :base} begin
-                                @Text {weight = :semibold} "Gradient Border"
-                                @Text {size = :sm} "Eye-catching gradient border effect"
+                            @Card {border = true, padding = :base, shadow = :md} begin
+                                @Text {weight = :semibold} "Standard Border"
+                                @Text {size = :sm} "Clean border with medium shadow"
                             end
 
-                            @Card {border = :glow, padding = :base, shadow = :glow} begin
-                                @Text {weight = :semibold} "Glow Border"
-                                @Text {size = :sm} "Subtle glow border with shadow"
+                            @Card {border = true, padding = :base, shadow = :lg} begin
+                                @Text {weight = :semibold} "Large Shadow"
+                                @Text {size = :sm} "Subtle border with larger shadow"
                             end
 
-                            @Card {padding = :base, shadow = :float, hoverable = true} begin
-                                @Text {weight = :semibold} "Float Shadow"
-                                @Text {size = :sm} "Hover me for float effect!"
+                            @Card {padding = :base, shadow = :md, hoverable = true} begin
+                                @Text {weight = :semibold} "Hoverable Card"
+                                @Text {size = :sm} "Hover me for shadow effect!"
                             end
                         end
                     end
@@ -401,7 +401,7 @@ using HypertextTemplates.Library
                             end
 
                             @TabPanel {id = "api"} begin
-                                @Card {padding = :md, border = :gradient} begin
+                                @Card {padding = :base, border = true, shadow = :md} begin
                                     @Stack {gap = 2} begin
                                         @Text {weight = :semibold} "API Documentation"
                                         @Text {size = :sm} "Complete reference for all components, props, and styling options."

@@ -1,1 +1,1 @@
-<div class="bg-white dark:bg-slate-900 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl ">Card content</div>
+<div class="bg-white dark:bg-slate-900 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] border border-slate-200 dark:border-slate-800 rounded-lg ">Card content</div>

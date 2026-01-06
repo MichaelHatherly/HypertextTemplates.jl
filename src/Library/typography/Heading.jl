@@ -92,9 +92,9 @@ A semantic heading component that establishes clear visual hierarchy and structu
     tracking_class = get(tracking_classes, tracking_sym, "tracking-tight")
 
     if gradient
-        color_class = "bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
+        color_class = "bg-gradient-to-r from-indigo-500 to-indigo-600 bg-clip-text text-transparent"
     else
-        color_class = isnothing(color) ? "text-gray-900 dark:text-gray-100" : color
+        color_class = isnothing(color) ? "text-slate-900 dark:text-slate-100" : color
     end
 
     elements = (

@@ -52,15 +52,15 @@ end
     variant_sym = Symbol(variant)
 
     variant_classes = (
-        default = "transition-colors",
-        underline = "underline transition-colors",
-        hover_underline = "hover:underline transition-all",
+        default = "transition-colors duration-150",
+        underline = "underline transition-colors duration-150",
+        hover_underline = "hover:underline transition-colors duration-150",
     )
 
-    variant_class = get(variant_classes, variant_sym, "transition-colors")
+    variant_class = get(variant_classes, variant_sym, "transition-colors duration-150")
     color_class =
         isnothing(color) ?
-        "text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300" :
+        "text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300" :
         color
 
     if external

@@ -27,7 +27,7 @@ end
 """
 @component function TimelineItem(;
     icon::Union{AbstractString,Nothing} = nothing,
-    icon_bg::Union{AbstractString,Nothing} = "bg-blue-500",
+    icon_bg::Union{AbstractString,Nothing} = "bg-indigo-500",
     connector::Bool = true,
     last::Bool = false,
     attrs...,
@@ -38,7 +38,7 @@ end
         # Vertical connector line
         if show_connector
             @div {
-                class = "absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700",
+                class = "absolute left-4 top-8 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-700",
             }
         end
 

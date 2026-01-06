@@ -1,1 +1,1 @@
-<div class="max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto  transition-all duration-300">Container content</div>
+<div class="max-w-screen-xl px-4 sm:px-6 lg:px-8 mx-auto  transition-colors duration-150">Container content</div>

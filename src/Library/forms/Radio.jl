@@ -29,17 +29,15 @@ A radio button component that enables users to select a single option from a gro
     size_classes = (sm = "h-3.5 w-3.5", md = "h-4 w-4", lg = "h-5 w-5")
 
     color_classes = (
-        slate = "text-gray-600 focus:ring-gray-500",
-        primary = "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
-        success = "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
+        slate = "text-slate-600 focus:ring-slate-500/20",
+        primary = "text-indigo-600 focus:ring-indigo-500/20 dark:text-indigo-500",
+        success = "text-emerald-600 focus:ring-emerald-500/20 dark:text-emerald-500",
     )
 
     size_class = get(size_classes, size_sym, size_classes.md)
     color_class = get(color_classes, color_sym, color_classes.primary)
     disabled_class = disabled ? "opacity-60 cursor-not-allowed" : ""
 
-    # Note: WebKit/Safari may clip the right edge of radio buttons in some cases.
-    # This is a known rendering issue with Safari's implementation of form controls.
     @div {class = "space-y-2", role = "radiogroup", attrs...} begin
         for (opt_value, opt_label) in options
             Elements.@label {
@@ -47,14 +45,14 @@ A radio button component that enables users to select a single option from a gro
             } begin
                 @input {
                     type = "radio",
-                    class = "shrink-0 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-colors hover:border-gray-400 dark:hover:border-gray-600 $size_class $color_class",
+                    class = "shrink-0 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-offset-0 transition-colors duration-150 hover:border-slate-400 dark:hover:border-slate-500 $size_class $color_class",
                     name = name,
                     value = opt_value,
                     checked = (!isnothing(value) && value == opt_value),
                     required = required,
                     disabled = disabled,
                 }
-                @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $opt_label
+                @span {class = "text-sm text-slate-700 dark:text-slate-300 select-none"} $opt_label
             end
         end
     end

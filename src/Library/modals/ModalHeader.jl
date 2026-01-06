@@ -28,13 +28,13 @@ end
 - [`ModalFooter`](@ref) - Modal footer section
 """
 @component function ModalHeader(; subtitle::Union{String,Nothing} = nothing, attrs...)
-    @div {class = "px-6 py-4 border-b border-gray-200 dark:border-gray-700", attrs...} begin
+    @div {class = "px-6 py-4 border-b border-slate-200 dark:border-slate-700", attrs...} begin
         # Always wrap content in proper styling
-        @div {class = "text-xl font-semibold text-gray-900 dark:text-gray-100"} begin
+        @div {class = "text-xl font-semibold text-slate-900 dark:text-slate-100"} begin
             @__slot__()
         end
         if !isnothing(subtitle)
-            @Text {size = :sm, class = "mt-1 text-gray-600 dark:text-gray-400"} $subtitle
+            @Text {size = :sm, class = "mt-1 text-slate-600 dark:text-slate-400"} $subtitle
         end
     end
 end

@@ -95,7 +95,7 @@ end
 
     # Dialog styling - ensure proper centering and sizing
     dialog_classes = "p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"
-    content_classes = "relative p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-hidden $size_class"
+    content_classes = "relative p-0 bg-white dark:bg-slate-800 rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-hidden $size_class"
 
     @dialog {
         id = modal_id,
@@ -111,7 +111,7 @@ end
                 @button {
                     type = "button",
                     var"@click" = "close()",
-                    class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                    class = "absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors duration-150",
                     "aria-label" = "Close modal",
                 } begin
                     @Icon {name = "x", size = :md}
