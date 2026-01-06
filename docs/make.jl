@@ -44,7 +44,7 @@ include("generate_examples.jl")
 makedocs(
     sitename = "HypertextTemplates",
     format = Documenter.HTML(),
-    modules = [HypertextTemplates],
+    modules = [HypertextTemplates, HypertextTemplates.Library],
     doctest = true,
     pages = [
         "Home" => "index.md",

@@ -12,13 +12,17 @@ function get_example_names()
     end
 end
 
-@component function HTMLDocument(; title::String, current_page::String = "")
+@component function HTMLDocument(;
+    title::String,
+    current_page::String = "",
+    css_path::String = "/assets/dist/app.css",
+)
     @html {lang = "en"} begin
         @head begin
             @meta {charset = "UTF-8"}
             @meta {name = "viewport", content = "width=device-width, initial-scale=1.0"}
             @title $title
-            @script {src = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"}
+            @link {rel = "stylesheet", href = css_path}
             @script {
                 defer = true,
                 src = "https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js",
@@ -27,25 +31,6 @@ end
                 defer = true,
                 src = "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js",
             }
-            @style {type = "text/tailwindcss"} begin
-                @text HypertextTemplates.SafeString("""
-                /* Enable class-based dark mode for Tailwind CSS v4 */
-                @variant dark (&:where(.dark, .dark *));
-
-                /* Keyframes for progress bar stripes animation */
-                @keyframes stripes {
-                    0% {
-                        background-position: 0 0;
-                    }
-                    100% {
-                        background-position: 1rem 0;
-                    }
-                }
-
-                /* Hide elements with x-cloak until Alpine initializes */
-                [x-cloak] { display: none !important; }
-                """)
-            end
             # # Load dropdown.js globally for dropdown components
             # # This ensures Alpine.data('dropdown', ...) is available for all dropdowns
             # @script begin
