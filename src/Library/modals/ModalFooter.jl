@@ -48,7 +48,7 @@ end
     justify_class = get(justify_classes, Symbol(justify), justify_classes[:end])
 
     @div {
-        class = "px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-3 $justify_class",
+        class = "px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center gap-3 $justify_class",
         attrs...,
     } begin
         @__slot__()

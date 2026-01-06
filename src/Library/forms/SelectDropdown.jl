@@ -124,9 +124,9 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
     )
 
     state_classes = (
-        default = "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400",
-        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400",
-        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400",
+        default = "border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 dark:border-slate-600 dark:focus:border-indigo-400",
+        error = "border-rose-300 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-600 dark:focus:border-rose-400",
+        success = "border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-emerald-600 dark:focus:border-emerald-400",
     )
 
     size_class = get(size_classes, size_sym, size_classes.base)
@@ -155,11 +155,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                 var"aria-controls" = dropdown_id,
                 disabled = disabled,
                 required = required,
-                class = "w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 $size_class $state_class $disabled_class",
+                class = "w-full flex items-center justify-between rounded-md border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-0 transition-colors duration-150 hover:border-slate-400 dark:hover:border-slate-500 $size_class $state_class $disabled_class",
             } begin
                 @span {
                     var"x-text" = "selectedLabel",
-                    var":class" = "{ 'text-gray-500 dark:text-gray-400': !hasSelection }",
+                    var":class" = "{ 'text-slate-500 dark:text-slate-400': !hasSelection }",
                     class = clearable ? "pr-12" : "pr-8",
                 } begin
                     if !isnothing(placeholder)
@@ -169,7 +169,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
 
                 # Dropdown arrow
                 @svg {
-                    class = "absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none",
+                    class = "absolute right-3 h-5 w-5 text-slate-400 transition-transform duration-150 pointer-events-none",
                     var":class" = "{ 'rotate-180': open }",
                     xmlns = "http://www.w3.org/2000/svg",
                     viewBox = "0 0 20 20",
@@ -195,11 +195,11 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                     var"x-transition:leave" = "transition ease-in duration-100",
                     var"x-transition:leave-start" = "opacity-100 scale-100",
                     var"x-transition:leave-end" = "opacity-0 scale-75",
-                    class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                    class = "absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/30",
                     var"aria-label" = "Clear selection",
                 } begin
                     @svg {
-                        class = "h-4 w-4 text-gray-500 dark:text-gray-400",
+                        class = "h-4 w-4 text-slate-500 dark:text-slate-400",
                         xmlns = "http://www.w3.org/2000/svg",
                         viewBox = "0 0 20 20",
                         fill = "currentColor",
@@ -218,28 +218,28 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
         @div {
             var"x-show" = "open",
             var"x-anchor.bottom-start.offset.4" = SafeString("\$refs.button"),
-            var"x-transition:enter" = "transition ease-out duration-200",
+            var"x-transition:enter" = "transition ease-out duration-150",
             var"x-transition:enter-start" = "opacity-0 transform scale-95",
             var"x-transition:enter-end" = "opacity-100 transform scale-100",
-            var"x-transition:leave" = "transition ease-in duration-150",
+            var"x-transition:leave" = "transition ease-in duration-100",
             var"x-transition:leave-start" = "opacity-100 transform scale-100",
             var"x-transition:leave-end" = "opacity-0 transform scale-95",
             var"@click.away" = "handleClickOutside()",
             id = dropdown_id,
-            class = "absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden",
+            class = "absolute z-50 w-full rounded-lg bg-white dark:bg-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.08)] ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden",
             role = "listbox",
             var"aria-label" = placeholder,
         } begin
             # Search input (if searchable)
             if searchable
-                @div {class = "p-2 border-b border-gray-200 dark:border-gray-800"} begin
+                @div {class = "p-2 border-b border-slate-200 dark:border-slate-700"} begin
                     @input {
                         type = "text",
                         var"x-ref" = "search",
                         var"x-model" = "search",
                         var"@click.stop" = "",
                         placeholder = "Search...",
-                        class = "w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+                        class = "w-full px-3 py-2 text-sm rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500",
                     }
                 end
             end
@@ -258,12 +258,12 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                         type = "button",
                         var"@click" = "selectOption(option[0])",
                         var":class" = """{
-                            'bg-blue-50 dark:bg-blue-900/20': highlighted === index,
-                            'bg-blue-100 dark:bg-blue-900/40': isSelected(option[0])
+                            'bg-indigo-50 dark:bg-indigo-900/20': highlighted === index,
+                            'bg-indigo-100 dark:bg-indigo-900/40': isSelected(option[0])
                         }""",
                         var"@mouseenter" = "highlighted = index",
                         var":data-index" = "index",
-                        class = "w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150",
+                        class = "w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:bg-slate-50 dark:focus:bg-slate-800 transition-colors duration-150",
                         role = "option",
                         var":aria-selected" = "isSelected(option[0])",
                     } begin
@@ -271,10 +271,10 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                             if multiple
                                 @div {class = "mr-3"} begin
                                     @div {
-                                        class = "h-4 w-4 rounded border-2 transition-all duration-200",
+                                        class = "h-4 w-4 rounded border-2 transition-colors duration-150",
                                         var":class" = """{
-                                            'border-blue-500 bg-blue-500': isSelected(option[0]),
-                                            'border-gray-300 dark:border-gray-600': !isSelected(option[0])
+                                            'border-indigo-500 bg-indigo-500': isSelected(option[0]),
+                                            'border-slate-300 dark:border-slate-600': !isSelected(option[0])
                                         }""",
                                     } begin
                                         @svg {
@@ -296,7 +296,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                             end
                             @span {
                                 var"x-text" = "option[1]",
-                                class = "text-gray-900 dark:text-gray-100",
+                                class = "text-slate-900 dark:text-slate-100",
                             }
                         end
                     end
@@ -305,7 +305,7 @@ This component requires Alpine.js and Alpine Anchor for intelligent positioning:
                 # No results message
                 @div {
                     var"x-show" = "search && filteredOptions.length === 0",
-                    class = "px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400",
+                    class = "px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400",
                 } "No options found"
             end
         end

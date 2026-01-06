@@ -123,13 +123,13 @@ end
         attrs...,
     } begin
         @div {
-            class = "relative bg-white dark:bg-gray-800 shadow-xl border-0 $(pos_config[:drawer]) $size_class flex flex-col",
+            class = "relative bg-white dark:bg-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.12)] border-0 $(pos_config[:drawer]) $size_class flex flex-col",
         } begin
             # Close button
             @button {
                 type = "button",
                 var"@click" = "close()",
-                class = "absolute top-4 right-4 z-10 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200",
+                class = "absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors duration-150",
                 "aria-label" = "Close drawer",
             } begin
                 @Icon {name = "x", size = :md}

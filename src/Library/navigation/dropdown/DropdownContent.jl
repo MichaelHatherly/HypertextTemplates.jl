@@ -52,7 +52,7 @@ end
         var"x-transition:leave-end" = "transform opacity-0 scale-95",
         var"@keydown" = "handleKeydown(\$event)",
         var"@focus" = "focusFirstItem",
-        class = "absolute z-[9999] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 $class",
+        class = "absolute z-[9999] min-w-[12rem] rounded-lg border border-slate-200 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:border-slate-700 dark:bg-slate-800 py-1 $class",
         role = "menu",
         var"aria-orientation" = "vertical",
         tabindex = "-1",

@@ -108,12 +108,9 @@ This component implements comprehensive accessibility for toggle controls:
         )
 
         color_classes = (
-            primary = "checked:bg-gradient-to-b checked:from-blue-400 checked:to-blue-600
-     dark:checked:from-blue-500 dark:checked:to-blue-700",
-            success = "checked:bg-gradient-to-b checked:from-emerald-400 checked:to-emerald-600
-     dark:checked:from-emerald-500 dark:checked:to-emerald-700",
-            danger = "checked:bg-gradient-to-b checked:from-rose-400 checked:to-rose-600
-     dark:checked:from-rose-500 dark:checked:to-rose-700",
+            primary = "checked:bg-indigo-500 dark:checked:bg-indigo-600",
+            success = "checked:bg-emerald-500 dark:checked:bg-emerald-600",
+            danger = "checked:bg-rose-500 dark:checked:bg-rose-600",
         )
 
         size_class = get(size_classes, size_sym, size_classes.base)
@@ -132,66 +129,66 @@ This component implements comprehensive accessibility for toggle controls:
         switch_styles = (
             xs = """
             appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
+            bg-slate-300 dark:bg-slate-700
+            shadow-inner transition-all duration-150 ease-out
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/30 dark:focus:ring-offset-slate-900
+            before:content-[''] before:inline-block before:rounded-full
+            before:bg-white dark:before:bg-slate-200
+            before:shadow-[0_1px_3px_rgba(0,0,0,0.2)]
+            before:border before:border-slate-200 dark:before:border-slate-400
+            before:transition-all before:duration-150 before:ease-out
             before:h-3 before:w-3 before:absolute before:left-0.5 before:top-0.5
             checked:before:translate-x-4 checked:shadow-inner
             """,
             sm = """
             appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
+            bg-slate-300 dark:bg-slate-700
+            shadow-inner transition-all duration-150 ease-out
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/30 dark:focus:ring-offset-slate-900
+            before:content-[''] before:inline-block before:rounded-full
+            before:bg-white dark:before:bg-slate-200
+            before:shadow-[0_1px_3px_rgba(0,0,0,0.2)]
+            before:border before:border-slate-200 dark:before:border-slate-400
+            before:transition-all before:duration-150 before:ease-out
             before:h-4 before:w-4 before:absolute before:left-0.5 before:top-0.5
             checked:before:translate-x-5 checked:shadow-inner
             """,
             base = """
             appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
+            bg-slate-300 dark:bg-slate-700
+            shadow-inner transition-all duration-150 ease-out
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/30 dark:focus:ring-offset-slate-900
+            before:content-[''] before:inline-block before:rounded-full
+            before:bg-white dark:before:bg-slate-200
+            before:shadow-[0_1px_3px_rgba(0,0,0,0.2)]
+            before:border before:border-slate-200 dark:before:border-slate-400
+            before:transition-all before:duration-150 before:ease-out
             before:h-5 before:w-5 before:absolute before:left-0.5 before:top-0.5
             checked:before:translate-x-6 checked:shadow-inner
             """,
             lg = """
             appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
+            bg-slate-300 dark:bg-slate-700
+            shadow-inner transition-all duration-150 ease-out
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/30 dark:focus:ring-offset-slate-900
+            before:content-[''] before:inline-block before:rounded-full
+            before:bg-white dark:before:bg-slate-200
+            before:shadow-[0_1px_3px_rgba(0,0,0,0.2)]
+            before:border before:border-slate-200 dark:before:border-slate-400
+            before:transition-all before:duration-150 before:ease-out
             before:h-6 before:w-6 before:absolute before:left-0.5 before:top-0.5
             checked:before:translate-x-7 checked:shadow-inner
             """,
             xl = """
             appearance-none relative inline-block flex-shrink-0 rounded-full
-            bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800
-            shadow-inner transition-all duration-200 ease-in-out
-            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 dark:focus:ring-offset-gray-900
-            before:content-[''] before:inline-block before:rounded-full 
-            before:bg-gradient-to-b before:from-white before:to-gray-100 dark:before:from-gray-200 dark:before:to-gray-300
-            before:shadow-[0_2px_8px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.5),inset_0_-1px_0_rgba(0,0,0,0.1)]
-            before:border before:border-gray-200 dark:before:border-gray-400
-            before:transition-all before:duration-200 before:ease-in-out
+            bg-slate-300 dark:bg-slate-700
+            shadow-inner transition-all duration-150 ease-out
+            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/30 dark:focus:ring-offset-slate-900
+            before:content-[''] before:inline-block before:rounded-full
+            before:bg-white dark:before:bg-slate-200
+            before:shadow-[0_1px_3px_rgba(0,0,0,0.2)]
+            before:border before:border-slate-200 dark:before:border-slate-400
+            before:transition-all before:duration-150 before:ease-out
             before:h-7 before:w-7 before:absolute before:left-0.5 before:top-0.5
             checked:before:translate-x-8 checked:shadow-inner
             """,
@@ -223,7 +220,7 @@ This component implements comprehensive accessibility for toggle controls:
                         } begin
                             # Off icon (left side)
                             @div {
-                                class = "text-gray-500 dark:text-gray-400 transition-opacity duration-200",
+                                class = "text-slate-500 dark:text-slate-400 transition-opacity duration-150",
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.previousElementSibling.checked', value => checked = value)",
@@ -244,7 +241,7 @@ This component implements comprehensive accessibility for toggle controls:
 
                             # On icon (right side)
                             @div {
-                                class = "text-white transition-opacity duration-200",
+                                class = "text-white transition-opacity duration-150",
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.parentElement.previousElementSibling.checked', value => checked = value)",
@@ -267,7 +264,7 @@ This component implements comprehensive accessibility for toggle controls:
                 end
 
                 if !isnothing(label)
-                    @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+                    @span {class = "text-sm text-slate-700 dark:text-slate-300 select-none"} $label
                 end
             end
         else
@@ -297,7 +294,7 @@ This component implements comprehensive accessibility for toggle controls:
                         } begin
                             # Off icon (left side)
                             @div {
-                                class = "text-gray-500 dark:text-gray-400 transition-opacity duration-200",
+                                class = "text-slate-500 dark:text-slate-400 transition-opacity duration-150",
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.previousElementSibling.checked', value => checked = value)",
@@ -318,7 +315,7 @@ This component implements comprehensive accessibility for toggle controls:
 
                             # On icon (right side)
                             @div {
-                                class = "text-white transition-opacity duration-200",
+                                class = "text-white transition-opacity duration-150",
                                 var"x-data" = SafeString("{checked: $checked}"),
                                 var"x-init" = SafeString(
                                     "\$watch('\$el.parentElement.previousElementSibling.checked', value => checked = value)",
@@ -340,7 +337,7 @@ This component implements comprehensive accessibility for toggle controls:
                     end
                 end
 
-                @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+                @span {class = "text-sm text-slate-700 dark:text-slate-300 select-none"} $label
             end
         end
     else  # button variant
@@ -355,9 +352,9 @@ This component implements comprehensive accessibility for toggle controls:
 
         # Color classes for button toggle
         color_map = (
-            primary = "peer-checked:from-blue-500 peer-checked:to-blue-600 dark:peer-checked:from-blue-600 dark:peer-checked:to-blue-700 peer-checked:text-white peer-checked:border-blue-600 dark:peer-checked:border-blue-700",
-            success = "peer-checked:from-emerald-500 peer-checked:to-emerald-600 dark:peer-checked:from-emerald-600 dark:peer-checked:to-emerald-700 peer-checked:text-white peer-checked:border-emerald-600 dark:peer-checked:border-emerald-700",
-            danger = "peer-checked:from-rose-500 peer-checked:to-rose-600 dark:peer-checked:from-rose-600 dark:peer-checked:to-rose-700 peer-checked:text-white peer-checked:border-rose-600 dark:peer-checked:border-rose-700",
+            primary = "peer-checked:bg-indigo-600 dark:peer-checked:bg-indigo-500 peer-checked:text-white peer-checked:border-indigo-600 dark:peer-checked:border-indigo-500",
+            success = "peer-checked:bg-emerald-600 dark:peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-600 dark:peer-checked:border-emerald-500",
+            danger = "peer-checked:bg-rose-600 dark:peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-600 dark:peer-checked:border-rose-500",
         )
 
         size_data = get(size_map, size_sym, size_map.base)
@@ -383,14 +380,13 @@ This component implements comprehensive accessibility for toggle controls:
             @div {
                 "aria-hidden" = "true",
                 class = """
-                inline-flex items-center justify-center font-medium border rounded-lg cursor-pointer
-                bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300
-                border-gray-300 dark:border-gray-700
-                hover:bg-gray-50 dark:hover:bg-gray-900
-                peer-checked:bg-gradient-to-r
+                inline-flex items-center justify-center font-medium border rounded-md cursor-pointer
+                bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300
+                border-slate-300 dark:border-slate-700
+                hover:bg-slate-50 dark:hover:bg-slate-800
                 $color_class
-                peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-blue-500 peer-focus:ring-opacity-50 dark:peer-focus:ring-offset-gray-900
-                transition-all duration-200
+                peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-indigo-500/30 dark:peer-focus:ring-offset-slate-900
+                transition-colors duration-150
                 $(size_data.padding) $(size_data.text) $(size_data.gap) $disabled_class
                 """,
             } begin

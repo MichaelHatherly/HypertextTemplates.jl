@@ -57,10 +57,10 @@ end
     variant_sym = Symbol(variant)
 
     variant_classes = (
-        info = "bg-blue-50 border-blue-300 text-blue-800 dark:bg-blue-950/30 dark:border-blue-700 dark:text-blue-300",
-        success = "bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300",
-        warning = "bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/30 dark:border-amber-700 dark:text-amber-300",
-        error = "bg-rose-50 border-rose-300 text-rose-800 dark:bg-rose-950/30 dark:border-rose-700 dark:text-rose-300",
+        info = "bg-sky-50 border-sky-400 text-sky-800 dark:bg-sky-950/40 dark:border-sky-600 dark:text-sky-200",
+        success = "bg-emerald-50 border-emerald-400 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-600 dark:text-emerald-200",
+        warning = "bg-amber-50 border-amber-400 text-amber-800 dark:bg-amber-950/40 dark:border-amber-600 dark:text-amber-200",
+        error = "bg-rose-50 border-rose-400 text-rose-800 dark:bg-rose-950/40 dark:border-rose-600 dark:text-rose-200",
     )
 
     icon_svgs = (
@@ -72,11 +72,11 @@ end
 
     variant_class = get(variant_classes, variant_sym, variant_classes.info)
     icon_svg = get(icon_svgs, variant_sym, icon_svgs.info)
-    animation_class = animated ? "animate-[fadeIn_0.3s_ease-in-out]" : ""
+    animation_class = animated ? "animate-[fadeIn_0.2s_ease-out]" : ""
 
     # Build component default attributes
     component_attrs = (
-        class = "rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm $variant_class $animation_class transition-all duration-300",
+        class = "rounded-lg border-l-4 border-t border-r border-b p-4 $variant_class $animation_class transition-colors duration-150",
         role = "alert",
     )
 
@@ -112,7 +112,7 @@ end
             if dismissible
                 @button {
                     type = "button",
-                    class = "ml-3 inline-flex flex-shrink-0 rounded-lg p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-all duration-200",
+                    class = "ml-3 inline-flex flex-shrink-0 rounded p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-current transition-colors duration-150",
                     "aria-label" := "Dismiss",
                     "@click" := "show = false",
                 } begin

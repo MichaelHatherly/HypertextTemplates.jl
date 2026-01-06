@@ -87,7 +87,7 @@ This component implements comprehensive accessibility for theme switching:
     size_sym = Symbol(size)
 
     # Base classes
-    base_classes = "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
+    base_classes = "inline-flex items-center justify-center font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20"
 
     # Variant classes
     variant_classes = (

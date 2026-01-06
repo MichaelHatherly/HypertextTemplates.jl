@@ -95,8 +95,8 @@ end
             container_classes,
             "rounded-lg",
             "border",
-            "border-gray-200",
-            "dark:border-gray-700",
+            "border-slate-200",
+            "dark:border-slate-700",
         )
         if overflow
             push!(container_classes, "overflow-hidden")
@@ -110,7 +110,7 @@ end
     push!(table_classes, "border-separate", "border-spacing-0")
 
     # Header styling - cleaner approach
-    push!(table_classes, "[&>thead>tr>th]:bg-white", "dark:[&>thead>tr>th]:bg-gray-900")
+    push!(table_classes, "[&>thead>tr>th]:bg-white", "dark:[&>thead>tr>th]:bg-slate-900")
     push!(
         table_classes,
         "[&>thead>tr>th]:text-left",
@@ -119,15 +119,15 @@ end
     )
     push!(
         table_classes,
-        "[&>thead>tr>th]:text-gray-600",
-        "dark:[&>thead>tr>th]:text-gray-400",
+        "[&>thead>tr>th]:text-slate-600",
+        "dark:[&>thead>tr>th]:text-slate-400",
     )
     push!(table_classes, "[&>thead>tr>th]:uppercase", "[&>thead>tr>th]:tracking-wider")
     push!(
         table_classes,
         "[&>thead>tr>th]:border-b",
-        "[&>thead>tr>th]:border-gray-200",
-        "dark:[&>thead>tr>th]:border-gray-700",
+        "[&>thead>tr>th]:border-slate-200",
+        "dark:[&>thead>tr>th]:border-slate-700",
     )
 
     # Header padding
@@ -138,17 +138,17 @@ end
     end
 
     # Cell styling - cleaner with better spacing
-    push!(table_classes, "[&>tbody>tr>td]:bg-white", "dark:[&>tbody>tr>td]:bg-gray-900")
+    push!(table_classes, "[&>tbody>tr>td]:bg-white", "dark:[&>tbody>tr>td]:bg-slate-900")
     push!(
         table_classes,
-        "[&>tbody>tr>td]:text-gray-700",
-        "dark:[&>tbody>tr>td]:text-gray-300",
+        "[&>tbody>tr>td]:text-slate-700",
+        "dark:[&>tbody>tr>td]:text-slate-300",
     )
     push!(
         table_classes,
         "[&>tbody>tr>td]:border-b",
-        "[&>tbody>tr>td]:border-gray-100",
-        "dark:[&>tbody>tr>td]:border-gray-800",
+        "[&>tbody>tr>td]:border-slate-100",
+        "dark:[&>tbody>tr>td]:border-slate-800",
     )
 
     # Cell padding
@@ -165,18 +165,18 @@ end
     if striped
         push!(
             table_classes,
-            "[&>tbody>tr:nth-child(even)>td]:bg-gray-50/50",
-            "dark:[&>tbody>tr:nth-child(even)>td]:bg-gray-800/50",
+            "[&>tbody>tr:nth-child(even)>td]:bg-slate-50/50",
+            "dark:[&>tbody>tr:nth-child(even)>td]:bg-slate-800/50",
         )
     end
 
     # Hover effect - more subtle
     if hover
-        push!(table_classes, "[&>tbody>tr]:transition-all", "[&>tbody>tr]:duration-200")
+        push!(table_classes, "[&>tbody>tr]:transition-colors", "[&>tbody>tr]:duration-150")
         push!(
             table_classes,
-            "[&>tbody>tr:hover>td]:bg-gray-50",
-            "dark:[&>tbody>tr:hover>td]:bg-gray-800/70",
+            "[&>tbody>tr:hover>td]:bg-slate-50",
+            "dark:[&>tbody>tr:hover>td]:bg-slate-800/70",
         )
     end
 
@@ -200,8 +200,8 @@ end
         )
         push!(
             table_classes,
-            "[&>thead>tr>th:hover]:bg-gray-50",
-            "dark:[&>thead>tr>th:hover]:bg-gray-800",
+            "[&>thead>tr>th:hover]:bg-slate-50",
+            "dark:[&>thead>tr>th:hover]:bg-slate-800",
         )
     end
 
@@ -213,7 +213,7 @@ end
 
     @div {class = join(wrapper_classes, " ")} begin
         if !isnothing(caption)
-            @p {class = "mb-2 text-sm text-gray-600 dark:text-gray-400 italic"} caption
+            @p {class = "mb-2 text-sm text-slate-600 dark:text-slate-400 italic"} caption
         end
 
         @div {class = SafeString(join(container_classes, " "))} begin

@@ -271,4 +271,4 @@ dialog.closing {
 }</style><dialog id="no-close" x-data="modal({
     persistent: false,
     returnFocus: true
-})" x-ref="dialog" @keydown="handleKeydown" class="p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"><div class="relative p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-hidden max-w-md"><div class="p-6 overflow-y-auto">No close button</div></div></dialog>
+})" x-ref="dialog" @keydown="handleKeydown" class="p-0 bg-transparent backdrop:bg-black/50 backdrop:backdrop-blur-sm"><div class="relative p-0 bg-white dark:bg-slate-800 rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-hidden max-w-md"><div class="p-6 overflow-y-auto">No close button</div></div></dialog>

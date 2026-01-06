@@ -59,7 +59,7 @@ The submenu state is managed by the parent dropdown's Alpine component through t
         # Trigger button - must come first in DOM for x-anchor to work
         @button {
             type = "button",
-            class = "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors duration-150 flex items-center justify-between",
+            class = "block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors duration-150 flex items-center justify-between",
             "@click" = "toggleSubmenu('$submenu_id', \$event)",
             "x-ref" = "submenu_trigger_$submenu_id",  # Ref is kept for potential future use
         } begin
@@ -95,7 +95,7 @@ The submenu state is managed by the parent dropdown's Alpine component through t
             "x-transition:leave" = "transition ease-in duration-75",
             "x-transition:leave-start" = "transform opacity-100 scale-100",
             "x-transition:leave-end" = "transform opacity-0 scale-95",
-            class = "absolute z-[10000] min-w-[12rem] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 py-1 $class",
+            class = "absolute z-[10000] min-w-[12rem] rounded-lg border border-slate-200 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:border-slate-700 dark:bg-slate-800 py-1 $class",
             role = "menu",
             "@click.stop" = "",  # Prevent clicks from bubbling up
         } begin

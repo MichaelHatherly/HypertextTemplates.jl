@@ -56,11 +56,11 @@ end
     centered_class = centered ? "mx-auto" : ""
     glass_class =
         glass ?
-        "backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/5 p-6" :
+        "backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-1 ring-black/5 dark:ring-white/5 p-6" :
         ""
 
     @div {
-        class = "$size_class $padding_class $centered_class $glass_class transition-all duration-300",
+        class = "$size_class $padding_class $centered_class $glass_class transition-colors duration-150",
         role = role,
         attrs...,
     } begin

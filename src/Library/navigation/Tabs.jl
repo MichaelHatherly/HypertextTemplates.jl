@@ -62,7 +62,7 @@ end
 
     @div {merged_attrs...} begin
         @nav {
-            class = "flex gap-2 border-b-2 border-gray-200 dark:border-gray-700",
+            class = "flex gap-1 border-b border-slate-200 dark:border-slate-700",
             "aria-label" = isnothing(aria_label) ? "Tabs" : aria_label,
             role = "tablist",
         } begin
@@ -74,7 +74,7 @@ end
                     "aria-controls" = "tabpanel-$id",
                     "@click" = "activeTab = '$id'",
                     ":class" = SafeString(
-                        """activeTab === '$id' ? 'px-4 py-2.5 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 dark:border-blue-400 -mb-[2px] transition-all duration-200 rounded-t-lg bg-blue-50 dark:bg-blue-950/30' : 'px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 border-b-2 border-transparent -mb-[2px] hover:text-gray-900 hover:bg-gray-50 dark:hover:text-gray-100 dark:hover:bg-gray-800 transition-all duration-200 rounded-t-lg'""",
+                        """activeTab === '$id' ? 'px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500 dark:border-indigo-400 -mb-px transition-colors duration-150' : 'px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 border-b-2 border-transparent -mb-px hover:text-slate-900 dark:hover:text-slate-200 transition-colors duration-150'""",
                     ),
                     ":aria-selected" = "activeTab === '$id'",
                 } $label

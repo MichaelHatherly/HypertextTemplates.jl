@@ -53,7 +53,7 @@ end
     spacing_class = get(spacing_classes, spacing_sym, "space-y-2")
 
     # Base classes for all variants
-    base_class = "text-gray-600 dark:text-gray-400 $spacing_class"
+    base_class = "text-slate-600 dark:text-slate-400 $spacing_class"
 
     if variant_sym === :bullet
         @ul {class = "list-disc list-inside $base_class", attrs...} begin
@@ -66,7 +66,7 @@ end
     elseif variant_sym === :check
         # For check variant, we'll style the list items with pseudo-elements
         @ul {
-            class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-green-600 dark:[&>li:before]:text-green-400 [&>li:before]:font-bold $base_class",
+            class = "[&>li]:relative [&>li]:pl-6 [&>li:before]:content-['✓'] [&>li:before]:absolute [&>li:before]:left-0 [&>li:before]:text-emerald-600 dark:[&>li:before]:text-emerald-400 [&>li:before]:font-bold $base_class",
             attrs...,
         } begin
             @__slot__()

@@ -20,7 +20,7 @@ A loading spinner component that provides visual feedback during asynchronous op
 
     color_classes = (
         slate = "text-slate-600 dark:text-slate-400",
-        primary = "text-slate-900 dark:text-slate-100",
+        primary = "text-indigo-600 dark:text-indigo-400",
         white = "text-white",
     )
 

@@ -31,9 +31,9 @@ A styled checkbox input that allows users to toggle between checked and unchecke
     size_classes = (sm = "h-3.5 w-3.5", md = "h-4 w-4", lg = "h-5 w-5")
 
     color_classes = (
-        slate = "text-gray-600 focus:ring-gray-500",
-        primary = "text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400",
-        success = "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-500 dark:focus:ring-emerald-400",
+        slate = "text-slate-600 focus:ring-slate-500/20",
+        primary = "text-indigo-600 focus:ring-indigo-500/20 dark:text-indigo-500",
+        success = "text-emerald-600 focus:ring-emerald-500/20 dark:text-emerald-500",
     )
 
     size_class = get(size_classes, size_sym, size_classes.md)
@@ -44,7 +44,7 @@ A styled checkbox input that allows users to toggle between checked and unchecke
         Elements.@label {class = "inline-flex items-center gap-2 $disabled_class"} begin
             @input {
                 type = "checkbox",
-                class = "rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 $size_class $color_class",
+                class = "rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-offset-0 transition-colors duration-150 hover:border-slate-400 dark:hover:border-slate-500 $size_class $color_class",
                 name = name,
                 value = value,
                 checked = checked,
@@ -52,12 +52,12 @@ A styled checkbox input that allows users to toggle between checked and unchecke
                 disabled = disabled,
                 attrs...,
             }
-            @span {class = "text-sm text-gray-700 dark:text-gray-300 select-none"} $label
+            @span {class = "text-sm text-slate-700 dark:text-slate-300 select-none"} $label
         end
     else
         @input {
             type = "checkbox",
-            class = "rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 $size_class $color_class $disabled_class",
+            class = "rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-offset-0 transition-colors duration-150 hover:border-slate-400 dark:hover:border-slate-500 $size_class $color_class $disabled_class",
             name = name,
             value = value,
             checked = checked,

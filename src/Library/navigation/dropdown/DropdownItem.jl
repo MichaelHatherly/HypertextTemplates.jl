@@ -55,13 +55,13 @@ An individual menu item within dropdown menus that represents a selectable actio
 
     # Variant classes
     variant_classes = if disabled
-        "text-gray-400 cursor-not-allowed dark:text-gray-500"
+        "text-slate-400 cursor-not-allowed dark:text-slate-500"
     elseif variant === :danger
-        "text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/20 dark:hover:text-red-300"
+        "text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/20 dark:hover:text-rose-300"
     elseif variant === :success
-        "text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-950/20 dark:hover:text-green-300"
+        "text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-950/20 dark:hover:text-emerald-300"
     else
-        "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+        "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700"
     end
 
     # Combine classes

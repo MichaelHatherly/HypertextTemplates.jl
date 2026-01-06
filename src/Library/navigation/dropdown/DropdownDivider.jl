@@ -9,7 +9,7 @@ Visual separator between dropdown items.
 """
 @component function DropdownDivider(; class::String = "", attrs...)
     component_attrs =
-        (class = "my-1 h-px bg-gray-200 dark:bg-gray-700 $class", role = "separator")
+        (class = "my-1 h-px bg-slate-200 dark:bg-slate-700 $class", role = "separator")
 
     merged_attrs = merge_attrs(component_attrs, attrs)
 

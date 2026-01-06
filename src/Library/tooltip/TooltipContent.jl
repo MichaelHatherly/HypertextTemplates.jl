@@ -51,14 +51,14 @@ end
 
     # Variant styles
     variant_classes = (
-        dark = "bg-gray-900 text-white",
-        light = "bg-white text-gray-900 border border-gray-200",
+        dark = "bg-slate-900 text-white",
+        light = "bg-white text-slate-900 border border-slate-200",
     )
 
     variant_class = get(variant_classes, variant_sym, variant_classes.dark)
 
     # Arrow classes based on variant
-    arrow_classes = (dark = "bg-gray-900", light = "bg-white border-gray-200")
+    arrow_classes = (dark = "bg-slate-900", light = "bg-white border-slate-200")
 
     arrow_class = get(arrow_classes, variant_sym, arrow_classes.dark)
 
@@ -67,10 +67,10 @@ end
         var"x-show" = "open",
         var"x-anchor" = SafeString("anchorDirective"),
         var"x-anchor:element" = SafeString("\$refs.trigger"),
-        var"x-transition:enter" = "transition ease-out duration-200",
+        var"x-transition:enter" = "transition ease-out duration-150",
         var"x-transition:enter-start" = "opacity-0 scale-95",
         var"x-transition:enter-end" = "opacity-100 scale-100",
-        var"x-transition:leave" = "transition ease-in duration-150",
+        var"x-transition:leave" = "transition ease-in duration-100",
         var"x-transition:leave-start" = "opacity-100 scale-100",
         var"x-transition:leave-end" = "opacity-0 scale-95",
         class = "absolute z-[9999] rounded-lg shadow-lg $variant_class $class",
