@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Components · HypertextTemplates</title><meta name="title" content="Components · HypertextTemplates"/><meta property="og:title" content="Components · HypertextTemplates"/><meta property="twitter:title" content="Components · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li class="is-active"><a class="tocitem" href>Components</a><ul class="internal"><li><a class="tocitem" href="#Basic-Component-Definition"><span>Basic Component Definition</span></a></li><li><a class="tocitem" href="#Component-Properties-(Props)"><span>Component Properties (Props)</span></a></li><li><a class="tocitem" href="#Slots-System"><span>Slots System</span></a></li><li><a class="tocitem" href="#Component-Composition"><span>Component Composition</span></a></li><li><a class="tocitem" href="#Dynamic-Components"><span>Dynamic Components</span></a></li><li><a class="tocitem" href="#Module-Qualified-Components"><span>Module-Qualified Components</span></a></li><li><a class="tocitem" href="#Creating-Component-Macros"><span>Creating Component Macros</span></a></li><li><a class="tocitem" href="#Component-Patterns"><span>Component Patterns</span></a></li><li><a class="tocitem" href="#Best-Practices"><span>Best Practices</span></a></li><li><a class="tocitem" href="#Context:-Avoiding-Prop-Drilling"><span>Context: Avoiding Prop Drilling</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Components</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Components</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/components.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Components-Guide"><a class="docs-heading-anchor" href="#Components-Guide">Components Guide</a><a id="Components-Guide-1"></a><a class="docs-heading-anchor-permalink" href="#Components-Guide" title="Permalink"></a></h1><p>Components are the building blocks for creating reusable, maintainable templates in HypertextTemplates.jl. This guide covers everything from basic component creation to advanced patterns.</p><h2 id="Basic-Component-Definition"><a class="docs-heading-anchor" href="#Basic-Component-Definition">Basic Component Definition</a><a id="Basic-Component-Definition-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Component-Definition" title="Permalink"></a></h2><p>Components are defined using the <code>@component</code> macro applied to a function:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function greeting(; name = &quot;World&quot;)
+    @div {class = &quot;greeting&quot;} begin
+        @h1 &quot;Hello, &quot; $name &quot;!&quot;
+    end
+end
+
+# Important: Define a macro for the component
+@deftag macro greeting end
+
+# Now you can use it
+html = @render @greeting {name = &quot;Julia&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;greeting&quot;&gt;&lt;h1&gt;Hello, Julia&#33;&lt;/h1&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Also works with default value
+html2 = @render @greeting</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;greeting&quot;&gt;&lt;h1&gt;Hello, World&#33;&lt;/h1&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Component-Properties-(Props)"><a class="docs-heading-anchor" href="#Component-Properties-(Props)">Component Properties (Props)</a><a id="Component-Properties-(Props)-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Properties-(Props)" title="Permalink"></a></h2><p>Props are passed as keyword arguments to component functions:</p><h3 id="Required-Props"><a class="docs-heading-anchor" href="#Required-Props">Required Props</a><a id="Required-Props-1"></a><a class="docs-heading-anchor-permalink" href="#Required-Props" title="Permalink"></a></h3><p>Omit default values to make props required:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function user_card(; username, email)  # Both required
+    @div {class = &quot;user-card&quot;} begin
+        @h3 $username
+        @p $email
+    end
+end
+
+@deftag macro user_card end
+
+# Must provide both props
+html = @render @user_card {username = &quot;julia_dev&quot;, email = &quot;julia@example.com&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;user-card&quot;&gt;
+  &lt;h3&gt;julia_dev&lt;/h3&gt;
+  &lt;p&gt;julia@example.com&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Optional-Props-with-Defaults"><a class="docs-heading-anchor" href="#Optional-Props-with-Defaults">Optional Props with Defaults</a><a id="Optional-Props-with-Defaults-1"></a><a class="docs-heading-anchor-permalink" href="#Optional-Props-with-Defaults" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function my_button(;
+    text = &quot;Click me&quot;,
+    type = &quot;button&quot;,
+    variant = &quot;primary&quot;,
+    disabled = false
+)
+    classes = &quot;btn btn-&quot; * variant
+    @button {type, class = classes, disabled} $text
+end
+
+@deftag macro my_button end
+
+# Use with defaults
+@render @my_button {}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button type&#61;&quot;button&quot; class&#61;&quot;btn btn-primary&quot;&gt;Click me&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Override specific props
+@render @my_button {text = &quot;Submit&quot;, variant = &quot;success&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button type&#61;&quot;button&quot; class&#61;&quot;btn btn-success&quot;&gt;Submit&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># With disabled state
+@render @my_button {text = &quot;Loading...&quot;, disabled = true}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button type&#61;&quot;button&quot; class&#61;&quot;btn btn-primary&quot; disabled&gt;Loading...&lt;/button&gt;</code></pre>
+<hr />
+</div><h3 id="Typed-Props"><a class="docs-heading-anchor" href="#Typed-Props">Typed Props</a><a id="Typed-Props-1"></a><a class="docs-heading-anchor-permalink" href="#Typed-Props" title="Permalink"></a></h3><p>Leverage Julia&#39;s type system for safer components:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function product_price(;
+    amount::Number,
+    currency::String = &quot;USD&quot;,
+    decimal_places::Int = 2
+)
+    formatted = round(amount, digits = decimal_places)
+    @span {class = &quot;price&quot;} begin
+        @span {class = &quot;currency&quot;} $currency
+        @span {class = &quot;amount&quot;} $formatted
+    end
+end
+
+@deftag macro product_price end
+
+# Usage with different types
+@render @product_price {amount = 29.99}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;span class&#61;&quot;price&quot;&gt;&lt;span class&#61;&quot;currency&quot;&gt;USD&lt;/span&gt;&lt;span class&#61;&quot;amount&quot;
+  &gt;29.99&lt;/span&gt;&lt;/span&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @product_price {amount = 100, currency = &quot;EUR&quot;, decimal_places = 0}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;span class&#61;&quot;price&quot;&gt;&lt;span class&#61;&quot;currency&quot;&gt;EUR&lt;/span&gt;&lt;span class&#61;&quot;amount&quot;
+  &gt;100.0&lt;/span&gt;&lt;/span&gt;</code></pre>
+<hr />
+</div><h2 id="Slots-System"><a class="docs-heading-anchor" href="#Slots-System">Slots System</a><a id="Slots-System-1"></a><a class="docs-heading-anchor-permalink" href="#Slots-System" title="Permalink"></a></h2><p>Slots allow components to accept content from their parent, enabling flexible composition.</p><h3 id="Default-Slot"><a class="docs-heading-anchor" href="#Default-Slot">Default Slot</a><a id="Default-Slot-1"></a><a class="docs-heading-anchor-permalink" href="#Default-Slot" title="Permalink"></a></h3><p>The simplest form - a single content area:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function card(; title)
+    @div {class = &quot;card&quot;} begin
+        @div {class = &quot;card-header&quot;} @h3 $title
+        @div {class = &quot;card-body&quot;} begin
+            @__slot__  # Default slot receives content
+        end
+    end
+end
+
+@deftag macro card end
+
+# Usage with content
+html = @render @card {title = &quot;User Profile&quot;} begin
+    @p &quot;Name: Alice&quot;
+    @p &quot;Role: Developer&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;card&quot;&gt;
+  &lt;div class&#61;&quot;card-header&quot;&gt;&lt;h3&gt;User Profile&lt;/h3&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;card-body&quot;&gt;
+    &lt;p&gt;Name: Alice&lt;/p&gt;
+    &lt;p&gt;Role: Developer&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Named-Slots"><a class="docs-heading-anchor" href="#Named-Slots">Named Slots</a><a id="Named-Slots-1"></a><a class="docs-heading-anchor-permalink" href="#Named-Slots" title="Permalink"></a></h3><p>For more complex layouts with multiple content areas:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function layout()
+    @div {class = &quot;layout&quot;} begin
+        @header {class = &quot;layout-header&quot;} begin
+            @__slot__ header  # Named slot: header
+        end
+        @article {class = &quot;layout-main&quot;} begin
+            @__slot__  # Default slot
+        end
+        @footer {class = &quot;layout-footer&quot;} begin
+            @__slot__ footer  # Named slot: footer
+        end
+    end
+end
+
+@deftag macro layout end
+
+# Usage with named slots
+html = @render @layout begin
+    # Named slot content uses := syntax
+    header := begin
+        @h1 &quot;My Application&quot;
+        @nav begin
+            @a {href = &quot;/&quot;} &quot;Home&quot;
+            @a {href = &quot;/about&quot;} &quot;About&quot;
+        end
+    end
+
+    # Default slot content
+    @section begin
+        @h2 &quot;Welcome&quot;
+        @p &quot;This is the main content area.&quot;
+    end
+
+    footer := @p &quot;© 2024 My Company&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;layout&quot;&gt;
+  &lt;header class&#61;&quot;layout-header&quot;&gt;
+    &lt;h1&gt;My Application&lt;/h1&gt;
+    &lt;nav&gt;&lt;a href&#61;&quot;/&quot;&gt;Home&lt;/a&gt;&lt;a href&#61;&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;article class&#61;&quot;layout-main&quot;&gt;
+    &lt;section&gt;
+      &lt;h2&gt;Welcome&lt;/h2&gt;
+      &lt;p&gt;This is the main content area.&lt;/p&gt;
+    &lt;/section&gt;
+  &lt;/article&gt;
+  &lt;footer class&#61;&quot;layout-footer&quot;&gt;&lt;p&gt;© 2024 My Company&lt;/p&gt;&lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Conditional-Slots"><a class="docs-heading-anchor" href="#Conditional-Slots">Conditional Slots</a><a id="Conditional-Slots-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-Slots" title="Permalink"></a></h3><p>Slots can be conditionally rendered:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function message(; type = &quot;info&quot;, dismissible = false)
+    @div {class = &quot;message message-$type&quot;} begin
+        @__slot__  # Message content
+
+        if dismissible
+            @button {class = &quot;message-close&quot;} begin
+                @__slot__ close_button  # Optional slot
+            end
+        end
+    end
+end
+
+@deftag macro message end
+
+# Without close button content
+html1 = @render @message {type = &quot;warning&quot;} begin
+    @p &quot;This is a warning&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;message message-warning&quot;&gt;&lt;p&gt;This is a warning&lt;/p&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># With custom close button
+html2 = @render @message {type = &quot;error&quot;, dismissible = true} begin
+    @p &quot;An error occurred&quot;
+    close_button := @span &quot;×&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;message message-error&quot;&gt;
+  &lt;p&gt;An error occurred&lt;/p&gt;
+  &lt;button class&#61;&quot;message-close&quot;&gt;&lt;span&gt;×&lt;/span&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Slot-Fallbacks"><a class="docs-heading-anchor" href="#Slot-Fallbacks">Slot Fallbacks</a><a id="Slot-Fallbacks-1"></a><a class="docs-heading-anchor-permalink" href="#Slot-Fallbacks" title="Permalink"></a></h3><p>Provide default content when slots are empty:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function avatar(; src = nothing, alt = &quot;&quot;)
+    @div {class = &quot;avatar&quot;} begin
+        if !isnothing(src)
+            @img {src, alt}
+        else
+            @div {class = &quot;avatar-placeholder&quot;} begin
+                # Show slot content (initials)
+                @__slot__
+            end
+        end
+    end
+end
+
+@deftag macro avatar end
+
+# With image
+html1 = @render @avatar {src = &quot;/user.jpg&quot;, alt = &quot;User&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;avatar&quot;&gt;&lt;img src&#61;&quot;/user.jpg&quot; alt&#61;&quot;User&quot;&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># With placeholder (slot content)
+html2 = @render @avatar {alt = &quot;John Doe&quot;} begin
+    @span &quot;JD&quot;  # Initials as fallback
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;avatar&quot;&gt;&lt;div class&#61;&quot;avatar-placeholder&quot;&gt;&lt;span&gt;JD&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Component-Composition"><a class="docs-heading-anchor" href="#Component-Composition">Component Composition</a><a id="Component-Composition-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Composition" title="Permalink"></a></h2><p>Components can use other components, enabling powerful composition patterns:</p><h3 id="Basic-Composition"><a class="docs-heading-anchor" href="#Basic-Composition">Basic Composition</a><a id="Basic-Composition-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Composition" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function nav_link(; href, active = false)
+    class = active ? &quot;nav-link active&quot; : &quot;nav-link&quot;
+    @a {href, class} @__slot__
+end
+
+@deftag macro nav_link end
+
+@component function navbar(; links, current_path = &quot;/&quot;)
+    @nav {class = &quot;navbar&quot;} begin
+        @ul begin
+            for link in links
+                @li begin
+                    @nav_link {
+                        href = link.href,
+                        active = link.href == current_path
+                    } begin
+                        @text link.text
+                    end
+                end
+            end
+        end
+    end
+end
+
+@deftag macro navbar end
+
+# Usage
+links = [
+    (href = &quot;/&quot;, text = &quot;Home&quot;),
+    (href = &quot;/about&quot;, text = &quot;About&quot;),
+    (href = &quot;/contact&quot;, text = &quot;Contact&quot;)
+]
+
+html = @render @navbar {links, current_path = &quot;/about&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;nav class&#61;&quot;navbar&quot;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href&#61;&quot;/&quot; class&#61;&quot;nav-link&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href&#61;&quot;/about&quot; class&#61;&quot;nav-link active&quot;&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href&#61;&quot;/contact&quot; class&#61;&quot;nav-link&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+<hr />
+</div><h3 id="Higher-Order-Components"><a class="docs-heading-anchor" href="#Higher-Order-Components">Higher-Order Components</a><a id="Higher-Order-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Higher-Order-Components" title="Permalink"></a></h3><p>Create components that modify behavior of other components:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function with_tooltip(; tooltip, position = &quot;top&quot;)
+    @div {
+        class = &quot;tooltip-wrapper&quot;,
+        &quot;data-tooltip&quot; := tooltip,
+        &quot;data-position&quot; := position
+    } begin
+        @__slot__
+    end
+end
+
+@deftag macro with_tooltip end
+
+# Wrap any content with tooltip
+html = @render @with_tooltip {tooltip = &quot;Click to submit&quot;} begin
+    @button &quot;Submit&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;tooltip-wrapper&quot; data-tooltip&#61;&quot;Click to submit&quot; data-position&#61;&quot;top&quot;&gt;
+  &lt;button&gt;Submit&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Component-Arrays"><a class="docs-heading-anchor" href="#Component-Arrays">Component Arrays</a><a id="Component-Arrays-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Arrays" title="Permalink"></a></h3><p>Render collections of components:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function todo_item(; task, completed = false)
+    @li {class = completed ? &quot;completed&quot; : &quot;&quot;} begin
+        @input {type = &quot;checkbox&quot;, checked = completed}
+        @span &quot; &quot; $task
+    end
+end
+
+@deftag macro todo_item end
+
+@component function todo_list(; items)
+    @ul {class = &quot;todo-list&quot;} begin
+        for item in items
+            @todo_item {task = item.task, completed = item.completed}
+        end
+    end
+end
+
+@deftag macro todo_list end
+
+# Example usage
+items = [
+    (task = &quot;Write documentation&quot;, completed = true),
+    (task = &quot;Add tests&quot;, completed = false),
+    (task = &quot;Deploy to production&quot;, completed = false)
+]
+
+html = @render @todo_list {items}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul class&#61;&quot;todo-list&quot;&gt;
+  &lt;li class&#61;&quot;completed&quot;&gt;
+    &lt;input type&#61;&quot;checkbox&quot; checked&gt;&lt;span&gt; Write documentation&lt;/span&gt;
+  &lt;/li&gt;
+  &lt;li class&#61;&quot;&quot;&gt;&lt;input type&#61;&quot;checkbox&quot;&gt;&lt;span&gt; Add tests&lt;/span&gt;&lt;/li&gt;
+  &lt;li class&#61;&quot;&quot;&gt;&lt;input type&#61;&quot;checkbox&quot;&gt;&lt;span&gt; Deploy to production&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><h2 id="Dynamic-Components"><a class="docs-heading-anchor" href="#Dynamic-Components">Dynamic Components</a><a id="Dynamic-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamic-Components" title="Permalink"></a></h2><p>Use the <code>@&lt;</code> macro to render components dynamically:</p><h3 id="Component-as-Props"><a class="docs-heading-anchor" href="#Component-as-Props">Component as Props</a><a id="Component-as-Props-1"></a><a class="docs-heading-anchor-permalink" href="#Component-as-Props" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function flexible_layout(;
+    header_component = nothing,
+    main_component = article,
+    sidebar = true
+)
+    @div {class = &quot;layout&quot;} begin
+        if !isnothing(header_component)
+            @&lt;header_component
+        end
+
+        @&lt;main_component {class = &quot;main-content&quot;} begin
+            @__slot__
+        end
+
+        if sidebar
+            @aside {class = &quot;sidebar&quot;} begin
+                @__slot__ sidebar
+            end
+        end
+    end
+end
+
+@deftag macro flexible_layout end
+
+# Custom header component
+@component function custom_header()
+    @header {class = &quot;fancy-header&quot;} begin
+        @h1 &quot;My App&quot;
+    end
+end
+
+# Usage
+html = @render @flexible_layout {
+    header_component = custom_header,
+    main_component = section
+} begin
+    @p &quot;Main content here&quot;
+    sidebar := @p &quot;Sidebar content&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;layout&quot;&gt;
+  &lt;header class&#61;&quot;fancy-header&quot;&gt;&lt;h1&gt;My App&lt;/h1&gt;&lt;/header&gt;
+  &lt;section class&#61;&quot;main-content&quot;&gt;&lt;p&gt;Main content here&lt;/p&gt;&lt;/section&gt;
+  &lt;aside class&#61;&quot;sidebar&quot;&gt;&lt;p&gt;Sidebar content&lt;/p&gt;&lt;/aside&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Conditional-Component-Selection"><a class="docs-heading-anchor" href="#Conditional-Component-Selection">Conditional Component Selection</a><a id="Conditional-Component-Selection-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-Component-Selection" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define icon components
+@component function error_icon()
+    @span {class = &quot;icon icon-error&quot;} &quot;❌&quot;
+end
+
+@component function warning_icon()
+    @span {class = &quot;icon icon-warning&quot;} &quot;⚠️&quot;
+end
+
+@component function info_icon()
+    @span {class = &quot;icon icon-info&quot;} &quot;ℹ️&quot;
+end
+
+@component function alert(; type = &quot;info&quot;, message)
+    # Select icon based on type
+    icon_component = if type == &quot;error&quot;
+        error_icon
+    elseif type == &quot;warning&quot;
+        warning_icon
+    else
+        info_icon
+    end
+
+    @div {class = &quot;alert alert-$type&quot;} begin
+        @&lt;icon_component
+        @span &quot; &quot;
+        @span $message
+    end
+end
+
+@deftag macro alert end
+
+# Test different alert types
+@render @alert {type = &quot;info&quot;, message = &quot;This is information&quot;}
+
+Main.display_html(ans)</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-info&quot;&gt;
+  &lt;span class&#61;&quot;icon icon-info&quot;&gt;ℹ️&lt;/span&gt;&lt;span&gt; &lt;/span&gt;&lt;span&gt;This is
+    information&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @alert {type = &quot;warning&quot;, message = &quot;This is a warning&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-warning&quot;&gt;
+  &lt;span class&#61;&quot;icon icon-warning&quot;&gt;⚠️&lt;/span&gt;&lt;span&gt; &lt;/span&gt;&lt;span&gt;This is a
+    warning&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @alert {type = &quot;error&quot;, message = &quot;This is an error&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-error&quot;&gt;
+  &lt;span class&#61;&quot;icon icon-error&quot;&gt;❌&lt;/span&gt;&lt;span&gt; &lt;/span&gt;&lt;span&gt;This is an
+    error&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Module-Qualified-Components"><a class="docs-heading-anchor" href="#Module-Qualified-Components">Module-Qualified Components</a><a id="Module-Qualified-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Module-Qualified-Components" title="Permalink"></a></h2><p>Components can be organized in modules and referenced with qualification:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+module UI
+    using HypertextTemplates
+    using HypertextTemplates.Elements
+
+    @component function my_button(; variant = &quot;primary&quot;)
+        @button {class = &quot;ui-button ui-button-$variant&quot;} @__slot__
+    end
+
+    @deftag macro my_button end
+
+    @component function card()
+        @div {class = &quot;ui-card&quot;} @__slot__
+    end
+
+    @deftag macro card end
+end
+
+# Usage with module qualification
+html = @render @div begin
+    @UI.card begin
+        @h2 &quot;Card Title&quot;
+        @UI.my_button {variant = &quot;secondary&quot;} &quot;Click me&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;div class&#61;&quot;ui-card&quot;&gt;
+    &lt;h2&gt;Card Title&lt;/h2&gt;
+    &lt;button class&#61;&quot;ui-button ui-button-secondary&quot;&gt;Click me&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Creating-Component-Macros"><a class="docs-heading-anchor" href="#Creating-Component-Macros">Creating Component Macros</a><a id="Creating-Component-Macros-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-Component-Macros" title="Permalink"></a></h2><p>Use <code>@deftag</code> to create macro shortcuts for components:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function badge(; text, variant = &quot;primary&quot;, size = &quot;normal&quot;)
+    size_class = size == &quot;small&quot; ? &quot;badge-sm&quot; : &quot;badge-normal&quot;
+    @span {
+        class = &quot;badge badge-$variant $size_class&quot;
+    } $text
+end
+
+# Create a macro for easier use
+@deftag macro badge end
+
+# Now can use as @badge instead of @&lt;badge
+html = @render @div begin
+    @h3 begin
+        @text &quot;Products &quot;
+        @badge {text = &quot;New&quot;, variant = &quot;success&quot;, size = &quot;small&quot;}
+    end
+    @p begin
+        @text &quot;Status: &quot;
+        @badge {text = &quot;In Stock&quot;, variant = &quot;primary&quot;}
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h3&gt;Products &lt;span class&#61;&quot;badge badge-success badge-sm&quot;&gt;New&lt;/span&gt;&lt;/h3&gt;
+  &lt;p&gt;Status: &lt;span class&#61;&quot;badge badge-primary badge-normal&quot;&gt;In Stock&lt;/span&gt;&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Component-Patterns"><a class="docs-heading-anchor" href="#Component-Patterns">Component Patterns</a><a id="Component-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Patterns" title="Permalink"></a></h2><h3 id="Container/Presenter-Pattern"><a class="docs-heading-anchor" href="#Container/Presenter-Pattern">Container/Presenter Pattern</a><a id="Container/Presenter-Pattern-1"></a><a class="docs-heading-anchor-permalink" href="#Container/Presenter-Pattern" title="Permalink"></a></h3><p>Separate logic from presentation:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Presenter component (pure UI)
+@component function user_list_view(; users)
+    @div {class = &quot;user-list&quot;} begin
+        for user in users
+            # Use data attributes for JavaScript interaction
+            @div {class = &quot;user-item&quot;, &quot;data-user-id&quot; := user.id} begin
+                @img {src = user.avatar, alt = user.name, width = 32, height = 32}
+                @span &quot; &quot; $(user.name)
+            end
+        end
+    end
+end
+
+@deftag macro user_list_view end
+
+# Example usage with mock data
+users = [
+    (id = 1, name = &quot;Alice Johnson&quot;, avatar = &quot;/avatars/alice.jpg&quot;),
+    (id = 2, name = &quot;Bob Smith&quot;, avatar = &quot;/avatars/bob.jpg&quot;),
+    (id = 3, name = &quot;Charlie Brown&quot;, avatar = &quot;/avatars/charlie.jpg&quot;)
+]
+
+html = @render @user_list_view {users}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;user-list&quot;&gt;
+  &lt;div class&#61;&quot;user-item&quot; data-user-id&#61;&quot;1&quot;&gt;
+    &lt;img
+      src&#61;&quot;/avatars/alice.jpg&quot;
+      alt&#61;&quot;Alice Johnson&quot;
+      width&#61;&quot;32&quot;
+      height&#61;&quot;32&quot;
+    &gt;&lt;span&gt; Alice Johnson&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;user-item&quot; data-user-id&#61;&quot;2&quot;&gt;
+    &lt;img src&#61;&quot;/avatars/bob.jpg&quot; alt&#61;&quot;Bob Smith&quot; width&#61;&quot;32&quot; height&#61;&quot;32&quot;&gt;&lt;span&gt;
+      Bob Smith&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;user-item&quot; data-user-id&#61;&quot;3&quot;&gt;
+    &lt;img
+      src&#61;&quot;/avatars/charlie.jpg&quot;
+      alt&#61;&quot;Charlie Brown&quot;
+      width&#61;&quot;32&quot;
+      height&#61;&quot;32&quot;
+    &gt;&lt;span&gt; Charlie Brown&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Compound-Components"><a class="docs-heading-anchor" href="#Compound-Components">Compound Components</a><a id="Compound-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Compound-Components" title="Permalink"></a></h3><p>Related components that work together:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+module Tabs
+    using HypertextTemplates
+    using HypertextTemplates.Elements
+
+    @component function container(; active_tab = 1)
+        @div {class = &quot;tabs&quot;, &quot;data-active&quot; := active_tab} begin
+            @__slot__
+        end
+    end
+
+    @deftag macro container end
+
+    @component function list()
+        @ul {class = &quot;tab-list&quot;, role = &quot;tablist&quot;} begin
+            @__slot__
+        end
+    end
+
+    @deftag macro list end
+
+    @component function tab(; index, active = false)
+        @li {role = &quot;presentation&quot;} begin
+            @button {
+                role = &quot;tab&quot;,
+                class = active ? &quot;tab active&quot; : &quot;tab&quot;,
+                &quot;aria-selected&quot; := active
+            } begin
+                @__slot__
+            end
+        end
+    end
+
+    @deftag macro tab end
+
+    @component function panels()
+        @div {class = &quot;tab-panels&quot;} begin
+            @__slot__
+        end
+    end
+
+    @deftag macro panels end
+
+    @component function panel(; index, active = false)
+        @div {
+            role = &quot;tabpanel&quot;,
+            class = active ? &quot;panel active&quot; : &quot;panel&quot;,
+            hidden = !active
+        } begin
+            @__slot__
+        end
+    end
+
+    @deftag macro panel end
+end
+
+# Usage
+html = @render @Tabs.container {active_tab = 2} begin
+    @Tabs.list begin
+        @Tabs.tab {index = 1, active = false} &quot;Tab 1&quot;
+        @Tabs.tab {index = 2, active = true} &quot;Tab 2&quot;
+        @Tabs.tab {index = 3, active = false} &quot;Tab 3&quot;
+    end
+
+    @Tabs.panels begin
+        @Tabs.panel {index = 1, active = false} begin
+            @p &quot;Content for tab 1&quot;
+        end
+        @Tabs.panel {index = 2, active = true} begin
+            @p &quot;Content for tab 2&quot;
+        end
+        @Tabs.panel {index = 3, active = false} begin
+            @p &quot;Content for tab 3&quot;
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;tabs&quot; data-active&#61;&quot;2&quot;&gt;
+  &lt;ul class&#61;&quot;tab-list&quot; role&#61;&quot;tablist&quot;&gt;
+    &lt;li role&#61;&quot;presentation&quot;&gt;&lt;button role&#61;&quot;tab&quot; class&#61;&quot;tab&quot;&gt;Tab 1&lt;/button&gt;&lt;/li&gt;
+    &lt;li role&#61;&quot;presentation&quot;&gt;
+      &lt;button role&#61;&quot;tab&quot; class&#61;&quot;tab active&quot; aria-selected&gt;Tab 2&lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li role&#61;&quot;presentation&quot;&gt;&lt;button role&#61;&quot;tab&quot; class&#61;&quot;tab&quot;&gt;Tab 3&lt;/button&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;div class&#61;&quot;tab-panels&quot;&gt;
+    &lt;div role&#61;&quot;tabpanel&quot; class&#61;&quot;panel&quot; hidden&gt;&lt;p&gt;Content for tab 1&lt;/p&gt;&lt;/div&gt;
+    &lt;div role&#61;&quot;tabpanel&quot; class&#61;&quot;panel active&quot;&gt;&lt;p&gt;Content for tab 2&lt;/p&gt;&lt;/div&gt;
+    &lt;div role&#61;&quot;tabpanel&quot; class&#61;&quot;panel&quot; hidden&gt;&lt;p&gt;Content for tab 3&lt;/p&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Safe-Rendering-Pattern"><a class="docs-heading-anchor" href="#Safe-Rendering-Pattern">Safe Rendering Pattern</a><a id="Safe-Rendering-Pattern-1"></a><a class="docs-heading-anchor-permalink" href="#Safe-Rendering-Pattern" title="Permalink"></a></h3><p>While HypertextTemplates renders directly to IO (making traditional try-catch error boundaries impossible), you can implement safe rendering patterns:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Helper function to safely access nested data
+safe_get(obj, field, default=&quot;N/A&quot;) = try
+    getfield(obj, field)
+catch
+    default
+end
+
+# Component that handles potentially missing data
+@component function user_card(; user=nothing)
+    @div {class = &quot;user-card&quot;} begin
+        if user !== nothing
+            @h3 safe_get(user, :name, &quot;Unknown User&quot;)
+            @p &quot;Email: &quot; safe_get(user, :email)
+            @p &quot;Role: &quot; safe_get(user, :role, &quot;Guest&quot;)
+        else
+            @div {class = &quot;empty-state&quot;} begin
+                @p &quot;No user data available&quot;
+            end
+        end
+    end
+end
+
+@deftag macro user_card end
+
+# Example with valid user
+user = (name = &quot;Alice&quot;, email = &quot;alice@example.com&quot;, role = &quot;Admin&quot;)
+html1 = @render @user_card {user}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;user-card&quot;&gt;
+  &lt;h3&gt;&lt;/h3&gt;
+  &lt;p&gt;Email:&lt;/p&gt;
+  &lt;p&gt;Role:&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Example with missing user
+html2 = @render @user_card {}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;user-card&quot;&gt;
+  &lt;div class&#61;&quot;empty-state&quot;&gt;&lt;p&gt;No user data available&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Example with partial data
+partial_user = (name = &quot;Bob&quot;)  # Missing email and role
+html3 = @render @user_card {user = partial_user}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;user-card&quot;&gt;
+  &lt;h3&gt;&lt;/h3&gt;
+  &lt;p&gt;Email:&lt;/p&gt;
+  &lt;p&gt;Role:&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Best-Practices"><a class="docs-heading-anchor" href="#Best-Practices">Best Practices</a><a id="Best-Practices-1"></a><a class="docs-heading-anchor-permalink" href="#Best-Practices" title="Permalink"></a></h2><h3 id="1.-Keep-Components-Focused"><a class="docs-heading-anchor" href="#1.-Keep-Components-Focused">1. Keep Components Focused</a><a id="1.-Keep-Components-Focused-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Keep-Components-Focused" title="Permalink"></a></h3><p>Each component should have a single, clear purpose:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Good: Focused components
+@component function price_display(; amount, currency = &quot;USD&quot;)
+    @span {class = &quot;price&quot;} $currency &quot; &quot; $amount
+end
+
+@deftag macro price_display end
+
+@component function product_card(; product)
+    @div {class = &quot;product&quot;} begin
+        @h3 $(product.name)
+        @price_display {amount = product.price, currency = product.currency}
+    end
+end
+
+@deftag macro product_card end
+
+# Example usage
+product = (name = &quot;Laptop&quot;, price = 999.99, currency = &quot;USD&quot;)
+html = @render @product_card {product}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;product&quot;&gt;&lt;h3&gt;Laptop&lt;/h3&gt;&lt;span class&#61;&quot;price&quot;&gt;USD 999.99&lt;/span&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="2.-Use-Props-for-Configuration"><a class="docs-heading-anchor" href="#2.-Use-Props-for-Configuration">2. Use Props for Configuration</a><a id="2.-Use-Props-for-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Use-Props-for-Configuration" title="Permalink"></a></h3><p>Make components flexible through props:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function data_table(;
+    data,
+    columns,
+    striped = true,
+    hoverable = true,
+    bordered = false
+)
+    classes = [
+        &quot;table&quot;,
+        striped ? &quot;table-striped&quot; : nothing,
+        hoverable ? &quot;table-hover&quot; : nothing,
+        bordered ? &quot;table-bordered&quot; : nothing
+    ] |&gt; x -&gt; filter(!isnothing, x) |&gt; x -&gt; join(x, &quot; &quot;)
+
+    @table {class = classes} begin
+        @thead begin
+            @tr begin
+                for col in columns
+                    @th $col
+                end
+            end
+        end
+        @tbody begin
+            for row in data
+                @tr begin
+                    for value in row
+                        @td $value
+                    end
+                end
+            end
+        end
+    end
+end
+
+@deftag macro data_table end
+
+# Example usage
+columns = [&quot;Name&quot;, &quot;Age&quot;, &quot;City&quot;]
+data = [
+    [&quot;Alice&quot;, 25, &quot;New York&quot;],
+    [&quot;Bob&quot;, 30, &quot;London&quot;],
+    [&quot;Charlie&quot;, 35, &quot;Tokyo&quot;]
+]
+
+html = @render @data_table {data, columns, striped = true, bordered = true}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;table class&#61;&quot;table table-striped table-hover table-bordered&quot;&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Name&lt;/th&gt;
+      &lt;th&gt;Age&lt;/th&gt;
+      &lt;th&gt;City&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Alice&lt;/td&gt;
+      &lt;td&gt;25&lt;/td&gt;
+      &lt;td&gt;New York&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Bob&lt;/td&gt;
+      &lt;td&gt;30&lt;/td&gt;
+      &lt;td&gt;London&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Charlie&lt;/td&gt;
+      &lt;td&gt;35&lt;/td&gt;
+      &lt;td&gt;Tokyo&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<hr />
+</div><h3 id="3.-Document-Components"><a class="docs-heading-anchor" href="#3.-Document-Components">3. Document Components</a><a id="3.-Document-Components-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Document-Components" title="Permalink"></a></h3><p>Add docstrings to components:</p><pre><code class="language-julia hljs">&quot;&quot;&quot;
+    @alert(; type, title, message, dismissible)
+
+Display an alert message with optional dismiss button.
+
+# Arguments
+- `type::String = &quot;info&quot;`: Alert type (info, warning, error, success)
+- `title::String`: Alert title
+- `message::String`: Alert message body  
+- `dismissible::Bool = false`: Whether alert can be dismissed
+&quot;&quot;&quot;
+@component function alert(; type = &quot;info&quot;, title, message, dismissible = false)
+    # Implementation
+end</code></pre><h3 id="4.-Consider-Performance"><a class="docs-heading-anchor" href="#4.-Consider-Performance">4. Consider Performance</a><a id="4.-Consider-Performance-1"></a><a class="docs-heading-anchor-permalink" href="#4.-Consider-Performance" title="Permalink"></a></h3><p>For frequently rendered components, optimize:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Precompute static values
+const BUTTON_CLASSES = Dict(
+    :primary =&gt; &quot;btn btn-primary&quot;,
+    :secondary =&gt; &quot;btn btn-secondary&quot;,
+    :danger =&gt; &quot;btn btn-danger&quot;
+)
+
+@component function my_button(; variant = :primary)
+    @button {class = BUTTON_CLASSES[variant]} @__slot__
+end
+
+@deftag macro my_button end
+
+# Example usage
+@render @my_button {variant = :primary} &quot;Click me&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;btn btn-primary&quot;&gt;Click me&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @my_button {variant = :danger} &quot;Delete&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;btn btn-danger&quot;&gt;Delete&lt;/button&gt;</code></pre>
+<hr />
+</div><h3 id="5.-Error-Handling"><a class="docs-heading-anchor" href="#5.-Error-Handling">5. Error Handling</a><a id="5.-Error-Handling-1"></a><a class="docs-heading-anchor-permalink" href="#5.-Error-Handling" title="Permalink"></a></h3><p>Handle edge cases gracefully:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function safe_image(; src, alt = &quot;&quot;, fallback = &quot;/placeholder.png&quot;)
+    image_src = isempty(src) ? fallback : src
+    @img {src = image_src, alt, onerror = &quot;this.src=&#39;$fallback&#39;&quot;}
+end
+
+@deftag macro safe_image end
+
+# Example usage
+@render @safe_image {src = &quot;/user.jpg&quot;, alt = &quot;User avatar&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;img
+  src&#61;&quot;/user.jpg&quot;
+  alt&#61;&quot;User avatar&quot;
+  onerror&#61;&quot;this.src&#61;&amp;#39;/placeholder.png&amp;#39;&quot;
+&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @safe_image {src = &quot;&quot;, alt = &quot;User avatar&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;img
+  src&#61;&quot;/placeholder.png&quot;
+  alt&#61;&quot;User avatar&quot;
+  onerror&#61;&quot;this.src&#61;&amp;#39;/placeholder.png&amp;#39;&quot;
+&gt;</code></pre>
+<hr />
+</div><h2 id="Context:-Avoiding-Prop-Drilling"><a class="docs-heading-anchor" href="#Context:-Avoiding-Prop-Drilling">Context: Avoiding Prop Drilling</a><a id="Context:-Avoiding-Prop-Drilling-1"></a><a class="docs-heading-anchor-permalink" href="#Context:-Avoiding-Prop-Drilling" title="Permalink"></a></h2><p>For cross-cutting concerns like themes, authentication, or localization, passing props through every component level becomes cumbersome. The context system provides a cleaner solution:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@deftag macro app_without_context end
+@deftag macro navbar end
+@deftag macro user_menu end
+@deftag macro navbar_ctx end
+@deftag macro user_menu_ctx end
+
+# Without context - props passed through every level
+@component function app_without_context(; user)
+    @navbar {user}  # Pass to navbar
+end
+
+@component function navbar(; user)
+    @user_menu {user}  # Pass to user menu
+end
+
+@component function user_menu(; user)
+    @span &quot;Welcome, $(user.name)!&quot;
+end
+
+# With context - cleaner and more maintainable
+@component function app_with_context(; user)
+    @context {current_user = user} begin
+        @navbar_ctx  # No need to pass user
+    end
+end
+
+@component function navbar_ctx()
+    @user_menu_ctx  # No need to pass user
+end
+
+@component function user_menu_ctx()
+    user = @get_context(:current_user)
+    @span &quot;Welcome, $(user.name)!&quot;
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">user_menu_ctx (generic function with 1 method)</code></pre><p>Context is particularly useful for:</p><ul><li><strong>Theme systems</strong> - Colors, styles, dark/light mode</li><li><strong>Authentication</strong> - Current user, permissions</li><li><strong>Localization</strong> - Language, date/number formats</li><li><strong>Feature flags</strong> - Enable/disable features globally</li></ul><p>For detailed context usage and patterns, see the <a href="../advanced-features/#context-system">Context System</a> section in the Advanced Features guide.</p><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>Components combine reusability, composition through slots, type safety, flexible rendering, and context support to create maintainable templates. Use these patterns to structure your applications effectively.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../core-concepts/">« Core Concepts</a><a class="docs-footer-nextpage" href="../elements-attributes/">Elements &amp; Attributes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

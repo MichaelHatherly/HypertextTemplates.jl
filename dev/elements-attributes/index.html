@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Elements &amp; Attributes · HypertextTemplates</title><meta name="title" content="Elements &amp; Attributes · HypertextTemplates"/><meta property="og:title" content="Elements &amp; Attributes · HypertextTemplates"/><meta property="twitter:title" content="Elements &amp; Attributes · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li class="is-active"><a class="tocitem" href>Elements &amp; Attributes</a><ul class="internal"><li><a class="tocitem" href="#HTML-Element-Macros"><span>HTML Element Macros</span></a></li><li><a class="tocitem" href="#Attribute-Syntax"><span>Attribute Syntax</span></a></li><li><a class="tocitem" href="#Custom-Elements"><span>Custom Elements</span></a></li><li><a class="tocitem" href="#Special-Elements"><span>Special Elements</span></a></li><li><a class="tocitem" href="#Escaping-and-Security"><span>Escaping and Security</span></a></li><li><a class="tocitem" href="#Advanced-Patterns"><span>Advanced Patterns</span></a></li><li><a class="tocitem" href="#Best-Practices"><span>Best Practices</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Elements &amp; Attributes</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Elements &amp; Attributes</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/elements-attributes.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="HTML-Elements-and-Attributes"><a class="docs-heading-anchor" href="#HTML-Elements-and-Attributes">HTML Elements &amp; Attributes</a><a id="HTML-Elements-and-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#HTML-Elements-and-Attributes" title="Permalink"></a></h1><p>This guide covers how to work with HTML elements and their attributes in HypertextTemplates.jl.</p><h2 id="HTML-Element-Macros"><a class="docs-heading-anchor" href="#HTML-Element-Macros">HTML Element Macros</a><a id="HTML-Element-Macros-1"></a><a class="docs-heading-anchor-permalink" href="#HTML-Element-Macros" title="Permalink"></a></h2><p>HypertextTemplates provides macros for all standard HTML elements. Import them from the <code>Elements</code> submodule:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements</code></pre><h3 id="Common-Elements"><a class="docs-heading-anchor" href="#Common-Elements">Common Elements</a><a id="Common-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#Common-Elements" title="Permalink"></a></h3><p>HypertextTemplates provides macros for every standard HTML element, allowing you to write HTML using Julia&#39;s native macro syntax. Each element is exposed as a macro (prefixed with <code>@</code>) that mirrors its HTML counterpart. These macros handle proper tag generation, nesting, attribute handling, and automatic escaping. The element macros are organized into logical groups based on their semantic purpose in HTML, making it easy to find and use the elements you need for structuring documents, creating forms, embedding media, or building complex layouts.</p><pre><code class="language-julia hljs"># Structural elements
+@div @section @article @aside @header @footer @main @nav
+
+# Text content
+@h1 @h2 @h3 @h4 @h5 @h6 @p @span @blockquote @pre @code
+
+# Lists
+@ul @ol @li @dl @dt @dd
+
+# Links and media
+@a @img @video @audio @picture @source
+
+# Forms
+@form @input @button @select @option @textarea @label @fieldset
+
+# Tables
+@table @thead @tbody @tfoot @tr @th @td @caption @colgroup @col
+
+# And many more...</code></pre><h3 id="Complete-Example"><a class="docs-heading-anchor" href="#Complete-Example">Complete Example</a><a id="Complete-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Complete-Example" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @article begin
+    @header begin
+        @h1 &quot;Article Title&quot;
+        @p {class = &quot;meta&quot;} &quot;Published on &quot; Elements.@time {datetime = &quot;2024-01-01&quot;} &quot;January 1, 2024&quot;
+    end
+
+    @section begin
+        @p &quot;First paragraph of content...&quot;
+        @figure begin
+            @img {src = &quot;/image.jpg&quot;, alt = &quot;Description&quot;}
+            @figcaption &quot;Image caption&quot;
+        end
+    end
+
+    @footer begin
+        @p &quot;Article footer with &quot; @a {href = &quot;/more&quot;} &quot;related links&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;article&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Article Title&lt;/h1&gt;
+    &lt;p class&#61;&quot;meta&quot;&gt;
+      Published on &lt;time datetime&#61;&quot;2024-01-01&quot;&gt;January 1, 2024&lt;/time&gt;
+    &lt;/p&gt;
+  &lt;/header&gt;
+  &lt;section&gt;
+    &lt;p&gt;First paragraph of content...&lt;/p&gt;
+    &lt;figure&gt;
+      &lt;img src&#61;&quot;/image.jpg&quot; alt&#61;&quot;Description&quot;&gt;&lt;figcaption&gt;
+        Image caption
+      &lt;/figcaption&gt;
+    &lt;/figure&gt;
+  &lt;/section&gt;
+  &lt;footer&gt;&lt;p&gt;Article footer with &lt;a href&#61;&quot;/more&quot;&gt;related links&lt;/a&gt;&lt;/p&gt;&lt;/footer&gt;
+&lt;/article&gt;</code></pre>
+<hr />
+</div><h2 id="Attribute-Syntax"><a class="docs-heading-anchor" href="#Attribute-Syntax">Attribute Syntax</a><a id="Attribute-Syntax-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Syntax" title="Permalink"></a></h2><h3 id="Basic-Attributes"><a class="docs-heading-anchor" href="#Basic-Attributes">Basic Attributes</a><a id="Basic-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Attributes" title="Permalink"></a></h3><p>Attributes are specified using <code>{}</code> with key-value pairs:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Single attribute
+@render @div {id = &quot;main&quot;} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div id&#61;&quot;main&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Multiple attributes
+@render @a {href = &quot;/home&quot;, class = &quot;nav-link&quot;, target = &quot;_blank&quot;} &quot;Home&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;a href&#61;&quot;/home&quot; class&#61;&quot;nav-link&quot; target&#61;&quot;_blank&quot;&gt;Home&lt;/a&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Computed attributes
+width = 300
+height = 200
+@render @img {src = &quot;/photo.jpg&quot;, width, height, alt = &quot;Photo&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;img src&#61;&quot;/photo.jpg&quot; width&#61;&quot;300&quot; height&#61;&quot;200&quot; alt&#61;&quot;Photo&quot;&gt;</code></pre>
+<hr />
+</div><h3 id="Attribute-Name-Variations"><a class="docs-heading-anchor" href="#Attribute-Name-Variations">Attribute Name Variations</a><a id="Attribute-Name-Variations-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Name-Variations" title="Permalink"></a></h3><h4 id="Standard-Identifiers"><a class="docs-heading-anchor" href="#Standard-Identifiers">Standard Identifiers</a><a id="Standard-Identifiers-1"></a><a class="docs-heading-anchor-permalink" href="#Standard-Identifiers" title="Permalink"></a></h4><p>For valid Julia identifiers, use simple syntax:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @input {type = &quot;text&quot;, name = &quot;username&quot;, placeholder = &quot;Enter username&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;text&quot; name&#61;&quot;username&quot; placeholder&#61;&quot;Enter username&quot;&gt;</code></pre>
+<hr />
+</div><h4 id="Non-Standard-Names"><a class="docs-heading-anchor" href="#Non-Standard-Names">Non-Standard Names</a><a id="Non-Standard-Names-1"></a><a class="docs-heading-anchor-permalink" href="#Non-Standard-Names" title="Permalink"></a></h4><p>For attributes with special characters, use string literals with <code>:=</code>:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Alpine.js attributes
+html = @render @div {&quot;x-data&quot; := &quot;{ open: false }&quot;} begin
+    @button {&quot;@click&quot; := &quot;open = !open&quot;} &quot;Toggle&quot;
+    @div {&quot;x-show&quot; := &quot;open&quot;} &quot;Hidden content&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div x-data&#61;&quot;&#123; open: false &#125;&quot;&gt;
+  &lt;button @click&#61;&quot;open &#61; &#33;open&quot;&gt;Toggle&lt;/button&gt;
+  &lt;div x-show&#61;&quot;open&quot;&gt;Hidden content&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# HTMX attributes
+html = @render @button {
+    &quot;hx-post&quot; := &quot;/api/click&quot;,
+    &quot;hx-target&quot; := &quot;#result&quot;,
+    &quot;hx-swap&quot; := &quot;innerHTML&quot;
+} &quot;Click me&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button hx-post&#61;&quot;/api/click&quot; hx-target&#61;&quot;#result&quot; hx-swap&#61;&quot;innerHTML&quot;&gt;
+  Click me
+&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Custom data attributes
+html = @render @div {
+    &quot;data-user-id&quot; := &quot;123&quot;,
+    &quot;data-role&quot; := &quot;admin&quot;,
+    &quot;aria-label&quot; := &quot;User profile&quot;
+} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div data-user-id&#61;&quot;123&quot; data-role&#61;&quot;admin&quot; aria-label&#61;&quot;User profile&quot;&gt;
+  Content
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Attribute-Value-Types"><a class="docs-heading-anchor" href="#Attribute-Value-Types">Attribute Value Types</a><a id="Attribute-Value-Types-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Value-Types" title="Permalink"></a></h3><h4 id="Strings"><a class="docs-heading-anchor" href="#Strings">Strings</a><a id="Strings-1"></a><a class="docs-heading-anchor-permalink" href="#Strings" title="Permalink"></a></h4><pre><code class="language-julia hljs">@div {class = &quot;container&quot;, id = &quot;main&quot;}</code></pre><h4 id="Numbers"><a class="docs-heading-anchor" href="#Numbers">Numbers</a><a id="Numbers-1"></a><a class="docs-heading-anchor-permalink" href="#Numbers" title="Permalink"></a></h4><p>Numbers are automatically converted to strings:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@render @input {type = &quot;range&quot;, min = 0, max = 100, step = 5}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;range&quot; min&#61;&quot;0&quot; max&#61;&quot;100&quot; step&#61;&quot;5&quot;&gt;</code></pre>
+<hr />
+</div><h4 id="Booleans"><a class="docs-heading-anchor" href="#Booleans">Booleans</a><a id="Booleans-1"></a><a class="docs-heading-anchor-permalink" href="#Booleans" title="Permalink"></a></h4><p>Boolean attributes follow HTML5 semantics:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# true renders just the attribute name
+@render @input {type = &quot;checkbox&quot;, checked = true}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;checkbox&quot; checked&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># false omits the attribute entirely
+@render @input {type = &quot;checkbox&quot;, checked = false}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;checkbox&quot;&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Dynamic boolean
+is_loading = true
+@render @button {disabled = is_loading} &quot;Submit&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button disabled&gt;Submit&lt;/button&gt;</code></pre>
+<hr />
+</div><h4 id="Nothing/Missing"><a class="docs-heading-anchor" href="#Nothing/Missing">Nothing/Missing</a><a id="Nothing/Missing-1"></a><a class="docs-heading-anchor-permalink" href="#Nothing/Missing" title="Permalink"></a></h4><p><code>nothing</code> values are omitted:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Test with false condition
+condition = false
+optional_class = condition ? &quot;active&quot; : nothing
+html1 = @render @div {class = optional_class} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Test with true condition
+condition = true
+optional_class = condition ? &quot;active&quot; : nothing
+html2 = @render @div {class = optional_class} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;active&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Attribute-Shortcuts"><a class="docs-heading-anchor" href="#Attribute-Shortcuts">Attribute Shortcuts</a><a id="Attribute-Shortcuts-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Shortcuts" title="Permalink"></a></h3><h4 id="Variable-Name-Matching"><a class="docs-heading-anchor" href="#Variable-Name-Matching">Variable Name Matching</a><a id="Variable-Name-Matching-1"></a><a class="docs-heading-anchor-permalink" href="#Variable-Name-Matching" title="Permalink"></a></h4><p>When variable names match attribute names:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+id = &quot;user-123&quot;
+class = &quot;profile-card&quot;
+role = &quot;article&quot;
+
+# Instead of {id = id, class = class, role = role}
+@render @div {id, class, role} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div id&#61;&quot;user-123&quot; class&#61;&quot;profile-card&quot; role&#61;&quot;article&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><h4 id="Spreading-Attributes"><a class="docs-heading-anchor" href="#Spreading-Attributes">Spreading Attributes</a><a id="Spreading-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Spreading-Attributes" title="Permalink"></a></h4><p>Use <code>...</code> to spread attributes from collections:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# From NamedTuple
+common_attrs = (class = &quot;btn&quot;, type = &quot;button&quot;)
+@render @button {id = &quot;submit&quot;, common_attrs...} &quot;Submit&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button id&#61;&quot;submit&quot; class&#61;&quot;btn&quot; type&#61;&quot;button&quot;&gt;Submit&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# From Dict
+attrs = Dict(Symbol(&quot;data-value&quot;) =&gt; &quot;123&quot;, Symbol(&quot;data-label&quot;) =&gt; &quot;test&quot;)
+@render @div {class = &quot;widget&quot;, attrs...} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;widget&quot; data-label&#61;&quot;test&quot; data-value&#61;&quot;123&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Combining multiple sources
+base = (; class = &quot;card&quot;)
+extra = (; id = &quot;main&quot;, role = &quot;region&quot;)
+@render @article {base..., extra..., class = &quot;card featured&quot;} &quot;Content&quot;
+# Note: Later values override earlier ones</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;article class&#61;&quot;card featured&quot; id&#61;&quot;main&quot; role&#61;&quot;region&quot;&gt;Content&lt;/article&gt;</code></pre>
+<hr />
+</div><h3 id="Conditional-Attributes"><a class="docs-heading-anchor" href="#Conditional-Attributes">Conditional Attributes</a><a id="Conditional-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-Attributes" title="Permalink"></a></h3><p>Common patterns for conditional attributes:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Using ternary operator
+isactive = true
+html = @render @div {class = isactive ? &quot;active&quot; : &quot;inactive&quot;} &quot;Status&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;active&quot;&gt;Status&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Using nothing for optional attributes
+external = true
+html = @render @a {
+    href = &quot;/page&quot;,
+    target = external ? &quot;_blank&quot; : nothing,
+    rel = external ? &quot;noopener&quot; : nothing
+} &quot;External Link&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;a href&#61;&quot;/page&quot; target&#61;&quot;_blank&quot; rel&#61;&quot;noopener&quot;&gt;External Link&lt;/a&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Building class lists
+size = :large
+variant = :primary
+disabled = true
+
+classes = [
+    &quot;btn&quot;,
+    size == :large ? &quot;btn-lg&quot; : &quot;btn-sm&quot;,
+    variant == :primary ? &quot;btn-primary&quot; : &quot;btn-secondary&quot;,
+    disabled ? &quot;disabled&quot; : nothing
+] |&gt; x -&gt; filter(!isnothing, x) |&gt; x -&gt; join(x, &quot; &quot;)
+
+html = @render @button {class = classes, disabled} &quot;Click&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;btn btn-lg btn-primary disabled&quot; disabled&gt;Click&lt;/button&gt;</code></pre>
+<hr />
+</div><h2 id="Custom-Elements"><a class="docs-heading-anchor" href="#Custom-Elements">Custom Elements</a><a id="Custom-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Elements" title="Permalink"></a></h2><h3 id="Defining-Custom-Elements"><a class="docs-heading-anchor" href="#Defining-Custom-Elements">Defining Custom Elements</a><a id="Defining-Custom-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#Defining-Custom-Elements" title="Permalink"></a></h3><p>Use <code>@element</code> to define custom HTML elements:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define a web component
+@element &quot;my-component&quot; my_component
+
+# Use it
+html = @render @&lt;my_component {prop = &quot;value&quot;} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;my-component prop&#61;&quot;value&quot;&gt;Content&lt;/my-component&gt;</code></pre>
+<hr />
+</div><h3 id="Creating-Element-Macros"><a class="docs-heading-anchor" href="#Creating-Element-Macros">Creating Element Macros</a><a id="Creating-Element-Macros-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-Element-Macros" title="Permalink"></a></h3><p>Use <code>@deftag</code> to create macro shortcuts:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define the element
+@element &quot;custom-button&quot; custom_button
+
+# Create a macro for it
+@deftag macro custom_button end
+
+# Now use as a regular macro
+html = @render @custom_button {variant = &quot;primary&quot;} &quot;Click me&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;custom-button variant&#61;&quot;primary&quot;&gt;Click me&lt;/custom-button&gt;</code></pre>
+<hr />
+</div><h3 id="Web-Components-Example"><a class="docs-heading-anchor" href="#Web-Components-Example">Web Components Example</a><a id="Web-Components-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Web-Components-Example" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define common web components
+@element &quot;sl-button&quot; sl_button
+@element &quot;sl-input&quot; sl_input
+@element &quot;sl-card&quot; sl_card
+
+@deftag macro sl_button end
+@deftag macro sl_input end
+@deftag macro sl_card end
+
+# Use Shoelace components
+html = @render @sl_card begin
+    @div {slot = &quot;header&quot;} &quot;Card Title&quot;
+    @p &quot;Card content&quot;
+    @div {slot = &quot;footer&quot;} begin
+        @sl_button {variant = &quot;primary&quot;} &quot;Save&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;sl-card&gt;&lt;div slot&#61;&quot;header&quot;&gt;Card Title&lt;/div&gt;&lt;p&gt;Card content&lt;/p&gt;&lt;div
+    slot&#61;&quot;footer&quot;
+  &gt;
+    &lt;sl-button variant&#61;&quot;primary&quot;&gt;Save&lt;/sl-button&gt;
+  &lt;/div&gt;&lt;/sl-card&gt;</code></pre>
+<hr />
+</div><h2 id="Special-Elements"><a class="docs-heading-anchor" href="#Special-Elements">Special Elements</a><a id="Special-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#Special-Elements" title="Permalink"></a></h2><h3 id="Void-Elements"><a class="docs-heading-anchor" href="#Void-Elements">Void Elements</a><a id="Void-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#Void-Elements" title="Permalink"></a></h3><p>Self-closing elements work automatically:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div begin
+    @img {src = &quot;/photo.jpg&quot;, alt = &quot;&quot;}
+    @br
+    @hr {class = &quot;divider&quot;}
+    @input {type = &quot;text&quot;, name = &quot;field&quot;}
+    @meta {charset = &quot;UTF-8&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;img src&#61;&quot;/photo.jpg&quot; alt&#61;&quot;&quot;&gt;&lt;br&gt;&lt;hr class&#61;&quot;divider&quot;&gt;&lt;input
+    type&#61;&quot;text&quot;
+    name&#61;&quot;field&quot;
+  &gt;&lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Raw-HTML-with-Script-and-Style"><a class="docs-heading-anchor" href="#Raw-HTML-with-Script-and-Style">Raw HTML with Script and Style</a><a id="Raw-HTML-with-Script-and-Style-1"></a><a class="docs-heading-anchor-permalink" href="#Raw-HTML-with-Script-and-Style" title="Permalink"></a></h3><p>Script and style elements preserve their content:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div begin
+    @script {type = &quot;text/javascript&quot;} &quot;&quot;&quot;
+        console.log(&quot;This is preserved as-is&quot;);
+        const data = { value: 123 };
+    &quot;&quot;&quot;
+
+    @style &quot;&quot;&quot;
+        .custom-class {
+            color: blue;
+            font-size: 16px;
+        }
+    &quot;&quot;&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;script type&#61;&quot;text/javascript&quot;&gt;
+    console.log&#40;&quot;This is preserved as-is&quot;&#41;;
+  const data &#61; &#123; value: 123 &#125;;
+  &lt;/script&gt;
+  &lt;style&gt;
+    .custom-class &#123;
+      color: blue;
+      font-size: 16px;
+    &#125;
+  &lt;/style&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="SVG-Elements"><a class="docs-heading-anchor" href="#SVG-Elements">SVG Elements</a><a id="SVG-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#SVG-Elements" title="Permalink"></a></h3><p>SVG elements work like regular elements:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@element &quot;svg&quot; svg
+@element &quot;circle&quot; circle
+@element &quot;rect&quot; rect
+@element &quot;path&quot; path
+
+@deftag macro svg end
+@deftag macro circle end
+@deftag macro rect end
+@deftag macro path end
+
+html = @render @svg {width = &quot;100&quot;, height = &quot;100&quot;, viewBox = &quot;0 0 100 100&quot;} begin
+    @circle {cx = &quot;50&quot;, cy = &quot;50&quot;, r = &quot;40&quot;, fill = &quot;blue&quot;}
+    @rect {x = &quot;10&quot;, y = &quot;10&quot;, width = &quot;30&quot;, height = &quot;30&quot;, fill = &quot;red&quot;}
+    @path {d = &quot;M 10 10 L 90 90&quot;, stroke = &quot;black&quot;, &quot;stroke-width&quot; := &quot;2&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;svg width&#61;&quot;100&quot; height&#61;&quot;100&quot; viewBox&#61;&quot;0 0 100 100&quot;&gt;
+  &lt;circle cx&#61;&quot;50&quot; cy&#61;&quot;50&quot; r&#61;&quot;40&quot; fill&#61;&quot;blue&quot;&gt;&lt;/circle&gt;
+  &lt;rect x&#61;&quot;10&quot; y&#61;&quot;10&quot; width&#61;&quot;30&quot; height&#61;&quot;30&quot; fill&#61;&quot;red&quot;&gt;&lt;/rect&gt;
+  &lt;path d&#61;&quot;M 10 10 L 90 90&quot; stroke&#61;&quot;black&quot; stroke-width&#61;&quot;2&quot;&gt;&lt;/path&gt;
+&lt;/svg&gt;</code></pre>
+<hr />
+</div><h2 id="Escaping-and-Security"><a class="docs-heading-anchor" href="#Escaping-and-Security">Escaping and Security</a><a id="Escaping-and-Security-1"></a><a class="docs-heading-anchor-permalink" href="#Escaping-and-Security" title="Permalink"></a></h2><h3 id="Automatic-Escaping"><a class="docs-heading-anchor" href="#Automatic-Escaping">Automatic Escaping</a><a id="Automatic-Escaping-1"></a><a class="docs-heading-anchor-permalink" href="#Automatic-Escaping" title="Permalink"></a></h3><p>Attribute values from variables are automatically escaped:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+user_input = &quot;\&quot; onclick=\&quot;alert(&#39;xss&#39;)\&quot;&quot;
+html = @render @div {title = user_input} &quot;Safe&quot;
+# Output shows escaped attributes</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div title&#61;&quot;&amp;quot; onclick&#61;&amp;quot;alert&#40;&amp;#39;xss&amp;#39;&#41;&amp;quot;&quot;&gt;Safe&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Pre-escaped-Content"><a class="docs-heading-anchor" href="#Pre-escaped-Content">Pre-escaped Content</a><a id="Pre-escaped-Content-1"></a><a class="docs-heading-anchor-permalink" href="#Pre-escaped-Content" title="Permalink"></a></h3><p>In rare cases where you need to include pre-escaped or specially formatted attribute values that should bypass the automatic escaping system, you can use <code>SafeString</code>. This is typically needed when working with attribute values that have already been processed by another system or contain special formatting that must be preserved exactly. However, this should be used with extreme caution and only with trusted content, as it bypasses the security protections that prevent XSS attacks through attribute injection.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+safe_attr = SafeString(&quot;complex&amp;value&quot;)
+html = @render @div {&quot;data-value&quot; := safe_attr} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div data-value&#61;&quot;complex&amp;value&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Advanced-Patterns"><a class="docs-heading-anchor" href="#Advanced-Patterns">Advanced Patterns</a><a id="Advanced-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Patterns" title="Permalink"></a></h2><h3 id="Dynamic-Attribute-Names"><a class="docs-heading-anchor" href="#Dynamic-Attribute-Names">Dynamic Attribute Names</a><a id="Dynamic-Attribute-Names-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamic-Attribute-Names" title="Permalink"></a></h3><p>Build attributes programmatically:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function dynamic_attrs(; prefix = &quot;data&quot;, values = Dict())
+    attrs = Dict()
+    for (key, value) in values
+        attrs[Symbol(&quot;$prefix-$key&quot;)] = value
+    end
+
+    @div {attrs...} @__slot__
+end
+
+@deftag macro dynamic_attrs end
+
+# Usage example
+html = @render @dynamic_attrs {
+    prefix = &quot;data&quot;,
+    values = Dict(&quot;id&quot; =&gt; &quot;123&quot;, &quot;name&quot; =&gt; &quot;test&quot;)
+} &quot;Content with dynamic attributes&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div data-name&#61;&quot;test&quot; data-id&#61;&quot;123&quot;&gt;Content with dynamic attributes&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="ARIA-Attributes"><a class="docs-heading-anchor" href="#ARIA-Attributes">ARIA Attributes</a><a id="ARIA-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#ARIA-Attributes" title="Permalink"></a></h3><p>Accessibility attributes using proper patterns:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function accessible_modal(; open = false, title_id = &quot;modal-title&quot;)
+    @div {
+        role = &quot;dialog&quot;,
+        &quot;aria-modal&quot; := &quot;true&quot;,
+        &quot;aria-labelledby&quot; := title_id,
+        &quot;aria-hidden&quot; := !open
+    } begin
+        @h2 {id = title_id} begin
+            @__slot__ title
+        end
+        @div begin
+            @__slot__
+        end
+    end
+end
+
+@deftag macro accessible_modal end
+
+# Usage example
+html = @render @accessible_modal {open = true} begin
+    title := &quot;Important Dialog&quot;
+    @p &quot;This is the modal content.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div role&#61;&quot;dialog&quot; aria-modal&#61;&quot;true&quot; aria-labelledby&#61;&quot;modal-title&quot;&gt;
+  &lt;h2 id&#61;&quot;modal-title&quot;&gt;Important Dialog&lt;/h2&gt;
+  &lt;div&gt;&lt;p&gt;This is the modal content.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Style-Objects"><a class="docs-heading-anchor" href="#Style-Objects">Style Objects</a><a id="Style-Objects-1"></a><a class="docs-heading-anchor-permalink" href="#Style-Objects" title="Permalink"></a></h3><p>Building inline styles:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+function style_string(; styles...)
+    parts = String[]
+    for (prop, value) in pairs(styles)
+        prop_str = replace(string(prop), &quot;_&quot; =&gt; &quot;-&quot;)
+        push!(parts, &quot;$prop_str: $value&quot;)
+    end
+    return join(parts, &quot;; &quot;)
+end
+
+# Usage
+html = @render @div {
+    style = style_string(
+        background_color = &quot;blue&quot;,
+        padding = &quot;1rem&quot;,
+        border_radius = &quot;0.5rem&quot;
+    )
+} &quot;Styled div&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div style&#61;&quot;background-color: blue; padding: 1rem; border-radius: 0.5rem&quot;&gt;
+  Styled div
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Best-Practices"><a class="docs-heading-anchor" href="#Best-Practices">Best Practices</a><a id="Best-Practices-1"></a><a class="docs-heading-anchor-permalink" href="#Best-Practices" title="Permalink"></a></h2><h3 id="1.-Use-Semantic-HTML"><a class="docs-heading-anchor" href="#1.-Use-Semantic-HTML">1. Use Semantic HTML</a><a id="1.-Use-Semantic-HTML-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Use-Semantic-HTML" title="Permalink"></a></h3><p>Choose elements that convey meaning:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Good: Semantic elements
+html = @render @nav begin
+    @ul begin
+        @li @a {href = &quot;/&quot;} &quot;Home&quot;
+        @li @a {href = &quot;/about&quot;} &quot;About&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href&#61;&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href&#61;&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Article with semantic structure
+html2 = @render @article begin
+    @header @h1 &quot;Article Title&quot;
+    @section @p &quot;Content...&quot;
+    @footer @button {type = &quot;submit&quot;} &quot;Submit&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;article&gt;
+  &lt;header&gt;&lt;h1&gt;Article Title&lt;/h1&gt;&lt;/header&gt;
+  &lt;section&gt;&lt;p&gt;Content...&lt;/p&gt;&lt;/section&gt;
+  &lt;footer&gt;&lt;button type&#61;&quot;submit&quot;&gt;Submit&lt;/button&gt;&lt;/footer&gt;
+&lt;/article&gt;</code></pre>
+<hr />
+</div><h3 id="2.-Accessibility-First"><a class="docs-heading-anchor" href="#2.-Accessibility-First">2. Accessibility First</a><a id="2.-Accessibility-First-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Accessibility-First" title="Permalink"></a></h3><p>Always include accessibility attributes:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div begin
+    @img {src = &quot;/logo.png&quot;, alt = &quot;Company logo&quot;}
+    @button {type = &quot;button&quot;, &quot;aria-label&quot; := &quot;Close dialog&quot;} &quot;×&quot;
+    @input {type = &quot;email&quot;, id = &quot;email&quot;, &quot;aria-describedby&quot; := &quot;email-error&quot;}
+    @span {id = &quot;email-error&quot;, class = &quot;error&quot;} &quot;Please enter a valid email&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;img src&#61;&quot;/logo.png&quot; alt&#61;&quot;Company logo&quot;&gt;&lt;button
+    type&#61;&quot;button&quot;
+    aria-label&#61;&quot;Close dialog&quot;
+  &gt;
+    ×
+  &lt;/button&gt;&lt;input type&#61;&quot;email&quot; id&#61;&quot;email&quot; aria-describedby&#61;&quot;email-error&quot;&gt;&lt;span
+    id&#61;&quot;email-error&quot;
+    class&#61;&quot;error&quot;
+  &gt;Please enter a valid email&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="3.-Consistent-Naming"><a class="docs-heading-anchor" href="#3.-Consistent-Naming">3. Consistent Naming</a><a id="3.-Consistent-Naming-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Consistent-Naming" title="Permalink"></a></h3><p>Use consistent patterns for classes and IDs:</p><pre><code class="language-julia hljs"># Component-based naming
+@div {class = &quot;card&quot;} begin
+    @div {class = &quot;card__header&quot;} &quot;Title&quot;
+    @div {class = &quot;card__body&quot;} &quot;Content&quot;
+    @button {class = &quot;card__action card__action--primary&quot;} &quot;Save&quot;
+end</code></pre><h3 id="4.-Avoid-Inline-Styles"><a class="docs-heading-anchor" href="#4.-Avoid-Inline-Styles">4. Avoid Inline Styles</a><a id="4.-Avoid-Inline-Styles-1"></a><a class="docs-heading-anchor-permalink" href="#4.-Avoid-Inline-Styles" title="Permalink"></a></h3><p>Prefer classes over inline styles:</p><pre><code class="language-julia hljs"># Good: Use classes
+@div {class = &quot;alert alert-warning&quot;} &quot;Warning message&quot;
+
+# Avoid: Inline styles (except when dynamic)
+@div {style = &quot;color: orange; padding: 1rem;&quot;} &quot;Warning&quot;</code></pre><h3 id="5.-Data-Attributes-for-JavaScript"><a class="docs-heading-anchor" href="#5.-Data-Attributes-for-JavaScript">5. Data Attributes for JavaScript</a><a id="5.-Data-Attributes-for-JavaScript-1"></a><a class="docs-heading-anchor-permalink" href="#5.-Data-Attributes-for-JavaScript" title="Permalink"></a></h3><p>Use data attributes for JavaScript hooks:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @button {
+    class = &quot;btn btn-primary&quot;,
+    &quot;data-action&quot; := &quot;submit-form&quot;,
+    &quot;data-form-id&quot; := &quot;user-form&quot;,
+    &quot;data-confirm&quot; := &quot;true&quot;
+} &quot;Submit&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button
+  class&#61;&quot;btn btn-primary&quot;
+  data-action&#61;&quot;submit-form&quot;
+  data-form-id&#61;&quot;user-form&quot;
+  data-confirm&#61;&quot;true&quot;
+&gt;
+  Submit
+&lt;/button&gt;</code></pre>
+<hr />
+</div><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>HypertextTemplates.jl provides a comprehensive and flexible system for working with HTML elements and attributes:</p><ul><li>All standard HTML elements available as macros</li><li>Flexible attribute syntax with <code>{}</code> notation</li><li>Support for dynamic and computed attributes</li><li>Automatic security through escaping</li><li>Custom element definition support</li><li>Advanced patterns for complex use cases</li></ul><p>The system is designed to feel natural to Julia developers while providing all the features needed for modern web development.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../components/">« Components</a><a class="docs-footer-nextpage" href="../rendering/">Rendering &amp; Performance »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Advanced Components</title><link rel="stylesheet" href="./app.css"><script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script></head><body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex"><div class="w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto flex-shrink-0"><div class="p-6"><div class="flex flex-col gap-6 items-stretch justify-start "><div class="flex flex-col gap-2 items-stretch justify-start "><h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Components</h3><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Browse all component examples</p></div><div class="flex flex-col gap-1 items-stretch justify-start "><a href="AdvancedComponentsExample.html" class="block px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium" aria-current="page">Advanced Components</a><a href="AppExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Complete Application Example</a><a href="DarkModeExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dark Mode Optimized Components</a><a href="DropdownMenuExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dropdown Menu Components</a><a href="FeedbackExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Feedback Components</a><a href="FormExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Form Components</a><a href="IconGalleryExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Icon Gallery</a><a href="LayoutExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Layout Components</a><a href="ModalExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modal Components</a><a href="ModernStylingExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modern Styling Features</a><a href="NavigationExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Navigation Components</a><a href="TableListExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Table &amp; List Components</a><a href="ToggleExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Toggle Components</a><a href="TypographyExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Typography Components</a><a href="UtilityExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Utility Components</a></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><script>/**
+ * Alpine.data component for ThemeToggle
+ *
+ * This file defines the interactive behavior for the ThemeToggle component.
+ * It uses Alpine.js's data component system to provide reusable theme switching functionality.
+ *
+ * Architecture Overview:
+ * - Registered as 'themeToggle' Alpine.data component
+ * - Manages theme state (light/dark/system) with localStorage persistence
+ * - Automatically detects and responds to system theme changes
+ * - Provides reactive properties for UI updates
+ *
+ * Dependencies:
+ * - Alpine.js v3
+ *
+ * Usage in templates:
+ * x-data="themeToggle()"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('themeToggle', () => ({
+        // Current theme state
+        theme: 'system',
+
+        // Theme configuration
+        themes: ['light', 'dark', 'system'],
+        icons: {
+            light: '☀️',
+            dark: '🌙',
+            system: '💻'
+        },
+        labels: {
+            light: 'Light',
+            dark: 'Dark',
+            system: 'System'
+        },
+
+        /**
+         * Initialize theme on component mount
+         * Loads saved theme from localStorage and sets up system theme listener
+         */
+        init() {
+            // Load saved theme from localStorage
+            this.theme = localStorage.getItem('theme') || 'system';
+
+            // Apply initial theme
+            this.applyTheme();
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (this.theme === 'system') {
+                    this.applyTheme();
+                }
+            });
+
+            // Listen for storage events to sync between tabs/windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'theme' && e.newValue) {
+                    this.theme = e.newValue;
+                    this.applyTheme();
+                }
+            });
+        },
+
+        /**
+         * Cycle through themes: light -> dark -> system
+         * Persists selection to localStorage and applies theme
+         */
+        toggle() {
+            const currentIndex = this.themes.indexOf(this.theme);
+            const nextIndex = (currentIndex + 1) % this.themes.length;
+            this.theme = this.themes[nextIndex];
+
+            // Persist to localStorage
+            localStorage.setItem('theme', this.theme);
+
+            // Apply theme changes
+            this.applyTheme();
+
+            // Dispatch custom event for other components to listen to
+            window.dispatchEvent(new CustomEvent('theme-changed', {
+                detail: { theme: this.theme }
+            }));
+        },
+
+        /**
+         * Apply the current theme to the document
+         * Handles system theme detection when in system mode
+         */
+        applyTheme() {
+            const effectiveTheme = this.theme === 'system'
+                ? this.getSystemTheme()
+                : this.theme;
+
+            if (effectiveTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
+
+        /**
+         * Get the current system theme preference
+         * @returns {string} 'dark' or 'light'
+         */
+        getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+        },
+
+        /**
+         * Computed property for current theme icon
+         * Used by x-text binding in the template
+         */
+        get currentIcon() {
+            return this.icons[this.theme];
+        },
+
+        /**
+         * Computed property for current theme label
+         * Used by x-text binding in the template
+         */
+        get currentLabel() {
+            return this.labels[this.theme];
+        }
+    }))
+});
+
+/**
+ * Apply initial theme before Alpine initializes to prevent flash
+ * This runs immediately when the script loads
+ */
+(function() {
+    const theme = localStorage.getItem('theme') || 'system';
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const effectiveTheme = theme === 'system' ? systemTheme : theme;
+
+    if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+})();
+</script><button id="theme-toggle" type="button" x-data="themeToggle()" @click="toggle()" class="inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-3 py-2 text-sm rounded-lg " title="Toggle theme"><span x-text="`${currentIcon} ${currentLabel}`">💻 System</span></button><a href="../library-components" class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">← Back to documentation</a></div></div></div><div class="flex-1 overflow-y-auto px-6 py-2"><div class="py-8"><div class="flex flex-col gap-8 items-stretch justify-start "><h1 class="text-center mb-8">Advanced Component Features</h1><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow-lg border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Advanced Table Features</h2><div class="w-full relative overflow-x-auto"><p class="mb-2 text-sm text-gray-600 dark:text-gray-400 italic"></p><div class="w-full"><table class="w-full text-sm border-separate border-spacing-0 [&>thead>tr>th]:bg-white dark:[&>thead>tr>th]:bg-gray-900 [&>thead>tr>th]:text-left [&>thead>tr>th]:text-xs [&>thead>tr>th]:font-semibold [&>thead>tr>th]:text-gray-600 dark:[&>thead>tr>th]:text-gray-400 [&>thead>tr>th]:uppercase [&>thead>tr>th]:tracking-wider [&>thead>tr>th]:border-b [&>thead>tr>th]:border-gray-200 dark:[&>thead>tr>th]:border-gray-700 [&>thead>tr>th]:px-6 [&>thead>tr>th]:py-4 [&>tbody>tr>td]:bg-white dark:[&>tbody>tr>td]:bg-gray-900 [&>tbody>tr>td]:text-gray-700 dark:[&>tbody>tr>td]:text-gray-300 [&>tbody>tr>td]:border-b [&>tbody>tr>td]:border-gray-100 dark:[&>tbody>tr>td]:border-gray-800 [&>tbody>tr>td]:px-6 [&>tbody>tr>td]:py-4 [&>tbody>tr:last-child>td]:border-b-0 [&>tbody>tr:nth-child(even)>td]:bg-gray-50/50 dark:[&>tbody>tr:nth-child(even)>td]:bg-gray-800/50 [&>tbody>tr]:transition-all [&>tbody>tr]:duration-200 [&>tbody>tr:hover>td]:bg-gray-50 dark:[&>tbody>tr:hover>td]:bg-gray-800/70"><thead><tr><th>Employee</th><th>Department</th><th>Performance</th><th>Projects</th><th>Rating</th></tr></thead><tbody><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=1" alt="Picture of Employee 1" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 1</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee1@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 text-sm  transition-all duration-200">Engineering</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 64%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-blue-500 dark:bg-blue-400  h-2" style="width: 64%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">64%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div></div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=2" alt="Picture of Employee 2" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 2</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee2@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 text-sm  transition-all duration-200">Design</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 68%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-blue-500 dark:bg-blue-400  h-2" style="width: 68%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">68%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div></div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=3" alt="Picture of Employee 3" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 3</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee3@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-3 py-1 text-sm  transition-all duration-200">Marketing</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 72%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-blue-500 dark:bg-blue-400  h-2" style="width: 72%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">72%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=4" alt="Picture of Employee 4" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 4</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee4@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-3 py-1 text-sm  transition-all duration-200">Sales</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 76%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-blue-500 dark:bg-blue-400  h-2" style="width: 76%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">76%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+1</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=5" alt="Picture of Employee 5" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 5</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee5@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 text-sm  transition-all duration-200">Engineering</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 80%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-blue-500 dark:bg-blue-400  h-2" style="width: 80%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">80%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+2</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=6" alt="Picture of Employee 6" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 6</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee6@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 text-sm  transition-all duration-200">Design</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 84%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 84%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">84%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+3</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=7" alt="Picture of Employee 7" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 7</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee7@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-3 py-1 text-sm  transition-all duration-200">Marketing</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 88%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 88%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">88%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+4</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=8" alt="Picture of Employee 8" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 8</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee8@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-3 py-1 text-sm  transition-all duration-200">Sales</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 92%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 92%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">92%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+5</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=9" alt="Picture of Employee 9" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 9</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee9@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 text-sm  transition-all duration-200">Engineering</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 96%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 96%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">96%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+6</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr><tr><td><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=10" alt="Picture of Employee 10" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-medium text-slate-600 dark:text-slate-400 text-left">Employee 10</p><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">employee10@company.com</p></div></div></td><td><span class="inline-flex items-center font-medium rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 text-sm  transition-all duration-200">Design</span></td><td><div class="flex flex-col gap-1 items-stretch justify-start "><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 100%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 100%"></div></div></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-center">100%</p></div></td><td><div class="flex items-center"><div class="flex -space-x-2"><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-blue-500 relative" style="z-index: 3;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P1</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-green-500 relative" style="z-index: 2;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P2</div></div><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600 ring-2 ring-white dark:ring-gray-900 bg-purple-500 relative" style="z-index: 1;"><div class="flex h-full w-full items-center justify-center font-medium text-white">P3</div></div></div><div class="ml-1 flex items-center justify-center w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700 text-xs font-medium ring-2 ring-white dark:ring-gray-900 text-gray-700 dark:text-gray-300">+7</div></div></td><td><div class="flex flex-row gap-1 items-stretch justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-gray-300" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg></span></div></td></tr></tbody></table></div></div></div></div><div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Advanced Form Patterns</h2><form class="space-y-6"><div class="grid grid-cols-1  md:grid-cols-2   gap-6"><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-9129745840948874952">Project Name<span class="text-red-500 ml-1">*</span></label><div class="relative"><div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg></div><input type="text" class="pl-10 w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 " placeholder="my-awesome-project"></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-9129745840948874952-help"></p></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-11822781853717742944">Environment</label><script>/**
+ * Alpine.data component for SelectDropdown
+ * 
+ * This file defines the interactive behavior for the SelectDropdown component.
+ * It uses Alpine.js's data component system to provide reusable dropdown select functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'selectDropdown' Alpine.data component
+ * - Manages dropdown state, search, and selection
+ * - Supports single and multiple selection modes
+ * - Provides keyboard navigation and search filtering
+ * - Handles automatic positioning (drop up/down)
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * 
+ * Usage in templates:
+ * x-data="selectDropdown(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('selectDropdown', (config = {}) => ({
+        // State management
+        open: false,
+        search: '',
+        selected: config.value || (config.multiple ? [] : ''),
+        highlighted: 0,
+        
+        // Configuration from component props
+        options: config.options || [],
+        multiple: config.multiple || false,
+        searchable: config.searchable || false,
+        clearable: config.clearable || false,
+        placeholder: config.placeholder || 'Select...',
+        maxHeight: parseInt(config.maxHeight) || 300,
+        disabled: config.disabled || false,
+        name: config.name || null,
+        
+        /**
+         * Initialize component
+         * Sets up initial state and watchers
+         */
+        init() {
+            // Watch for selection changes to update form inputs
+            this.$watch('selected', () => {
+                this.updateFormInputs();
+                // Dispatch custom event for external listeners
+                this.$dispatch('select-change', { 
+                    value: this.selected,
+                    name: this.name 
+                });
+            });
+            
+            // Set initial form inputs
+            this.updateFormInputs();
+        },
+        
+        /**
+         * Get filtered options based on search query
+         * @returns {Array} Filtered options array
+         */
+        get filteredOptions() {
+            if (!this.search) return this.options;
+            
+            const searchLower = this.search.toLowerCase();
+            return this.options.filter(([value, label]) => 
+                label.toLowerCase().includes(searchLower)
+            );
+        },
+        
+        /**
+         * Get display label for selected value(s)
+         * @returns {string} Label to display in the button
+         */
+        get selectedLabel() {
+            if (this.multiple) {
+                const labels = this.selected.map(v => {
+                    const opt = this.options.find(([val]) => val === v);
+                    return opt ? opt[1] : v;
+                });
+                return labels.length > 0 ? labels.join(', ') : this.placeholder;
+            } else {
+                if (!this.selected) return this.placeholder;
+                const opt = this.options.find(([val]) => val === this.selected);
+                return opt ? opt[1] : this.selected;
+            }
+        },
+        
+        /**
+         * Check if there's a selection
+         * @returns {boolean} True if something is selected
+         */
+        get hasSelection() {
+            return this.multiple ? this.selected.length > 0 : !!this.selected;
+        },
+        
+        
+        /**
+         * Select or deselect an option
+         * @param {string} value - The option value to select
+         */
+        selectOption(value) {
+            if (this.multiple) {
+                const idx = this.selected.indexOf(value);
+                if (idx > -1) {
+                    this.selected.splice(idx, 1);
+                } else {
+                    this.selected.push(value);
+                }
+            } else {
+                this.selected = value;
+                this.open = false;
+                this.search = '';
+            }
+        },
+        
+        /**
+         * Clear all selections
+         */
+        clearSelection() {
+            this.selected = this.multiple ? [] : '';
+            this.search = '';
+        },
+        
+        /**
+         * Check if a value is selected
+         * @param {string} value - The value to check
+         * @returns {boolean} True if selected
+         */
+        isSelected(value) {
+            return this.multiple 
+                ? this.selected.includes(value) 
+                : this.selected === value;
+        },
+        
+        /**
+         * Handle keyboard navigation
+         * @param {KeyboardEvent} e - The keyboard event
+         */
+        handleKeydown(e) {
+            // Open dropdown on Enter, Space, or ArrowDown when closed
+            if (!this.open && ['Enter', ' ', 'ArrowDown'].includes(e.key)) {
+                e.preventDefault();
+                this.open = true;
+                if (this.searchable) {
+                    this.$nextTick(() => this.$refs.search?.focus());
+                }
+                return;
+            }
+            
+            if (!this.open) return;
+            
+            switch(e.key) {
+                case 'Escape':
+                    e.preventDefault();
+                    this.open = false;
+                    this.$refs.button.focus();
+                    break;
+                    
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.highlighted = Math.min(
+                        this.highlighted + 1, 
+                        this.filteredOptions.length - 1
+                    );
+                    this.scrollToHighlighted();
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.highlighted = Math.max(this.highlighted - 1, 0);
+                    this.scrollToHighlighted();
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (this.filteredOptions[this.highlighted]) {
+                        this.selectOption(this.filteredOptions[this.highlighted][0]);
+                    }
+                    break;
+                    
+                case 'Tab':
+                    // Let tab close the dropdown
+                    this.open = false;
+                    break;
+            }
+        },
+        
+        /**
+         * Scroll to keep highlighted option in view
+         */
+        scrollToHighlighted() {
+            this.$nextTick(() => {
+                const container = this.$refs.optionsList;
+                const highlighted = container?.querySelector(`[data-index="${this.highlighted}"]`);
+                
+                if (highlighted && container) {
+                    const containerRect = container.getBoundingClientRect();
+                    const highlightedRect = highlighted.getBoundingClientRect();
+                    
+                    if (highlightedRect.bottom > containerRect.bottom) {
+                        container.scrollTop += highlightedRect.bottom - containerRect.bottom;
+                    } else if (highlightedRect.top < containerRect.top) {
+                        container.scrollTop -= containerRect.top - highlightedRect.top;
+                    }
+                }
+            });
+        },
+        
+        /**
+         * Update hidden form inputs for form submission
+         */
+        updateFormInputs() {
+            if (!this.name) return;
+            
+            // Find or create container for hidden inputs
+            let container = this.$el.querySelector('[data-select-inputs]');
+            if (!container) {
+                container = document.createElement('div');
+                container.setAttribute('data-select-inputs', '');
+                container.style.display = 'none';
+                this.$el.appendChild(container);
+            }
+            
+            // Clear existing inputs
+            container.innerHTML = '';
+            
+            // Create new inputs
+            if (this.multiple) {
+                this.selected.forEach(value => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = this.name;
+                    input.value = value;
+                    container.appendChild(input);
+                });
+            } else if (this.selected) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = this.name;
+                input.value = this.selected;
+                container.appendChild(input);
+            }
+        },
+        
+        /**
+         * Toggle dropdown open/closed
+         */
+        toggle() {
+            if (this.disabled) return;
+            
+            this.open = !this.open;
+            
+            if (this.open && this.searchable) {
+                this.$nextTick(() => this.$refs.search?.focus());
+            }
+        },
+        
+        /**
+         * Handle clicks outside to close dropdown
+         */
+        handleClickOutside() {
+            this.open = false;
+            this.search = '';
+        }
+    }))
+});</script><div x-data="selectDropdown({options: [['dev', 'Development'], ['staging', 'Staging'], ['qa', 'Quality Assurance'], ['uat', 'User Acceptance Testing'], ['prod', 'Production'], ['dr', 'Disaster Recovery']], multiple: false, searchable: true, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Choose environment...', value: 'dev'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-5429320965871997678-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Choose environment...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-5429320965871997678-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Choose environment..."><div class="p-2 border-b border-gray-200 dark:border-gray-800"><input type="text" x-ref="search" x-model="search" @click.stop="" placeholder="Search..." class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"></div><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-11822781853717742944-help"></p></div></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-10509340612293950809">Project Description</label><textarea rows="4" class="w-full px-4 py-2.5 text-base rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 resize-y border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 " placeholder="This project aims to..."></textarea><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-10509340612293950809-help"></p></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-9754456955820605262">Features to Enable</label><div class="bg-white dark:bg-slate-900 p-3 md:p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-3 items-stretch justify-start "><div class="divide-y divide-gray-200 dark:divide-gray-700"><div class="py-3 first:pt-0"><div class="flex flex-row gap-4 items-center justify-between "><div class="flex flex-col gap-1 items-stretch justify-start "><label class="inline-flex items-center gap-2 "><input type="checkbox" class="rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="ci_cd"><span class="text-sm text-gray-700 dark:text-gray-300 select-none">CI/CD Pipeline</span></label><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">Automated testing and deployment</p></div><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Recommended</span></div></div><div class="py-3"><div class="flex flex-row gap-4 items-center justify-between "><div class="flex flex-col gap-1 items-stretch justify-start "><label class="inline-flex items-center gap-2 "><input type="checkbox" class="rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="monitoring"><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Application Monitoring</span></label><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">Real-time performance tracking</p></div><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Popular</span></div></div><div class="py-3 last:pb-0"><div class="flex flex-row gap-4 items-center justify-between "><div class="flex flex-col gap-1 items-stretch justify-start "><label class="inline-flex items-center gap-2 "><input type="checkbox" class="rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="analytics"><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Analytics Dashboard</span></label><p class="text-base leading-relaxed text-sm font-normal text-gray-500 text-left">Usage statistics and insights</p></div><span class="inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Beta</span></div></div></div></div></div></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-11619198576171771350">Deployment Strategy</label><div class="flex flex-col gap-3 items-stretch justify-start "><div class="bg-white dark:bg-slate-900 p-3 md:p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5"><div class="flex flex-col gap-2 items-stretch justify-start "><div class="space-y-2" role="radiogroup"><label class="flex items-center gap-2 cursor-pointer "><input type="radio" class="shrink-0 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-colors hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="deployment" value="rolling" checked><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Rolling Deployment</span></label></div><p class="ml-6">Gradually replace instances with zero downtime</p></div></div><div class="bg-white dark:bg-slate-900 p-3 md:p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5"><div class="flex flex-col gap-2 items-stretch justify-start "><div class="space-y-2" role="radiogroup"><label class="flex items-center gap-2 cursor-pointer "><input type="radio" class="shrink-0 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-colors hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="deployment" value="blue_green"><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Blue/Green Deployment</span></label></div><p class="ml-6">Switch between two identical environments</p></div></div><div class="bg-white dark:bg-slate-900 p-3 md:p-4 shadow-sm border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5"><div class="flex flex-col gap-2 items-stretch justify-start "><div class="space-y-2" role="radiogroup"><label class="flex items-center gap-2 cursor-pointer "><input type="radio" class="shrink-0 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-colors hover:border-gray-400 dark:hover:border-gray-600 h-4 w-4 text-blue-600 focus:ring-blue-500 dark:text-blue-500 dark:focus:ring-blue-400" name="deployment" value="canary"><span class="text-sm text-gray-700 dark:text-gray-300 select-none">Canary Deployment</span></label></div><p class="ml-6">Test with a small percentage of traffic first</p></div></div></div></div><div class="flex flex-row gap-3 items-stretch justify-end "><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-xl px-4 py-2.5 text-base gap-2 bg-transparent text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300  ">Save as Draft</button><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-xl px-4 py-2.5 text-base gap-2 bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300  ">Preview</button><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-xl px-4 py-2.5 text-base gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-blue-400 shadow-md hover:shadow-lg  ">Deploy Project<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg></button></div></form></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Dashboard Card Compositions</h2><div class="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3  gap-4"><div class="bg-white dark:bg-slate-900 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 motion-safe:hover:-translate-y-0.5"><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex flex-row gap-4 items-start justify-between "><span class="inline-flex items-center justify-center h-6 w-6 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg></span><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-2.5 py-0.5 text-xs  transition-all duration-200">+23%</span></div><div class="flex flex-col gap-1 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Total Revenue</p><h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">$48,291</h3></div><div><div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner h-2" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" aria-label="Progress: 78%"><div class="transition-all duration-500 ease-out rounded-full shadow-sm bg-emerald-500 dark:bg-emerald-400  h-2" style="width: 78%"></div></div></div></div></div><div class="backdrop-blur-sm bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex flex-row gap-4 items-stretch justify-between "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Recent Activity</p><div class="inline-flex items-center" role="status" aria-label="Loading"><svg class="animate-spin h-4 w-4 text-slate-900 dark:text-slate-100" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+</svg></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><div class="flex flex-row gap-2 items-start justify-start "><div class="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">User action #1</p><p class="text-base leading-relaxed text-xs font-normal text-gray-500 text-left">5 min ago</p></div></div><div class="flex flex-row gap-2 items-start justify-start "><div class="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">User action #2</p><p class="text-base leading-relaxed text-xs font-normal text-gray-500 text-left">10 min ago</p></div></div><div class="flex flex-row gap-2 items-start justify-start "><div class="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">User action #3</p><p class="text-base leading-relaxed text-xs font-normal text-gray-500 text-left">15 min ago</p></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-5 md:p-6 shadow  rounded-xl " glow="primary"><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex flex-row gap-4 items-stretch justify-between "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">System Status</p><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 text-sm animate-pulse transition-all duration-200">Live</span></div><div class="flex flex-col gap-2 items-stretch justify-start "><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">API: Operational</p></div><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Database: Healthy</p></div><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-amber-500" aria-hidden="true"></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">CDN: High latency</p></div></div></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Advanced Select Dropdown</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Enhanced dropdown with search, multiple selection, and keyboard navigation.</p><div class="grid grid-cols-1  md:grid-cols-2   gap-6"><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-16457074743428767714">Country</label><div x-data="selectDropdown({options: [['us', '🇺🇸 United States'], ['gb', '🇬🇧 United Kingdom'], ['ca', '🇨🇦 Canada'], ['au', '🇦🇺 Australia'], ['de', '🇩🇪 Germany'], ['fr', '🇫🇷 France'], ['es', '🇪🇸 Spain'], ['it', '🇮🇹 Italy'], ['jp', '🇯🇵 Japan'], ['kr', '🇰🇷 South Korea'], ['cn', '🇨🇳 China'], ['in', '🇮🇳 India'], ['br', '🇧🇷 Brazil'], ['mx', '🇲🇽 Mexico'], ['za', '🇿🇦 South Africa'], ['ae', '🇦🇪 United Arab Emirates']], multiple: false, searchable: true, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Select your country...', value: 'us'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-1744821670386409028-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select your country...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-1744821670386409028-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select your country..."><div class="p-2 border-b border-gray-200 dark:border-gray-800"><input type="text" x-ref="search" x-model="search" @click.stop="" placeholder="Search..." class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"></div><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-16457074743428767714-help"></p></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-3082675516669215764">Technology Stack</label><div x-data="selectDropdown({options: [['julia', 'Julia (Language)'], ['python', 'Python (Language)'], ['javascript', 'JavaScript (Language)'], ['typescript', 'TypeScript (Language)'], ['rust', 'Rust (Language)'], ['go', 'Go (Language)'], ['react', 'React (Framework)'], ['vue', 'Vue.js (Framework)'], ['angular', 'Angular (Framework)'], ['django', 'Django (Framework)'], ['flask', 'Flask (Framework)'], ['rails', 'Ruby on Rails (Framework)'], ['postgresql', 'PostgreSQL (Database)'], ['mysql', 'MySQL (Database)'], ['mongodb', 'MongoDB (Database)'], ['redis', 'Redis (Database)'], ['docker', 'Docker (Tool)'], ['kubernetes', 'Kubernetes (Tool)'], ['git', 'Git (Tool)'], ['aws', 'AWS (Cloud)']], multiple: true, searchable: true, clearable: false, disabled: false, maxHeight: '240px', placeholder: 'Choose technologies...', value: ['julia', 'react', 'postgresql']})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-11489977501031583987-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Choose technologies...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-11489977501031583987-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Choose technologies..."><div class="p-2 border-b border-gray-200 dark:border-gray-800"><input type="text" x-ref="search" x-model="search" @click.stop="" placeholder="Search..." class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"></div><div class="overflow-y-auto" style="max-height: 240px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><div class="mr-3"><div class="h-4 w-4 rounded border-2 transition-all duration-200" :class="{
+    &#39;border-blue-500 bg-blue-500&#39;: isSelected(option[0]),
+    &#39;border-gray-300 dark:border-gray-600&#39;: !isSelected(option[0])
+}"><svg x-show="isSelected(option[0])" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div></div><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-3082675516669215764-help"></p></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-13725900047878274694">Timezone</label><div x-data="selectDropdown({options: [['UTC', 'UTC (±00:00) Coordinated Universal Time'], ['EST', 'EST (−05:00) Eastern Standard Time'], ['CST', 'CST (−06:00) Central Standard Time'], ['MST', 'MST (−07:00) Mountain Standard Time'], ['PST', 'PST (−08:00) Pacific Standard Time'], ['GMT', 'GMT (±00:00) Greenwich Mean Time'], ['CET', 'CET (+01:00) Central European Time'], ['JST', 'JST (+09:00) Japan Standard Time'], ['AEST', 'AEST (+10:00) Australian Eastern Standard'], ['NZST', 'NZST (+12:00) New Zealand Standard']], multiple: false, searchable: true, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Select timezone...'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-13314581268950702346-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select timezone...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-13314581268950702346-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select timezone..."><div class="p-2 border-b border-gray-200 dark:border-gray-800"><input type="text" x-ref="search" x-model="search" @click.stop="" placeholder="Search..." class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"></div><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-13725900047878274694-help"></p></div><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-12405838440780549423">Assign Roles</label><div x-data="selectDropdown({options: [['admin', 'Administrator'], ['editor', 'Editor'], ['author', 'Author'], ['contributor', 'Contributor'], ['moderator', 'Moderator'], ['viewer', 'Viewer']], multiple: true, searchable: false, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Select roles...', value: ['editor', 'author']})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-15011908154201328176-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select roles...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-15011908154201328176-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select roles..."><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><div class="mr-3"><div class="h-4 w-4 rounded border-2 transition-all duration-200" :class="{
+    &#39;border-blue-500 bg-blue-500&#39;: isSelected(option[0]),
+    &#39;border-gray-300 dark:border-gray-600&#39;: !isSelected(option[0])
+}"><svg x-show="isSelected(option[0])" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div></div><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div><p class="text-sm text-gray-500 dark:text-gray-400" id="form-field-12405838440780549423-help"></p></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Configuration Examples</h3><div class="grid grid-cols-1  md:grid-cols-3   gap-4"><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Compact with Error</p><div x-data="selectDropdown({options: [['opt1', 'Option 1'], ['opt2', 'Option 2'], ['opt3', 'Option 3']], multiple: false, searchable: false, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Required field'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-2745649036938367376-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-2.5 py-1.5 text-xs border-rose-300 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-700 dark:focus:border-rose-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Required field</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-2745649036938367376-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Required field"><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Large Success State</p><div x-data="selectDropdown({options: [['pending', 'Pending Review'], ['approved', 'Approved ✓'], ['rejected', 'Rejected']], multiple: false, searchable: false, clearable: false, disabled: false, maxHeight: '300px', placeholder: 'Select...', value: 'approved'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-8902794855542082819-dropdown" class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-5 py-3 text-lg border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500 dark:border-emerald-700 dark:focus:border-emerald-400 cursor-pointer"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-8902794855542082819-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select..."><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Disabled State</p><div x-data="selectDropdown({options: [['locked', 'Selection Locked'], ['other', 'Other Option']], multiple: false, searchable: false, clearable: false, disabled: true, maxHeight: '300px', placeholder: 'Select...', value: 'locked'})" @keydown="handleKeydown($event)" class="relative"><div data-select-inputs="" style="display: none"></div><div class="relative"><button type="button" x-ref="button" @click="toggle()" :aria-expanded="open.toString()" aria-haspopup="listbox" aria-controls="select-dropdown-16582115264670896453-dropdown" disabled class="w-full flex items-center justify-between rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 opacity-60 cursor-not-allowed"><span x-text="selectedLabel" :class="{ &#39;text-gray-500 dark:text-gray-400&#39;: !hasSelection }" class="pr-8">Select...</span><svg class="absolute right-3 h-5 w-5 text-gray-400 transition-transform duration-200 pointer-events-none" :class="{ &#39;rotate-180&#39;: open }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div><div x-show="open" x-anchor.bottom-start.offset.4="$refs.button" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" @click.away="handleClickOutside()" id="select-dropdown-16582115264670896453-dropdown" class="absolute z-50 w-full rounded-xl bg-white dark:bg-gray-950 shadow-lg ring-1 ring-gray-200 dark:ring-gray-800 overflow-hidden" role="listbox" aria-label="Select..."><div class="overflow-y-auto" style="max-height: 300px" x-ref="optionsList"><template x-for="(option, index) in filteredOptions" :key="option[0]"><button type="button" @click="selectOption(option[0])" :class="{
+    &#39;bg-blue-50 dark:bg-blue-900/20&#39;: highlighted === index,
+    &#39;bg-blue-100 dark:bg-blue-900/40&#39;: isSelected(option[0])
+}" @mouseenter="highlighted = index" :data-index="index" class="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-900 transition-colors duration-150" role="option" :aria-selected="isSelected(option[0])"><div class="flex items-center"><span x-text="option[1]" class="text-gray-900 dark:text-gray-100"></span></div></button></template><div x-show="search &amp;&amp; filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No options found</div></div></div></div></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Tooltip Components</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Interactive tooltips with various triggers and styles using Alpine Anchor for smart positioning.</p><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Basic Tooltips</h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Simple text tooltips with different placements and variants.</p><div class="flex flex-row gap-4 items-center justify-start flex-wrap"><script>/**
+ * Alpine.data component for Tooltip
+ * 
+ * This file defines the interactive behavior for the Tooltip component.
+ * It uses Alpine.js's data component system to provide reusable tooltip functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'tooltip' Alpine.data component
+ * - Manages tooltip visibility with configurable delays
+ * - Supports multiple trigger types (hover, click, focus)
+ * - Works with Alpine Anchor for intelligent positioning
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * - Alpine Anchor plugin (for positioning)
+ * 
+ * Usage in templates:
+ * x-data="tooltip(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('tooltip', (config = {}) => ({
+        // State
+        open: false,
+        showTimeout: null,
+        hideTimeout: null,
+        
+        // Configuration
+        delay: config.delay || 500,
+        hideDelay: config.hideDelay || 0,
+        trigger: config.trigger || 'hover',
+        placement: config.placement || 'top',
+        interactive: config.interactive || false,
+        offset: config.offset || 8,
+        
+        /**
+         * Initialize component
+         * Sets up event listeners and accessibility attributes
+         */
+        init() {
+            // Generate unique ID for accessibility
+            this.tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Set up ARIA attributes after next tick to ensure refs are available
+            this.$nextTick(() => {
+                if (this.$refs.trigger && this.$refs.content) {
+                    this.$refs.trigger.setAttribute('aria-describedby', this.tooltipId);
+                    this.$refs.content.setAttribute('id', this.tooltipId);
+                }
+            });
+            
+            // Set up event listeners based on trigger type
+            this.setupTriggerListeners();
+            
+            // Global escape key handler
+            const handleEscapeBound = this.handleEscape.bind(this);
+            document.addEventListener('keydown', handleEscapeBound);
+            
+            // Store cleanup function
+            this._cleanup = () => {
+                document.removeEventListener('keydown', handleEscapeBound);
+                this.clearTimeouts();
+            };
+        },
+        
+        /**
+         * Cleanup when component is destroyed
+         */
+        destroy() {
+            if (this._cleanup) {
+                this._cleanup();
+            }
+        },
+        
+        /**
+         * Set up event listeners based on trigger type
+         */
+        setupTriggerListeners() {
+            const trigger = this.$refs.trigger;
+            if (!trigger) return;
+            
+            switch (this.trigger) {
+                case 'hover':
+                    // Mouse events
+                    trigger.addEventListener('mouseenter', () => this.show());
+                    trigger.addEventListener('mouseleave', () => this.hide());
+                    
+                    // Touch events for mobile
+                    trigger.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.toggle();
+                    });
+                    
+                    // Interactive mode - keep open when hovering content
+                    if (this.interactive && this.$refs.content) {
+                        this.$refs.content.addEventListener('mouseenter', () => this.clearTimeouts());
+                        this.$refs.content.addEventListener('mouseleave', () => this.hide());
+                    }
+                    break;
+                    
+                case 'click':
+                    trigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggle();
+                    });
+                    
+                    // Close on outside click
+                    document.addEventListener('click', (e) => {
+                        if (this.open && !this.$el.contains(e.target)) {
+                            this.hide();
+                        }
+                    });
+                    break;
+                    
+                case 'focus':
+                    trigger.addEventListener('focus', () => this.show());
+                    trigger.addEventListener('blur', () => this.hide());
+                    break;
+            }
+        },
+        
+        /**
+         * Show tooltip with delay
+         */
+        show() {
+            this.clearTimeouts();
+            
+            if (this.delay > 0) {
+                this.showTimeout = setTimeout(() => {
+                    this.open = true;
+                    this.$dispatch('tooltip-show', { id: this.tooltipId });
+                }, this.delay);
+            } else {
+                this.open = true;
+                this.$dispatch('tooltip-show', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Hide tooltip with delay
+         */
+        hide() {
+            this.clearTimeouts();
+            
+            if (this.hideDelay > 0) {
+                this.hideTimeout = setTimeout(() => {
+                    this.open = false;
+                    this.$dispatch('tooltip-hide', { id: this.tooltipId });
+                }, this.hideDelay);
+            } else {
+                this.open = false;
+                this.$dispatch('tooltip-hide', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Toggle tooltip visibility
+         */
+        toggle() {
+            if (this.open) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        },
+        
+        /**
+         * Clear all timeouts
+         */
+        clearTimeouts() {
+            if (this.showTimeout) {
+                clearTimeout(this.showTimeout);
+                this.showTimeout = null;
+            }
+            if (this.hideTimeout) {
+                clearTimeout(this.hideTimeout);
+                this.hideTimeout = null;
+            }
+        },
+        
+        /**
+         * Handle escape key to close tooltip
+         */
+        handleEscape(e) {
+            if (e.key === 'Escape' && this.open) {
+                this.hide();
+                // Return focus to trigger if it was a click trigger
+                if (this.trigger === 'click' && this.$refs.trigger) {
+                    this.$refs.trigger.focus();
+                }
+            }
+        },
+        
+        /**
+         * Get anchor directive value based on placement
+         */
+        get anchorDirective() {
+            const placements = {
+                top: 'top',
+                bottom: 'bottom', 
+                left: 'left',
+                right: 'right',
+                'top-start': 'top-start',
+                'top-end': 'top-end',
+                'bottom-start': 'bottom-start',
+                'bottom-end': 'bottom-end',
+                'left-start': 'left-start',
+                'left-end': 'left-end',
+                'right-start': 'right-start',
+                'right-end': 'right-end'
+            };
+            
+            const placement = placements[this.placement] || 'top';
+            return `${placement}.offset.${this.offset}`;
+        }
+    }))
+});</script><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-4 py-2.5 text-base gap-2 bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md  ">Top</button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">This appears above</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'bottom',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-4 py-2.5 text-base gap-2 bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md  ">Bottom</button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">This appears below</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'left',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-4 py-2.5 text-base gap-2 bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md  ">Left</button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">This appears to the left</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'right',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-4 py-2.5 text-base gap-2 bg-purple-500 text-white hover:bg-purple-600 focus:ring-purple-400 shadow-sm hover:shadow-md  ">Right</button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">This appears to the right</div></div></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-row gap-4 items-center justify-start flex-wrap"><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span class="inline-flex items-center font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 text-sm  transition-all duration-200">Dark Variant</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Dark tooltip (default)</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span class="inline-flex items-center font-medium rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 text-sm  transition-all duration-200">Light Variant</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-white text-gray-900 border border-gray-200 " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Light tooltip style</div></div></div><div x-data="tooltip({
+    delay: 0,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-3 py-1 text-sm  transition-all duration-200">No Delay</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Instant tooltip - no delay</div></div></div><div x-data="tooltip({
+    delay: 1000,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span class="inline-flex items-center font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 px-3 py-1 text-sm  transition-all duration-200">Long Delay</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Slow to appear (1 second delay)</div></div></div></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Icon Tooltips</h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Common UI patterns with helpful tooltips.</p><div class="flex flex-row gap-6 items-center justify-start "><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></span></button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Edit this item</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button class="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors"><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></span></button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-white text-gray-900 border border-gray-200 " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Delete permanently</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button class="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors"><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></span></button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Download file</div></div></div><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><button class="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition-colors"><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <circle cx="18" cy="5" r="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="6" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="18" cy="19" r="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></span></button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">Share with others</div></div></div></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Rich Content Tooltips</h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Complex tooltips with formatted content using the composable API.</p><div class="grid grid-cols-1  md:grid-cols-2   gap-4"><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Interactive Tooltip</p><script>/**
+ * Alpine.data component for Tooltip
+ * 
+ * This file defines the interactive behavior for the Tooltip component.
+ * It uses Alpine.js's data component system to provide reusable tooltip functionality.
+ * 
+ * Architecture Overview:
+ * - Registered as 'tooltip' Alpine.data component
+ * - Manages tooltip visibility with configurable delays
+ * - Supports multiple trigger types (hover, click, focus)
+ * - Works with Alpine Anchor for intelligent positioning
+ * 
+ * Dependencies:
+ * - Alpine.js v3
+ * - Alpine Anchor plugin (for positioning)
+ * 
+ * Usage in templates:
+ * x-data="tooltip(config)"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('tooltip', (config = {}) => ({
+        // State
+        open: false,
+        showTimeout: null,
+        hideTimeout: null,
+        
+        // Configuration
+        delay: config.delay || 500,
+        hideDelay: config.hideDelay || 0,
+        trigger: config.trigger || 'hover',
+        placement: config.placement || 'top',
+        interactive: config.interactive || false,
+        offset: config.offset || 8,
+        
+        /**
+         * Initialize component
+         * Sets up event listeners and accessibility attributes
+         */
+        init() {
+            // Generate unique ID for accessibility
+            this.tooltipId = `tooltip-${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Set up ARIA attributes after next tick to ensure refs are available
+            this.$nextTick(() => {
+                if (this.$refs.trigger && this.$refs.content) {
+                    this.$refs.trigger.setAttribute('aria-describedby', this.tooltipId);
+                    this.$refs.content.setAttribute('id', this.tooltipId);
+                }
+            });
+            
+            // Set up event listeners based on trigger type
+            this.setupTriggerListeners();
+            
+            // Global escape key handler
+            const handleEscapeBound = this.handleEscape.bind(this);
+            document.addEventListener('keydown', handleEscapeBound);
+            
+            // Store cleanup function
+            this._cleanup = () => {
+                document.removeEventListener('keydown', handleEscapeBound);
+                this.clearTimeouts();
+            };
+        },
+        
+        /**
+         * Cleanup when component is destroyed
+         */
+        destroy() {
+            if (this._cleanup) {
+                this._cleanup();
+            }
+        },
+        
+        /**
+         * Set up event listeners based on trigger type
+         */
+        setupTriggerListeners() {
+            const trigger = this.$refs.trigger;
+            if (!trigger) return;
+            
+            switch (this.trigger) {
+                case 'hover':
+                    // Mouse events
+                    trigger.addEventListener('mouseenter', () => this.show());
+                    trigger.addEventListener('mouseleave', () => this.hide());
+                    
+                    // Touch events for mobile
+                    trigger.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.toggle();
+                    });
+                    
+                    // Interactive mode - keep open when hovering content
+                    if (this.interactive && this.$refs.content) {
+                        this.$refs.content.addEventListener('mouseenter', () => this.clearTimeouts());
+                        this.$refs.content.addEventListener('mouseleave', () => this.hide());
+                    }
+                    break;
+                    
+                case 'click':
+                    trigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggle();
+                    });
+                    
+                    // Close on outside click
+                    document.addEventListener('click', (e) => {
+                        if (this.open && !this.$el.contains(e.target)) {
+                            this.hide();
+                        }
+                    });
+                    break;
+                    
+                case 'focus':
+                    trigger.addEventListener('focus', () => this.show());
+                    trigger.addEventListener('blur', () => this.hide());
+                    break;
+            }
+        },
+        
+        /**
+         * Show tooltip with delay
+         */
+        show() {
+            this.clearTimeouts();
+            
+            if (this.delay > 0) {
+                this.showTimeout = setTimeout(() => {
+                    this.open = true;
+                    this.$dispatch('tooltip-show', { id: this.tooltipId });
+                }, this.delay);
+            } else {
+                this.open = true;
+                this.$dispatch('tooltip-show', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Hide tooltip with delay
+         */
+        hide() {
+            this.clearTimeouts();
+            
+            if (this.hideDelay > 0) {
+                this.hideTimeout = setTimeout(() => {
+                    this.open = false;
+                    this.$dispatch('tooltip-hide', { id: this.tooltipId });
+                }, this.hideDelay);
+            } else {
+                this.open = false;
+                this.$dispatch('tooltip-hide', { id: this.tooltipId });
+            }
+        },
+        
+        /**
+         * Toggle tooltip visibility
+         */
+        toggle() {
+            if (this.open) {
+                this.hide();
+            } else {
+                this.show();
+            }
+        },
+        
+        /**
+         * Clear all timeouts
+         */
+        clearTimeouts() {
+            if (this.showTimeout) {
+                clearTimeout(this.showTimeout);
+                this.showTimeout = null;
+            }
+            if (this.hideTimeout) {
+                clearTimeout(this.hideTimeout);
+                this.hideTimeout = null;
+            }
+        },
+        
+        /**
+         * Handle escape key to close tooltip
+         */
+        handleEscape(e) {
+            if (e.key === 'Escape' && this.open) {
+                this.hide();
+                // Return focus to trigger if it was a click trigger
+                if (this.trigger === 'click' && this.$refs.trigger) {
+                    this.$refs.trigger.focus();
+                }
+            }
+        },
+        
+        /**
+         * Get anchor directive value based on placement
+         */
+        get anchorDirective() {
+            const placements = {
+                top: 'top',
+                bottom: 'bottom', 
+                left: 'left',
+                right: 'right',
+                'top-start': 'top-start',
+                'top-end': 'top-end',
+                'bottom-start': 'bottom-start',
+                'bottom-end': 'bottom-end',
+                'left-start': 'left-start',
+                'left-end': 'left-end',
+                'right-start': 'right-start',
+                'right-end': 'right-end'
+            };
+            
+            const placement = placements[this.placement] || 'top';
+            return `${placement}.offset.${this.offset}`;
+        }
+    }))
+});</script><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'right',
+    offset: 8,
+    interactive: true
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block "><span class="inline-flex items-center font-medium rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3.5 py-1.5 text-base  transition-all duration-200">PRO Feature</span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-white text-gray-900 border border-gray-200 " style="max-width: 300px; width: max-content;" role="tooltip"><div class="px-4 py-3"><div class="flex flex-col gap-3 items-stretch justify-start "><h4 class="text-sm font-bold text-gray-900 dark:text-gray-100">Upgrade to Pro</h4><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Get access to advanced features including:</p><ul class="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-2" size="sm"><li>Unlimited projects</li><li>Priority support</li><li>Advanced analytics</li></ul><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-3 py-2 text-sm gap-1.5 bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md w-full ">Upgrade Now</button></div></div></div></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Click Trigger</p><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'click',
+    placement: 'bottom',
+    offset: 8,
+    interactive: false
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block "><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-2xl px-4 py-2.5 text-base gap-2 bg-transparent border-2 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 focus:ring-gray-300  "><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>More Info</div></button></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 350px; width: max-content;" role="tooltip"><div class="px-4 py-3"><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Click-triggered Tooltip</p><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">This tooltip appears on click and stays open until you click elsewhere. Great for displaying detailed information.</p><p class="text-base leading-relaxed text-xs font-normal text-gray-500 dark:text-gray-400 text-left">Press Escape to close</p></div></div></div></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">User Profile</p><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'top',
+    offset: 8,
+    interactive: true
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block "><div class="relative inline-flex h-12 w-12 text-lg rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=5" alt="Sarah Chen" class="h-full w-full object-cover"></div></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-white text-gray-900 border border-gray-200 " style="max-width: 280px; width: max-content;" role="tooltip"><div class="px-4 py-3"><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://i.pravatar.cc/150?img=5" alt="Sarah Chen" class="h-full w-full object-cover"></div><div class="flex flex-col gap-0 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Sarah Chen</p><p class="text-base leading-relaxed text-sm font-normal text-gray-600 text-left">@sarahchen</p></div></div><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Senior Product Designer with 8+ years of experience in UX/UI design.</p><div class="flex flex-row gap-2 items-stretch justify-start "><span class="inline-flex items-center font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Design</span><span class="inline-flex items-center font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-2.5 py-0.5 text-xs  transition-all duration-200">UX</span><span class="inline-flex items-center font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Figma</span></div></div></div></div></div></div><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">Service Status</p><div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'left',
+    offset: 8,
+    interactive: false
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block "><div class="flex flex-row gap-2 items-center justify-start "><div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div><p class="text-base leading-relaxed text-sm font-medium text-slate-600 dark:text-slate-400 text-left">Degraded Performance</p></div></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 300px; width: max-content;" role="tooltip"><div class="px-4 py-3"><div class="flex flex-col gap-2 items-stretch justify-start "><p class="text-base leading-relaxed text-sm font-semibold text-slate-600 dark:text-slate-400 text-left">System Status</p><div class="flex flex-col gap-1 items-stretch justify-start "><div class="flex flex-row gap-2 items-center justify-start "><div class="w-2 h-2 bg-green-500 rounded-full"></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">API: Operational</p></div><div class="flex flex-row gap-2 items-center justify-start "><div class="w-2 h-2 bg-yellow-500 rounded-full"></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">CDN: High Latency</p></div><div class="flex flex-row gap-2 items-center justify-start "><div class="w-2 h-2 bg-green-500 rounded-full"></div><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">Database: Operational</p></div></div><p class="text-base leading-relaxed text-xs font-normal text-gray-500 text-left">Last updated: 2 min ago</p></div></div></div></div></div></div></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Form Field Tooltips</h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Help users understand form fields with contextual tooltips.</p><div class="grid grid-cols-1  md:grid-cols-2   gap-4"><div class="space-y-1"><label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="form-field-869924534953658835">Display Name</label><div class="flex flex-col gap-1 items-stretch justify-start "><div class="flex flex-row gap-2 items-center justify-start ">Display Name<div x-data="tooltip({
+    delay: 500,
+    hideDelay: 0,
+    trigger: 'hover',
+    placement: 'right',
+    offset: 8
+})" class="relative inline-block"><div x-ref="trigger" class="inline-block"><span class="inline-flex items-center justify-center h-3 w-3 text-gray-400" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span></div><div x-ref="content" x-show="open" x-anchor="anchorDirective" x-anchor:element="$refs.trigger" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute z-[9999] rounded-lg shadow-lg bg-gray-900 text-white " style="max-width: 250px; width: max-content;" role="tooltip"><div class="px-3 py-2 text-sm">This name will be shown publicly on your profile</div></div></div></div><input type="text" class="w-full rounded-xl border bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-opacity-50 transition-all duration-300 ease-out hover:border-gray-400 dark:hover:border-gray-600 px-4 py-2.5 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:focus:border-blue-400 " placeholder="Enter your display name"></div></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-6 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Advanced List Patterns</h2><div class="grid grid-cols-1  md:grid-cols-2   gap-6"><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Timeline</h3><ul class="relative list-none"><li class="relative list-none"><div class="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div><div class="flex items-start gap-3"><div class="relative z-10 flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">1</div><div class="flex-1 pb-8"><div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"><div class="space-y-1"><h3 class="font-semibold text-gray-900 dark:text-gray-100"></h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Completed important task with significant impact</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-1"></p></div></div></div></div></li><li class="relative list-none"><div class="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div><div class="flex items-start gap-3"><div class="relative z-10 flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">2</div><div class="flex-1 pb-8"><div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"><div class="space-y-1"><h3 class="font-semibold text-gray-900 dark:text-gray-100"></h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Completed important task with significant impact</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-1"></p></div></div></div></div></li><li class="relative list-none"><div class="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div><div class="flex items-start gap-3"><div class="relative z-10 flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">3</div><div class="flex-1 pb-8"><div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"><div class="space-y-1"><h3 class="font-semibold text-gray-900 dark:text-gray-100"></h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Completed important task with significant impact</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-1"></p></div></div></div></div></li><li class="relative list-none"><div class="flex items-start gap-3"><div class="relative z-10 flex-shrink-0 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">4</div><div class="flex-1 pb-8"><div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700"><div class="space-y-1"><h3 class="font-semibold text-gray-900 dark:text-gray-100"></h3><p class="text-base leading-relaxed text-sm font-normal text-gray-600 dark:text-gray-400 text-left">Completed important task with significant impact</p><p class="text-sm text-gray-500 dark:text-gray-400 mt-1"></p></div></div></div></div></li></ul></div><div class="flex flex-col gap-4 items-stretch justify-start "><h3 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Feature Comparison</h3><div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-3 items-stretch justify-start "><div class="flex flex-row gap-4 items-center justify-between "><p class="text-base leading-relaxed  font-bold text-slate-600 dark:text-slate-400 text-left">Pro Plan</p><span class="inline-flex items-center font-medium rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 text-sm  transition-all duration-200">Popular</span></div><ul class="list-none text-gray-600 dark:text-gray-400 space-y-2"><li><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Unlimited projects</p></div></li><li><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Advanced analytics</p></div></li><li><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Priority support</p></div></li><li><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-emerald-500" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Custom domains</p></div></li><li><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-gray-400" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></span><p class="text-base leading-relaxed text-sm font-normal text-gray-500 dark:text-gray-600 text-left">White-label options</p></div></li></ul><button type="button" class="inline-flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-opacity-50 dark:focus:ring-offset-gray-900 transition-all duration-300 ease-out transform active:scale-[0.98] disabled:active:scale-100 rounded-xl px-4 py-2.5 text-base gap-2 bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400 shadow-sm hover:shadow-md w-full ">Upgrade to Pro</button></div></div></div></div></div></div></div></div></div></body></html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Getting Started · HypertextTemplates</title><meta name="title" content="Getting Started · HypertextTemplates"/><meta property="og:title" content="Getting Started · HypertextTemplates"/><meta property="twitter:title" content="Getting Started · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Getting Started</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#First-Steps"><span>First Steps</span></a></li><li><a class="tocitem" href="#Building-a-Simple-Page"><span>Building a Simple Page</span></a></li><li><a class="tocitem" href="#Working-with-Loops"><span>Working with Loops</span></a></li><li><a class="tocitem" href="#Conditional-Rendering"><span>Conditional Rendering</span></a></li><li><a class="tocitem" href="#Creating-Your-First-Component"><span>Creating Your First Component</span></a></li><li><a class="tocitem" href="#Components-with-Slots"><span>Components with Slots</span></a></li><li><a class="tocitem" href="#Rendering-to-Different-Outputs"><span>Rendering to Different Outputs</span></a></li><li><a class="tocitem" href="#Next-Steps"><span>Next Steps</span></a></li><li><a class="tocitem" href="#Common-Pitfalls"><span>Common Pitfalls</span></a></li></ul></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Getting Started</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Getting Started</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/getting-started.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Getting-Started"><a class="docs-heading-anchor" href="#Getting-Started">Getting Started</a><a id="Getting-Started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-Started" title="Permalink"></a></h1><p>Welcome to HypertextTemplates.jl! This guide will help you get up and running with Julia&#39;s HTML templating system.</p><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>Add HypertextTemplates to your Julia project:</p><pre><code class="language-julia hljs">using Pkg
+Pkg.add(&quot;HypertextTemplates&quot;)</code></pre><p>Or in the Julia REPL&#39;s package mode (press <code>]</code>):</p><pre><code class="language-julia hljs">pkg&gt; add HypertextTemplates</code></pre><h2 id="First-Steps"><a class="docs-heading-anchor" href="#First-Steps">First Steps</a><a id="First-Steps-1"></a><a class="docs-heading-anchor-permalink" href="#First-Steps" title="Permalink"></a></h2><h3 id="Basic-Usage"><a class="docs-heading-anchor" href="#Basic-Usage">Basic Usage</a><a id="Basic-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage" title="Permalink"></a></h3><p>Every HTML element is a Julia macro. Use <code>@render</code> to convert templates to HTML strings:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Render a simple HTML fragment
+html = @render @div begin
+    @h1 &quot;Welcome to HypertextTemplates!&quot;
+    @p &quot;This is a simple example.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1&gt;Welcome to HypertextTemplates&#33;&lt;/h1&gt;
+  &lt;p&gt;This is a simple example.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Adding-Attributes"><a class="docs-heading-anchor" href="#Adding-Attributes">Adding Attributes</a><a id="Adding-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-Attributes" title="Permalink"></a></h3><p>Attributes use <code>{}</code> syntax, similar to Julia NamedTuples:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+html = @render @div {id = &quot;main&quot;, class = &quot;container&quot;} begin
+    @h1 {class = &quot;title&quot;} &quot;Styled Heading&quot;
+    @p {style = &quot;color: blue;&quot;} &quot;Blue text&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div id&#61;&quot;main&quot; class&#61;&quot;container&quot;&gt;
+  &lt;h1 class&#61;&quot;title&quot;&gt;Styled Heading&lt;/h1&gt;
+  &lt;p style&#61;&quot;color: blue&quot;&gt;Blue text&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Using-Variables-and-Expressions"><a class="docs-heading-anchor" href="#Using-Variables-and-Expressions">Using Variables and Expressions</a><a id="Using-Variables-and-Expressions-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Variables-and-Expressions" title="Permalink"></a></h3><p>Use <code>$</code> to interpolate variables and expressions. All values are automatically HTML-escaped for security:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+name = &quot;Julia&quot;
+count = 42
+
+html = @render @div begin
+    @h1 &quot;Hello, &quot; $name &quot;!&quot;
+    @p &quot;The answer is &quot; $count
+    @p &quot;Double the answer: &quot; $(count * 2)
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1&gt;Hello, Julia&#33;&lt;/h1&gt;
+  &lt;p&gt;The answer is 42&lt;/p&gt;
+  &lt;p&gt;Double the answer: 84&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Building-a-Simple-Page"><a class="docs-heading-anchor" href="#Building-a-Simple-Page">Building a Simple Page</a><a id="Building-a-Simple-Page-1"></a><a class="docs-heading-anchor-permalink" href="#Building-a-Simple-Page" title="Permalink"></a></h2><p>Let&#39;s create a complete HTML page structure:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Build a complete page
+html = @render @html begin
+    @head begin
+        @meta {charset = &quot;UTF-8&quot;}
+        @meta {name = &quot;viewport&quot;, content = &quot;width=device-width, initial-scale=1.0&quot;}
+        @title &quot;My First Page&quot;
+    end
+    @body begin
+        @div {class = &quot;container&quot;} begin
+            @h1 &quot;My First Page&quot;
+            @section begin
+                @p &quot;Welcome to my website built with HypertextTemplates.jl!&quot;
+                @ul begin
+                    @li &quot;Fast rendering&quot;
+                    @li &quot;Type-safe templates&quot;
+                    @li &quot;Julia-native syntax&quot;
+                end
+            end
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;&#33;DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+    &lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+    &lt;title&gt;My First Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class&#61;&quot;container&quot;&gt;
+      &lt;h1&gt;My First Page&lt;/h1&gt;
+      &lt;section&gt;
+        &lt;p&gt;Welcome to my website built with HypertextTemplates.jl&#33;&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Fast rendering&lt;/li&gt;
+          &lt;li&gt;Type-safe templates&lt;/li&gt;
+          &lt;li&gt;Julia-native syntax&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<hr />
+</div><h2 id="Working-with-Loops"><a class="docs-heading-anchor" href="#Working-with-Loops">Working with Loops</a><a id="Working-with-Loops-1"></a><a class="docs-heading-anchor-permalink" href="#Working-with-Loops" title="Permalink"></a></h2><p>Julia&#39;s control flow integrates naturally:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+items = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+
+html = @render @ul begin
+    for item in items
+        @li $item
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Banana&lt;/li&gt;
+  &lt;li&gt;Cherry&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+items = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+
+# With enumeration
+html = @render @ol begin
+    for (i, item) in enumerate(items)
+        @li {value = i * 10} &quot;Item &quot; $i &quot;: &quot; $item
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ol&gt;
+  &lt;li value&#61;&quot;10&quot;&gt;Item 1: Apple&lt;/li&gt;
+  &lt;li value&#61;&quot;20&quot;&gt;Item 2: Banana&lt;/li&gt;
+  &lt;li value&#61;&quot;30&quot;&gt;Item 3: Cherry&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+<hr />
+</div><h2 id="Conditional-Rendering"><a class="docs-heading-anchor" href="#Conditional-Rendering">Conditional Rendering</a><a id="Conditional-Rendering-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-Rendering" title="Permalink"></a></h2><p>Use standard Julia conditionals:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+user_logged_in = true
+username = &quot;julia_dev&quot;
+
+html = @render @div begin
+    if user_logged_in
+        @p &quot;Welcome back, &quot; $username &quot;!&quot;
+        @button &quot;Logout&quot;
+    else
+        @p &quot;Please log in to continue.&quot;
+        @button &quot;Login&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p&gt;Welcome back, julia_dev&#33;&lt;/p&gt;
+  &lt;button&gt;Logout&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Creating-Your-First-Component"><a class="docs-heading-anchor" href="#Creating-Your-First-Component">Creating Your First Component</a><a id="Creating-Your-First-Component-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-Your-First-Component" title="Permalink"></a></h2><p>Components are reusable template functions:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function card(; title, description, link_url = nothing, link_text = &quot;Learn more&quot;)
+    @div {class = &quot;card&quot;} begin
+        @h3 {class = &quot;card-title&quot;} $title
+        @p {class = &quot;card-description&quot;} $description
+        if !isnothing(link_url)
+            @a {href = link_url, class = &quot;card-link&quot;} $link_text
+        end
+    end
+end
+
+# Important: Create a macro shortcut for easier use
+@deftag macro card end
+
+# Now you can use @card instead of @&lt;card
+html = @render @div {class = &quot;card-grid&quot;} begin
+    @card {
+        title = &quot;Getting Started&quot;,
+        description = &quot;Learn the basics of HypertextTemplates.jl&quot;
+    }
+    @card {
+        title = &quot;Advanced Features&quot;,
+        description = &quot;Explore components, slots, and more&quot;,
+        link_url = &quot;/docs/advanced&quot;,
+        link_text = &quot;Explore&quot;
+    }
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;card-grid&quot;&gt;
+  &lt;div class&#61;&quot;card&quot;&gt;
+    &lt;h3 class&#61;&quot;card-title&quot;&gt;Getting Started&lt;/h3&gt;
+    &lt;p class&#61;&quot;card-description&quot;&gt;Learn the basics of HypertextTemplates.jl&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;card&quot;&gt;
+    &lt;h3 class&#61;&quot;card-title&quot;&gt;Advanced Features&lt;/h3&gt;
+    &lt;p class&#61;&quot;card-description&quot;&gt;Explore components, slots, and more&lt;/p&gt;&lt;a
+      href&#61;&quot;/docs/advanced&quot;
+      class&#61;&quot;card-link&quot;
+    &gt;Explore&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Understanding-Components"><a class="docs-heading-anchor" href="#Understanding-Components">Understanding Components</a><a id="Understanding-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Understanding-Components" title="Permalink"></a></h3><p>Components are functions that accept props and generate HTML. Use <code>@deftag</code> to create a convenient macro shortcut:</p><h2 id="Components-with-Slots"><a class="docs-heading-anchor" href="#Components-with-Slots">Components with Slots</a><a id="Components-with-Slots-1"></a><a class="docs-heading-anchor-permalink" href="#Components-with-Slots" title="Permalink"></a></h2><p>Slots allow components to accept child content:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function page(; title)
+    @html begin
+        @head begin
+            @meta {charset = &quot;UTF-8&quot;}
+            @meta {name = &quot;viewport&quot;, content = &quot;width=device-width, initial-scale=1.0&quot;}
+            @title $title
+        end
+        @body begin
+            @div {class = &quot;container&quot;} begin
+                @h1 $title
+                @section begin
+                    @__slot__
+                end
+            end
+        end
+    end
+end
+
+@deftag macro page end
+
+# Use the page component with slot content
+html = @render @page {title = &quot;My First Page&quot;} begin
+    @p &quot;Welcome to my website built with HypertextTemplates.jl!&quot;
+    @ul begin
+        @li &quot;Fast rendering&quot;
+        @li &quot;Type-safe templates&quot;
+        @li &quot;Julia-native syntax&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;&#33;DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset&#61;&quot;UTF-8&quot;&gt;
+    &lt;meta name&#61;&quot;viewport&quot; content&#61;&quot;width&#61;device-width, initial-scale&#61;1.0&quot;&gt;
+    &lt;title&gt;My First Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class&#61;&quot;container&quot;&gt;
+      &lt;h1&gt;My First Page&lt;/h1&gt;
+      &lt;section&gt;
+        &lt;p&gt;Welcome to my website built with HypertextTemplates.jl&#33;&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;Fast rendering&lt;/li&gt;
+          &lt;li&gt;Type-safe templates&lt;/li&gt;
+          &lt;li&gt;Julia-native syntax&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<hr />
+</div><p>The <code>@__slot__</code> marker shows where child content renders inside the component.</p><h2 id="Rendering-to-Different-Outputs"><a class="docs-heading-anchor" href="#Rendering-to-Different-Outputs">Rendering to Different Outputs</a><a id="Rendering-to-Different-Outputs-1"></a><a class="docs-heading-anchor-permalink" href="#Rendering-to-Different-Outputs" title="Permalink"></a></h2><p>By default, <code>@render</code> returns a String, but you can specify other outputs:</p><pre><code class="language-julia hljs"># Render to an IO buffer
+io = IOBuffer()
+@render io @div &quot;Hello, IO!&quot;
+result = String(take!(io))
+
+# Render to a byte array
+bytes = @render Vector{UInt8} @div &quot;Hello, bytes!&quot;
+
+# Render to a file
+open(&quot;output.html&quot;, &quot;w&quot;) do file
+    @render file @html begin
+        @body @h1 &quot;Saved to file!&quot;
+    end
+end</code></pre><h2 id="Next-Steps"><a class="docs-heading-anchor" href="#Next-Steps">Next Steps</a><a id="Next-Steps-1"></a><a class="docs-heading-anchor-permalink" href="#Next-Steps" title="Permalink"></a></h2><p>Now that you understand the basics:</p><ol><li>Learn about the <a href="../core-concepts/">Core Concepts</a> underlying the DSL</li><li>Explore the <a href="../components/">Component System</a> for building reusable UI</li><li>Understand <a href="../elements-attributes/">HTML Elements &amp; Attributes</a> in detail</li><li>Discover <a href="../advanced-features/">Advanced Features</a> for complex applications</li></ol><h2 id="Common-Pitfalls"><a class="docs-heading-anchor" href="#Common-Pitfalls">Common Pitfalls</a><a id="Common-Pitfalls-1"></a><a class="docs-heading-anchor-permalink" href="#Common-Pitfalls" title="Permalink"></a></h2><p>Avoid these common mistakes when starting with HypertextTemplates:</p><h3 id="1.-Forgetting-for-Variables"><a class="docs-heading-anchor" href="#1.-Forgetting-for-Variables">1. Forgetting <code>$</code> for Variables</a><a id="1.-Forgetting-for-Variables-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Forgetting-for-Variables" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Wrong - variable not interpolated
+name = &quot;Julia&quot;
+@render @p &quot;Hello, name&quot;  # Output: &lt;p&gt;Hello, name&lt;/p&gt;
+
+# Correct - use $ to interpolate
+@render @p &quot;Hello, &quot; $name  # Output: &lt;p&gt;Hello, Julia&lt;/p&gt;</code></pre><h3 id="2.-Missing-begin...end-Blocks"><a class="docs-heading-anchor" href="#2.-Missing-begin...end-Blocks">2. Missing <code>begin...end</code> Blocks</a><a id="2.-Missing-begin...end-Blocks-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Missing-begin...end-Blocks" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Wrong - syntax error
+@render @div
+    @h1 &quot;Title&quot;
+    @p &quot;Content&quot;
+
+# Correct - use begin...end for multiple elements
+@render @div begin
+    @h1 &quot;Title&quot;
+    @p &quot;Content&quot;
+end</code></pre><h3 id="3.-Wrong-Attribute-Syntax"><a class="docs-heading-anchor" href="#3.-Wrong-Attribute-Syntax">3. Wrong Attribute Syntax</a><a id="3.-Wrong-Attribute-Syntax-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Wrong-Attribute-Syntax" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Wrong - using parentheses
+@render @div(class=&quot;container&quot;) &quot;Content&quot;  # Syntax error!
+
+# Correct - use curly braces
+@render @div {class = &quot;container&quot;} &quot;Content&quot;</code></pre><h3 id="4.-String-Literals-vs-Expressions"><a class="docs-heading-anchor" href="#4.-String-Literals-vs-Expressions">4. String Literals vs Expressions</a><a id="4.-String-Literals-vs-Expressions-1"></a><a class="docs-heading-anchor-permalink" href="#4.-String-Literals-vs-Expressions" title="Permalink"></a></h3><pre><code class="language-julia hljs"># String literals are NOT escaped (trusted content)
+@render @p &quot;&lt;b&gt;Bold&lt;/b&gt;&quot;  # Output: &lt;p&gt;&lt;b&gt;Bold&lt;/b&gt;&lt;/p&gt;
+
+# Variables ARE escaped (safe from XSS)
+text = &quot;&lt;b&gt;Bold&lt;/b&gt;&quot;
+@render @p $text  # Output: &lt;p&gt;&amp;lt;b&amp;gt;Bold&amp;lt;/b&amp;gt;&lt;/p&gt;</code></pre><h3 id="5.-Component-Usage-Without-@deftag"><a class="docs-heading-anchor" href="#5.-Component-Usage-Without-@deftag">5. Component Usage Without @deftag</a><a id="5.-Component-Usage-Without-@deftag-1"></a><a class="docs-heading-anchor-permalink" href="#5.-Component-Usage-Without-@deftag" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Define component
+@component function my_button(; text = &quot;Click&quot;)
+    @button {class = &quot;btn&quot;} $text
+end
+
+# Wrong - can&#39;t use as macro without @deftag
+@render @my_button {text = &quot;Submit&quot;}  # Error!
+
+# Correct - either use @&lt; or define a tag
+@render @&lt;my_button {text = &quot;Submit&quot;}  # Works
+
+# Or better, define the tag
+@deftag macro my_button end
+@render @my_button {text = &quot;Submit&quot;}  # Now works!</code></pre><p>Happy templating with HypertextTemplates.jl!</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../core-concepts/">Core Concepts »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

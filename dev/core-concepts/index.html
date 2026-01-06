@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Core Concepts · HypertextTemplates</title><meta name="title" content="Core Concepts · HypertextTemplates"/><meta property="og:title" content="Core Concepts · HypertextTemplates"/><meta property="twitter:title" content="Core Concepts · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li class="is-active"><a class="tocitem" href>Core Concepts</a><ul class="internal"><li><a class="tocitem" href="#Macro-Based-DSL-Philosophy"><span>Macro-Based DSL Philosophy</span></a></li><li><a class="tocitem" href="#The-{}-Attribute-Syntax"><span>The <code>{}</code> Attribute Syntax</span></a></li><li><a class="tocitem" href="#Text-Rendering-and-Interpolation"><span>Text Rendering and Interpolation</span></a></li><li><a class="tocitem" href="#Zero-Allocation-Design"><span>Zero-Allocation Design</span></a></li><li><a class="tocitem" href="#Control-Flow-Integration"><span>Control Flow Integration</span></a></li><li><a class="tocitem" href="#Component-Architecture"><span>Component Architecture</span></a></li><li><a class="tocitem" href="#Performance-Considerations"><span>Performance Considerations</span></a></li><li><a class="tocitem" href="#HTML-Escaping-Strategy"><span>HTML Escaping Strategy</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Core Concepts</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Core Concepts</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/core-concepts.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Core-Concepts"><a class="docs-heading-anchor" href="#Core-Concepts">Core Concepts</a><a id="Core-Concepts-1"></a><a class="docs-heading-anchor-permalink" href="#Core-Concepts" title="Permalink"></a></h1><p>Understanding the core concepts of HypertextTemplates.jl will help you use the library effectively and write maintainable templates.</p><h2 id="Macro-Based-DSL-Philosophy"><a class="docs-heading-anchor" href="#Macro-Based-DSL-Philosophy">Macro-Based DSL Philosophy</a><a id="Macro-Based-DSL-Philosophy-1"></a><a class="docs-heading-anchor-permalink" href="#Macro-Based-DSL-Philosophy" title="Permalink"></a></h2><p>HypertextTemplates.jl uses Julia&#39;s macro system to create a domain-specific language (DSL) for HTML generation. This approach provides several benefits:</p><h3 id="Compile-Time-Optimization"><a class="docs-heading-anchor" href="#Compile-Time-Optimization">Compile-Time Optimization</a><a id="Compile-Time-Optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Compile-Time-Optimization" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# This macro call...
+html = @render @div {class = &quot;container&quot;} @p &quot;Hello&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;container&quot;&gt;&lt;p&gt;Hello&lt;/p&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Native-Julia-Integration"><a class="docs-heading-anchor" href="#Native-Julia-Integration">Native Julia Integration</a><a id="Native-Julia-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#Native-Julia-Integration" title="Permalink"></a></h3><p>The DSL feels like natural Julia code because it <em>is</em> Julia code:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Regular Julia control flow works seamlessly
+@render @ul begin
+    for i in 1:5
+        if isodd(i)
+            @li {class = &quot;odd&quot;} &quot;Item &quot; $i
+        else
+            @li {class = &quot;even&quot;} &quot;Item &quot; $i
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li class&#61;&quot;odd&quot;&gt;Item 1&lt;/li&gt;
+  &lt;li class&#61;&quot;even&quot;&gt;Item 2&lt;/li&gt;
+  &lt;li class&#61;&quot;odd&quot;&gt;Item 3&lt;/li&gt;
+  &lt;li class&#61;&quot;even&quot;&gt;Item 4&lt;/li&gt;
+  &lt;li class&#61;&quot;odd&quot;&gt;Item 5&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><h3 id="Type-Safety"><a class="docs-heading-anchor" href="#Type-Safety">Type Safety</a><a id="Type-Safety-1"></a><a class="docs-heading-anchor-permalink" href="#Type-Safety" title="Permalink"></a></h3><p>Julia&#39;s type system helps catch errors at compile time:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function typed_list(; items::Vector{String})
+    @ul begin
+        for item in items
+            @li $item
+        end
+    end
+end
+
+@deftag macro typed_list end
+
+# Julia&#39;s type system helps catch errors
+items = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+html = @render @typed_list {items}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Banana&lt;/li&gt;
+  &lt;li&gt;Cherry&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><h2 id="The-{}-Attribute-Syntax"><a class="docs-heading-anchor" href="#The-{}-Attribute-Syntax">The <code>{}</code> Attribute Syntax</a><a id="The-{}-Attribute-Syntax-1"></a><a class="docs-heading-anchor-permalink" href="#The-{}-Attribute-Syntax" title="Permalink"></a></h2><p>Building on the macro foundation, attributes use a special <code>{}</code> syntax that resembles Julia&#39;s NamedTuple syntax:</p><h3 id="Basic-Attributes"><a class="docs-heading-anchor" href="#Basic-Attributes">Basic Attributes</a><a id="Basic-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Attributes" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Simple attributes
+@render @div {id = &quot;main&quot;, class = &quot;container&quot;} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div id&#61;&quot;main&quot; class&#61;&quot;container&quot;&gt;Content&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Computed attributes
+width = 100
+@render @img {src = &quot;/logo.png&quot;, width = width * 2}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;img src&#61;&quot;/logo.png&quot; width&#61;&quot;200&quot;&gt;</code></pre>
+<hr />
+</div><h3 id="Attribute-Name-Shortcuts"><a class="docs-heading-anchor" href="#Attribute-Name-Shortcuts">Attribute Name Shortcuts</a><a id="Attribute-Name-Shortcuts-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Name-Shortcuts" title="Permalink"></a></h3><p>When variable names match attribute names:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+class = &quot;active&quot;
+disabled = true
+
+# Instead of {class = class, disabled = disabled}
+@render @button {class, disabled} &quot;Click me&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;active&quot; disabled&gt;Click me&lt;/button&gt;</code></pre>
+<hr />
+</div><h3 id="Attribute-Spreading"><a class="docs-heading-anchor" href="#Attribute-Spreading">Attribute Spreading</a><a id="Attribute-Spreading-1"></a><a class="docs-heading-anchor-permalink" href="#Attribute-Spreading" title="Permalink"></a></h3><p>Spread multiple attributes from a collection:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+common_attrs = (class = &quot;btn&quot;, type = &quot;button&quot;)
+@render @button {id = &quot;submit&quot;, common_attrs...} &quot;Submit&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button id&#61;&quot;submit&quot; class&#61;&quot;btn&quot; type&#61;&quot;button&quot;&gt;Submit&lt;/button&gt;</code></pre>
+<hr />
+</div><h3 id="Boolean-Attributes"><a class="docs-heading-anchor" href="#Boolean-Attributes">Boolean Attributes</a><a id="Boolean-Attributes-1"></a><a class="docs-heading-anchor-permalink" href="#Boolean-Attributes" title="Permalink"></a></h3><p>Boolean handling follows HTML5 semantics:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# true renders the attribute name only
+@render @input {type = &quot;checkbox&quot;, checked = true}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;checkbox&quot; checked&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># false omits the attribute entirely
+@render @input {type = &quot;checkbox&quot;, checked = false}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;input type&#61;&quot;checkbox&quot;&gt;</code></pre>
+<hr />
+</div><h2 id="Text-Rendering-and-Interpolation"><a class="docs-heading-anchor" href="#Text-Rendering-and-Interpolation">Text Rendering and Interpolation</a><a id="Text-Rendering-and-Interpolation-1"></a><a class="docs-heading-anchor-permalink" href="#Text-Rendering-and-Interpolation" title="Permalink"></a></h2><h3 id="Variable-Interpolation-with"><a class="docs-heading-anchor" href="#Variable-Interpolation-with">Variable Interpolation with <code>$</code></a><a id="Variable-Interpolation-with-1"></a><a class="docs-heading-anchor-permalink" href="#Variable-Interpolation-with" title="Permalink"></a></h3><p>The <code>$</code> syntax marks expressions for rendering with automatic escaping:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+user_input = &quot;&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&quot;
+html = @render @p &quot;User said: &quot; $user_input</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;User said: &amp;lt;script&amp;gt;alert&#40;&#39;xss&#39;&#41;&amp;lt;/script&amp;gt;&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="The-@text-Macro"><a class="docs-heading-anchor" href="#The-@text-Macro">The <code>@text</code> Macro</a><a id="The-@text-Macro-1"></a><a class="docs-heading-anchor-permalink" href="#The-@text-Macro" title="Permalink"></a></h3><p>The <code>$</code> syntax is actually shorthand for <code>@text</code>:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+value = 42
+
+# These are equivalent
+html1 = @render @p &quot;\$ Value: &quot; $value</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;&#36; Value: 42&lt;/p&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">html2 = @render @p &quot;@text Value: &quot; @text value</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;@text Value: 42&lt;/p&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">a, b = 10, 20
+# @text can handle complex expressions
+html3 = @render @p @text &quot;The sum is $(a + b)&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;The sum is 30&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="Mixed-Content"><a class="docs-heading-anchor" href="#Mixed-Content">Mixed Content</a><a id="Mixed-Content-1"></a><a class="docs-heading-anchor-permalink" href="#Mixed-Content" title="Permalink"></a></h3><p>You can mix different content types:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+dynamic_var = &quot;dynamic content&quot;
+
+html = @render @div begin
+    @span &quot;Static text &quot;   # String literal
+    @code $dynamic_var     # Escaped variable
+    @p &quot;bold&quot;              # Nested element
+    @strong &quot; more text&quot;   # Another literal
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;span&gt;Static text &lt;/span&gt;&lt;code&gt;dynamic content&lt;/code&gt;&lt;p&gt;bold&lt;/p&gt;&lt;strong&gt;
+    more text&lt;/strong&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Zero-Allocation-Design"><a class="docs-heading-anchor" href="#Zero-Allocation-Design">Zero-Allocation Design</a><a id="Zero-Allocation-Design-1"></a><a class="docs-heading-anchor-permalink" href="#Zero-Allocation-Design" title="Permalink"></a></h2><p>The performance benefits of the macro system extend to the rendering pipeline through zero-allocation design:</p><h3 id="Direct-IO-Streaming"><a class="docs-heading-anchor" href="#Direct-IO-Streaming">Direct IO Streaming</a><a id="Direct-IO-Streaming-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-IO-Streaming" title="Permalink"></a></h3><p>Instead of building a DOM tree, content streams directly to IO:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# No intermediate string allocations
+io = IOBuffer()
+@render io @div begin
+    for i in 1:5
+        @p &quot;Paragraph &quot; $i
+    end
+end
+
+result = String(take!(io))</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p&gt;Paragraph 1&lt;/p&gt;
+  &lt;p&gt;Paragraph 2&lt;/p&gt;
+  &lt;p&gt;Paragraph 3&lt;/p&gt;
+  &lt;p&gt;Paragraph 4&lt;/p&gt;
+  &lt;p&gt;Paragraph 5&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Efficient-String-Building"><a class="docs-heading-anchor" href="#Efficient-String-Building">Efficient String Building</a><a id="Efficient-String-Building-1"></a><a class="docs-heading-anchor-permalink" href="#Efficient-String-Building" title="Permalink"></a></h3><p>The rendering process uses Julia&#39;s efficient IO system:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Internally uses write() calls, not string concatenation
+html = @render @div begin
+    @h1 &quot;Title&quot;
+    @p &quot;Content&quot;
+end
+
+
+# This is equivalent to direct write() calls:
+# write(io, &quot;&lt;div&gt;&quot;)
+# write(io, &quot;&lt;h1&gt;&quot;)
+# write(io, &quot;Title&quot;)
+# write(io, &quot;&lt;/h1&gt;&quot;)
+# ...</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1&gt;Title&lt;/h1&gt;
+  &lt;p&gt;Content&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Rendering-Pipeline"><a class="docs-heading-anchor" href="#Rendering-Pipeline">Rendering Pipeline</a><a id="Rendering-Pipeline-1"></a><a class="docs-heading-anchor-permalink" href="#Rendering-Pipeline" title="Permalink"></a></h3><p>The rendering pipeline works as follows:</p><ol><li><strong>Macro Expansion</strong>: Templates are transformed into Julia code at compile time</li><li><strong>IO Target</strong>: All output goes to an IO stream (provided or created)</li><li><strong>Direct Writing</strong>: HTML strings and escaped content are written directly</li><li><strong>No Buffering</strong>: Content flows straight through without intermediate storage</li></ol><p>This design means:</p><ul><li>Memory usage is constant regardless of output size</li><li>First byte is written immediately (no buffering)</li><li>Suitable for very large documents</li><li>Optimal for streaming responses</li></ul><h2 id="Control-Flow-Integration"><a class="docs-heading-anchor" href="#Control-Flow-Integration">Control Flow Integration</a><a id="Control-Flow-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#Control-Flow-Integration" title="Permalink"></a></h2><p>Since templates are Julia code, all control flow constructs work naturally:</p><h3 id="Loops"><a class="docs-heading-anchor" href="#Loops">Loops</a><a id="Loops-1"></a><a class="docs-heading-anchor-permalink" href="#Loops" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# for loops
+collection = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+html1 = @render @ul for item in collection
+    @li $item
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Banana&lt;/li&gt;
+  &lt;li&gt;Cherry&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># while loops
+count = 0
+html2 = @render @div begin
+    while count &lt; 3
+        @p &quot;Count: &quot; $count
+        global count += 1
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p&gt;Count: 0&lt;/p&gt;
+  &lt;p&gt;Count: 1&lt;/p&gt;
+  &lt;p&gt;Count: 2&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># comprehensions
+html3 = @render @select begin
+    [@option {value = i} &quot;Option &quot; $i for i in 1:5]
+end
+println(&quot;\nComprehension:&quot;)</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;select&gt;
+  &lt;option value&#61;&quot;1&quot;&gt;Option 1&lt;/option&gt;
+  &lt;option value&#61;&quot;2&quot;&gt;Option 2&lt;/option&gt;
+  &lt;option value&#61;&quot;3&quot;&gt;Option 3&lt;/option&gt;
+  &lt;option value&#61;&quot;4&quot;&gt;Option 4&lt;/option&gt;
+  &lt;option value&#61;&quot;5&quot;&gt;Option 5&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+<hr />
+</div><h3 id="Conditionals"><a class="docs-heading-anchor" href="#Conditionals">Conditionals</a><a id="Conditionals-1"></a><a class="docs-heading-anchor-permalink" href="#Conditionals" title="Permalink"></a></h3><p>All conditional forms are supported:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# if-else
+condition = true
+html1 = @render @div begin
+    if condition
+        @p &quot;True branch&quot;
+    else
+        @p &quot;False branch&quot;
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;&lt;p&gt;True branch&lt;/p&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># ternary operator
+isactive = false
+html2 = @render @p {class = isactive ? &quot;active&quot; : &quot;inactive&quot;} &quot;Status&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p class&#61;&quot;inactive&quot;&gt;Status&lt;/p&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># short-circuit evaluation
+hasdata = false
+html3 = @render @div begin
+    hasdata &amp;&amp; @p &quot;Data is available&quot;
+    !hasdata &amp;&amp; @p &quot;No data available&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;&lt;p&gt;No data available&lt;/p&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Pattern-Matching"><a class="docs-heading-anchor" href="#Pattern-Matching">Pattern Matching</a><a id="Pattern-Matching-1"></a><a class="docs-heading-anchor-permalink" href="#Pattern-Matching" title="Permalink"></a></h3><p>Works with any macro-based control flow:</p><pre><code class="language-julia hljs"># With Match.jl (example)
+@div begin
+    @match value begin
+        1 =&gt; @p &quot;One&quot;
+        2 =&gt; @p &quot;Two&quot;
+        _ =&gt; @p &quot;Other&quot;
+    end
+end</code></pre><h2 id="Component-Architecture"><a class="docs-heading-anchor" href="#Component-Architecture">Component Architecture</a><a id="Component-Architecture-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Architecture" title="Permalink"></a></h2><p>The macro system and control flow integration come together in HypertextTemplates&#39; component architecture:</p><h3 id="Function-Based-Components"><a class="docs-heading-anchor" href="#Function-Based-Components">Function-Based Components</a><a id="Function-Based-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Function-Based-Components" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function alert(; type = &quot;info&quot;, message)
+    classes = &quot;alert alert-&quot; * type
+    @div {class = classes, role = &quot;alert&quot;} $message
+end
+
+@deftag macro alert end
+
+# Use the component
+html = @render @alert {type = &quot;warning&quot;, message = &quot;This is a warning!&quot;}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-warning&quot; role&#61;&quot;alert&quot;&gt;This is a warning&#33;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Composition"><a class="docs-heading-anchor" href="#Composition">Composition</a><a id="Composition-1"></a><a class="docs-heading-anchor-permalink" href="#Composition" title="Permalink"></a></h3><p>Components compose naturally:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Reuse the alert component from above
+@component function alert(; type = &quot;info&quot;, message)
+    classes = &quot;alert alert-&quot; * type
+    @div {class = classes, role = &quot;alert&quot;} $message
+end
+
+@deftag macro alert end
+
+@component function alert_list(; alerts)
+    @div {class = &quot;alert-container&quot;} begin
+        for alert in alerts
+            @alert {type = alert.type, message = alert.message}
+        end
+    end
+end
+
+@deftag macro alert_list end
+
+# Use the composed component
+alerts = [
+    (type = &quot;info&quot;, message = &quot;Information message&quot;),
+    (type = &quot;warning&quot;, message = &quot;Warning message&quot;),
+    (type = &quot;error&quot;, message = &quot;Error message&quot;)
+]
+
+html = @render @alert_list {alerts}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert-container&quot;&gt;
+  &lt;div class&#61;&quot;alert alert-info&quot; role&#61;&quot;alert&quot;&gt;Information message&lt;/div&gt;
+  &lt;div class&#61;&quot;alert alert-warning&quot; role&#61;&quot;alert&quot;&gt;Warning message&lt;/div&gt;
+  &lt;div class&#61;&quot;alert alert-error&quot; role&#61;&quot;alert&quot;&gt;Error message&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Component-Transformation"><a class="docs-heading-anchor" href="#Component-Transformation">Component Transformation</a><a id="Component-Transformation-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Transformation" title="Permalink"></a></h3><p>The <code>@component</code> macro transforms the function to:</p><ol><li>Accept rendering context (IO stream)</li><li>Handle slot content (both default and named slots)</li><li>Manage source location tracking (in development mode)</li><li>Support streaming render (for async operations)</li></ol><p>For example, this component:</p><pre><code class="language-julia hljs">@component function example(; prop)
+    @div $prop
+end</code></pre><p>Is transformed into a function that:</p><ul><li>Accepts an internal <code>__io__</code> parameter for rendering</li><li>Can receive slot content via hidden parameters</li><li>Tracks its definition location for debugging</li><li>Works seamlessly with <code>StreamingRender</code></li></ul><h2 id="Performance-Considerations"><a class="docs-heading-anchor" href="#Performance-Considerations">Performance Considerations</a><a id="Performance-Considerations-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Considerations" title="Permalink"></a></h2><p>The zero-allocation design and macro system combine to optimize performance at multiple levels:</p><h3 id="Compile-Time-Work"><a class="docs-heading-anchor" href="#Compile-Time-Work">Compile-Time Work</a><a id="Compile-Time-Work-1"></a><a class="docs-heading-anchor-permalink" href="#Compile-Time-Work" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# This template structure is analyzed at compile time
+@component function static_heavy()
+    @div {class = &quot;wrapper&quot;} begin
+        @header begin
+            @nav begin
+                @ul begin
+                    @li @a {href = &quot;/&quot;} &quot;Home&quot;
+                    @li @a {href = &quot;/about&quot;} &quot;About&quot;
+                end
+            end
+        end
+    end
+end
+
+@deftag macro static_heavy end
+
+# The structure is compiled, not interpreted at runtime
+html = @render @static_heavy</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;wrapper&quot;&gt;
+  &lt;header&gt;
+    &lt;nav&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href&#61;&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href&#61;&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Runtime-Efficiency"><a class="docs-heading-anchor" href="#Runtime-Efficiency">Runtime Efficiency</a><a id="Runtime-Efficiency-1"></a><a class="docs-heading-anchor-permalink" href="#Runtime-Efficiency" title="Permalink"></a></h3><p>Only dynamic parts are computed at runtime:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function dynamic_list(; items)
+    # Static structure compiled, only loop runs at runtime
+    @ul {class = &quot;list&quot;} begin
+        for item in items  # Only this loop runs at runtime
+            @li $item
+        end
+    end
+end
+
+@deftag macro dynamic_list end
+
+# Only the loop execution is runtime work
+items = [&quot;Dynamic 1&quot;, &quot;Dynamic 2&quot;, &quot;Dynamic 3&quot;]
+html = @render @dynamic_list {items}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul class&#61;&quot;list&quot;&gt;
+  &lt;li&gt;Dynamic 1&lt;/li&gt;
+  &lt;li&gt;Dynamic 2&lt;/li&gt;
+  &lt;li&gt;Dynamic 3&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><h2 id="HTML-Escaping-Strategy"><a class="docs-heading-anchor" href="#HTML-Escaping-Strategy">HTML Escaping Strategy</a><a id="HTML-Escaping-Strategy-1"></a><a class="docs-heading-anchor-permalink" href="#HTML-Escaping-Strategy" title="Permalink"></a></h2><p>Complementing the performance features, HypertextTemplates provides automatic security through its escaping strategy:</p><h3 id="Automatic-Escaping"><a class="docs-heading-anchor" href="#Automatic-Escaping">Automatic Escaping</a><a id="Automatic-Escaping-1"></a><a class="docs-heading-anchor-permalink" href="#Automatic-Escaping" title="Permalink"></a></h3><p>All dynamic content is escaped by default:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+unsafe = &quot;&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&quot;
+html = @render @p $unsafe</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;&amp;lt;script&amp;gt;alert&#40;&#39;xss&#39;&#41;&amp;lt;/script&amp;gt;&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="Escape-Rules"><a class="docs-heading-anchor" href="#Escape-Rules">Escape Rules</a><a id="Escape-Rules-1"></a><a class="docs-heading-anchor-permalink" href="#Escape-Rules" title="Permalink"></a></h3><ol><li>String literals in templates are NOT escaped (trusted content)</li><li>Variables and expressions with <code>$</code> or <code>@text</code> ARE escaped</li><li>Attribute values from variables ARE escaped</li><li>Element content from components is already rendered (not double-escaped)</li></ol><h3 id="Performance"><a class="docs-heading-anchor" href="#Performance">Performance</a><a id="Performance-1"></a><a class="docs-heading-anchor-permalink" href="#Performance" title="Permalink"></a></h3><p>Escaping uses optimized routines:</p><ul><li>Fast-path for strings without special characters</li><li>Efficient replacement for strings with special characters</li><li>Minimal allocations during escaping</li></ul><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>These core concepts build on each other:</p><ol><li><strong>Macros</strong> provide the foundation with compile-time optimization</li><li><strong><code>{}</code> attributes</strong> extend the macro syntax for properties</li><li><strong>Text rendering</strong> handles content with automatic security</li><li><strong>Zero-allocation design</strong> ensures performance at scale</li><li><strong>Control flow</strong> integration leverages Julia&#39;s expressiveness</li><li><strong>Components</strong> combine all concepts for reusable templates</li></ol><p>Each concept reinforces the others, creating a cohesive system that&#39;s fast, safe, and natural to use.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../getting-started/">« Getting Started</a><a class="docs-footer-nextpage" href="../components/">Components »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

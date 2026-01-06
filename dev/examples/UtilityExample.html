@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Utility Components</title><link rel="stylesheet" href="./app.css"><script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.x.x/dist/cdn.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script></head><body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex"><div class="w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto flex-shrink-0"><div class="p-6"><div class="flex flex-col gap-6 items-stretch justify-start "><div class="flex flex-col gap-2 items-stretch justify-start "><h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Components</h3><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Browse all component examples</p></div><div class="flex flex-col gap-1 items-stretch justify-start "><a href="AdvancedComponentsExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Advanced Components</a><a href="AppExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Complete Application Example</a><a href="DarkModeExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dark Mode Optimized Components</a><a href="DropdownMenuExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Dropdown Menu Components</a><a href="FeedbackExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Feedback Components</a><a href="FormExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Form Components</a><a href="IconGalleryExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Icon Gallery</a><a href="LayoutExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Layout Components</a><a href="ModalExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modal Components</a><a href="ModernStylingExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Modern Styling Features</a><a href="NavigationExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Navigation Components</a><a href="TableListExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Table &amp; List Components</a><a href="ToggleExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Toggle Components</a><a href="TypographyExample.html" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">Typography Components</a><a href="UtilityExample.html" class="block px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium" aria-current="page">Utility Components</a></div><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><script>/**
+ * Alpine.data component for ThemeToggle
+ *
+ * This file defines the interactive behavior for the ThemeToggle component.
+ * It uses Alpine.js's data component system to provide reusable theme switching functionality.
+ *
+ * Architecture Overview:
+ * - Registered as 'themeToggle' Alpine.data component
+ * - Manages theme state (light/dark/system) with localStorage persistence
+ * - Automatically detects and responds to system theme changes
+ * - Provides reactive properties for UI updates
+ *
+ * Dependencies:
+ * - Alpine.js v3
+ *
+ * Usage in templates:
+ * x-data="themeToggle()"
+ */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('themeToggle', () => ({
+        // Current theme state
+        theme: 'system',
+
+        // Theme configuration
+        themes: ['light', 'dark', 'system'],
+        icons: {
+            light: '☀️',
+            dark: '🌙',
+            system: '💻'
+        },
+        labels: {
+            light: 'Light',
+            dark: 'Dark',
+            system: 'System'
+        },
+
+        /**
+         * Initialize theme on component mount
+         * Loads saved theme from localStorage and sets up system theme listener
+         */
+        init() {
+            // Load saved theme from localStorage
+            this.theme = localStorage.getItem('theme') || 'system';
+
+            // Apply initial theme
+            this.applyTheme();
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (this.theme === 'system') {
+                    this.applyTheme();
+                }
+            });
+
+            // Listen for storage events to sync between tabs/windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'theme' && e.newValue) {
+                    this.theme = e.newValue;
+                    this.applyTheme();
+                }
+            });
+        },
+
+        /**
+         * Cycle through themes: light -> dark -> system
+         * Persists selection to localStorage and applies theme
+         */
+        toggle() {
+            const currentIndex = this.themes.indexOf(this.theme);
+            const nextIndex = (currentIndex + 1) % this.themes.length;
+            this.theme = this.themes[nextIndex];
+
+            // Persist to localStorage
+            localStorage.setItem('theme', this.theme);
+
+            // Apply theme changes
+            this.applyTheme();
+
+            // Dispatch custom event for other components to listen to
+            window.dispatchEvent(new CustomEvent('theme-changed', {
+                detail: { theme: this.theme }
+            }));
+        },
+
+        /**
+         * Apply the current theme to the document
+         * Handles system theme detection when in system mode
+         */
+        applyTheme() {
+            const effectiveTheme = this.theme === 'system'
+                ? this.getSystemTheme()
+                : this.theme;
+
+            if (effectiveTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
+
+        /**
+         * Get the current system theme preference
+         * @returns {string} 'dark' or 'light'
+         */
+        getSystemTheme() {
+            return window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+        },
+
+        /**
+         * Computed property for current theme icon
+         * Used by x-text binding in the template
+         */
+        get currentIcon() {
+            return this.icons[this.theme];
+        },
+
+        /**
+         * Computed property for current theme label
+         * Used by x-text binding in the template
+         */
+        get currentLabel() {
+            return this.labels[this.theme];
+        }
+    }))
+});
+
+/**
+ * Apply initial theme before Alpine initializes to prevent flash
+ * This runs immediately when the script loads
+ */
+(function() {
+    const theme = localStorage.getItem('theme') || 'system';
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const effectiveTheme = theme === 'system' ? systemTheme : theme;
+
+    if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+})();
+</script><button id="theme-toggle" type="button" x-data="themeToggle()" @click="toggle()" class="inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-3 py-2 text-sm rounded-lg " title="Toggle theme"><span x-text="`${currentIcon} ${currentLabel}`">💻 System</span></button><a href="../library-components" class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">← Back to documentation</a></div></div></div><div class="flex-1 overflow-y-auto px-6 py-2"><div class="py-8"><div class="flex flex-col gap-8 items-stretch justify-start "><h1 class="text-center mb-8">Utility Components Demo</h1><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-4 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Divider Component</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Separate content sections with dividers.</p><div class="flex flex-col gap-4 items-stretch justify-start "><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Default horizontal divider:</p><hr class="border-t border-slate-200 dark:border-slate-800 my-4" role="separator"><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Colored divider:</p><hr class="border-t border-blue-500 my-4" role="separator"><div class="flex flex-row gap-4 items-center justify-start "><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Vertical</p><div class="h-16" role="separator" aria-orientation="vertical"></div><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Divider</p><div class="h-16" role="separator" aria-orientation="vertical"></div><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Example</p></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-4 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Avatar Component</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">User profile images with fallbacks.</p><div class="flex flex-col gap-6 items-stretch justify-start "><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Sizes</p><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-6 w-6 text-xs rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">XS</div></div><div class="relative inline-flex h-8 w-8 text-sm rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">SM</div></div><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">MD</div></div><div class="relative inline-flex h-12 w-12 text-lg rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">LG</div></div><div class="relative inline-flex h-16 w-16 text-xl rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">XL</div></div></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Shapes</p><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">C</div></div><div class="relative inline-flex h-10 w-10 text-base rounded-lg overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">S</div></div></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">With Images</p><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&amp;h=100&amp;fit=crop" alt="User 1" class="h-full w-full object-cover"></div><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&amp;h=100&amp;fit=crop" alt="User 2" class="h-full w-full object-cover"></div><div class="relative inline-flex h-10 w-10 text-base rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&amp;h=100&amp;fit=crop" alt="User 3" class="h-full w-full object-cover"></div></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">User Cards</p><div class="grid grid-cols-1 sm:grid-cols-2    gap-4"><div class="bg-white dark:bg-slate-900 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-12 w-12 text-lg rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">JD</div></div><div class="flex flex-col gap-1 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Jane Doe</p><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">jane@example.com</p><span class="inline-flex items-center font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Online</span></div></div></div><div class="bg-white dark:bg-slate-900 p-5 md:p-6 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-row gap-3 items-center justify-start "><div class="relative inline-flex h-12 w-12 text-lg rounded-full overflow-hidden bg-blue-500 dark:bg-blue-600"><div class="flex h-full w-full items-center justify-center font-medium text-white">👤</div></div><div class="flex flex-col gap-1 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Guest User</p><p class="text-base leading-relaxed text-sm font-normal text-slate-600 dark:text-slate-400 text-left">Not logged in</p><span class="inline-flex items-center font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 px-2.5 py-0.5 text-xs  transition-all duration-200">Guest</span></div></div></div></div></div></div></div></div><div class="bg-white dark:bg-slate-900 p-6 md:p-8 shadow border border-slate-200 dark:border-slate-800 rounded-xl "><div class="flex flex-col gap-4 items-stretch justify-start "><h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">Icon Component</h2><p class="text-base leading-relaxed  font-normal text-slate-600 dark:text-slate-400 text-left">Consistent icon sizing and styling.</p><div class="flex flex-col gap-6 items-stretch justify-start "><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Built-in Icons</p><div class="grid grid-cols-5 sm:grid-cols-10    gap-4"><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">check</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">x</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">arrow-right</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">arrow-left</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">chevron-down</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">chevron-up</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">menu</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">search</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">plus</p></div><div class="flex flex-col gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" /></svg></span><p class="text-base leading-relaxed text-xs font-normal text-slate-600 dark:text-slate-400 text-left">minus</p></div></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Icon Sizes</p><div class="flex flex-row gap-4 items-center justify-start "><span class="inline-flex items-center justify-center h-3 w-3 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-5 w-5 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-6 w-6 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-8 w-8 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Icon Colors</p><div class="flex flex-row gap-4 items-stretch justify-start "><span class="inline-flex items-center justify-center h-6 w-6 text-slate-600" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-6 w-6 text-blue-600" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-6 w-6 text-green-600" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-6 w-6 text-yellow-600" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span><span class="inline-flex items-center justify-center h-6 w-6 text-red-600" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span></div></div><div class="flex flex-col gap-3 items-stretch justify-start "><p class="text-base leading-relaxed  font-semibold text-slate-600 dark:text-slate-400 text-left">Icon Usage Examples</p><div class="flex flex-col gap-3 items-stretch justify-start "><div class="rounded-xl border-l-4 border-t border-r border-b p-4 shadow-sm bg-emerald-50 border-emerald-300 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-700 dark:text-emerald-300 animate-[fadeIn_0.3s_ease-in-out] transition-all duration-300" role="alert"><div class="flex"><div class="flex-shrink-0"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg></div><div class="ml-3 flex-1"><div class="flex flex-row gap-2 items-center justify-start "><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></span>Operation completed successfully</div></div></div></div><button class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"><span class="inline-flex items-center justify-center h-4 w-4 text-current" aria-hidden="true"><svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></span>Add New Item</button></div></div></div></div></div></div></div></div></body></html>

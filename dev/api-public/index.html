@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Public API · HypertextTemplates</title><meta name="title" content="Public API · HypertextTemplates"/><meta property="og:title" content="Public API · HypertextTemplates"/><meta property="twitter:title" content="Public API · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li class="is-active"><a class="tocitem" href>Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">API Reference</a></li><li class="is-active"><a href>Public API</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Public API</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/api-public.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Public-API"><a class="docs-heading-anchor" href="#Public-API">Public API</a><a id="Public-API-1"></a><a class="docs-heading-anchor-permalink" href="#Public-API" title="Permalink"></a></h1><p>The public API consists of all exported functions, macros, and types that are intended for end users. These APIs are stable and follow semantic versioning - breaking changes will only occur in major version updates. The public API includes the core <code>@render</code> macro, component definition utilities like <code>@component</code> and <code>@deftag</code>, security features like <code>SafeString</code>, and all the HTML element macros available through <code>HypertextTemplates.Elements</code>. These are the building blocks you&#39;ll use to create templates and components in your applications.</p><article><details class="docstring" open="true"><summary id="HypertextTemplates.HypertextTemplates"><a class="docstring-binding" href="#HypertextTemplates.HypertextTemplates"><code>HypertextTemplates.HypertextTemplates</code></a> — <span class="docstring-category">Module</span></summary><section><div><pre><code class="language-julia hljs">HypertextTemplates</code></pre><p>A hypertext templating DSL for Julia that allows writing HTML using native Julia syntax.</p><p>HypertextTemplates provides a macro-based DSL where all HTML elements are exposed as macros (e.g., <code>@div</code>, <code>@p</code>). It uses a special <code>{}</code> syntax for attributes that mimics NamedTuples, allowing natural integration of Julia control flow directly in templates.</p><p><strong>Key Features</strong></p><ul><li><strong>Zero-allocation rendering</strong>: Direct IO streaming without intermediate DOM</li><li><strong>Component system</strong>: Reusable components with props and slots</li><li><strong>Auto-escaping</strong>: Automatic HTML escaping for security (bypass with <code>SafeString</code>)</li><li><strong>Streaming support</strong>: Efficient chunked rendering for large documents</li><li><strong>Markdown integration</strong>: Render Markdown files as components (requires CommonMark.jl)</li></ul><p><strong>Basic Usage</strong></p><pre><code class="language-julia hljs">using HypertextTemplates, HypertextTemplates.Elements
+
+# Simple rendering
+@render @div {class = &quot;greeting&quot;} &quot;Hello, World!&quot;
+
+# Components with slots
+@component function card(; title)
+    @div {class = &quot;card&quot;} begin
+        @h2 $title
+        @div {class = &quot;body&quot;} @__slot__
+    end
+end</code></pre><p><strong>Main Exports</strong></p><ul><li><code>@render</code>: Render templates to strings or IO</li><li><code>@component</code>: Define reusable components</li><li><code>@deftag</code>: Create macro shortcuts for components</li><li><code>SafeString</code>: Mark content as pre-escaped HTML</li><li><code>StreamingRender</code>: Iterator for chunked rendering</li><li><code>@&lt;</code>: Dynamic component/element rendering</li></ul><p>See the documentation for detailed examples and advanced features.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/HypertextTemplates.jl#L1-L42">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.SafeString"><a class="docstring-binding" href="#HypertextTemplates.SafeString"><code>HypertextTemplates.SafeString</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">SafeString(str::String)</code></pre><p>A string wrapper that bypasses automatic HTML escaping.</p><p>By default, all string content is HTML-escaped to prevent XSS attacks. <code>SafeString</code> marks content as pre-escaped or trusted HTML that should be rendered as-is.</p><div class="admonition is-warning" id="Security-Risk-e8010920ac3254ae"><header class="admonition-header">Security Risk<a class="admonition-anchor" href="#Security-Risk-e8010920ac3254ae" title="Permalink"></a></header><div class="admonition-body"><p>Only use <code>SafeString</code> with content you trust completely. Never wrap user input directly with <code>SafeString</code> without proper sanitization. This can lead to XSS vulnerabilities.</p></div></div><p><strong>Arguments</strong></p><ul><li><code>str::String</code>: The HTML string to mark as safe</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Normal strings are escaped
+       @render @div &quot;&lt;b&gt;Bold&lt;/b&gt;&quot;
+&quot;&lt;div&gt;&amp;lt;b&amp;gt;Bold&amp;lt;/b&amp;gt;&lt;/div&gt;&quot;
+
+julia&gt; # SafeString content is not escaped
+       @render @div $(SafeString(&quot;&lt;b&gt;Bold&lt;/b&gt;&quot;))
+&quot;&lt;div&gt;&lt;b&gt;Bold&lt;/b&gt;&lt;/div&gt;&quot;
+
+julia&gt; # Common use case: pre-rendered markdown
+       markdown_html = &quot;&lt;p&gt;Already &lt;em&gt;escaped&lt;/em&gt; content&lt;/p&gt;&quot;;
+
+julia&gt; @render @article $(SafeString(markdown_html))
+&quot;&lt;article&gt;&lt;p&gt;Already &lt;em&gt;escaped&lt;/em&gt; content&lt;/p&gt;&lt;/article&gt;&quot;</code></pre><p><strong>Security best practices</strong></p><pre><code class="language-julia hljs"># GOOD: Content from trusted sources
+html = markdown_to_html(user_content)  # Markdown processor escapes content
+@render @div SafeString(html)
+
+# GOOD: Your own HTML generation
+safe_html = &quot;&lt;span class=&quot;highlight&quot;&gt;Important&lt;/span&gt;&quot;
+@render @div SafeString(safe_html)
+
+# BAD: Never do this with user input!
+user_input = get_user_input()
+@render @div SafeString(user_input)  # DANGER: XSS vulnerability!</code></pre><p>See also: <a href="#HypertextTemplates.@render-Tuple{Any, Any}"><code>@render</code></a>, <a href="../api-internal/#HypertextTemplates.escape_html-Tuple{IO, AbstractString}"><code>escape_html</code></a>, <a href="#HypertextTemplates.@esc_str-Tuple{Any}"><code>@esc_str</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/SafeString.jl#L1-L52">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.StreamingRender"><a class="docstring-binding" href="#HypertextTemplates.StreamingRender"><code>HypertextTemplates.StreamingRender</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">StreamingRender(func; kwargs...)
+StreamingRender(; kwargs...) do io
+    # render content
+end</code></pre><p>Create an iterator for streaming template rendering.</p><p><code>StreamingRender</code> enables efficient rendering of large templates by yielding chunks of output as they become available. This is particularly useful for:</p><ul><li>HTTP streaming responses</li><li>Large documents that would consume too much memory if rendered at once</li><li>Progressive rendering where content appears as it&#39;s generated</li></ul><p>The function uses intelligent micro-batching: large writes (≥64 bytes) are sent immediately for low latency, while smaller writes are batched for efficiency.</p><p><strong>Arguments</strong></p><ul><li><code>func</code>: Function that takes an <code>io</code> argument to pass to <code>@render</code></li></ul><p><strong>Keywords</strong></p><ul><li><code>buffer_size::Int=32</code>: Number of chunks the channel can buffer before blocking</li><li><code>chunk_size::Int=4096</code>: Legacy parameter (kept for compatibility, no longer used)</li><li><code>immediate_threshold::Int=64</code>: Bytes above which writes bypass buffering for low latency</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Collect all chunks (for demonstration)
+       chunks = String[];
+
+julia&gt; for chunk in StreamingRender() do io
+           @render io @div begin
+               @h1 &quot;Header&quot;
+               @p &quot;Content&quot;
+           end
+       end
+           push!(chunks, String(chunk))
+       end
+
+julia&gt; join(chunks)
+&quot;&lt;div&gt;&lt;h1&gt;Header&lt;/h1&gt;&lt;p&gt;Content&lt;/p&gt;&lt;/div&gt;&quot;</code></pre><p><strong>HTTP streaming example</strong></p><pre><code class="language-julia hljs">using HTTP
+using HypertextTemplates, HypertextTemplates.Elements
+
+function handle_request(req)
+    HTTP.Response(200, [&quot;Content-Type&quot; =&gt; &quot;text/html&quot;]) do io
+        for chunk in StreamingRender() do render_io
+            @render render_io @html begin
+                @head @title &quot;Streaming Page&quot;
+                @body begin
+                    @h1 &quot;Live Data&quot;
+                    for i in 1:1000
+                        @div &quot;Item $i&quot;
+                    end
+                end
+            end
+        end
+            write(io, chunk)
+        end
+    end
+end</code></pre><p><strong>Progressive rendering</strong></p><pre><code class="language-julia hljs"># Stream data as it becomes available
+for chunk in StreamingRender() do io
+    @render io @div begin
+        @h1 &quot;Results&quot;
+        for result in fetch_results_lazily()
+            @article begin
+                @h2 result.title
+                @p result.content
+            end
+        end
+    end
+end
+    # Send chunk to client immediately
+    write(client_connection, chunk)
+    flush(client_connection)
+end</code></pre><p>See also: <a href="#HypertextTemplates.@render-Tuple{Any, Any}"><code>@render</code></a>, <a href="../api-internal/#HypertextTemplates.MicroBatchWriter"><code>MicroBatchWriter</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/stream.jl#L157-L247">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@&lt;-Tuple{Any, Vararg{Any}}"><a class="docstring-binding" href="#HypertextTemplates.@&lt;-Tuple{Any, Vararg{Any}}"><code>HypertextTemplates.@&lt;</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@&lt;component_or_element
+@&lt;component_or_element children...
+@&lt;component_or_element {props...}
+@&lt;component_or_element {props...} children...</code></pre><p>Dynamically render a component or element from a variable.</p><p>The <code>@&lt;</code> macro enables dynamic component selection, where the component or element to render is determined at runtime. This is useful for polymorphic rendering, component mappings, and conditional component selection.</p><p><strong>Arguments</strong></p><ul><li><code>component_or_element</code>: A variable containing a component function or element</li><li><code>props...</code>: Optional properties in <code>{}</code> syntax</li><li><code>children...</code>: Optional child content</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Dynamic element selection
+       tag = Elements.div
+       @render @&lt;tag {class = &quot;dynamic&quot;} &quot;Content&quot;
+&quot;&lt;div class=\&quot;dynamic\&quot;&gt;Content&lt;/div&gt;&quot;
+
+julia&gt; # Change element at runtime
+       tag = span
+       @render @&lt;tag {class = &quot;dynamic&quot;} &quot;Content&quot;
+&quot;&lt;span class=\&quot;dynamic\&quot;&gt;Content&lt;/span&gt;&quot;</code></pre><p><strong>Dynamic component selection</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Define components
+       @component function info_box(; message)
+           @div {class = &quot;info&quot;} @p $message
+       end;
+
+julia&gt; @component function error_box(; message)
+           @div {class = &quot;error&quot;} @strong $message
+       end;
+
+julia&gt; # Select component based on condition
+       function render_message(type, message)
+           component = type == :error ? error_box : info_box
+           @render @&lt;component {message}
+       end
+render_message (generic function with 1 method)
+
+julia&gt; render_message(:info, &quot;All good!&quot;)
+&quot;&lt;div class=\&quot;info\&quot;&gt;&lt;p&gt;All good!&lt;/p&gt;&lt;/div&gt;&quot;
+
+julia&gt; render_message(:error, &quot;Something went wrong!&quot;)
+&quot;&lt;div class=\&quot;error\&quot;&gt;&lt;strong&gt;Something went wrong!&lt;/strong&gt;&lt;/div&gt;&quot;</code></pre><p><strong>With slots</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function wrapper(; variant = &quot;default&quot;)
+           @div {class = &quot;wrapper-$variant&quot;} @__slot__
+       end;
+
+julia&gt; # Dynamic wrapper
+       w = wrapper
+       @render @&lt;w {variant = &quot;special&quot;} begin
+           @h1 &quot;Wrapped content&quot;
+       end
+&quot;&lt;div class=\&quot;wrapper-special\&quot;&gt;&lt;h1&gt;Wrapped content&lt;/h1&gt;&lt;/div&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a>, <a href="#HypertextTemplates.@deftag-Tuple{Any}"><code>@deftag</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/tag-macro.jl#L1-L77">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@__once__-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@__once__-Tuple{Any}"><code>HypertextTemplates.@__once__</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@__once__ begin
+    # content to render once
+end</code></pre><p>Render content only once per <code>@render</code> call.</p><p>The <code>@__once__</code> macro ensures that its content is rendered only once, even if the containing component is used multiple times within the same render tree. This is essential for including CSS, JavaScript, or other resources that should not be duplicated.</p><p><strong>Common use cases</strong></p><ul><li>CSS styles that should appear once</li><li>JavaScript libraries and initialization code</li><li>Meta tags or link elements in components</li><li>Any content that would cause issues if duplicated</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function button_with_styles(; text, variant = &quot;primary&quot;)
+           @__once__ begin
+               @style &quot;&quot;&quot;
+               .btn { padding: 10px; border: none; cursor: pointer; }
+               .btn-primary { background: blue; color: white; }
+               .btn-danger { background: red; color: white; }
+               &quot;&quot;&quot;
+           end
+           @button {class = &quot;btn btn-$variant&quot;} $text
+       end;
+
+julia&gt; @deftag macro button_with_styles end
+@button_with_styles (macro with 1 method)</code></pre><p><strong>JavaScript dependencies</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function chart(; data)
+           @__once__ begin
+               @script {src = &quot;https://cdn.plot.ly/plotly-latest.min.js&quot;}
+           end
+           @div {id = &quot;chart-$(hash(data))&quot;} begin
+               @script &quot;&quot;&quot;
+               Plotly.newPlot(&#39;chart-$(hash(data))&#39;, $(data));
+               &quot;&quot;&quot;
+           end
+       end;
+
+julia&gt; @deftag macro chart end
+@chart (macro with 1 method)</code></pre><p><strong>Scope behavior</strong></p><p>Each <code>@render</code> call maintains its own set of rendered once-blocks:</p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function with_header()
+           @__once__ @h1 &quot;Page Header&quot;
+           @p &quot;Content&quot;
+       end;
+
+julia&gt; @deftag macro with_header end
+@with_header (macro with 1 method)
+
+julia&gt; # First render includes the header
+       @render @with_header
+&quot;&lt;h1&gt;Page Header&lt;/h1&gt;&lt;p&gt;Content&lt;/p&gt;&quot;
+
+julia&gt; # Second render also includes it (different @render call)
+       @render @with_header
+&quot;&lt;h1&gt;Page Header&lt;/h1&gt;&lt;p&gt;Content&lt;/p&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a>, <a href="#HypertextTemplates.@render-Tuple{Any, Any}"><code>@render</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/once.jl#L1-L81">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@__slot__"><a class="docstring-binding" href="#HypertextTemplates.@__slot__"><code>HypertextTemplates.@__slot__</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@__slot__ [name]</code></pre><p>Define a content slot within a component.</p><p>Slots enable content projection - allowing parent components to pass content into specific locations within child components. This is essential for creating flexible, composable components.</p><p><strong>Arguments</strong></p><ul><li><code>name</code>: Optional slot name. If omitted, creates the default slot.</li></ul><p><strong>Default slot</strong></p><p>The default slot (no name) receives all content passed to the component that isn&#39;t assigned to a named slot.</p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function card(; title)
+           @div {class = &quot;card&quot;} begin
+               @h2 $title
+               @div {class = &quot;content&quot;} @__slot__
+           end
+       end;
+
+julia&gt; @deftag macro card end
+@card (macro with 1 method)
+
+julia&gt; @render @card {title = &quot;Welcome&quot;} begin
+           @p &quot;This goes into the default slot&quot;
+           @p &quot;So does this&quot;
+       end
+&quot;&lt;div class=\&quot;card\&quot;&gt;&lt;h2&gt;Welcome&lt;/h2&gt;&lt;div class=\&quot;content\&quot;&gt;&lt;p&gt;This goes into the default slot&lt;/p&gt;&lt;p&gt;So does this&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&quot;</code></pre><p><strong>Named slots</strong></p><p>Named slots receive only content explicitly assigned to them using <code>name := content</code> syntax.</p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function modal(; title = &quot;&quot;)
+           @div {class = &quot;modal&quot;} begin
+               @header begin
+                   @h2 $title
+                   @__slot__ header_actions
+               end
+               @div {class = &quot;body&quot;} @__slot__
+               @footer @__slot__ footer
+           end
+       end;
+
+julia&gt; @deftag macro modal end
+@modal (macro with 1 method)
+
+julia&gt; @render @modal {title = &quot;Confirm&quot;} begin
+           # Default slot content
+           @p &quot;Are you sure?&quot;
+           # Named slot content
+           header_actions := @button {class = &quot;close&quot;} &quot;×&quot;
+           footer := begin
+               @button &quot;Cancel&quot;
+               @button {class = &quot;primary&quot;} &quot;OK&quot;
+           end
+       end
+&quot;&lt;div class=\&quot;modal\&quot;&gt;&lt;header&gt;&lt;h2&gt;Confirm&lt;/h2&gt;&lt;button class=\&quot;close\&quot;&gt;×&lt;/button&gt;&lt;/header&gt;&lt;div class=\&quot;body\&quot;&gt;&lt;p&gt;Are you sure?&lt;/p&gt;&lt;/div&gt;&lt;footer&gt;&lt;button&gt;Cancel&lt;/button&gt;&lt;button class=\&quot;primary\&quot;&gt;OK&lt;/button&gt;&lt;/footer&gt;&lt;/div&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/slot-macro.jl#L1-L71">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@cm_component-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@cm_component-Tuple{Any}"><code>HypertextTemplates.@cm_component</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@cm_component component_name(; props...) = &quot;file_name.md&quot;</code></pre><p>Create a component from a Markdown file.</p><p>This macro creates a component that renders Markdown content from a file. The Markdown is parsed using CommonMark.jl and can include interpolated values using <code>$variable</code> syntax.</p><div class="admonition is-info" id="Note-adeee4da65bab3ed"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-adeee4da65bab3ed" title="Permalink"></a></header><div class="admonition-body"><p>This feature requires CommonMark.jl to be installed as it&#39;s provided via Julia&#39;s package extension mechanism.</p></div></div><p><strong>Arguments</strong></p><ul><li><code>component_name</code>: Name for the component function</li><li><code>props...</code>: Optional keyword arguments that can be interpolated in the Markdown</li><li><code>file_name.md</code>: Path to the Markdown file (relative to the current file)</li></ul><p><strong>Features</strong></p><ul><li><strong>Interpolation</strong>: Use <code>$prop_name</code> in Markdown to insert prop values</li><li><strong>Live reload</strong>: With Revise.jl, changes to the Markdown file auto-update</li><li><strong>Compile-time parsing</strong>: Without Revise.jl, Markdown is parsed at compile time for performance</li></ul><p><strong>Examples</strong></p><p><strong>Basic usage</strong></p><pre><code class="language-julia hljs"># In article.md:
+# # $title
+# 
+# By $author on $date
+# 
+# $content
+
+# In your Julia code:
+using HypertextTemplates, HypertextTemplates.Elements
+using CommonMark
+
+@cm_component article(; title, author, date, content) = &quot;article.md&quot;
+@deftag macro article end
+
+@render @article {
+    title = &quot;Hello World&quot;,
+    author = &quot;Jane Doe&quot;,
+    date = &quot;2024-01-15&quot;,
+    content = &quot;This is my first post!&quot;
+}</code></pre><p><strong>Directory structure</strong></p><pre><code class="language-julia hljs"># components/header.md contains:
+# # $site_name
+# 
+# *$tagline*
+
+# In components/components.jl:
+@cm_component header(; site_name, tagline = &quot;Welcome&quot;) = &quot;header.md&quot;
+
+# Path is relative to the file containing @cm_component</code></pre><p><strong>With default values</strong></p><pre><code class="language-julia hljs">@cm_component footer(; copyright_year = 2024, company = &quot;Acme Corp&quot;) = &quot;footer.md&quot;
+@deftag macro footer end
+
+# Uses defaults
+@render @footer
+
+# Override defaults
+@render @footer {copyright_year = 2025}</code></pre><p><strong>Complex content interpolation</strong></p><pre><code class="language-julia hljs"># In template.md:
+# # Product: $name
+# 
+# Price: $$$price
+# 
+# $description
+
+@cm_component product_card(; name, price, description) = &quot;template.md&quot;
+@deftag macro product_card end
+
+@render @product_card {
+    name = &quot;Widget&quot;,
+    price = 19.99,
+    description = &quot;A **fantastic** widget with _many_ features!&quot;
+}</code></pre><div class="admonition is-success" id="Development-workflow-d79d14e9d216a7d8"><header class="admonition-header">Development workflow<a class="admonition-anchor" href="#Development-workflow-d79d14e9d216a7d8" title="Permalink"></a></header><div class="admonition-body"><p>When using Revise.jl, you can edit the Markdown file and see changes immediately without restarting Julia or redefining the component.</p></div></div><p>See also: <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a>, <a href="#HypertextTemplates.SafeString"><code>SafeString</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/cmfile.jl#L1-L99">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@component-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@component-Tuple{Any}"><code>HypertextTemplates.@component</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@component function component_name(; properties...)
+    # template body
+end</code></pre><p>Define a reusable component function.</p><p>Components are functions that return template content and can accept properties as keyword arguments. They enable code reuse and composition in templates.</p><p>After defining a component, use <a href="#HypertextTemplates.@deftag-Tuple{Any}"><code>@deftag</code></a> to create a convenient macro for using it like a regular HTML element.</p><p><strong>Arguments</strong></p><ul><li><code>component_name</code>: The name of the component function</li><li><code>properties...</code>: Keyword arguments that become the component&#39;s props</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function greeting(; name = &quot;World&quot;)
+           @h1 &quot;Hello, &quot; $name &quot;!&quot;
+       end
+greeting (generic function with 1 method)
+
+julia&gt; @deftag macro greeting end
+@greeting (macro with 1 method)
+
+julia&gt; @render @greeting {name = &quot;Julia&quot;}
+&quot;&lt;h1&gt;Hello, Julia!&lt;/h1&gt;&quot;
+
+julia&gt; @render @greeting  # Uses default value
+&quot;&lt;h1&gt;Hello, World!&lt;/h1&gt;&quot;</code></pre><p><strong>Components with slots</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function card(; title)
+           @div {class = &quot;card&quot;} begin
+               @h2 $title
+               @div {class = &quot;body&quot;} @__slot__
+           end
+       end
+card (generic function with 1 method)
+
+julia&gt; @deftag macro card end
+@card (macro with 1 method)
+
+julia&gt; @render @card {title = &quot;Info&quot;} begin
+           @p &quot;Card content goes here&quot;
+       end
+&quot;&lt;div class=\&quot;card\&quot;&gt;&lt;h2&gt;Info&lt;/h2&gt;&lt;div class=\&quot;body\&quot;&gt;&lt;p&gt;Card content goes here&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&quot;</code></pre><p><strong>Typed props for safety</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function price(; amount::Number, currency::String = &quot;USD&quot;)
+           @span {class = &quot;price&quot;} $currency &quot; &quot; $(round(amount, digits=2))
+       end
+price (generic function with 1 method)
+
+julia&gt; @deftag macro price end
+@price (macro with 1 method)
+
+julia&gt; @render @price {amount = 19.999}
+&quot;&lt;span class=\&quot;price\&quot;&gt;USD 20.0&lt;/span&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@deftag-Tuple{Any}"><code>@deftag</code></a>, <a href="#HypertextTemplates.@__slot__"><code>@__slot__</code></a>, <a href="#HypertextTemplates.@render-Tuple{Any, Any}"><code>@render</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/component-macro.jl#L3-L77">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@context-Tuple{Any, Any}"><a class="docstring-binding" href="#HypertextTemplates.@context-Tuple{Any, Any}"><code>HypertextTemplates.@context</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@context {key = value, ...} body
+@context {key, ...} body</code></pre><p>Set context values that will be available to all child components.</p><p>The <code>@context</code> macro allows passing data through the component tree without explicit prop drilling. It uses Julia&#39;s <code>IOContext</code> mechanism to store key-value pairs that can be retrieved by child components using <code>@get_context</code>.</p><p>Supports both explicit <code>key = value</code> syntax and shorthand <code>key</code> syntax (which expands to <code>key = key</code>).</p><p><strong>Arguments</strong></p><ul><li>Key-value pairs or shorthand symbols in <code>{}</code> syntax specifying the context data</li><li><code>body</code>: The content that will have access to the context</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function themed_button(; text = &quot;Click me&quot;)
+           theme = @get_context(:theme, &quot;light&quot;)
+           @button {class = &quot;btn-$theme&quot;} $text
+       end;
+
+julia&gt; @deftag macro themed_button end
+@themed_button (macro with 1 method)
+
+julia&gt; @render @context {theme = &quot;dark&quot;} begin
+           @themed_button {text = &quot;Dark Button&quot;}
+       end
+&quot;&lt;button class=\&quot;btn-dark\&quot;&gt;Dark Button&lt;/button&gt;&quot;
+
+julia&gt; # Shorthand syntax
+       theme = &quot;blue&quot;
+       @render @context {theme} begin  # Same as {theme = theme}
+           @themed_button
+       end
+&quot;&lt;button class=\&quot;btn-blue\&quot;&gt;Click me&lt;/button&gt;&quot;
+
+julia&gt; # Mixed syntax
+       user = &quot;alice&quot;
+       @render @context {user, theme = &quot;dark&quot;} begin
+           @div begin
+               @text &quot;User: &quot; @get_context(:user)
+               @themed_button
+           end
+       end
+&quot;&lt;div&gt;User: alice&lt;button class=\&quot;btn-dark\&quot;&gt;Click me&lt;/button&gt;&lt;/div&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@get_context-Tuple{Any}"><code>@get_context</code></a>, <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/context-macro.jl#L1-L54">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@deftag-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@deftag-Tuple{Any}"><code>HypertextTemplates.@deftag</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@deftag macro name end
+@deftag name</code></pre><p>Create a macro shortcut for using a component or element.</p><p>After defining a component with <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a>, use <code>@deftag</code> to create a convenient macro that allows using the component like an HTML element.</p><p>The <code>macro name end</code> syntax is preferred as it allows the LSP to correctly track the macro definition location.</p><p><strong>Arguments</strong></p><ul><li><code>name</code>: Symbol name of the component/element to create a macro for</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Define a component
+       @component function alert(; type = &quot;info&quot;, dismissible = false)
+           @div {class = &quot;alert alert-$type&quot;} begin
+               @__slot__
+               if dismissible
+                   @button {class = &quot;close&quot;} &quot;×&quot;
+               end
+           end
+       end
+alert (generic function with 1 method)
+
+julia&gt; # Create macro (preferred syntax for LSP support)
+       @deftag macro alert end
+@alert (macro with 1 method)
+
+julia&gt; # Now use like an HTML element
+       @render @alert {type = &quot;warning&quot;} &quot;Watch out!&quot;
+&quot;&lt;div class=\&quot;alert alert-warning\&quot;&gt;Watch out!&lt;/div&gt;&quot;
+
+julia&gt; # Alternative syntax (works but no LSP support)
+       @component function message(; text)
+           @p {class = &quot;message&quot;} $text
+       end
+message (generic function with 1 method)
+
+julia&gt; @deftag message
+@message (macro with 1 method)
+
+julia&gt; @render @message {text = &quot;Hello&quot;}
+&quot;&lt;p class=\&quot;message\&quot;&gt;Hello&lt;/p&gt;&quot;</code></pre><p><strong>Custom elements</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # Define a custom HTML element
+       @element &quot;my-widget&quot; my_widget
+
+julia&gt; @deftag macro my_widget end
+@my_widget (macro with 1 method)
+
+julia&gt; @render @my_widget {id = &quot;w1&quot;} &quot;Custom element&quot;
+&quot;&lt;my-widget id=\&quot;w1\&quot;&gt;Custom element&lt;/my-widget&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a>, <a href="#HypertextTemplates.@element"><code>@element</code></a>, <a href="#HypertextTemplates.@&lt;-Tuple{Any, Vararg{Any}}"><code>@&lt;</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/deftag.jl#L1-L67">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@element"><a class="docstring-binding" href="#HypertextTemplates.@element"><code>HypertextTemplates.@element</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@element html_tag_name [julia_name]</code></pre><p>Define a custom HTML element.</p><p>Creates a new HTML element that can be used with HypertextTemplates&#39; macro syntax. This is useful for custom elements, web components, or HTML elements not included in the default set.</p><p><strong>Arguments</strong></p><ul><li><code>html_tag_name</code>: The HTML tag name as it will appear in output (e.g., &quot;my-element&quot;)</li><li><code>julia_name</code>: Optional Julia identifier name (defaults to <code>html_tag_name</code> with invalid characters replaced)</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates
+
+julia&gt; # Define a custom element
+       @element &quot;my-widget&quot; my_widget
+
+julia&gt; # Use with @deftag for macro syntax
+       @deftag macro my_widget end
+@my_widget (macro with 1 method)
+
+julia&gt; @render @my_widget {id = &quot;w1&quot;, class = &quot;custom&quot;} &quot;Widget content&quot;
+&quot;&lt;my-widget id=\&quot;w1\&quot; class=\&quot;custom\&quot;&gt;Widget content&lt;/my-widget&gt;&quot;</code></pre><p><strong>Web Components</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates
+
+julia&gt; # Define web component elements
+       @element &quot;ion-button&quot; ion_button
+
+julia&gt; @element &quot;ion-icon&quot; ion_icon
+
+julia&gt; @deftag macro ion_button end
+@ion_button (macro with 1 method)
+
+julia&gt; @deftag macro ion_icon end
+@ion_icon (macro with 1 method)
+
+julia&gt; @render @ion_button {color = &quot;primary&quot;, expand = &quot;block&quot;} begin
+           @ion_icon {name = &quot;save-outline&quot;, slot = &quot;start&quot;}
+           &quot;Save&quot;
+       end
+&quot;&lt;ion-button color=\&quot;primary\&quot; expand=\&quot;block\&quot;&gt;&lt;ion-icon name=\&quot;save-outline\&quot; slot=\&quot;start\&quot;&gt;&lt;/ion-icon&gt;Save&lt;/ion-button&gt;&quot;</code></pre><p>See also: <a href="#HypertextTemplates.@deftag-Tuple{Any}"><code>@deftag</code></a>, <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/element-macro.jl#L1-L52">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@esc_str-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@esc_str-Tuple{Any}"><code>HypertextTemplates.@esc_str</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@esc_str</code></pre><p>Escape HTML at compile time and return a <a href="#HypertextTemplates.SafeString"><code>SafeString</code></a>.</p><p>This string macro performs HTML escaping during macro expansion rather than at runtime, providing better performance for static content that needs escaping.</p><p>The resulting <code>SafeString</code> will not be escaped again during rendering.</p><p>See also: <a href="#HypertextTemplates.SafeString"><code>SafeString</code></a>, <a href="../api-internal/#HypertextTemplates.escape_html-Tuple{IO, AbstractString}"><code>escape_html</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/html-escaping.jl#L1-L12">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@get_context-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@get_context-Tuple{Any}"><code>HypertextTemplates.@get_context</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@get_context(key)
+@get_context(key, default)</code></pre><p>Retrieve a value from the current context.</p><p>The <code>@get_context</code> macro retrieves values that were set by parent <code>@context</code> blocks. It accesses the <code>IOContext</code> chain to find the requested key.</p><p><strong>Arguments</strong></p><ul><li><code>key</code>: The context key to retrieve (as a symbol or string)</li><li><code>default</code>: Optional default value if the key is not found</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @component function user_greeting()
+           user = @get_context(:user, &quot;Guest&quot;)
+           @p &quot;Hello, $(user)!&quot;
+       end;
+
+julia&gt; @deftag macro user_greeting end
+@user_greeting (macro with 1 method)
+
+julia&gt; @render @context {user = &quot;Alice&quot;} begin
+           @user_greeting
+       end
+&quot;&lt;p&gt;Hello, Alice!&lt;/p&gt;&quot;
+
+julia&gt; # Without context, uses default
+       @render @user_greeting
+&quot;&lt;p&gt;Hello, Guest!&lt;/p&gt;&quot;
+
+julia&gt; # Access multiple context values
+       @component function profile_card()
+           user = @get_context(:user, &quot;Unknown&quot;)
+           theme = @get_context(:theme, &quot;light&quot;)
+           role = @get_context(:role)  # No default
+           @div {class = &quot;profile-$theme&quot;} begin
+               @h3 $user
+               !isnothing(role) &amp;&amp; @span {class = &quot;role&quot;} $role
+           end
+       end;</code></pre><p>See also: <a href="#HypertextTemplates.@context-Tuple{Any, Any}"><code>@context</code></a>, <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/get-context-macro.jl#L1-L48">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@render-Tuple{Any, Any}"><a class="docstring-binding" href="#HypertextTemplates.@render-Tuple{Any, Any}"><code>HypertextTemplates.@render</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@render [destination] dom</code></pre><p>Render a template to the given destination.</p><p>If no destination is provided, renders to a <code>String</code> and returns it. The destination  can be any IO object (e.g., <code>stdout</code>, <code>IOBuffer</code>, file handle) or a type like  <code>String</code> or <code>Vector{UInt8}</code>.</p><p>This macro is only needed for rendering the root of the DOM tree, not for the output of each individual component that is defined.</p><p><strong>Arguments</strong></p><ul><li><code>destination</code>: Optional IO object or type to render to (default: <code>String</code>)</li><li><code>dom</code>: The template expression to render</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; @render @div &quot;Hello, World!&quot;
+&quot;&lt;div&gt;Hello, World!&lt;/div&gt;&quot;
+
+julia&gt; buffer = IOBuffer();
+
+julia&gt; @render buffer @span {class = &quot;greeting&quot;} &quot;Hi!&quot;;
+
+julia&gt; String(take!(buffer))
+&quot;&lt;span class=\&quot;greeting\&quot;&gt;Hi!&lt;/span&gt;&quot;
+
+julia&gt; @render Vector{UInt8} @p &quot;Binary output&quot;
+20-element Vector{UInt8}:
+ 0x3c
+ 0x70
+ 0x3e
+ 0x42
+ 0x69
+ 0x6e
+ 0x61
+ 0x72
+ 0x79
+ 0x20
+ 0x6f
+ 0x75
+ 0x74
+ 0x70
+ 0x75
+ 0x74
+ 0x3c
+ 0x2f
+ 0x70
+ 0x3e</code></pre><p><strong>Rendering to files</strong></p><pre><code class="language-julia hljs">open(&quot;output.html&quot;, &quot;w&quot;) do file
+    @render file @html begin
+        @head @title &quot;My Page&quot;
+        @body @h1 &quot;Hello!&quot;
+    end
+end</code></pre><p>See also: <a href="../rendering/#StreamingRender"><code>StreamingRender</code></a>, <a href="#HypertextTemplates.@component-Tuple{Any}"><code>@component</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/render-macro.jl#L1-L66">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@tailwind_source-Tuple{Any}"><a class="docstring-binding" href="#HypertextTemplates.@tailwind_source-Tuple{Any}"><code>HypertextTemplates.@tailwind_source</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@tailwind_source &quot;path/to/app.css&quot;</code></pre><p>Update a Tailwind CSS file with a <code>@source</code> directive pointing to HypertextTemplates.Library source files.</p><p>During precompilation, this macro:</p><ol><li>Locates the CSS file relative to the calling file</li><li>Gets the current depot path to HypertextTemplates.Library</li><li>Creates a sidecar CSS file with the <code>@source</code> directive</li><li>Inserts/updates a managed <code>@import</code> in the main CSS</li></ol><p>When HypertextTemplates updates, the dependent package recompiles and the path is automatically updated.</p><p><strong>Example</strong></p><pre><code class="language-julia hljs">module MyApp
+using HypertextTemplates
+using HypertextTemplates.Library
+
+# Updates assets/app.css with Library source path
+@tailwind_source &quot;../assets/app.css&quot;
+end</code></pre><p>Given <code>app.css</code>, the macro creates <code>app.ht-source.css</code> containing:</p><pre><code class="language-css hljs">@source &quot;/path/to/.julia/packages/HypertextTemplates/.../src/Library/**/*.jl&quot;;</code></pre><p>And inserts this line into <code>app.css</code> after <code>@import &quot;tailwindcss&quot;;</code>:</p><pre><code class="language-css hljs">@import &quot;./app.ht-source.css&quot;; /* ht:managed */</code></pre><p><strong>Gitignore</strong></p><p>Add <code>*.ht-source.css</code> to your <code>.gitignore</code> to keep absolute paths out of version control.</p><p><strong>How it works</strong></p><p>Tailwind CSS v4 uses the <code>@source</code> directive to specify which files to scan for class names. Since HypertextTemplates.Library lives in Julia&#39;s depot path (which changes on package updates), this macro automatically keeps the path current.</p><p>The <code>/* ht:managed */</code> comment marks the import line as auto-managed, allowing the macro to find and update it on subsequent runs.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/tailwind-source-macro.jl#L5-L57">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.@text-Tuple"><a class="docstring-binding" href="#HypertextTemplates.@text-Tuple"><code>HypertextTemplates.@text</code></a> — <span class="docstring-category">Macro</span></summary><section><div><pre><code class="language-julia hljs">@text content...</code></pre><p>Explicitly render content as text within templates.</p><p>The <code>@text</code> macro explicitly marks content for text rendering with HTML escaping. It is rarely needed directly since the <code>$</code> interpolation syntax provides the same functionality more concisely.</p><p>Text content is automatically HTML-escaped unless wrapped in <a href="#HypertextTemplates.SafeString"><code>SafeString</code></a>.</p><p><strong>Arguments</strong></p><ul><li><code>content...</code>: One or more values to render as text</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia-repl hljs">julia&gt; using HypertextTemplates, HypertextTemplates.Elements
+
+julia&gt; # HTML is escaped by default
+       @render @div @text &quot;&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;&quot;
+&quot;&lt;div&gt;&amp;lt;script&amp;gt;alert(&#39;XSS&#39;)&amp;lt;/script&amp;gt;&lt;/div&gt;&quot;
+
+julia&gt; # Mix with elements
+       @render @div begin
+           @h1 &quot;Title&quot;
+           @text &quot;Some text content&quot;
+           @p &quot;In a paragraph&quot;
+       end
+&quot;&lt;div&gt;&lt;h1&gt;Title&lt;/h1&gt;Some text content&lt;p&gt;In a paragraph&lt;/p&gt;&lt;/div&gt;&quot;</code></pre><div class="admonition is-success" id="Tip-a7704225c5e66696"><header class="admonition-header">Tip<a class="admonition-anchor" href="#Tip-a7704225c5e66696" title="Permalink"></a></header><div class="admonition-body"><p>The <code>$</code> interpolation syntax is preferred over <code>@text</code> in most cases:</p><pre><code class="language-julia hljs"># Preferred
+@div &quot;Count: &quot; $count
+
+# Equivalent but verbose
+@div &quot;Count: &quot; @text count</code></pre></div></div><p>See also: <a href="#HypertextTemplates.SafeString"><code>SafeString</code></a>, <a href="../api-internal/#HypertextTemplates.escape_html-Tuple{IO, AbstractString}"><code>escape_html</code></a></p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/text-macro.jl#L1-L43">source</a></section></details></article><article><details class="docstring" open="true"><summary id="HypertextTemplates.Elements"><a class="docstring-binding" href="#HypertextTemplates.Elements"><code>HypertextTemplates.Elements</code></a> — <span class="docstring-category">Module</span></summary><section><div><pre><code class="language-julia hljs">HypertextTemplates.Elements</code></pre><p>Standard HTML elements for use with HypertextTemplates.</p><p>This module provides all standard HTML5 elements as both functions and macros. Each element can be used either as a macro (e.g., <code>@div</code>) or accessed as a function (e.g., <code>Elements.div</code>).</p><p><strong>Usage</strong></p><pre><code class="language-julia hljs">using HypertextTemplates, HypertextTemplates.Elements
+
+# Use elements as macros
+@render @div {class = &quot;container&quot;} begin
+    @h1 &quot;Title&quot;
+    @p &quot;Content&quot;
+end
+
+# Or access them as values for dynamic rendering
+element = rand() &gt; 0.5 ? Elements.div : Elements.span
+@render @&lt;element &quot;Dynamic content&quot;</code></pre><p><strong>Available Elements</strong></p><p>All standard HTML5 elements are available, including:</p><ul><li>Document structure: <code>html</code>, <code>head</code>, <code>body</code>, <code>div</code>, <code>span</code></li><li>Text content: <code>p</code>, <code>h1</code>-<code>h6</code>, <code>blockquote</code>, <code>pre</code></li><li>Forms: <code>form</code>, <code>input</code>, <code>textarea</code>, <code>select</code>, <code>button</code></li><li>Media: <code>img</code>, <code>video</code>, <code>audio</code>, <code>canvas</code></li><li>Tables: <code>table</code>, <code>tr</code>, <code>td</code>, <code>th</code></li><li>And many more...</li></ul><p><strong>Special Behavior</strong></p><ul><li>The <code>@html</code> element automatically includes <code>&lt;!DOCTYPE html&gt;</code></li><li>Void elements (like <code>br</code>, <code>img</code>, <code>input</code>) are self-closing</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/da47c08839a98dd95adac904367e390ea230ea24/src/Elements.jl#L1-L36">source</a></section></details></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../markdown-integration/">« Markdown Integration</a><a class="docs-footer-nextpage" href="../api-library/">Library Components »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

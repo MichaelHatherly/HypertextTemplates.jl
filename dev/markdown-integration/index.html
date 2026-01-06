@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Markdown Integration · HypertextTemplates</title><meta name="title" content="Markdown Integration · HypertextTemplates"/><meta property="og:title" content="Markdown Integration · HypertextTemplates"/><meta property="twitter:title" content="Markdown Integration · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li class="is-active"><a class="tocitem" href>Markdown Integration</a><ul class="internal"><li><a class="tocitem" href="#Prerequisites"><span>Prerequisites</span></a></li><li><a class="tocitem" href="#Inline-Markdown-with-CommonMark"><span>Inline Markdown with CommonMark</span></a></li><li><a class="tocitem" href="#Markdown-File-Components"><span>Markdown File Components</span></a></li><li><a class="tocitem" href="#Live-Reloading-with-Revise.jl"><span>Live Reloading with Revise.jl</span></a></li><li><a class="tocitem" href="#Advanced-Markdown-Patterns"><span>Advanced Markdown Patterns</span></a></li><li><a class="tocitem" href="#CommonMark-Configuration"><span>CommonMark Configuration</span></a></li><li><a class="tocitem" href="#Best-Practices"><span>Best Practices</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Advanced</a></li><li class="is-active"><a href>Markdown Integration</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Markdown Integration</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/markdown-integration.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Markdown-Integration"><a class="docs-heading-anchor" href="#Markdown-Integration">Markdown Integration</a><a id="Markdown-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#Markdown-Integration" title="Permalink"></a></h1><p>HypertextTemplates.jl provides seamless integration with CommonMark.jl, allowing you to create components from Markdown files and mix Markdown content with your templates.</p><h2 id="Prerequisites"><a class="docs-heading-anchor" href="#Prerequisites">Prerequisites</a><a id="Prerequisites-1"></a><a class="docs-heading-anchor-permalink" href="#Prerequisites" title="Permalink"></a></h2><p>The Markdown integration features are provided through Julia&#39;s package extension system, which means they become available automatically when CommonMark.jl is present in your environment. This design keeps HypertextTemplates lightweight for users who don&#39;t need Markdown support while providing seamless integration for those who do. Simply adding CommonMark.jl to your project enables all the Markdown-related functionality described in this guide.</p><pre><code class="language-julia hljs">using Pkg
+Pkg.add(&quot;CommonMark&quot;)</code></pre><p>The integration is provided through Julia&#39;s package extension system, so features are automatically available when CommonMark.jl is loaded.</p><h2 id="Inline-Markdown-with-CommonMark"><a class="docs-heading-anchor" href="#Inline-Markdown-with-CommonMark">Inline Markdown with CommonMark</a><a id="Inline-Markdown-with-CommonMark-1"></a><a class="docs-heading-anchor-permalink" href="#Inline-Markdown-with-CommonMark" title="Permalink"></a></h2><h3 id="Basic-Usage"><a class="docs-heading-anchor" href="#Basic-Usage">Basic Usage</a><a id="Basic-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage" title="Permalink"></a></h3><p>CommonMark.jl&#39;s <code>cm</code> string macro allows you to embed Markdown content directly within your HypertextTemplates components. The macro processes the Markdown at compile time and converts it to HTML, which is then wrapped in a <code>SafeString</code> to preserve the formatting. This approach combines the simplicity of Markdown for content authoring with the power of HypertextTemplates for structure and interactivity, making it ideal for documentation sites, blogs, or any content-heavy application.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+using CommonMark
+
+@component function article_with_markdown()
+    @article {class = &quot;prose&quot;} begin
+        @text CommonMark.cm&quot;&quot;&quot;
+        # Markdown Heading
+        
+        This is a paragraph with **bold** and *italic* text.
+        
+        - List item 1
+        - List item 2
+        
+        &gt; A blockquote
+        
+        ```julia
+        # Code block
+        println(&quot;Hello from Markdown!&quot;)
+        ```
+        &quot;&quot;&quot;
+    end
+end
+
+# The Markdown is converted to HTML and rendered
+html = @render @article_with_markdown</code></pre><h3 id="Interpolation-in-Markdown"><a class="docs-heading-anchor" href="#Interpolation-in-Markdown">Interpolation in Markdown</a><a id="Interpolation-in-Markdown-1"></a><a class="docs-heading-anchor-permalink" href="#Interpolation-in-Markdown" title="Permalink"></a></h3><p>CommonMark.jl supports Julia interpolation:</p><pre><code class="language-julia hljs">@component function dynamic_markdown(; user_name, item_count)
+    @div {class = &quot;content&quot;} begin
+        @text CommonMark.cm&quot;&quot;&quot;
+        # Welcome, $(user_name)!
+        
+        You have **$(item_count)** items in your cart.
+        
+        $(item_count &gt; 0 ? &quot;Ready to checkout?&quot; : &quot;Start shopping!&quot;)
+        &quot;&quot;&quot;
+    end
+end
+
+@render @dynamic_markdown {user_name = &quot;Alice&quot;, item_count = 3}</code></pre><h2 id="Markdown-File-Components"><a class="docs-heading-anchor" href="#Markdown-File-Components">Markdown File Components</a><a id="Markdown-File-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Markdown-File-Components" title="Permalink"></a></h2><p>The <code>@cm_component</code> macro creates components from Markdown files.</p><h3 id="Basic-File-Component"><a class="docs-heading-anchor" href="#Basic-File-Component">Basic File Component</a><a id="Basic-File-Component-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-File-Component" title="Permalink"></a></h3><p>The <code>@cm_component</code> macro transforms Markdown files into reusable HypertextTemplates components. This powerful feature allows you to maintain content in Markdown format while seamlessly integrating it into your component-based architecture. The macro reads the specified Markdown file, processes it with CommonMark, and creates a component that can be used just like any other HypertextTemplates component. This is particularly useful for static content pages, documentation, or any scenario where non-technical users need to contribute content.</p><pre><code class="language-julia hljs"># Create a component from a Markdown file
+@cm_component about_page() = &quot;content/about.md&quot;
+@deftag macro about_page end
+
+# Use it like any other component
+@render @div {class = &quot;page&quot;} begin
+    @about_page
+end</code></pre><h3 id="Components-with-Props"><a class="docs-heading-anchor" href="#Components-with-Props">Components with Props</a><a id="Components-with-Props-1"></a><a class="docs-heading-anchor-permalink" href="#Components-with-Props" title="Permalink"></a></h3><p>Pass props to Markdown files for dynamic content:</p><pre><code class="language-julia hljs"># Define component with props
+@cm_component product_description(; name, price) = &quot;templates/product.md&quot;
+@deftag macro product_description end
+
+# product.md content:
+# # $(name)
+#
+# **Price:** $$(price)
+
+# Use the component
+@render @product_description {
+    name = &quot;Premium Widget&quot;,
+    price = 99.99,
+}</code></pre><h3 id="Organizing-Markdown-Components"><a class="docs-heading-anchor" href="#Organizing-Markdown-Components">Organizing Markdown Components</a><a id="Organizing-Markdown-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Organizing-Markdown-Components" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Use relative paths from your module
+@cm_component header() = joinpath(@__DIR__, &quot;partials&quot;, &quot;header.md&quot;)
+@cm_component footer() = joinpath(@__DIR__, &quot;partials&quot;, &quot;footer.md&quot;)
+
+# Or organize in a module
+module MarkdownComponents
+    using HypertextTemplates
+
+    # Define all Markdown components
+    @cm_component home() = &quot;content/home.md&quot;
+    @cm_component about() = &quot;content/about.md&quot;
+    @cm_component contact() = &quot;content/contact.md&quot;
+
+    # Export tags if you want to use without qualification
+    @deftag export macro home end
+    @deftag export macro about end
+    @deftag export macro contact end
+end
+
+# Use with module qualification
+@render @MarkdownComponents.home
+
+# Or if exported
+using .MarkdownComponents
+@render @home</code></pre><h2 id="Live-Reloading-with-Revise.jl"><a class="docs-heading-anchor" href="#Live-Reloading-with-Revise.jl">Live Reloading with Revise.jl</a><a id="Live-Reloading-with-Revise.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Live-Reloading-with-Revise.jl" title="Permalink"></a></h2><p>When Revise.jl is available, Markdown file components automatically reload when the file changes.</p><h3 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h3><pre><code class="language-julia hljs">using Revise
+using HypertextTemplates
+using CommonMark
+
+# Define a Markdown component
+@cm_component live_content() = &quot;content/live.md&quot;
+
+# Edit content/live.md in your editor
+# Changes are reflected immediately when you re-render
+@render @live_content</code></pre><h2 id="Advanced-Markdown-Patterns"><a class="docs-heading-anchor" href="#Advanced-Markdown-Patterns">Advanced Markdown Patterns</a><a id="Advanced-Markdown-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Markdown-Patterns" title="Permalink"></a></h2><h3 id="Markdown-Layout-Components"><a class="docs-heading-anchor" href="#Markdown-Layout-Components">Markdown Layout Components</a><a id="Markdown-Layout-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Markdown-Layout-Components" title="Permalink"></a></h3><p>Create layout components that accept Markdown content:</p><pre><code class="language-julia hljs">@component function markdown_layout(; title, markdown_file)
+    @html begin
+        @head begin
+            @title $title
+            @style &quot;&quot;&quot;
+            .prose { max-width: 65ch; margin: 0 auto; }
+            .prose h1 { color: #333; }
+            .prose code { background: #f4f4f4; padding: 0.2em; }
+            &quot;&quot;&quot;
+        end
+        @body begin
+            @div {class = &quot;prose&quot;} begin
+                @&lt;markdown_file
+            end
+        end
+    end
+end
+
+# Use with Markdown components
+@cm_component intro() = &quot;intro.md&quot;
+@render @markdown_layout {title = &quot;Introduction&quot;, markdown_file = intro}</code></pre><h3 id="Mixed-Content"><a class="docs-heading-anchor" href="#Mixed-Content">Mixed Content</a><a id="Mixed-Content-1"></a><a class="docs-heading-anchor-permalink" href="#Mixed-Content" title="Permalink"></a></h3><p>Combine Markdown with HTML components:</p><pre><code class="language-julia hljs">@component function blog_post(; meta, content_file)
+    @article begin
+        @header begin
+            @h1 $meta.title
+            @p {class = &quot;meta&quot;} begin
+                &quot;By &quot; @strong $meta.author &quot; on &quot; @time $meta.date
+            end
+        end
+
+        @div {class = &quot;content prose&quot;} begin
+            @&lt;content_file  # Markdown component
+        end
+
+        @footer begin
+            @nav begin
+                if !isnothing(meta.prev)
+                    @a {href = meta.prev.url} &quot;← &quot; $meta.prev.title
+                end
+                if !isnothing(meta.next)
+                    @a {href = meta.next.url} $meta.next.title &quot; →&quot;
+                end
+            end
+        end
+    end
+end</code></pre><h3 id="Dynamic-Markdown-Loading"><a class="docs-heading-anchor" href="#Dynamic-Markdown-Loading">Dynamic Markdown Loading</a><a id="Dynamic-Markdown-Loading-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamic-Markdown-Loading" title="Permalink"></a></h3><p>Load Markdown content dynamically:</p><pre><code class="language-julia hljs">@component function dynamic_docs(; path)
+    # Validate path for security
+    safe_path = validate_doc_path(path)
+
+    if isfile(safe_path)
+        # Read and render Markdown
+        content = read(safe_path, String)
+        html = CommonMark.html(content)
+        @div {class = &quot;documentation&quot;} $(SafeString(html))
+    else
+        @div {class = &quot;error&quot;} begin
+            @h1 &quot;404 - Page Not Found&quot;
+            @p &quot;The requested documentation page does not exist.&quot;
+        end
+    end
+end
+
+function validate_doc_path(path)
+    # Security: Ensure path is within docs directory
+    cleaned = normpath(joinpath(&quot;docs&quot;, path))
+    if startswith(cleaned, &quot;docs/&quot;) &amp;&amp; endswith(cleaned, &quot;.md&quot;)
+        return cleaned
+    else
+        return &quot;&quot;
+    end
+end</code></pre><h2 id="CommonMark-Configuration"><a class="docs-heading-anchor" href="#CommonMark-Configuration">CommonMark Configuration</a><a id="CommonMark-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#CommonMark-Configuration" title="Permalink"></a></h2><h3 id="Custom-Rendering"><a class="docs-heading-anchor" href="#Custom-Rendering">Custom Rendering</a><a id="Custom-Rendering-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Rendering" title="Permalink"></a></h3><p>Configure CommonMark parsing and rendering:</p><pre><code class="language-julia hljs">using CommonMark
+
+# Create custom parser with extensions
+parser = Parser()
+enable!(parser, DollarMathRule())
+enable!(parser, TableRule())
+enable!(parser, FootnoteRule())
+
+@component function enhanced_markdown(; content)
+    # Parse with custom settings
+    ast = parser(content)
+
+    # Render to HTML
+    html = html(ast)
+
+    @div {class = &quot;enhanced-content&quot;} $(SafeString(html))
+end</code></pre><h2 id="Best-Practices"><a class="docs-heading-anchor" href="#Best-Practices">Best Practices</a><a id="Best-Practices-1"></a><a class="docs-heading-anchor-permalink" href="#Best-Practices" title="Permalink"></a></h2><h3 id="1.-File-Organization"><a class="docs-heading-anchor" href="#1.-File-Organization">1. File Organization</a><a id="1.-File-Organization-1"></a><a class="docs-heading-anchor-permalink" href="#1.-File-Organization" title="Permalink"></a></h3><p>Structure your Markdown files logically:</p><pre><code class="nohighlight hljs">project/
+├── src/
+│   └── components.jl
+├── content/
+│   ├── pages/
+│   │   ├── home.md
+│   │   └── about.md
+│   ├── blog/
+│   │   └── posts/
+│   └── docs/
+│       ├── getting-started.md
+│       └── api-reference.md</code></pre><h3 id="2.-Props-Documentation"><a class="docs-heading-anchor" href="#2.-Props-Documentation">2. Props Documentation</a><a id="2.-Props-Documentation-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Props-Documentation" title="Permalink"></a></h3><p>Document props in your Markdown files:</p><pre><code class="language-markdown hljs">&lt;!-- product-template.md --&gt;
+&lt;!-- Props: name (String), price (Float64), description (String) --&gt;
+
+# $(name)
+
+**Price:** $$(price)
+
+$(description)</code></pre><h3 id="3.-Performance"><a class="docs-heading-anchor" href="#3.-Performance">3. Performance</a><a id="3.-Performance-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Performance" title="Permalink"></a></h3><p>Cache parsed Markdown for frequently accessed content:</p><pre><code class="language-julia hljs">const MARKDOWN_CACHE = Dict{String, String}()
+
+@component function cached_markdown(; file)
+    html = get!(MARKDOWN_CACHE, file) do
+        content = read(file, String)
+        CommonMark.html(content)
+    end
+
+    @div {class = &quot;cached-content&quot;} $(SafeString(html))
+end</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>Markdown integration in HypertextTemplates.jl provides:</p><ul><li><strong>Inline Markdown</strong> with the CommonMark.jl <code>cm</code> string macro</li><li><strong>File-based components</strong> with <code>@cm_component</code></li><li><strong>Full interpolation</strong> support in Markdown content</li><li><strong>Live reloading</strong> with Revise.jl integration</li></ul><p>This integration makes it easy to build content-heavy sites while maintaining the full power of HypertextTemplates.jl&#39;s component system.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../advanced-features/">« Advanced Features</a><a class="docs-footer-nextpage" href="../api-public/">Public API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

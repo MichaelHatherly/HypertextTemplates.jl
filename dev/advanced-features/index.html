@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Advanced Features · HypertextTemplates</title><meta name="title" content="Advanced Features · HypertextTemplates"/><meta property="og:title" content="Advanced Features · HypertextTemplates"/><meta property="twitter:title" content="Advanced Features · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li><a class="tocitem" href="../rendering/">Rendering &amp; Performance</a></li><li><a class="tocitem" href="../library-components/">Library Components</a></li></ul></li><li><span class="tocitem">Advanced</span><ul><li class="is-active"><a class="tocitem" href>Advanced Features</a><ul class="internal"><li><a class="tocitem" href="#The-@__once__-Macro"><span>The <code>@__once__</code> Macro</span></a></li><li><a class="tocitem" href="#The-@deftag-Macro"><span>The <code>@deftag</code> Macro</span></a></li><li><a class="tocitem" href="#Text-Interpolation-with"><span>Text Interpolation with <code>$</code></span></a></li><li><a class="tocitem" href="#Dynamic-Component-Selection"><span>Dynamic Component Selection</span></a></li><li><a class="tocitem" href="#Advanced-Patterns"><span>Advanced Patterns</span></a></li><li><a class="tocitem" href="#Best-Practices"><span>Best Practices</span></a></li><li><a class="tocitem" href="#Context-System"><span>Context System</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../api-public/">Public API</a></li><li><a class="tocitem" href="../api-library/">Library Components</a></li><li><a class="tocitem" href="../api-internal/">Internal API</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Advanced</a></li><li class="is-active"><a href>Advanced Features</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Advanced Features</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/advanced-features.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Advanced-Features"><a class="docs-heading-anchor" href="#Advanced-Features">Advanced Features</a><a id="Advanced-Features-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Features" title="Permalink"></a></h1><p>This guide covers advanced features in HypertextTemplates.jl that enable sophisticated template patterns and optimizations.</p><h2 id="The-@__once__-Macro"><a class="docs-heading-anchor" href="#The-@__once__-Macro">The <code>@__once__</code> Macro</a><a id="The-@__once__-Macro-1"></a><a class="docs-heading-anchor-permalink" href="#The-@__once__-Macro" title="Permalink"></a></h2><p>The <code>@__once__</code> macro ensures content is rendered only once per <code>@render</code> call, even if the component is used multiple times.</p><h3 id="Basic-Usage"><a class="docs-heading-anchor" href="#Basic-Usage">Basic Usage</a><a id="Basic-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage" title="Permalink"></a></h3><p>The <code>@__once__</code> macro is a powerful deduplication tool that ensures specific content (like CSS styles, JavaScript libraries, or initialization code) is only rendered once within a single <code>@render</code> call, even if the component containing it is used multiple times. This is essential for preventing duplicate script tags, style definitions, or other resources that should only appear once in your HTML output. The macro tracks what has been rendered and automatically skips subsequent occurrences within the same rendering context.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function include_jquery()
+    @__once__ begin
+        @script {src = &quot;https://code.jquery.com/jquery-3.6.0.min.js&quot;}
+    end
+end
+
+@deftag macro include_jquery end
+
+# The script tag appears only once in the output
+html = @render @div begin
+    @include_jquery  # Renders script
+    @include_jquery  # Skips script (already rendered)
+    @include_jquery  # Skips script (already rendered)
+end
+
+# Note: Only one script tag appears!</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;&lt;script src&#61;&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot;&gt;&lt;/script&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Common-Use-Cases"><a class="docs-heading-anchor" href="#Common-Use-Cases">Common Use Cases</a><a id="Common-Use-Cases-1"></a><a class="docs-heading-anchor-permalink" href="#Common-Use-Cases" title="Permalink"></a></h3><h4 id="CSS-Dependencies"><a class="docs-heading-anchor" href="#CSS-Dependencies">CSS Dependencies</a><a id="CSS-Dependencies-1"></a><a class="docs-heading-anchor-permalink" href="#CSS-Dependencies" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function styled_button(; text, variant = &quot;primary&quot;)
+    @__once__ begin
+        @style &quot;&quot;&quot;
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        &quot;&quot;&quot;
+    end
+
+    @button {class = &quot;btn btn-$variant&quot;} $text
+end
+
+@deftag macro styled_button end
+
+# Style block rendered once, buttons rendered multiple times
+html = @render @div begin
+    @styled_button {text = &quot;Save&quot;, variant = &quot;primary&quot;}
+    @styled_button {text = &quot;Delete&quot;, variant = &quot;danger&quot;}
+    @styled_button {text = &quot;Cancel&quot;}
+end
+# Note: The &lt;style&gt; block appears only once at the beginning!</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;style&gt;
+    .btn &#123;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    &#125;
+    .btn-primary &#123;
+      background: #007bff;
+      color: white;
+    &#125;
+    .btn-danger &#123;
+      background: #dc3545;
+      color: white;
+    &#125;
+  &lt;/style&gt;
+  &lt;button class&#61;&quot;btn btn-primary&quot;&gt;Save&lt;/button&gt;
+  &lt;button class&#61;&quot;btn btn-danger&quot;&gt;Delete&lt;/button&gt;
+  &lt;button class&#61;&quot;btn btn-primary&quot;&gt;Cancel&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h4 id="JavaScript-Initialization"><a class="docs-heading-anchor" href="#JavaScript-Initialization">JavaScript Initialization</a><a id="JavaScript-Initialization-1"></a><a class="docs-heading-anchor-permalink" href="#JavaScript-Initialization" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function data_table(; id, data)
+    @__once__ begin
+        @script &quot;&quot;&quot;
+        function initDataTable(id) {
+            // Initialize table sorting, filtering, etc.
+            console.log(&#39;Initializing table:&#39;, id);
+        }
+        &quot;&quot;&quot;
+    end
+
+    @table {id} begin
+        @thead @tr begin
+            @th &quot;Name&quot;
+            @th &quot;Value&quot;
+        end
+        @tbody begin
+            for item in data
+                @tr begin
+                    @td $(item.name)
+                    @td $(item.value)
+                end
+            end
+        end
+    end
+
+    @script &quot;initDataTable(&#39;$id&#39;);&quot;
+end
+
+@deftag macro data_table end
+
+# Multiple tables, but init function defined once
+data1 = [(name = &quot;A&quot;, value = 1), (name = &quot;B&quot;, value = 2)]
+data2 = [(name = &quot;X&quot;, value = 10), (name = &quot;Y&quot;, value = 20)]
+
+html = @render @div begin
+    @data_table {id = &quot;table1&quot;, data = data1}
+    @data_table {id = &quot;table2&quot;, data = data2}
+end
+
+# Note: initDataTable function defined once, but called twice</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;script&gt;
+    function initDataTable&#40;id&#41; &#123;
+    // Initialize table sorting, filtering, etc.
+    console.log&#40;&quot;Initializing table:&quot;, id&#41;;
+  &#125;
+  &lt;/script&gt;
+  &lt;table id&#61;&quot;table1&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;A&lt;/td&gt;
+        &lt;td&gt;1&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;B&lt;/td&gt;
+        &lt;td&gt;2&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+  &lt;script&gt;
+    initDataTable&#40;&quot;table1&quot;&#41;;
+  &lt;/script&gt;
+  &lt;table id&#61;&quot;table2&quot;&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;X&lt;/td&gt;
+        &lt;td&gt;10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Y&lt;/td&gt;
+        &lt;td&gt;20&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+  &lt;script&gt;
+    initDataTable&#40;&quot;table2&quot;&#41;;
+  &lt;/script&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Scoping-Behavior"><a class="docs-heading-anchor" href="#Scoping-Behavior">Scoping Behavior</a><a id="Scoping-Behavior-1"></a><a class="docs-heading-anchor-permalink" href="#Scoping-Behavior" title="Permalink"></a></h3><p><code>@__once__</code> is scoped to the current render context:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function scoped_script()
+    @__once__ begin
+        @script &quot;console.log(&#39;Script loaded&#39;);&quot;
+    end
+    @p &quot;Component rendered&quot;
+end
+
+@deftag macro scoped_script end
+
+# First render - includes script
+html1 = @render @div begin
+    @scoped_script
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;script&gt;
+    console.log&#40;&quot;Script loaded&quot;&#41;;
+  &lt;/script&gt;
+  &lt;p&gt;Component rendered&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Second render - includes script again (different render context)
+html2 = @render @div begin
+    @scoped_script
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;script&gt;
+    console.log&#40;&quot;Script loaded&quot;&#41;;
+  &lt;/script&gt;
+  &lt;p&gt;Component rendered&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Within same render - deduplication works
+html3 = @render @div begin
+    @section @scoped_script  # Included
+    @section @scoped_script  # Skipped
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;section&gt;
+    &lt;script&gt;
+      console.log&#40;&quot;Script loaded&quot;&#41;;
+    &lt;/script&gt;
+    &lt;p&gt;Component rendered&lt;/p&gt;
+  &lt;/section&gt;
+  &lt;section&gt;&lt;p&gt;Component rendered&lt;/p&gt;&lt;/section&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="The-@deftag-Macro"><a class="docs-heading-anchor" href="#The-@deftag-Macro">The <code>@deftag</code> Macro</a><a id="The-@deftag-Macro-1"></a><a class="docs-heading-anchor-permalink" href="#The-@deftag-Macro" title="Permalink"></a></h2><p>Create custom macros for components and elements for cleaner syntax.</p><h3 id="Basic-Definition"><a class="docs-heading-anchor" href="#Basic-Definition">Basic Definition</a><a id="Basic-Definition-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Definition" title="Permalink"></a></h3><p>The <code>@deftag</code> macro transforms your components and custom elements into first-class DSL elements that can be used with the same clean syntax as built-in HTML elements. Instead of calling components as functions, <code>@deftag</code> creates a macro that integrates seamlessly with the template syntax, supporting attributes in <code>{}</code> blocks and content blocks just like <code>@div</code> or <code>@p</code>. This makes your custom components feel native to the templating language and improves code readability.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define a component
+@component function alert(; type = &quot;info&quot;, dismissible = false)
+    @div {class = &quot;alert alert-$type&quot;} begin
+        @__slot__
+        if dismissible
+            @button {class = &quot;close&quot;} &quot;×&quot;
+        end
+    end
+end
+
+# Create a macro for it
+@deftag macro alert end
+
+# Now use as a regular element macro
+html = @render @alert {type = &quot;warning&quot;, dismissible = true} begin
+    @strong &quot;Warning!&quot; &quot; Something went wrong.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-warning&quot;&gt;
+  &lt;strong&gt;Warning&#33; Something went wrong.&lt;/strong&gt;&lt;button class&#61;&quot;close&quot;&gt;
+    ×
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Also works without dismissible
+html2 = @render @alert {type = &quot;info&quot;} &quot;This is an info message.&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;alert alert-info&quot;&gt;This is an info message.&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Custom-Element-Tags"><a class="docs-heading-anchor" href="#Custom-Element-Tags">Custom Element Tags</a><a id="Custom-Element-Tags-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Element-Tags" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define custom elements with macros
+@element &quot;my-custom-element&quot; my_custom_element
+@deftag macro my_custom_element end
+
+# Use the custom element
+html = @render @my_custom_element {prop = &quot;value&quot;} &quot;Content&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;my-custom-element prop&#61;&quot;value&quot;&gt;Content&lt;/my-custom-element&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Also works with nested content
+@element &quot;custom-card&quot; custom_card
+@deftag macro custom_card end
+
+html2 = @render @custom_card {variant = &quot;primary&quot;} begin
+    @h3 &quot;Card Title&quot;
+    @p &quot;Card content goes here&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;custom-card variant&#61;&quot;primary&quot;&gt;&lt;h3&gt;Card Title&lt;/h3&gt;&lt;p&gt;
+    Card content goes here
+  &lt;/p&gt;&lt;/custom-card&gt;</code></pre>
+<hr />
+</div><h3 id="Module-Scoped-Tags"><a class="docs-heading-anchor" href="#Module-Scoped-Tags">Module-Scoped Tags</a><a id="Module-Scoped-Tags-1"></a><a class="docs-heading-anchor-permalink" href="#Module-Scoped-Tags" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+module UI
+    using HypertextTemplates
+    using HypertextTemplates.Elements
+
+    @component function button(; variant = &quot;default&quot;)
+        Elements.@button {class = &quot;ui-btn ui-btn-$variant&quot;} @__slot__
+    end
+
+    # Create and export the macro
+    @deftag macro button end
+    export @button
+end
+
+# Use from outside the module
+html = @render @UI.button {variant = &quot;primary&quot;} &quot;Click me&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;ui-btn ui-btn-primary&quot;&gt;Click me&lt;/button&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Also can import and use directly
+using .UI: @button
+html2 = @render @button {variant = &quot;success&quot;} &quot;Save&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;button class&#61;&quot;ui-btn ui-btn-success&quot;&gt;Save&lt;/button&gt;</code></pre>
+<hr />
+</div><h2 id="Text-Interpolation-with"><a class="docs-heading-anchor" href="#Text-Interpolation-with">Text Interpolation with <code>$</code></a><a id="Text-Interpolation-with-1"></a><a class="docs-heading-anchor-permalink" href="#Text-Interpolation-with" title="Permalink"></a></h2><p>The <code>$</code> syntax provides convenient text interpolation, similar to string interpolation.</p><h3 id="Basic-Interpolation"><a class="docs-heading-anchor" href="#Basic-Interpolation">Basic Interpolation</a><a id="Basic-Interpolation-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Interpolation" title="Permalink"></a></h3><p>Text interpolation with <code>$</code> provides a concise way to embed dynamic values directly within your templates, eliminating the need for explicit <code>@text</code> calls. This syntax works just like Julia&#39;s string interpolation but is HTML-aware, automatically escaping values for security. You can interpolate variables, expressions, and even complex computations, making your templates more readable and maintainable while maintaining the same performance and safety guarantees as explicit text nodes.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+name = &quot;Julia&quot;
+version = 1.9
+
+html = @render @div begin
+    @h1 &quot;Welcome to &quot; $name &quot; v&quot; $version
+end
+# Equivalent to:
+# @h1 &quot;Welcome to &quot; @text name &quot; v&quot; @text version</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;&lt;h1&gt;Welcome to Julia v1.9&lt;/h1&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Expression-Interpolation"><a class="docs-heading-anchor" href="#Expression-Interpolation">Expression Interpolation</a><a id="Expression-Interpolation-1"></a><a class="docs-heading-anchor-permalink" href="#Expression-Interpolation" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+items = [&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;]
+
+html = @render @ul begin
+    for (i, item) in enumerate(items)
+        @li &quot;Item &quot; $i &quot;: &quot; $(uppercase(item))
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Item 1: APPLE&lt;/li&gt;
+  &lt;li&gt;Item 2: BANANA&lt;/li&gt;
+  &lt;li&gt;Item 3: CHERRY&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><h3 id="Nested-Interpolation"><a class="docs-heading-anchor" href="#Nested-Interpolation">Nested Interpolation</a><a id="Nested-Interpolation-1"></a><a class="docs-heading-anchor-permalink" href="#Nested-Interpolation" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function price_display(; amount, currency = &quot;\$&quot;)
+    @span {class = &quot;price&quot;} $currency $(round(amount, digits=2))
+end
+
+@deftag macro price_display end
+
+html = @render @div begin
+    @text &quot;Total: &quot;
+    @price_display {amount = 99.999}
+    @text &quot; (Tax included: &quot;
+    @price_display {amount = 99.999 * 1.1} &quot;)&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  Total: &lt;span class&#61;&quot;price&quot;&gt;&#36;100.0&lt;/span&gt; &#40;Tax included: &lt;span class&#61;&quot;price&quot;
+  &gt;&#36;110.0&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Dynamic-Component-Selection"><a class="docs-heading-anchor" href="#Dynamic-Component-Selection">Dynamic Component Selection</a><a id="Dynamic-Component-Selection-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamic-Component-Selection" title="Permalink"></a></h2><p>The <code>@&lt;</code> macro enables dynamic component rendering.</p><h3 id="Component-as-Variable"><a class="docs-heading-anchor" href="#Component-as-Variable">Component as Variable</a><a id="Component-as-Variable-1"></a><a class="docs-heading-anchor-permalink" href="#Component-as-Variable" title="Permalink"></a></h3><p>The <code>@&lt;</code> macro enables dynamic component selection at runtime, allowing you to choose which component to render based on data or conditions. This pattern is essential for building flexible UIs where the component type needs to be determined programmatically - such as rendering different message types, form fields, or content blocks based on configuration. The syntax <code>@&lt;component_var {props}</code> treats the component as a first-class value that can be stored in variables, passed as arguments, or selected from dictionaries.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define the specific components first
+@component function error_message(; content)
+    @div {class = &quot;error&quot;} @strong &quot;Error: &quot; $content
+end
+
+@component function warning_message(; content)
+    @div {class = &quot;warning&quot;} @strong &quot;Warning: &quot; $content
+end
+
+@component function info_message(; content)
+    @div {class = &quot;info&quot;} @strong &quot;Info: &quot; $content
+end
+
+# Select component based on condition
+@component function message(; type, content)
+    component = if type == &quot;error&quot;
+        error_message
+    elseif type == &quot;warning&quot;
+        warning_message
+    else
+        info_message
+    end
+
+    @&lt;component {content}
+end
+
+@deftag macro message end
+
+# Usage
+html = @render @div begin
+    @message {type = &quot;error&quot;, content = &quot;File not found&quot;}
+    @message {type = &quot;warning&quot;, content = &quot;Disk space low&quot;}
+    @message {type = &quot;info&quot;, content = &quot;Process completed&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;div class&#61;&quot;error&quot;&gt;&lt;strong&gt;Error: File not found&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;warning&quot;&gt;&lt;strong&gt;Warning: Disk space low&lt;/strong&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;info&quot;&gt;&lt;strong&gt;Info: Process completed&lt;/strong&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Polymorphic-Components"><a class="docs-heading-anchor" href="#Polymorphic-Components">Polymorphic Components</a><a id="Polymorphic-Components-1"></a><a class="docs-heading-anchor-permalink" href="#Polymorphic-Components" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function flexible_container(; tag = div, class_name = &quot;container&quot;)
+    @&lt;tag {class = class_name} begin
+        @__slot__
+    end
+end
+
+@deftag macro flexible_container end
+
+# Use with different HTML elements
+html1 = @render @flexible_container {tag = section} begin
+    @h1 &quot;Section Title&quot;
+    @p &quot;Section content&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;section class&#61;&quot;container&quot;&gt;
+  &lt;h1&gt;Section Title&lt;/h1&gt;
+  &lt;p&gt;Section content&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">html2 = @render @flexible_container {tag = article, class_name = &quot;article-container&quot;} begin
+    @h2 &quot;Article Title&quot;
+    @p &quot;Article content&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;article class&#61;&quot;article-container&quot;&gt;
+  &lt;h2&gt;Article Title&lt;/h2&gt;
+  &lt;p&gt;Article content&lt;/p&gt;
+&lt;/article&gt;</code></pre>
+<hr />
+</div><h3 id="Component-Maps"><a class="docs-heading-anchor" href="#Component-Maps">Component Maps</a><a id="Component-Maps-1"></a><a class="docs-heading-anchor-permalink" href="#Component-Maps" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define field components
+@component function text_field(; name, options = nothing)
+    @input {type = &quot;text&quot;, name, id = name}
+end
+
+@component function email_field(; name, options = nothing)
+    @input {type = &quot;email&quot;, name, id = name}
+end
+
+@component function select_field(; name, options = [])
+    @select {name, id = name} begin
+        for opt in options
+            @option {value = opt.value} $(opt.label)
+        end
+    end
+end
+
+# Map of field types to components
+const FIELD_COMPONENTS = Dict(
+    :text =&gt; text_field,
+    :email =&gt; email_field,
+    :select =&gt; select_field
+)
+
+@component function form_field(; type, name, label, options = nothing)
+    component = get(FIELD_COMPONENTS, type, text_field)
+
+    @div {class = &quot;form-field&quot;} begin
+        Elements.@label {&quot;for&quot; := name} $label
+        @&lt;component {name, options}
+    end
+end
+
+@deftag macro form_field end
+
+# Usage examples
+html = @render @form begin
+    @form_field {type = :text, name = &quot;username&quot;, label = &quot;Username:&quot;}
+    @form_field {type = :email, name = &quot;email&quot;, label = &quot;Email:&quot;}
+    @form_field {
+        type = :select,
+        name = &quot;country&quot;,
+        label = &quot;Country:&quot;,
+        options = [
+            (value = &quot;us&quot;, label = &quot;United States&quot;),
+            (value = &quot;uk&quot;, label = &quot;United Kingdom&quot;),
+            (value = &quot;ca&quot;, label = &quot;Canada&quot;)
+        ]
+    }
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;form&gt;
+  &lt;div class&#61;&quot;form-field&quot;&gt;
+    &lt;label for&#61;&quot;username&quot;&gt;Username:&lt;/label&gt;&lt;input
+      type&#61;&quot;text&quot;
+      name&#61;&quot;username&quot;
+      id&#61;&quot;username&quot;
+    &gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;form-field&quot;&gt;
+    &lt;label for&#61;&quot;email&quot;&gt;Email:&lt;/label&gt;&lt;input
+      type&#61;&quot;email&quot;
+      name&#61;&quot;email&quot;
+      id&#61;&quot;email&quot;
+    &gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;form-field&quot;&gt;
+    &lt;label for&#61;&quot;country&quot;&gt;Country:&lt;/label&gt;&lt;select name&#61;&quot;country&quot; id&#61;&quot;country&quot;&gt;
+      &lt;option value&#61;&quot;us&quot;&gt;United States&lt;/option&gt;
+      &lt;option value&#61;&quot;uk&quot;&gt;United Kingdom&lt;/option&gt;
+      &lt;option value&#61;&quot;ca&quot;&gt;Canada&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+<hr />
+</div><h2 id="Advanced-Patterns"><a class="docs-heading-anchor" href="#Advanced-Patterns">Advanced Patterns</a><a id="Advanced-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Patterns" title="Permalink"></a></h2><h3 id="Memoization"><a class="docs-heading-anchor" href="#Memoization">Memoization</a><a id="Memoization-1"></a><a class="docs-heading-anchor-permalink" href="#Memoization" title="Permalink"></a></h3><p>Cache expensive computations:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+const COMPUTED_CACHE = Dict{Any,Any}()
+
+@component function memoized(; key, compute)
+    value = get!(COMPUTED_CACHE, key) do
+        compute()
+    end
+
+    @div {class = &quot;memoized&quot;} $value
+end
+
+@deftag macro memoized end
+
+# Simulate expensive calculation
+function expensive_calculation(id)
+    println(&quot;Computing for id=$id...&quot;)
+    return &quot;Result for $id&quot;
+end
+
+# First call computes
+html1 = @render @memoized {
+    key = &quot;expensive-42&quot;,
+    compute = () -&gt; expensive_calculation(42)
+}
+println(&quot;First render: &quot;, html1)
+
+# Second call uses cache (no &quot;Computing...&quot; message)
+html2 = @render @memoized {
+    key = &quot;expensive-42&quot;,
+    compute = () -&gt; expensive_calculation(42)
+}
+println(&quot;Second render (cached): &quot;, html2)
+
+# Different key computes again
+html3 = @render @memoized {
+    key = &quot;expensive-99&quot;,
+    compute = () -&gt; expensive_calculation(99)
+}
+println(&quot;Different key: &quot;, html3)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Computing for id=42...
+First render: &lt;div class=&quot;memoized&quot;&gt;Result for 42&lt;/div&gt;
+Second render (cached): &lt;div class=&quot;memoized&quot;&gt;Result for 42&lt;/div&gt;
+Computing for id=99...
+Different key: &lt;div class=&quot;memoized&quot;&gt;Result for 99&lt;/div&gt;</code></pre><h3 id="Render-Props-Pattern"><a class="docs-heading-anchor" href="#Render-Props-Pattern">Render Props Pattern</a><a id="Render-Props-Pattern-1"></a><a class="docs-heading-anchor-permalink" href="#Render-Props-Pattern" title="Permalink"></a></h3><p>Pass rendering functions as props:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Simulate data fetching
+function fetch_data(url)
+    if url == &quot;/api/users&quot;
+        # Simulate successful fetch
+        data = [(name = &quot;Alice&quot;,), (name = &quot;Bob&quot;,), (name = &quot;Charlie&quot;,)]
+        return (data = data, error = nothing, loading = false)
+    elseif url == &quot;/api/error&quot;
+        return (data = nothing, error = &quot;Network error&quot;, loading = false)
+    else
+        return (data = nothing, error = nothing, loading = true)
+    end
+end
+
+@component function data_fetcher(; url, render_loading, render_error, render_success)
+    result = fetch_data(url)
+
+    if result.loading
+        @&lt;render_loading
+    elseif !isnothing(result.error)
+        @&lt;render_error {error = result.error}
+    else
+        @&lt;render_success {data = result.data}
+    end
+end
+
+@deftag macro data_fetcher end
+
+# Define render components
+@component function loading_comp()
+    @p {class = &quot;loading&quot;} &quot;Loading...&quot;
+end
+@component function error_comp(; error)
+    @p {class = &quot;error&quot;} &quot;Error: &quot; $error
+end
+@component function success_comp(; data)
+    @ul begin
+        for user in data
+            @li $(user.name)
+        end
+    end
+end
+
+# Success case
+println(&quot;Success case:&quot;)
+html1 = @render @data_fetcher {
+    url = &quot;/api/users&quot;,
+    render_loading = loading_comp,
+    render_error = error_comp,
+    render_success = success_comp
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Alice&lt;/li&gt;
+  &lt;li&gt;Bob&lt;/li&gt;
+  &lt;li&gt;Charlie&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Error case
+println(&quot;\nError case:&quot;)
+html2 = @render @data_fetcher {
+    url = &quot;/api/error&quot;,
+    render_loading = loading_comp,
+    render_error = error_comp,
+    render_success = success_comp
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p class&#61;&quot;error&quot;&gt;Error: Network error&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="Template-Inheritance"><a class="docs-heading-anchor" href="#Template-Inheritance">Template Inheritance</a><a id="Template-Inheritance-1"></a><a class="docs-heading-anchor-permalink" href="#Template-Inheritance" title="Permalink"></a></h3><p>Build template inheritance systems:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function base_layout(; title = &quot;Default Title&quot;)
+    @html begin
+        @head begin
+            @title $title
+            @__slot__ head  # Additional head content
+        end
+        @body begin
+            @header @__slot__ header
+            Elements.@main @__slot__     # Default slot for main content
+            @footer @__slot__ footer
+        end
+    end
+end
+
+@deftag macro base_layout end
+
+@component function blog_layout(; post)
+    @base_layout {title = post.title} begin
+        # Main content
+        @article begin
+            @h1 $(post.title)
+            @div {class = &quot;content&quot;} $(SafeString(post.html))
+        end
+
+        # Named slots
+        head := @meta {name = &quot;author&quot;, content = post.author}
+
+        header := @nav @a {href = &quot;/blog&quot;} &quot;← Back to Blog&quot;
+
+        footer := @p &quot;Published: &quot; $(post.date)
+    end
+end
+
+@deftag macro blog_layout end
+
+# Example blog post
+post = (
+    title = &quot;Understanding Julia Macros&quot;,
+    author = &quot;Jane Developer&quot;,
+    date = &quot;2024-01-15&quot;,
+    html = &quot;&lt;p&gt;Julia macros are powerful metaprogramming tools...&lt;/p&gt;&quot;
+)
+
+html = @render @blog_layout {post}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;&#33;DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Understanding Julia Macros&lt;/title&gt;
+    &lt;meta name&#61;&quot;author&quot; content&#61;&quot;Jane Developer&quot;&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;header&gt;&lt;nav&gt;&lt;a href&#61;&quot;/blog&quot;&gt;← Back to Blog&lt;/a&gt;&lt;/nav&gt;&lt;/header&gt;
+    &lt;main&gt;
+      &lt;article&gt;
+        &lt;h1&gt;Understanding Julia Macros&lt;/h1&gt;
+        &lt;div class&#61;&quot;content&quot;&gt;
+          &lt;p&gt;Julia macros are powerful metaprogramming tools...&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/main&gt;
+    &lt;footer&gt;&lt;p&gt;Published: 2024-01-15&lt;/p&gt;&lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<hr />
+</div><h3 id="Lazy-Loading-Pattern"><a class="docs-heading-anchor" href="#Lazy-Loading-Pattern">Lazy Loading Pattern</a><a id="Lazy-Loading-Pattern-1"></a><a class="docs-heading-anchor-permalink" href="#Lazy-Loading-Pattern" title="Permalink"></a></h3><p>Load data on-demand during rendering:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+const DATA_CACHE = Dict{Any,Any}()
+
+# Simulate database fetch
+function fetch_users_from_db()
+    println(&quot;Fetching from database...&quot;)
+    return [
+        (name = &quot;Alice&quot;, id = 1),
+        (name = &quot;Bob&quot;, id = 2),
+        (name = &quot;Charlie&quot;, id = 3)
+    ]
+end
+
+@component function lazy_data(; data_loader, cache_key = nothing)
+    # Load data during render (blocking)
+    data = if !isnothing(cache_key) &amp;&amp; haskey(DATA_CACHE, cache_key)
+        println(&quot;Using cached data for key: $cache_key&quot;)
+        DATA_CACHE[cache_key]
+    else
+        result = data_loader()
+        if !isnothing(cache_key)
+            DATA_CACHE[cache_key] = result
+        end
+        result
+    end
+
+    @div {class = &quot;data-container&quot;} begin
+        if isempty(data)
+            @p {class = &quot;empty&quot;} &quot;No data available&quot;
+        else
+            @ul begin
+                for item in data
+                    @li &quot;$(item.name) (ID: $(item.id))&quot;
+                end
+            end
+        end
+    end
+end
+
+@deftag macro lazy_data end
+
+# First render - fetches data
+println(&quot;First render:&quot;)
+html1 = @render @lazy_data {
+    cache_key = &quot;users&quot;,
+    data_loader = () -&gt; fetch_users_from_db()
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;data-container&quot;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Alice &#40;ID: 1&#41;&lt;/li&gt;
+    &lt;li&gt;Bob &#40;ID: 2&#41;&lt;/li&gt;
+    &lt;li&gt;Charlie &#40;ID: 3&#41;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Second render - uses cache
+println(&quot;\nSecond render:&quot;)
+html2 = @render @lazy_data {
+    cache_key = &quot;users&quot;,
+    data_loader = () -&gt; fetch_users_from_db()
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;data-container&quot;&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Alice &#40;ID: 1&#41;&lt;/li&gt;
+    &lt;li&gt;Bob &#40;ID: 2&#41;&lt;/li&gt;
+    &lt;li&gt;Charlie &#40;ID: 3&#41;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Best-Practices"><a class="docs-heading-anchor" href="#Best-Practices">Best Practices</a><a id="Best-Practices-1"></a><a class="docs-heading-anchor-permalink" href="#Best-Practices" title="Permalink"></a></h2><ol><li><strong>Use <code>@__once__</code> for dependencies</strong> - Include CSS/JS dependencies once</li><li><strong>Create domain-specific tags</strong> - Use <code>@deftag</code> for common patterns</li><li><strong>Leverage <code>$</code> interpolation</strong> - Cleaner than multiple <code>@text</code> calls</li><li><strong>Cache expensive operations</strong> - Use memoization for complex computations</li></ol><h2 id="Context-System"><a class="docs-heading-anchor" href="#Context-System">Context System</a><a id="Context-System-1"></a><a class="docs-heading-anchor-permalink" href="#Context-System" title="Permalink"></a></h2><p>The context system provides a way to pass data through the component tree without manually passing props through every level. This solves the &quot;prop drilling&quot; problem common in component-based architectures.</p><h3 id="Introduction-to-Context"><a class="docs-heading-anchor" href="#Introduction-to-Context">Introduction to Context</a><a id="Introduction-to-Context-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction-to-Context" title="Permalink"></a></h3><p>Context allows you to share values between components without explicitly passing them as props. It&#39;s particularly useful for cross-cutting concerns like themes, user authentication, localization, and feature flags.</p><h3 id="Basic-Usage-2"><a class="docs-heading-anchor" href="#Basic-Usage-2">Basic Usage</a><a class="docs-heading-anchor-permalink" href="#Basic-Usage-2" title="Permalink"></a></h3><p>Use <code>@context</code> to provide values and <code>@get_context</code> to consume them:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Define a component that uses context
+@component function themed_button(; text = &quot;Click me&quot;)
+    theme = @get_context(:theme, &quot;light&quot;)  # Get theme with default
+    @button {class = &quot;btn btn-$theme&quot;} $text
+end
+
+@deftag macro themed_button end
+
+# Provide context and render
+html = @render @context {theme = &quot;dark&quot;} begin
+    @div begin
+        @h1 &quot;Dark Theme Example&quot;
+        @themed_button {text = &quot;Save&quot;}
+        @themed_button {text = &quot;Cancel&quot;}
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1&gt;Dark Theme Example&lt;/h1&gt;
+  &lt;button class&#61;&quot;btn btn-dark&quot;&gt;Save&lt;/button&gt;
+  &lt;button class&#61;&quot;btn btn-dark&quot;&gt;Cancel&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Context-with-Default-Values"><a class="docs-heading-anchor" href="#Context-with-Default-Values">Context with Default Values</a><a id="Context-with-Default-Values-1"></a><a class="docs-heading-anchor-permalink" href="#Context-with-Default-Values" title="Permalink"></a></h3><p>The <code>@get_context</code> macro supports default values for when context is not provided:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function user_greeting()
+    # Provide defaults for missing context
+    user = @get_context(:user_name, &quot;Guest&quot;)
+    locale = @get_context(:locale, &quot;en&quot;)
+
+    greeting = locale == &quot;es&quot; ? &quot;Hola&quot; : &quot;Hello&quot;
+    @p &quot;$greeting, $(user)!&quot;
+end
+
+@deftag macro user_greeting end
+
+# Without context - uses defaults
+html1 = @render @user_greeting</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;Hello, Guest&#33;&lt;/p&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># With partial context
+html2 = @render @context {user_name = &quot;Alice&quot;} begin
+    @user_greeting
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;Hello, Alice&#33;&lt;/p&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># With full context
+html3 = @render @context {user_name = &quot;Carlos&quot;, locale = &quot;es&quot;} begin
+    @user_greeting
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;Hola, Carlos&#33;&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="Nested-Contexts"><a class="docs-heading-anchor" href="#Nested-Contexts">Nested Contexts</a><a id="Nested-Contexts-1"></a><a class="docs-heading-anchor-permalink" href="#Nested-Contexts" title="Permalink"></a></h3><p>Context values can be overridden in nested scopes:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function theme_display()
+    theme = @get_context(:theme, &quot;light&quot;)
+    mode = @get_context(:mode, &quot;normal&quot;)
+    @div {class = &quot;theme-info&quot;} begin
+        @span &quot;Theme: $theme, Mode: $mode&quot;
+    end
+end
+
+@deftag macro theme_display end
+
+html = @render @context {theme = &quot;dark&quot;, mode = &quot;compact&quot;} begin
+    @div begin
+        @h2 &quot;Outer context&quot;
+        @theme_display  # Shows: dark, compact
+
+        @context {theme = &quot;light&quot;} begin  # Override theme only
+            @h2 &quot;Inner context&quot;
+            @theme_display  # Shows: light, compact
+        end
+
+        @h2 &quot;Back to outer&quot;
+        @theme_display  # Shows: dark, compact
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h2&gt;Outer context&lt;/h2&gt;
+  &lt;div class&#61;&quot;theme-info&quot;&gt;&lt;span&gt;Theme: dark, Mode: compact&lt;/span&gt;&lt;/div&gt;
+  &lt;h2&gt;Inner context&lt;/h2&gt;
+  &lt;div class&#61;&quot;theme-info&quot;&gt;&lt;span&gt;Theme: light, Mode: compact&lt;/span&gt;&lt;/div&gt;
+  &lt;h2&gt;Back to outer&lt;/h2&gt;
+  &lt;div class&#61;&quot;theme-info&quot;&gt;&lt;span&gt;Theme: dark, Mode: compact&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Context-and-Slots"><a class="docs-heading-anchor" href="#Context-and-Slots">Context and Slots</a><a id="Context-and-Slots-1"></a><a class="docs-heading-anchor-permalink" href="#Context-and-Slots" title="Permalink"></a></h3><p>Context flows naturally through slots with dynamic scoping - slots see the context from where they execute:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function card_with_theme(; title)
+    @context {card_theme = &quot;elevated&quot;} begin
+        @div {class = &quot;card&quot;} begin
+            @h3 $title
+            @div {class = &quot;card-body&quot;} begin
+                @__slot__  # Slot executes with card&#39;s context
+            end
+        end
+    end
+end
+
+@deftag macro card_with_theme end
+
+@component function theme_aware_content()
+    outer = @get_context(:page_theme, &quot;none&quot;)
+    inner = @get_context(:card_theme, &quot;none&quot;)
+    @p &quot;Page theme: $outer, Card theme: $inner&quot;
+end
+
+@deftag macro theme_aware_content end
+
+html = @render @context {page_theme = &quot;bright&quot;} begin
+    @card_with_theme {title = &quot;My Card&quot;} begin
+        @theme_aware_content  # Sees both contexts!
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;card&quot;&gt;
+  &lt;h3&gt;My Card&lt;/h3&gt;
+  &lt;div class&#61;&quot;card-body&quot;&gt;&lt;p&gt;Page theme: bright, Card theme: elevated&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Common-Use-Cases-2"><a class="docs-heading-anchor" href="#Common-Use-Cases-2">Common Use Cases</a><a class="docs-heading-anchor-permalink" href="#Common-Use-Cases-2" title="Permalink"></a></h3><h4 id="Theme-Provider"><a class="docs-heading-anchor" href="#Theme-Provider">Theme Provider</a><a id="Theme-Provider-1"></a><a class="docs-heading-anchor-permalink" href="#Theme-Provider" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Theme configuration
+const THEMES = Dict(
+    :light =&gt; (bg = &quot;white&quot;, fg = &quot;black&quot;, primary = &quot;#007bff&quot;),
+    :dark =&gt; (bg = &quot;#1a1a1a&quot;, fg = &quot;white&quot;, primary = &quot;#66b3ff&quot;)
+)
+
+@component function theme_provider(; theme = :light)
+    theme_config = THEMES[theme]
+    @context {theme = theme_config} begin
+        @div {style = &quot;background: $(theme_config.bg); color: $(theme_config.fg)&quot;} begin
+            @__slot__
+        end
+    end
+end
+
+@deftag macro theme_provider end
+
+@component function primary_button(; text)
+    theme = @get_context(:theme, THEMES[:light])
+    @button {
+        style = &quot;background: $(theme.primary); color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px&quot;
+    } $text
+end
+
+@deftag macro primary_button end
+
+# Usage
+html = @render @div begin
+    @theme_provider {theme = :light} begin
+        @h2 &quot;Light Theme&quot;
+        @primary_button {text = &quot;Light Button&quot;}
+    end
+
+    @theme_provider {theme = :dark} begin
+        @h2 &quot;Dark Theme&quot;
+        @primary_button {text = &quot;Dark Button&quot;}
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;div style&#61;&quot;background: white; color: black&quot;&gt;
+    &lt;h2&gt;Light Theme&lt;/h2&gt;
+    &lt;button
+      style&#61;&quot;background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px&quot;
+    &gt;
+      Light Button
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div style&#61;&quot;background: #1a1a1a; color: white&quot;&gt;
+    &lt;h2&gt;Dark Theme&lt;/h2&gt;
+    &lt;button
+      style&#61;&quot;background: #66b3ff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px&quot;
+    &gt;
+      Dark Button
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h4 id="User-Authentication-Context"><a class="docs-heading-anchor" href="#User-Authentication-Context">User Authentication Context</a><a id="User-Authentication-Context-1"></a><a class="docs-heading-anchor-permalink" href="#User-Authentication-Context" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Mock user type
+struct User
+    name::String
+    role::Symbol
+    permissions::Set{Symbol}
+end
+
+@component function auth_provider(; user = nothing)
+    @context {current_user = user} begin
+        @__slot__
+    end
+end
+
+@deftag macro auth_provider end
+
+@component function protected_content(; required_permission = nothing)
+    user = @get_context(:current_user, nothing)
+
+    if isnothing(user)
+        @div {class = &quot;error&quot;} &quot;Please log in to view this content&quot;
+    elseif !isnothing(required_permission) &amp;&amp; !(required_permission in user.permissions)
+        @div {class = &quot;error&quot;} &quot;You don&#39;t have permission to view this&quot;
+    else
+        @div {class = &quot;protected&quot;} begin
+            @__slot__
+        end
+    end
+end
+
+@deftag macro protected_content end
+
+@component function user_info()
+    user = @get_context(:current_user, nothing)
+    if !isnothing(user)
+        @span &quot;Logged in as: $(user.name) ($(user.role))&quot;
+    else
+        @span &quot;Not logged in&quot;
+    end
+end
+
+@deftag macro user_info end
+
+# Example usage
+admin_user = User(&quot;Alice&quot;, :admin, Set([:read, :write, :delete]))
+
+html = @render @auth_provider {user = admin_user} begin
+    @div begin
+        @p @user_info
+
+        @protected_content begin
+            @p &quot;This content is visible to logged-in users&quot;
+        end
+
+        @protected_content {required_permission = :delete} begin
+            @p &quot;This content requires delete permission&quot;
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;p&gt;&lt;span&gt;Logged in as: Alice &#40;admin&#41;&lt;/span&gt;&lt;/p&gt;
+  &lt;div class&#61;&quot;protected&quot;&gt;&lt;p&gt;This content is visible to logged-in users&lt;/p&gt;&lt;/div&gt;
+  &lt;div class&#61;&quot;protected&quot;&gt;&lt;p&gt;This content requires delete permission&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h4 id="Feature-Flags"><a class="docs-heading-anchor" href="#Feature-Flags">Feature Flags</a><a id="Feature-Flags-1"></a><a class="docs-heading-anchor-permalink" href="#Feature-Flags" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function feature_provider(; features = Set{Symbol}())
+    @context {enabled_features = features} begin
+        @__slot__
+    end
+end
+
+@deftag macro feature_provider end
+
+@component function feature(; name::Symbol, fallback = nothing)
+    features = @get_context(:enabled_features, Set{Symbol}())
+
+    if name in features
+        @__slot__
+    elseif !isnothing(fallback)
+        @&lt;fallback
+    end
+    # Otherwise render nothing
+end
+
+@deftag macro feature end
+
+# Beta component shown only when beta feature is enabled
+@component function beta_banner()
+    @div {class = &quot;beta-banner&quot;, style = &quot;background: yellow; padding: 0.5rem&quot;} begin
+        &quot;🚀 Beta Feature: Try our new dashboard!&quot;
+    end
+end
+
+@deftag macro beta_banner end
+
+@component function legacy_banner()
+    @div {class = &quot;legacy-banner&quot;} &quot;Classic dashboard&quot;
+end
+
+@deftag macro legacy_banner end
+
+# Usage
+html = @render @div begin
+    @h2 &quot;Production User&quot;
+    @feature_provider {features = Set([:stable_feature])} begin
+        @feature {name = :beta_dashboard, fallback = legacy_banner} begin
+            @beta_banner
+        end
+    end
+
+    @h2 &quot;Beta User&quot;
+    @feature_provider {features = Set([:stable_feature, :beta_dashboard])} begin
+        @feature {name = :beta_dashboard, fallback = legacy_banner} begin
+            @beta_banner
+        end
+    end
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h2&gt;Production User&lt;/h2&gt;
+  &lt;div class&#61;&quot;legacy-banner&quot;&gt;Classic dashboard&lt;/div&gt;
+  &lt;h2&gt;Beta User&lt;/h2&gt;
+  &lt;div class&#61;&quot;beta-banner&quot; style&#61;&quot;background: yellow; padding: 0.5rem&quot;&gt;
+    🚀 Beta Feature: Try our new dashboard&#33;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Complex-Context-Patterns"><a class="docs-heading-anchor" href="#Complex-Context-Patterns">Complex Context Patterns</a><a id="Complex-Context-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Complex-Context-Patterns" title="Permalink"></a></h3><h4 id="Multiple-Context-Values"><a class="docs-heading-anchor" href="#Multiple-Context-Values">Multiple Context Values</a><a id="Multiple-Context-Values-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Context-Values" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function app_providers(; user, theme, locale)
+    @context {user = user, theme = theme, locale = locale} begin
+        @__slot__
+    end
+end
+
+@deftag macro app_providers end
+
+@component function locale_aware_date(; date)
+    locale = @get_context(:locale, &quot;en-US&quot;)
+    # Simplified formatting
+    formatted = locale == &quot;en-US&quot; ? &quot;MM/DD/YYYY&quot; : &quot;DD/MM/YYYY&quot;
+    @span &quot;$date ($formatted)&quot;
+end
+
+@deftag macro locale_aware_date end
+
+html = @render @app_providers {
+    user = &quot;John&quot;,
+    theme = &quot;dark&quot;,
+    locale = &quot;en-GB&quot;
+} begin
+    @p &quot;User: &quot; $(@get_context(:user))
+    @p &quot;Theme: &quot; $(@get_context(:theme))
+    @p &quot;Date format: &quot; @locale_aware_date {date = &quot;2024-01-15&quot;}
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;p&gt;User: John&lt;/p&gt;&lt;p&gt;Theme: dark&lt;/p&gt;&lt;p&gt;
+  Date format: &lt;span&gt;2024-01-15 &#40;DD/MM/YYYY&#41;&lt;/span&gt;
+&lt;/p&gt;</code></pre>
+<hr />
+</div><h4 id="Context-with-Dynamic-Values"><a class="docs-heading-anchor" href="#Context-with-Dynamic-Values">Context with Dynamic Values</a><a id="Context-with-Dynamic-Values-1"></a><a class="docs-heading-anchor-permalink" href="#Context-with-Dynamic-Values" title="Permalink"></a></h4><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Shopping cart context
+@component function cart_provider(; initial_items = [])
+    total = sum(item.price * item.quantity for item in initial_items; init = 0.0)
+
+    @context {cart_items = initial_items, cart_total = total} begin
+        @__slot__
+    end
+end
+
+@deftag macro cart_provider end
+
+@component function cart_summary()
+    items = @get_context(:cart_items, [])
+    total = @get_context(:cart_total, 0.0)
+
+    @div {class = &quot;cart-summary&quot;} begin
+        @p &quot;Items in cart: $(length(items))&quot;
+        @p &quot;Total: \$$(round(total, digits=2))&quot;
+    end
+end
+
+@deftag macro cart_summary end
+
+# Usage
+cart_items = [
+    (name = &quot;Book&quot;, price = 15.99, quantity = 2),
+    (name = &quot;Pen&quot;, price = 1.99, quantity = 5)
+]
+
+html = @render @cart_provider {initial_items = cart_items} begin
+    @h2 &quot;Shopping Cart&quot;
+    @cart_summary
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;h2&gt;Shopping Cart&lt;/h2&gt;&lt;div class&#61;&quot;cart-summary&quot;&gt;
+  &lt;p&gt;Items in cart: 2&lt;/p&gt;
+  &lt;p&gt;Total: &#36;41.93&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Best-Practices-2"><a class="docs-heading-anchor" href="#Best-Practices-2">Best Practices</a><a class="docs-heading-anchor-permalink" href="#Best-Practices-2" title="Permalink"></a></h3><ol><li><p><strong>Use Context for Cross-Cutting Concerns</strong></p><ul><li>Themes, authentication, localization</li><li>Feature flags and configuration</li><li>Shared state that many components need</li></ul></li><li><p><strong>Provide Sensible Defaults</strong></p><pre><code class="language-julia hljs">theme = @get_context(:theme, &quot;light&quot;)  # Always provide defaults</code></pre></li><li><p><strong>Keep Context Values Immutable</strong></p><ul><li>Context should be read-only data</li><li>For mutable state, pass update functions as context</li></ul></li><li><p><strong>Document Context Dependencies</strong></p><pre><code class="language-julia hljs"># This component requires :user and :theme context
+@component function authenticated_view()
+    # ...
+end</code></pre></li><li><p><strong>Avoid Overusing Context</strong></p><ul><li>Direct props are clearer for parent-child communication</li><li>Context is best for deeply nested components</li></ul></li></ol><h3 id="Integration-with-Streaming"><a class="docs-heading-anchor" href="#Integration-with-Streaming">Integration with Streaming</a><a id="Integration-with-Streaming-1"></a><a class="docs-heading-anchor-permalink" href="#Integration-with-Streaming" title="Permalink"></a></h3><p>Context works seamlessly with streaming renders:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function streaming_with_context(; items)
+    @context {render_mode = &quot;streaming&quot;} begin
+        @ul begin
+            for (i, item) in enumerate(items)
+                @li begin
+                    mode = @get_context(:render_mode, &quot;normal&quot;)
+                    &quot;$item (rendered in $mode mode)&quot;
+                end
+            end
+        end
+    end
+end
+
+# Works with StreamingRender
+# See Rendering &amp; Performance guide for details</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">streaming_with_context (generic function with 1 method)</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>Advanced features in HypertextTemplates.jl enable:</p><ul><li><strong>Dependency management</strong> with <code>@__once__</code></li><li><strong>Custom DSLs</strong> via <code>@deftag</code></li><li><strong>Dynamic rendering</strong> with <code>@&lt;</code></li><li><strong>Context propagation</strong> with <code>@context</code> and <code>@get_context</code></li><li><strong>Sophisticated patterns</strong> like render props and theme providers</li></ul><p>These features combine to support complex application architectures while maintaining the simplicity and performance that makes HypertextTemplates.jl powerful.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../library-components/">« Library Components</a><a class="docs-footer-nextpage" href="../markdown-integration/">Markdown Integration »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 6 January 2026 13:08">Tuesday 6 January 2026</span>. Using Julia version 1.12.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
