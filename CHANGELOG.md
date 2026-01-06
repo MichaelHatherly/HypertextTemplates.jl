@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added context system with `@context` and `@get_context` macros for passing data through component trees without prop drilling [#40]
+- Added `@tailwind_source` macro for Tailwind CSS class discovery from Julia components [#50]
 
 ## [v2.2.3] - 2025-06-25
 
@@ -148,3 +149,4 @@ Initial release.
 [#35]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/35
 [#37]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/37
 [#40]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/40
+[#50]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/50

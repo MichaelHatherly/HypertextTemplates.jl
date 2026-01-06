@@ -61,6 +61,7 @@ export @element
 export @esc_str
 export @get_context
 export @render
+export @tailwind_source
 export @text
 export SafeString
 export StreamingRender
@@ -87,6 +88,7 @@ include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
+include("tailwind-source-macro.jl")
 
 # Library submodule:
 include("Library/Library.jl")

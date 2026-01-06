@@ -6,6 +6,9 @@ using HypertextTemplates
 using HypertextTemplates.Elements
 using HypertextTemplates.Library
 
+# Configure Tailwind to find Library component classes
+@tailwind_source "../assets/app.css"
+
 # Shared components
 include("shared/html_document.jl")
 

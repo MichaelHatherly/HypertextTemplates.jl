@@ -188,6 +188,26 @@ The library requires Tailwind CSS v4 with default configuration. Components use:
 - Container queries for responsive behavior
 - Modern CSS features like `backdrop-filter`
 
+### Class Discovery with `@tailwind_source`
+
+Tailwind scans source files to discover which CSS classes to include. Since Library
+components live in Julia's package depot, use `@tailwind_source` to register the path:
+
+```julia
+module MyApp
+using HypertextTemplates
+using HypertextTemplates.Library
+
+@tailwind_source "../assets/app.css"
+end
+```
+
+This creates a sidecar file (`app.ht-source.css`) containing the `@source` directive
+and adds an `@import` to your CSS file. The sidecar contains the absolute depot path,
+which updates automatically when HypertextTemplates is updated.
+
+Add `*.ht-source.css` to `.gitignore` to keep machine-specific paths out of version control.
+
 ## Best Practices
 
 ### Performance

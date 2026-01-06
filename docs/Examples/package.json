@@ -1,0 +1,11 @@
+{
+  "name": "hypertexttemplates-examples",
+  "private": true,
+  "scripts": {
+    "build:css": "bunx @tailwindcss/cli -i ./assets/app.css -o ./assets/dist/app.css",
+    "watch:css": "bunx @tailwindcss/cli -i ./assets/app.css -o ./assets/dist/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4"
+  }
+}

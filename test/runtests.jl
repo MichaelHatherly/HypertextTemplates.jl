@@ -262,6 +262,9 @@ end
     # Include context tests
     include("context-tests.jl")
 
+    # Include tailwind source tests
+    include("tailwind-source-tests.jl")
+
     # Include Library tests
     include("Library/runtests.jl")
 end

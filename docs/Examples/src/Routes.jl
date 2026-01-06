@@ -2,6 +2,7 @@ module Routes
 
 using HypertextTemplates
 using ReloadableMiddleware.Router
+import HTTP
 
 import ..Templates
 
@@ -16,6 +17,12 @@ import ..Templates
     } begin
         @<component
     end
+end
+
+@GET "/assets/dist/app.css" function (req)
+    css_path = joinpath(@__DIR__, "..", "assets", "dist", "app.css")
+    content = read(css_path, String)
+    return HTTP.Response(200, ["Content-Type" => "text/css"], content)
 end
 
 end
