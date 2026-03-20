@@ -82,46 +82,19 @@ function _source_info(__source__)
     euuid = esc(uuid)
     quuid = QuoteNode(Symbol(lstrip(String(uuid), '#')))
     return quote
-        if $(HypertextTemplates)._is_revise_loaded()
-            let $(euuid) =
-                    $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
-                $(HypertextTemplates)._method_offset(
-                    $(euuid),
-                    $(quuid),
-                    $(QuoteNode(__source__)),
-                )
-            end
-        else
-            nothing
+        let $(euuid) =
+                $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
+            $(HypertextTemplates)._method_offset(
+                $(HypertextTemplates).ReviseIsLoaded(),
+                $(euuid),
+                $(quuid),
+                $(QuoteNode(__source__)),
+            )
         end
     end
 end
 
-function _has_uuid(vec::Vector{Base.CodeInfo}, uuid::Symbol)
-    for each in vec
-        if uuid in each.slotnames
-            return true
-        end
-    end
-    return false
-end
-
-function _method_offset(f, uuid, __source__)
-    method = nothing
-    for candidate in methods(f)
-        lowered = Base.code_lowered(f, Base.tuple_type_tail(candidate.sig))
-        if _has_uuid(lowered, uuid)
-            method = candidate
-            break
-        end
-    end
-    if isnothing(method)
-        @debug "could not detect method, giving up."
-        return nothing
-    else
-        return CodeTracking.whereis(__source__, method)
-    end
-end
+_method_offset(::Any, f, uuid, __source__) = nothing
 
 function _render(dst, dom_thunk::Function, source::Tuple{String,Integer})
     io = _render_dst(dst)
