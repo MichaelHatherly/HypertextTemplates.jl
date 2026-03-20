@@ -9,7 +9,6 @@ HypertextTemplates.jl is a powerful and efficient HTML templating system that le
 - **Natural Syntax** - Write HTML using Julia macros that feel like native code
 - **Zero-allocation rendering** - Direct IO streaming without intermediate DOM construction
 - **Component System** - Build reusable components with props and slots
-- **Context System** - Pass data through component trees without prop drilling
 - **Automatic HTML escaping** - Automatic XSS protection with context-aware escaping
 - **Development tools** - Source location tracking and editor integration
 - **Streaming rendering** - Asynchronous rendering with micro-batched output
@@ -69,7 +68,5 @@ Main.display_html(ans) #hide
 - [Markdown Integration](markdown-integration.md) - Using Markdown with templates
 
 ### API Reference
-- [Public API](api-public.md) - Core functions, macros, and types
-- [Library Components](api-library.md) - Pre-built UI component library
-- [Internal API](api-internal.md) - Implementation details and internals
+- [API Reference](api.md) - Complete API documentation
 

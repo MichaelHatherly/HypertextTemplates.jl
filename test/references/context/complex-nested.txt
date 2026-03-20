@@ -1,1 +1,0 @@
-<main><div class="card card-dark"><h3>Admin</h3><p class="role">administrator</p></div></main>

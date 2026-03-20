@@ -258,13 +258,4 @@ end
         @test length(output) > 1
         @test output == func()
     end
-
-    # Include context tests
-    include("context-tests.jl")
-
-    # Include tailwind source tests
-    include("tailwind-source-tests.jl")
-
-    # Include Library tests
-    include("Library/runtests.jl")
 end

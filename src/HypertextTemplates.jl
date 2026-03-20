@@ -54,13 +54,10 @@ export @__once__
 export @__slot__
 export @cm_component
 export @component
-export @context
 export @deftag
 export @element
 export @esc_str
-export @get_context
 export @render
-export @tailwind_source
 export @text
 export SafeString
 export StreamingRender
@@ -74,8 +71,6 @@ include("tag-macro.jl")
 include("text-macro.jl")
 include("component-macro.jl")
 include("slot-macro.jl")
-include("context-macro.jl")
-include("get-context-macro.jl")
 include("element-rendering.jl")
 include("SafeString.jl")
 include("html-escaping.jl")
@@ -87,10 +82,6 @@ include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
-include("tailwind-source-macro.jl")
-
-# Library submodule:
-include("Library/Library.jl")
 
 # Initialization:
 

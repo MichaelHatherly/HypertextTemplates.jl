@@ -1,1 +1,0 @@
-<span>string_value</span>

@@ -1,1 +1,0 @@
-<section class="py-12 sm:py-16 md:py-20 ">Section content</section>

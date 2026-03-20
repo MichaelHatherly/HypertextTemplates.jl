@@ -40,14 +40,14 @@ function _render_tag(
     _is_revise_loaded() && _render_source_prop(io, source, revise)
     print(io, ">")
     children = get(slots, S"default", nothing)
-    isnothing(children) || children(io)
+    isnothing(children) || children()
     _void_element(name) || print(io, "</", name, ">")
     return nothing
 end
 
 function _render_props(io::IO, props)
     for (k, v) in props
-        if v === false || v === nothing
+        if v === false
             # Skip it entirely.
         else
             print(io, " ", k)

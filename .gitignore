@@ -1,5 +1,3 @@
 Manifest.toml
 .vscode
 .DS_Store
-/docs/src/**/*.html
-*.ht-source.css

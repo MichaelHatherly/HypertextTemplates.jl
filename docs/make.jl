@@ -39,12 +39,10 @@ function display_html(html::AbstractString)
     end
 end
 
-include("generate_examples.jl")
-
 makedocs(
     sitename = "HypertextTemplates",
     format = Documenter.HTML(),
-    modules = [HypertextTemplates, HypertextTemplates.Library],
+    modules = [HypertextTemplates],
     doctest = true,
     pages = [
         "Home" => "index.md",
@@ -54,17 +52,12 @@ makedocs(
             "Components" => "components.md",
             "Elements & Attributes" => "elements-attributes.md",
             "Rendering & Performance" => "rendering.md",
-            "Library Components" => "library-components.md",
         ],
         "Advanced" => [
             "Advanced Features" => "advanced-features.md",
             "Markdown Integration" => "markdown-integration.md",
         ],
-        "API Reference" => [
-            "Public API" => "api-public.md",
-            "Library Components" => "api-library.md",
-            "Internal API" => "api-internal.md",
-        ],
+        "API Reference" => "api.md",
     ],
 )
 
