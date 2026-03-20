@@ -1,7 +1,7 @@
 name = "HypertextTemplates"
 uuid = "c7d46f9d-34c3-4420-bf57-257f25aec718"
-authors = ["Michael Hatherly <michaelhatherly@gmail.com>"]
 version = "2.2.3"
+authors = ["Michael Hatherly <michaelhatherly@gmail.com>"]
 
 [deps]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -26,5 +26,6 @@ HypertextTemplatesReviseExt = "Revise"
 InteractiveUtils = "1.6"
 MacroTools = "0.5"
 PackageExtensionCompat = "1"
+Revise = "3"
 TOML = "1"
 julia = "1.6"
