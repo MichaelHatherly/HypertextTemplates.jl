@@ -44,7 +44,6 @@ module HypertextTemplates
 
 # Imports:
 
-import CodeTracking
 import PackageExtensionCompat
 import MacroTools
 
