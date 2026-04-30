@@ -54,7 +54,7 @@ jobs:
           version: ${{ matrix.version }}
           include-all-prereleases: true
 
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
 
       - uses: julia-actions/julia-buildpkg@v1
 
