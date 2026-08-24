@@ -245,11 +245,42 @@ __process_prop(s::AbstractString) = Symbol(s)
 __process_prop(s::Symbol) = s
 __process_prop(s::QuoteNode) = s.value
 
+# An interpolated attribute value such as `{href = "/item/$id"}` still has to
+# be materialised, because a component receives it as a keyword and expects a
+# string. It used to be built with one `sprint` per interpolated part plus a
+# concatenation over the results, which meant several throwaway buffers and
+# strings per attribute. The parts are now escaped straight into a single
+# buffer instead.
+#
+# Each part is still escaped individually, exactly as before, so a `SafeString`
+# interpolated into an attribute continues to pass through unescaped.
 function _sanitise(ex::Expr)
-    fn(s::AbstractString) = sprint(escape_attr, s)
-    fn(other) = :(sprint($(escape_attr), $(other)))
     if Meta.isexpr(ex, :string)
-        return Expr(:call, SafeString, Expr(:string, fn.(ex.args)...))
+        buffer = gensym("attribute")
+        # Every referenced function is spliced as a value rather than named,
+        # because the result is escaped into the caller's module.
+        body = Expr(:block)
+        for arg in ex.args
+            push!(body.args, if isa(arg, AbstractString)
+                # Literal segments are escaped here, during expansion.
+                Expr(:call, print, buffer, sprint(escape_attr, arg))
+            else
+                Expr(:call, escape_attr, buffer, arg)
+            end)
+        end
+        push!(
+            body.args,
+            Expr(:call, SafeString, Expr(:call, String, Expr(:call, take!, buffer))),
+        )
+        # The literal segments give an exact lower bound on the result, so size
+        # the buffer up front rather than letting it grow.
+        sizehint =
+            sum(
+                (sizeof(sprint(escape_attr, a)) for a in ex.args if isa(a, AbstractString));
+                init = 0,
+            ) + 8 * count(a -> !isa(a, AbstractString), ex.args)
+        allocate = Expr(:call, IOBuffer, Expr(:parameters, Expr(:kw, :sizehint, sizehint)))
+        return Expr(:let, Expr(:(=), buffer, allocate), body)
     else
         return ex
     end
