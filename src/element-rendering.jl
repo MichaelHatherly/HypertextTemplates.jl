@@ -246,9 +246,12 @@ _line_offsets_ref() = _line_offsets() => Ref{IdDict{Any,Int}}()
 # do not share it.
 _dynamic_line_offset(io::IO, ::Nothing) = 0
 function _dynamic_line_offset(io::IO, revise)
-    ref = get(io, _line_offsets(), nothing)
+    stored = get(io, _line_offsets(), nothing)
     # No cache on this stream: fall back to computing it every time.
-    isnothing(ref) && return _compute_dynamic_line_offset(revise)
+    isnothing(stored) && return _compute_dynamic_line_offset(revise)
+    # Asserted for the same reason as in `_get_once`: an `IOContext` hands its
+    # properties back as `Any`, which would leave every lookup below dynamic.
+    ref = stored::Base.RefValue{IdDict{Any,Int}}
     isassigned(ref) || (ref[] = IdDict{Any,Int}())
     offsets = ref[]
     func, _ = revise

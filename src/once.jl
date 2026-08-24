@@ -93,9 +93,15 @@ end
 
 function _get_once(io::IO)
     once_ref = get(io, :__once__, nothing)
-    isassigned(once_ref) || (once_ref[] = Set{Symbol}())
-    once = once_ref[]
-    return isnothing(once) ? error("missing `once` object.") : once
+    isnothing(once_ref) && error("missing `once` object.")
+    # An `IOContext` stores its properties as `Any`, so without this assertion
+    # the set stays abstractly typed and every membership test and insertion
+    # below becomes a dynamic dispatch that boxes its argument -- an allocation
+    # on every `@__once__`, including the overwhelmingly common case where the
+    # key is already present and nothing is rendered.
+    ref = once_ref::Base.RefValue{Set{Symbol}}
+    isassigned(ref) || (ref[] = Set{Symbol}())
+    return ref[]
 end
 
 _missing_once_key(io::IO, key::Symbol) = !(key in _get_once(io))
