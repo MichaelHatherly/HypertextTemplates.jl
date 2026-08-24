@@ -39,7 +39,33 @@ _element_close(element) =
 # properties during compilation. See `_write_open`.
 _element_symbol(element) = Val(Symbol(_element_name(element)))
 
-function _render_tag(io::IO, tag::AbstractElement, plan, props, slots, source, revise)
+# Inlined, which is worth more than it looks.
+#
+# An element's children reach this as a closure in `slots`, and no two elements
+# in a template share a closure type. Left as a call, that means a separate
+# specialisation of this function -- inferred and code-generated in full -- for
+# every single element on the page. Inlined, the closure is created and called
+# in the same block, so the compiler drops it and the per-element method
+# instance never exists. That is most of what a template costs to compile: a
+# hundred elements with children take 12 ms each to compile, against 1.4 ms for
+# the same call with no children.
+#
+# So this buys both ends at once, measured by alternating between the two
+# builds rather than running one after the other, which on a noisy machine
+# reads as a difference that is not there:
+#
+#   400-card page          87.9 -> 78.0 us    (-11%)
+#   50-element template     635 -> 476 ms     (-25%, compile)
+#   200-element template   2847 -> 2186 ms    (-23%, compile)
+@inline function _render_tag(
+    io::IO,
+    tag::AbstractElement,
+    plan,
+    props,
+    slots,
+    source,
+    revise,
+)
     _render_prefix(io, tag)
     # Both conditions are compile-time constants, so only one branch survives.
     if !_is_revise_loaded() && _mergeable_plan(typeof(plan))
