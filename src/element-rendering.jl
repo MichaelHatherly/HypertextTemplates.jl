@@ -212,12 +212,14 @@ function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
     if get(io, _include_data_htloc(), true) === true
         root = get(io, :__root__, nothing)
         if !isnothing(root)
-            file, line = root
-            # Written piecewise rather than interpolated: this runs once per
-            # element under Revise, and interpolation would build and discard a
-            # string every time.
+            # Asserted for the same reason as elsewhere: the stream hands this
+            # back as `Any`, and this runs once per element. `_render` accepts
+            # any `Integer` for the line, so it is narrowed rather than assumed.
+            file, line = root::Tuple{String,Integer}
+            # Written piecewise rather than interpolated: interpolation would
+            # build and discard a string on every element.
             print(io, " data-htroot=\"", file, ":")
-            _write_integer(io, line)
+            _write_integer(io, Int(line))
             print(io, "\"")
         end
         offset = _dynamic_line_offset(io, revise)
