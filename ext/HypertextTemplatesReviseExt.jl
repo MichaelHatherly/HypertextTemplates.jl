@@ -28,12 +28,30 @@ end
 # So the answer is memoised against both. A stale entry is impossible without
 # one of the two changing, and checking them costs about 0.6us rather than 53.
 const CACHE_LOCK = ReentrantLock()
-# Keyed by the call site in full. The macro always pairs a given uuid with a
-# single location, so the location is redundant for calls coming from `@render`
-# -- but leaving it out would hand a stale answer to any other caller that
-# resolves the same uuid against a different line, which is a sharp edge not
-# worth keeping to save a field.
-const CACHE = Dict{Tuple{UInt,Symbol,LineNumberNode},Tuple{UInt,Float64,Any}}()
+
+# Keyed by the call site: the enclosing function's TYPE, the uuid the macro
+# planted, and the source location.
+#
+# The type matters. Keying on the function *instance* looks equivalent and is
+# not: a closure that captures anything is a fresh object on every call, so a
+# `@render` inside one -- an HTTP handler built per request, say -- would add
+# an entry per render and never reuse one. All instances of a closure share a
+# type and therefore a method, so the resolved answer is the same for all of
+# them, and keying on the type makes the entry count bounded by the number of
+# call sites rather than the number of calls.
+#
+# The macro always pairs a given uuid with a single location, so the location
+# is redundant for calls coming from `@render`, but leaving it out would hand a
+# stale answer to any other caller resolving that uuid against a different
+# line.
+const CACHE = Dict{Tuple{DataType,Symbol,LineNumberNode},Tuple{UInt,Float64,Any}}()
+
+# Re-expanding a template hands out a fresh uuid, so a long editing session
+# leaves behind an entry per revision per call site. They are small, but they
+# are also never referenced again, so the table is dropped wholesale once it
+# grows past a size no real template set reaches. The next render of each live
+# call site pays to resolve it once more.
+const CACHE_LIMIT = 8192
 
 function _resolve_method_offset(f, uuid, __source__)
     method = nothing
@@ -62,7 +80,7 @@ function HTT._method_offset(::HTT.ReviseIsLoaded, f, uuid, __source__)
         @debug "CodeTracking not available via Revise, skipping source tracking."
         return nothing
     end
-    key = (objectid(f), uuid, __source__)
+    key = (typeof(f), uuid, __source__)
     world = Base.get_world_counter()
     # `mtime` returns 0.0 for anything that cannot be stat'ed, such as a call
     # site typed into the REPL. That is a stable value, which is correct here:
@@ -80,6 +98,7 @@ function HTT._method_offset(::HTT.ReviseIsLoaded, f, uuid, __source__)
         # Negative results are cached too, so a call site that cannot be
         # resolved does not repeat the search on every render.
         result = _resolve_method_offset(f, uuid, __source__)
+        length(CACHE) >= CACHE_LIMIT && empty!(CACHE)
         CACHE[key] = (world, stamp, result)
         return result
     finally

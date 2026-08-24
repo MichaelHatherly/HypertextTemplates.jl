@@ -348,6 +348,92 @@ end
         # A stream with no cache attached still has to produce the same answer.
         @test HypertextTemplates._dynamic_line_offset(IOBuffer(), revise) == direct
         @test HypertextTemplates._dynamic_line_offset(context, nothing) == 0
+
+        # `_render` has to actually attach that cache, and rendering has to
+        # actually reach it. Checking only that the cache agrees with a fresh
+        # computation would pass just as happily with the cache disconnected,
+        # silently giving up the speedup it exists for.
+        attached = nothing
+        HypertextTemplates._render(
+            IOBuffer(),
+            (io, _) -> (attached = get(io, HypertextTemplates._line_offsets(), nothing)),
+            nothing,
+        )
+        @test attached isa Ref
+
+        # And an element that reports its source populates it, so a component's
+        # offset really is resolved once per render rather than once per
+        # element.
+        populated = nothing
+        HypertextTemplates._render(
+            IOBuffer(),
+            function (io, _)
+                HypertextTemplates._dynamic_line_offset(io, revise)
+                populated = get(io, HypertextTemplates._line_offsets(), nothing)
+            end,
+            nothing,
+        )
+        @test populated isa Ref
+        @test isassigned(populated) && haskey(populated[], custom_component)
+
+        # The call-site cache is keyed by the enclosing function's type, not by
+        # the function object. A `@render` inside a capturing closure -- a
+        # handler built per request, say -- hands over a fresh object every
+        # call, and keying on it would add an entry per render forever.
+        cache = extension.CACHE
+        before = length(cache)
+        for i = 1:200
+            captured = i
+            closure = () -> @render @div $captured
+            closure()
+        end
+        @test length(cache) - before <= 1
+
+        apply(f) = f()
+        before = length(cache)
+        for i = 1:200
+            captured = i
+            apply() do
+                @render @div $captured
+            end
+        end
+        @test length(cache) - before <= 1
+
+        # Distinct call sites must still get distinct entries.
+        first_site() = @render @div "a"
+        second_site() = @render @div "b"
+        before = length(cache)
+        first_site()
+        second_site()
+        @test length(cache) - before == 2
+
+        # And the table is bounded even against a stream of new call sites,
+        # which is what repeated re-expansion under Revise looks like.
+        before = length(cache)
+        for i = 1:(extension.CACHE_LIMIT+50)
+            HypertextTemplates._method_offset(
+                loaded,
+                tracked,
+                Symbol("synthetic#", i),
+                LineNumberNode(i, Symbol(@__FILE__)),
+            )
+        end
+        @test length(cache) <= extension.CACHE_LIMIT
+
+        # Concurrent renders must agree with single-threaded ones. The cache is
+        # global, so it is guarded by a lock; the per-render offset cache is not
+        # shared between renders at all.
+        sites = [first_site, second_site, tracked]
+        expected = [string(site()) for site in sites]
+        outputs = Vector{Vector{String}}(undef, Threads.nthreads())
+        Threads.@threads for thread = 1:Threads.nthreads()
+            collected = String[]
+            for _ = 1:50, site in sites
+                push!(collected, string(site()))
+            end
+            outputs[thread] = collected
+        end
+        @test all(output == repeat(expected, 50) for output in outputs)
     end
     @testset "Streaming" begin
         func(io = Vector{UInt8}) = @render io @streaming {n = 10000}
