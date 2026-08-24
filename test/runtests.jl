@@ -870,6 +870,33 @@ end
                 @test include_string(Main, code) == "<div>1</div>"
             end
         end
+        # `@cm_component` expands into the caller's module too, and names
+        # `Symbol`, `read`, `String`, `Val` and `joinpath` in what it generates.
+        markdown = joinpath(mktempdir(), "hygiene.md")
+        write(markdown, "# Heading\n\nSome *prose* with \$value in it.\n")
+        for (index, assignment) in enumerate([
+            "Symbol = \"shadowed\"",
+            "read = \"shadowed\"",
+            "String = \"shadowed\"",
+            "Val = \"shadowed\"",
+            "joinpath = \"shadowed\"",
+        ])
+            rendered = include_string(
+                Main,
+                """
+                module CmHygiene$(index)
+                using HypertextTemplates, HypertextTemplates.Elements
+                $(assignment)
+                @cm_component page(; value) = raw"$(markdown)"
+                @deftag macro page end
+                run() = @render @page {value = "v"}
+                end
+                CmHygiene$(index).run()
+                """,
+            )
+            @test occursin("Heading", rendered)
+        end
+
         # `@element` goes through the same code path as `@component`.
         @test include_string(
             Main,

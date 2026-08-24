@@ -14,9 +14,13 @@ function HypertextTemplates.escape_html(io::IO, md::CM.Node, revise)
         # The cached form, so a page with many markdown components resolves
         # each component's offset once per render rather than once per node.
         offset = isjulia ? HypertextTemplates._dynamic_line_offset(io, revise) : 0
+        # `source` is the same for every node in the document, so it is stat'ed
+        # once here rather than once inside the callback below, which CommonMark
+        # invokes for each node it emits.
+        exists = isfile(source)
         function sourcepos(pos)
             line = pos[1][1]
-            if line > 0 && isfile(source)
+            if line > 0 && exists
                 return "data-htloc" => "$(source):$(line + offset)"
             else
                 return nothing
