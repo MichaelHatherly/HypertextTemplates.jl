@@ -77,6 +77,8 @@ macro element(name, binding = name)
         $(HypertextTemplates)._element_name(::$(esc(type))) = $(QuoteNode(name))
         $(HypertextTemplates)._element_open(::$(esc(type))) = $(open_tag)
         $(HypertextTemplates)._element_close(::$(esc(type))) = $(close_tag)
+        $(HypertextTemplates)._element_symbol(::$(esc(type))) =
+            $(Val)($(QuoteNode(Symbol(tag))))
 
         export $(esc(binding))
     end

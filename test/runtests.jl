@@ -371,6 +371,47 @@ end
         # these 200 rows; keeping the pieces costs nothing over a plain value.
         @test interpolated <= plain + 1_000
     end
+    @testset "Merged Opening Tags" begin
+        # An opening tag whose every part is known at compile time is written
+        # as one constant rather than assembled from three writes. The merge
+        # must produce exactly the same bytes, including for void elements,
+        # elements with a doctype prefix, and elements carrying `true`/`false`
+        # literal properties.
+        function bare(render)
+            io = IOBuffer()
+            render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+            return String(take!(io))
+        end
+        @test bare(io -> @render io @div "x") == "<div>x</div>"
+        @test bare(io -> @render io @div {class = "a"} "x") == "<div class=\"a\">x</div>"
+        @test bare(io -> @render io @div {class = "a", id = "b"}) ==
+              "<div class=\"a\" id=\"b\"></div>"
+        @test bare(io -> @render io @br) == "<br>"
+        @test bare(io -> @render io @img {src = "/a", alt = "b"}) ==
+              "<img src=\"/a\" alt=\"b\">"
+        @test bare(io -> @render io @html {lang = "en"} "x") ==
+              "<!DOCTYPE html><html lang=\"en\">x</html>"
+        @test bare(io -> @render io @div {hidden = true, disabled = false}) ==
+              "<div hidden></div>"
+        @test bare(io -> @render io @custom_element {prop = "v"} "x") ==
+              "<custom-element prop=\"v\">x</custom-element>"
+        # Escaping in a literal property survives the merge.
+        @test bare(io -> @render io @div {t = "a<b>&\"c"}) ==
+              "<div t=\"a&lt;b&gt;&amp;&quot;c\"></div>"
+
+        # Only fully-literal plans merge; anything dynamic keeps the old path.
+        @test HypertextTemplates._mergeable_plan(Tuple{})
+        @test HypertextTemplates._mergeable_plan(
+            Tuple{HypertextTemplates.StaticProps{Symbol(" a=\"b\"")}},
+        )
+        @test !HypertextTemplates._mergeable_plan(
+            Tuple{HypertextTemplates.DynamicProp{:a,Symbol(" a"),Symbol(" a=\"")}},
+        )
+        @test !HypertextTemplates._mergeable_plan(Nothing)
+        dynamic = "d"
+        @test bare(io -> @render io @div {class = "a", id = dynamic}) ==
+              "<div class=\"a\" id=\"d\"></div>"
+    end
     @testset "Escaping Blocks" begin
         # Escaped output is assembled in a fixed stack buffer and handed over a
         # block at a time. The buffer must never escape to the heap, or the
