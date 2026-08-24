@@ -3,7 +3,13 @@ abstract type AbstractElement end
 Base.show(io::IO, element::AbstractElement) = print(io, "<", _element_name(element), "/>")
 
 _element_name(_) = error("Method not implemented.")
-_void_element(elem) = elem in Set([
+
+# A `Tuple` rather than a `Set` so that the membership test is a chain of
+# pointer comparisons that constant-folds away entirely when the element name
+# is statically known, which it is for every `@element`-defined tag. A `Set`
+# literal here would instead be rebuilt on every single element that gets
+# rendered.
+const VOID_ELEMENTS = (
     :area,
     :base,
     :br,
@@ -18,7 +24,10 @@ _void_element(elem) = elem in Set([
     :source,
     :track,
     :wbr,
-])
+)
+_void_element(elem::Symbol) = elem in VOID_ELEMENTS
+# Custom elements defined with a `String` name are never void elements.
+_void_element(_) = false
 
 function _render_tag(
     io::IO,
@@ -45,23 +54,38 @@ function _render_tag(
     return nothing
 end
 
-function _render_props(io::IO, props)
-    for (k, v) in props
-        if v === false
-            # Skip it entirely.
+@inline function _render_prop(io::IO, k, v)
+    if v === false
+        # Skip it entirely.
+    else
+        print(io, " ", k)
+        if v === true
+            # Don't print the value.
         else
-            print(io, " ", k)
-            if v === true
-                # Don't print the value.
-            else
-                print(io, "=\"")
-                escape_attr(io, v)
-                print(io, "\"")
-            end
+            print(io, "=\"")
+            escape_attr(io, v)
+            print(io, "\"")
         end
     end
+    return nothing
 end
-_render_props(io::IO, props::NamedTuple) = _render_props(io, pairs(props))
+
+function _render_props(io::IO, props)
+    for (k, v) in props
+        _render_prop(io, k, v)
+    end
+end
+
+# `NamedTuple` props are unrolled rather than iterated so that each property is
+# rendered with its own concrete value type. Iterating `pairs(props)` widens the
+# values to their union, which costs a dynamic dispatch per property once more
+# than a handful of distinct types are involved.
+_render_props(io::IO, ::NamedTuple{(),Tuple{}}) = nothing
+@inline function _render_props(io::IO, props::NamedTuple{names}) where {names}
+    _render_prop(io, names[1], getfield(props, 1))
+    _render_props(io, NamedTuple{Base.tail(names)}(Base.tail(Tuple(props))))
+    return nothing
+end
 
 function _render_props(props)
     io = IOBuffer()
