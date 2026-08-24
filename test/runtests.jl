@@ -248,6 +248,45 @@ end
         result = @render @p "content"
         @test contains(result, "data-htloc=\"$file:$(line + 2)\"")
     end
+    @testset "Source Tracking Caches" begin
+        # Resolving a call site and computing a component's line offset are
+        # both memoised, because each is expensive enough to dominate a render
+        # under Revise. Whatever the caches hand back has to be what computing
+        # the answer from scratch would have produced -- on a cold cache and on
+        # a warm one alike.
+        extension = Base.get_extension(HypertextTemplates, :HypertextTemplatesReviseExt)
+        @test extension !== nothing
+
+        function tracked()
+            @__LINE__, @render @div "x"
+        end
+        call_line, html = tracked()
+        @test contains(html, "data-htroot=\"$(@__FILE__):$(call_line)")
+
+        # Recover the uuid the macro planted at that call site.
+        uuid = nothing
+        for info in Base.code_lowered(tracked, Tuple{}), name in info.slotnames
+            startswith(string(name), "@render") && (uuid = name)
+        end
+        @test uuid !== nothing
+
+        location = LineNumberNode(call_line + 1, Symbol(@__FILE__))
+        fresh = extension._resolve_method_offset(tracked, uuid, location)
+        loaded = HypertextTemplates.ReviseIsLoaded()
+        @test HypertextTemplates._method_offset(loaded, tracked, uuid, location) == fresh
+        # Again, now that the entry is warm.
+        @test HypertextTemplates._method_offset(loaded, tracked, uuid, location) == fresh
+
+        # Same invariant for the per-render component offset cache.
+        revise = (custom_component, (@__FILE__, 1))
+        direct = HypertextTemplates._compute_dynamic_line_offset(revise)
+        context = IOContext(IOBuffer(), HypertextTemplates._line_offsets_ref())
+        @test HypertextTemplates._dynamic_line_offset(context, revise) == direct
+        @test HypertextTemplates._dynamic_line_offset(context, revise) == direct
+        # A stream with no cache attached still has to produce the same answer.
+        @test HypertextTemplates._dynamic_line_offset(IOBuffer(), revise) == direct
+        @test HypertextTemplates._dynamic_line_offset(context, nothing) == 0
+    end
     @testset "Streaming" begin
         func(io = Vector{UInt8}) = @render io @streaming {n = 10000}
         output = UInt8[]

@@ -159,7 +159,7 @@ function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
             _write_integer(io, line)
             print(io, "\"")
         end
-        offset = _compute_dynamic_line_offset(revise)
+        offset = _dynamic_line_offset(io, revise)
         file, line = source
         print(io, " data-htloc=\"", file, ":")
         _write_integer(io, line + offset)
@@ -168,6 +168,35 @@ function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
     return nothing
 end
 _render_source_prop(io::IO, source, revise) = nothing
+
+_line_offsets() = :__htloc_offsets__
+_line_offsets_ref() = _line_offsets() => Ref{IdDict{Any,Int}}()
+
+# The offset below costs a `functionloc`, which walks the method table and goes
+# through CodeTracking: about 5us a call. It used to run once per rendered
+# element, which made a 200 row page a hundred times slower under Revise than
+# without it.
+#
+# The answer only changes when Revise reloads code, and code cannot be reloaded
+# part way through a render, so it is memoised for the duration of one
+# `@render` and recomputed on the next. That keeps every edit visible on the
+# following render while collapsing a page's worth of lookups into one per
+# component. The cache lives on the render's `IOContext`, so concurrent renders
+# do not share it.
+_dynamic_line_offset(io::IO, ::Nothing) = 0
+function _dynamic_line_offset(io::IO, revise)
+    ref = get(io, _line_offsets(), nothing)
+    # No cache on this stream: fall back to computing it every time.
+    isnothing(ref) && return _compute_dynamic_line_offset(revise)
+    isassigned(ref) || (ref[] = IdDict{Any,Int}())
+    offsets = ref[]
+    func, _ = revise
+    cached = get(offsets, func, nothing)
+    isnothing(cached) || return cached
+    offset = _compute_dynamic_line_offset(revise)
+    offsets[func] = offset
+    return offset
+end
 
 function _compute_dynamic_line_offset(revise)
     # This calculates the line offset caused by running `Revise` and editing a
