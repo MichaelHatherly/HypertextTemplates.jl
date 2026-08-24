@@ -152,11 +152,18 @@ function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
         root = get(io, :__root__, nothing)
         if !isnothing(root)
             file, line = root
-            print(io, " data-htroot=\"", "$(file):$(line)", "\"")
+            # Written piecewise rather than interpolated: this runs once per
+            # element under Revise, and interpolation would build and discard a
+            # string every time.
+            print(io, " data-htroot=\"", file, ":")
+            _write_integer(io, line)
+            print(io, "\"")
         end
         offset = _compute_dynamic_line_offset(revise)
         file, line = source
-        print(io, " data-htloc=\"", "$(file):$(line + offset)", "\"")
+        print(io, " data-htloc=\"", file, ":")
+        _write_integer(io, line + offset)
+        print(io, "\"")
     end
     return nothing
 end

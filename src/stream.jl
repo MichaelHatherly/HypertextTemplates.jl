@@ -52,7 +52,7 @@ end
 function should_flush_micro_batch(mbw::MicroBatchWriter, now::Float64 = time())
     position(mbw.buffer) >= mbw.max_buffer_size ||        # Buffer is full
         (position(mbw.buffer) > 0 && now - mbw.last_write_time >= mbw.max_buffer_time) ||  # Time limit reached
-        mbw.write_count >= 10  # Many small writes (prevents pathological cases)
+        mbw.write_count >= 64  # Many small writes (prevents pathological cases)
 end
 
 function Base.write(mbw::MicroBatchWriter, byte::UInt8)
