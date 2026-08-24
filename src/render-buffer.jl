@@ -10,6 +10,21 @@
 # bytes — and nothing else, which lets the copy go through `memcpy`. It only
 # ever backs `@render` calls that produce a `String` or a `Vector{UInt8}`; a
 # destination the caller supplies is still written to directly and unchanged.
+#
+# Julia 1.12 rewrote `IOBuffer` and its `unsafe_write` now does use `memcpy`
+# for anything longer than four bytes, so the scalar loop is not the whole
+# story and this does not become redundant when 1.12 is the minimum. Writing
+# the same 147 KB page through both, buffers pre-grown so only the write path
+# is timed:
+#
+#   Julia 1.11.7   IOBuffer 87.3 us   RenderBuffer 35.0 us   2.5x
+#   Julia 1.12.0   IOBuffer 72.0 us   RenderBuffer 33.7 us   2.1x
+#
+# What is left after the `memcpy` fix is the generality: `ensureroom` and its
+# compaction heuristics, the `maxsize`, `append`, `offset` and `ptr`
+# arithmetic, and the clamping that every write has to do because the buffer
+# might be seekable or size-limited. None of that applies to a sink that only
+# ever appends.
 
 mutable struct RenderBuffer <: IO
     data::Vector{UInt8}
