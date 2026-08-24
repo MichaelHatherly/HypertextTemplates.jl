@@ -457,6 +457,47 @@ end
             end
         end
 
+        # The scan for the first escapable byte reads eight bytes at a time,
+        # after a prologue that walks to an eight-byte boundary. So an escapable
+        # character has to be found at every position, at every length spanning
+        # several words, and at every pointer alignment -- which substrings
+        # provide, since their data begins at an arbitrary offset.
+        for length = 0:40
+            filler = repeat("x", length)
+            @test sprint(HypertextTemplates.escape_html, filler) == filler
+            for position = 1:length,
+                (character, entity) in ("&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+
+                subject = filler[1:(position-1)] * character * filler[(position+1):end]
+                expected = filler[1:(position-1)] * entity * filler[(position+1):end]
+                @test sprint(HypertextTemplates.escape_html, subject) == expected
+                # The same bytes reached through a substring, so the scan sees
+                # a pointer that is not eight-byte aligned.
+                padded = "abcde" * subject
+                for offset = 1:6
+                    view = SubString(padded, offset)
+                    @test sprint(HypertextTemplates.escape_html, view) ==
+                          sprint(HypertextTemplates.escape_html, String(view))
+                end
+            end
+        end
+        # Attribute escaping looks for two more characters, so it gets the same
+        # treatment at the lengths where words and boundaries interact.
+        for length in (7, 8, 9, 15, 16, 17, 23, 24, 25)
+            for position = 1:length, character in ("\"", "'", "&", "<", ">")
+                subject =
+                    repeat("y", position - 1) * character * repeat("y", length - position)
+                @test sprint(HypertextTemplates.escape_attr, subject) == replace(
+                    subject,
+                    "&" => "&amp;",
+                    "<" => "&lt;",
+                    ">" => "&gt;",
+                    "\"" => "&quot;",
+                    "'" => "&#39;",
+                )
+            end
+        end
+
         # A block boundary must not corrupt output, so check lengths either
         # side of it, including where an entity would straddle the edge.
         for length in [

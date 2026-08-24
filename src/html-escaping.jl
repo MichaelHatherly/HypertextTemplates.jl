@@ -223,6 +223,60 @@ function _escape_blocked(
     return nothing
 end
 
+# Locating the first byte that needs an entity is the whole cost of escaping
+# text that turns out to need none, which is most of what a template writes. It
+# is done eight bytes at a time: a word is read, and a handful of arithmetic
+# operations say whether any byte in it is one of the ones being looked for.
+#
+# `(v - ones) & ~v & highs` leaves a high bit set in each zero byte of `v`, so
+# xor-ing the word with a repeated target byte turns "is this byte present"
+# into "is any byte zero".
+const _ONE_PER_BYTE = 0x0101010101010101
+const _HIGH_PER_BYTE = 0x8080808080808080
+
+@inline _zero_byte(word::UInt64) = (word - _ONE_PER_BYTE) & ~word & _HIGH_PER_BYTE
+@inline _byte_present(word::UInt64, b::UInt8) = _zero_byte(word ⊻ (_ONE_PER_BYTE * b))
+
+@inline function _escapable_present(word::UInt64, attribute::Bool)
+    found =
+        _byte_present(word, UInt8('&')) | _byte_present(word, UInt8('<')) |
+        _byte_present(word, UInt8('>'))
+    if attribute
+        found |= _byte_present(word, UInt8('"')) | _byte_present(word, UInt8('\''))
+    end
+    return found
+end
+
+# Below this the word loop's alignment prologue costs more than it saves.
+const _WORD_SCAN_MINIMUM = 16
+
+function _first_escapable(source::Ptr{UInt8}, n::Int, attribute::Bool)
+    i = 1
+    if n >= _WORD_SCAN_MINIMUM
+        # Advance to an eight-byte boundary first, so the loop below never
+        # issues an unaligned load.
+        while i <= n && (UInt(source + i - 1) & 0x7) != 0
+            _escapable(unsafe_load(source, i), attribute) && return i
+            i += 1
+        end
+        while i + 7 <= n
+            if _escapable_present(unsafe_load(Ptr{UInt64}(source + i - 1)), attribute) != 0
+                # Some byte in this word matches; find which.
+                for offset = 0:7
+                    _escapable(unsafe_load(source, i + offset), attribute) &&
+                        return i + offset
+                end
+            end
+            i += 8
+        end
+    end
+    while i <= n
+        _escapable(unsafe_load(source, i), attribute) && return i
+        i += 1
+    end
+    return 0
+end
+
 # Works from a pointer so that the string escapers and the wrapper used for
 # arbitrary values share one implementation; the wrapper only ever has a
 # pointer to hand.
@@ -233,13 +287,7 @@ function _escape_bytes(
     ::Val{attribute},
 ) where {attribute}
     n <= 0 && return nothing
-    first = 0
-    for i = 1:n
-        if _escapable(unsafe_load(source, i), attribute)
-            first = i
-            break
-        end
-    end
+    first = _first_escapable(source, n, attribute)
     # Nothing to escape: hand the whole run over in one write.
     if first == 0
         unsafe_write(io, source, UInt(n))
