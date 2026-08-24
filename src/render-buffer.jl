@@ -53,6 +53,10 @@ end
     return 1
 end
 
+# Empties the buffer but keeps the capacity it has grown into, for a buffer
+# that is filled and drained over and over.
+_reset!(buffer::RenderBuffer) = (buffer.size = 0; nothing)
+
 # Hands the bytes over and leaves the buffer empty, matching `IOBuffer`.
 function Base.take!(buffer::RenderBuffer)
     data = buffer.data
