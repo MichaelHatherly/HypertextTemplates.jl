@@ -28,6 +28,18 @@ end
 @element "custom-element" custom_element
 @deftag macro custom_element end
 
+# Values used to check how arbitrary objects are escaped: one whose `show`
+# emits every character that needs escaping, and one that inspects the stream
+# it is printed to.
+struct ShowsAngles end
+Base.show(io::IO, ::ShowsAngles) = print(io, "<&\"'>")
+const shows_angles = ShowsAngles()
+
+struct ContextSensitive end
+Base.show(io::IO, ::ContextSensitive) =
+    print(io, get(io, :compact, false) ? "compact" : "full")
+const context_sensitive = ContextSensitive()
+
 @component function custom_component(; prop)
     @div {class = prop, id = 1} begin
         @p @text "component content"
@@ -241,6 +253,56 @@ end
         @test isa(result, String)
         result_bytes = @render Vector{UInt8} @p "content"
         @test isa(result_bytes, Vector{UInt8})
+    end
+    @testset "Escaping Arbitrary Values" begin
+        # Values that are neither strings, numbers nor characters are escaped
+        # as they print, rather than being turned into a string first. The
+        # result has to match what escaping `string(value)` produced.
+        reference(escaper, value) = sprint(escaper, string(value))
+        for value in Any[
+            :sym,
+            :var"weird<sym>&\"'",
+            nothing,
+            missing,
+            3//4,
+            1+2im,
+            ["<a>", "&b", "\"c\"", "'d'"],
+            (a = 1, b = "<x>"),
+            Dict(:a => "<v>"),
+            1:5,
+            Int,
+            Vector{Int},
+            Some("<x>"),
+            big(2)^70,
+            Int128(-5),
+        ]
+            @test sprint(HypertextTemplates.escape_html, value) ==
+                  reference(HypertextTemplates.escape_html, value)
+            @test sprint(HypertextTemplates.escape_attr, value) ==
+                  reference(HypertextTemplates.escape_attr, value)
+        end
+
+        # A value whose `show` inspects the stream must see what it saw when it
+        # was rendered into a bare buffer, so the wrapper must not forward the
+        # surrounding `IOContext`.
+        buffer = IOBuffer()
+        HypertextTemplates.escape_html(
+            IOContext(buffer, :compact => true),
+            context_sensitive,
+        )
+        @test String(take!(buffer)) == "full"
+
+        # Rendered without source locations, which Revise would otherwise add.
+        function plain(f)
+            io = IOBuffer()
+            f(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+            return String(take!(io))
+        end
+        @test plain(io -> @render io @div $(:sym)) == "<div>sym</div>"
+        @test plain(io -> @render io @div {id = :sym}) == "<div id=\"sym\"></div>"
+        @test plain(io -> @render io @div $(shows_angles)) == "<div>&lt;&amp;\"'&gt;</div>"
+        @test plain(io -> @render io @div {t = shows_angles}) ==
+              "<div t=\"&lt;&amp;&quot;&#39;&gt;\"></div>"
     end
     @testset "Source Information" begin
         line = @__LINE__

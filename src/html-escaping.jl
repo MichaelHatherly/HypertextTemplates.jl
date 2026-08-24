@@ -157,7 +157,7 @@ function escape_html(io::IO, value::Char)
     end
     return nothing
 end
-escape_html(io::IO, other) = escape_html(io, string(other))
+escape_html(io::IO, other) = (print(EscapeStream{false}(io), other); nothing)
 escape_html(io::IO, value, revise) = escape_html(io, value)
 
 # Write `value[from:to]` (code unit indices) without materialising a substring.
@@ -268,4 +268,65 @@ function escape_attr(io::IO, value::Char)
     end
     return nothing
 end
-escape_attr(io::IO, other) = escape_attr(io, string(other))
+escape_attr(io::IO, other) = (print(EscapeStream{true}(io), other); nothing)
+
+# Values that are neither strings, numbers nor characters used to be turned
+# into a `String` and then scanned, allocating a throwaway copy of every
+# interpolated `Symbol`, `Date`, `UUID` and so on. Printing through this
+# wrapper escapes the bytes as `print` produces them, with no copy in between.
+# The type parameter selects attribute escaping, and is resolved at compile
+# time.
+#
+# It deliberately does not forward `IOContext` properties. `string(value)`
+# renders into a bare buffer, so a value whose `show` consults the stream --
+# checking `:compact`, say -- must keep seeing the defaults it saw before.
+struct EscapeStream{attribute,I<:IO} <: IO
+    io::I
+end
+
+EscapeStream{attribute}(io::I) where {attribute,I<:IO} = EscapeStream{attribute,I}(io)
+
+@inline function Base.write(stream::EscapeStream{attribute}, byte::UInt8) where {attribute}
+    io = stream.io
+    if byte == UInt8('&')
+        write(io, "&amp;")
+    elseif byte == UInt8('<')
+        write(io, "&lt;")
+    elseif byte == UInt8('>')
+        write(io, "&gt;")
+    elseif attribute && byte == UInt8('"')
+        write(io, "&quot;")
+    elseif attribute && byte == UInt8('\'')
+        write(io, "&#39;")
+    else
+        write(io, byte)
+    end
+    return 1
+end
+
+# Runs between escapable bytes are forwarded whole. Scanning bytes is safe for
+# the same reason it is in the escapers above: every character replaced here is
+# ASCII, and ASCII bytes never occur inside a multi-byte UTF-8 sequence.
+function Base.unsafe_write(
+    stream::EscapeStream{attribute},
+    ptr::Ptr{UInt8},
+    n::UInt,
+) where {attribute}
+    io = stream.io
+    start = 1
+    index = 1
+    while index <= n
+        byte = unsafe_load(ptr, index)
+        if byte == UInt8('&') ||
+           byte == UInt8('<') ||
+           byte == UInt8('>') ||
+           (attribute && (byte == UInt8('"') || byte == UInt8('\'')))
+            index > start && unsafe_write(io, ptr + start - 1, UInt(index - start))
+            write(stream, byte)
+            start = index + 1
+        end
+        index += 1
+    end
+    start <= n && unsafe_write(io, ptr + start - 1, UInt(n - start + 1))
+    return Int(n)
+end
