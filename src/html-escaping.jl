@@ -139,6 +139,13 @@ function escape_html(io::IO, value::Union{String,SubString{String}})
 end
 
 escape_html(io::IO, ss::SafeString) = print(io, ss.str)
+
+# Concatenating a `SafeString` into a longer string yields ordinary text, and
+# the result is then escaped as a whole. `@text` writes the pieces of such a
+# string separately rather than joining them, so it flattens each piece the
+# same way to keep the outcome identical.
+_as_text(value::SafeString) = value.str
+_as_text(value) = value
 # Numbers cannot produce any character that needs escaping, so skip both the
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)

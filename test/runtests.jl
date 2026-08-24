@@ -361,6 +361,74 @@ end
         # these 200 rows; keeping the pieces costs nothing over a plain value.
         @test interpolated <= plain + 1_000
     end
+    @testset "Interpolated Text" begin
+        # An interpolated string of two or more pieces is written piece by
+        # piece rather than joined first. Joining flattened any `SafeString`
+        # among the pieces into ordinary text, so the pieces have to be
+        # flattened the same way -- and a single-piece string, where `string`
+        # can pass a `SafeString` through untouched, is left alone.
+        safe = SafeString("<b>bold</b>")
+        angles = "<i>&\"'"
+        index = 42
+
+        function bare(render)
+            io = IOBuffer()
+            render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+            return String(take!(io))
+        end
+
+        # Two or more pieces: the safe value is flattened and escaped.
+        @test bare(io -> @render io @div "s=$safe") ==
+              "<div>s=&lt;b&gt;bold&lt;/b&gt;</div>"
+        @test bare(io -> @render io @div "$(safe)!") ==
+              "<div>&lt;b&gt;bold&lt;/b&gt;!</div>"
+        # A single piece: the safe value passes through, as it always has.
+        @test bare(io -> @render io @div "$safe") == "<div><b>bold</b></div>"
+        @test bare(io -> @render io @div $safe) == "<div><b>bold</b></div>"
+
+        @test bare(io -> @render io @div "x=$angles") == "<div>x=&lt;i&gt;&amp;\"'</div>"
+        @test bare(io -> @render io @div "<$index>") == "<div>&lt;42&gt;</div>"
+        @test bare(io -> @render io @div "a<b> $index") == "<div>a&lt;b&gt; 42</div>"
+        @test bare(io -> @render io @div "$index-$angles-$index") ==
+              "<div>42-&lt;i&gt;&amp;\"'-42</div>"
+        @test bare(io -> @render io @div "☃$(index)—") == "<div>☃42—</div>"
+        @test bare(io -> @render io @div @text "n=$index") == "<div>n=42</div>"
+        @test bare(io -> @render io @div "no interpolation") ==
+              "<div>no interpolation</div>"
+
+        # And writing the pieces separately is what removes the allocations, so
+        # that is asserted too rather than only the output.
+        #
+        # The comparison is against a template with no interpolation but output
+        # of the same length, since allocation here is driven by how far the
+        # buffer has to grow. Comparing against a template that simply prints
+        # less would measure the output size, not the interpolation.
+        function interpolated_paragraphs(io, n)
+            @render io @div begin
+                for i = 1:n
+                    @p "ab$i"
+                end
+            end
+        end
+        function literal_paragraphs(io, n)
+            @render io @div begin
+                for _ = 1:n
+                    @p "abcd"
+                end
+            end
+        end
+        buffer = IOBuffer(sizehint = 1 << 20)
+        located = IOContext(buffer, HypertextTemplates._include_data_htloc() => false)
+        interpolated_paragraphs(located, 5)
+        literal_paragraphs(located, 5)
+        take!(buffer)
+        interpolated = @allocated interpolated_paragraphs(located, 200)
+        take!(buffer)
+        literal = @allocated literal_paragraphs(located, 200)
+        take!(buffer)
+        # Joining first cost roughly 7 extra allocations per element.
+        @test interpolated <= literal + 1_000
+    end
     @testset "Escaping Arbitrary Values" begin
         # Values that are neither strings, numbers nor characters are escaped
         # as they print, rather than being turned into a string first. The
