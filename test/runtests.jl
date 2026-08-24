@@ -278,6 +278,94 @@ end
         result_bytes = @render Vector{UInt8} @p "content"
         @test isa(result_bytes, Vector{UInt8})
     end
+    @testset "Render Buffer" begin
+        # The sink `@render` builds for itself. It replaces `IOBuffer`, so it
+        # has to behave like one for everything a render does to it.
+        RenderBuffer = HypertextTemplates.RenderBuffer
+
+        buffer = RenderBuffer()
+        @test position(buffer) == 0
+        @test iswritable(buffer)
+        @test !isreadable(buffer)
+        @test take!(buffer) == UInt8[]
+
+        # Writes of every shape, and the growth boundary crossed repeatedly.
+        for total in (0, 1, 63, 64, 65, 127, 128, 1000, 100_000)
+            reference = IOBuffer()
+            buffer = RenderBuffer()
+            written = 0
+            piece = 1
+            while written < total
+                count = min(piece, total - written)
+                chunk = repeat("ab", count)[1:count]
+                print(reference, chunk)
+                print(buffer, chunk)
+                written += count
+                piece = piece == 17 ? 1 : piece + 1
+            end
+            @test position(buffer) == total
+            @test take!(buffer) == take!(reference)
+        end
+
+        # Single bytes, mixed with block writes.
+        reference = IOBuffer()
+        buffer = RenderBuffer()
+        for index = 1:300
+            if iseven(index)
+                write(reference, UInt8(index % 256))
+                write(buffer, UInt8(index % 256))
+            else
+                print(reference, "chunk-$index/")
+                print(buffer, "chunk-$index/")
+            end
+        end
+        @test take!(buffer) == take!(reference)
+
+        # `take!` hands the bytes over and leaves an empty buffer behind.
+        buffer = RenderBuffer()
+        print(buffer, "first")
+        @test String(take!(buffer)) == "first"
+        @test position(buffer) == 0
+        print(buffer, "second")
+        @test String(take!(buffer)) == "second"
+
+        # A size hint is a hint, not a limit.
+        buffer = RenderBuffer(4)
+        print(buffer, repeat("x", 500))
+        @test String(take!(buffer)) == repeat("x", 500)
+
+        # Non-ASCII goes through unchanged: the sink deals in bytes.
+        buffer = RenderBuffer()
+        print(buffer, "héllo — ☃")
+        @test String(take!(buffer)) == "héllo — ☃"
+
+        # And it is what a destination-less render actually uses.
+        @test HypertextTemplates._render_dst(String) isa RenderBuffer
+        @test HypertextTemplates._render_dst(Vector{UInt8}) isa RenderBuffer
+        supplied = IOBuffer()
+        @test HypertextTemplates._render_dst(supplied) === supplied
+
+        # Renders that grow past the initial capacity must still be exact.
+        big = @render @ul begin
+            for index = 1:2000
+                @li {class = "row", "data-index" := index} "item $index & more"
+            end
+        end
+        @test length(big) > 100_000
+        @test count("<li ", big) == 2000
+        @test occursin("&amp; more", big)
+        @test endswith(big, "</ul>")
+        # The `Vector{UInt8}` destination uses the same sink. Its source
+        # location differs from the render above, so it is checked on its own
+        # rather than compared byte for byte.
+        bytes = @render Vector{UInt8} @ul begin
+            for index = 1:2000
+                @li {class = "row", "data-index" := index} "item $index & more"
+            end
+        end
+        @test bytes isa Vector{UInt8}
+        @test count("<li ", String(bytes)) == 2000
+    end
     @testset "Interpolated Attributes" begin
         # An interpolated attribute keeps its pieces unjoined so that elements
         # can write them straight out. A component still has to receive the

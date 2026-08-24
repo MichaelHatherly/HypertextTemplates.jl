@@ -92,7 +92,7 @@ _render_props(io::IO, ::NamedTuple{(),Tuple{}}) = nothing
 end
 
 function _render_props(props)
-    io = IOBuffer()
+    io = RenderBuffer()
     _render_props(io, props)
     return String(take!(io))
 end
@@ -127,7 +127,7 @@ escape_attr(io::IO, value::InterpolatedAttribute) = _write_parts(io, value.parts
 
 # Joining is only ever reached through the component branch below.
 function _materialise(value::InterpolatedAttribute)
-    io = IOBuffer(; sizehint = _sizehint(value.parts))
+    io = RenderBuffer(_sizehint(value.parts))
     _write_parts(io, value.parts)
     return SafeString(String(take!(io)))
 end
