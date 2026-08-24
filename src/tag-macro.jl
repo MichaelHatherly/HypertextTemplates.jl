@@ -245,42 +245,27 @@ __process_prop(s::AbstractString) = Symbol(s)
 __process_prop(s::Symbol) = s
 __process_prop(s::QuoteNode) = s.value
 
-# An interpolated attribute value such as `{href = "/item/$id"}` still has to
-# be materialised, because a component receives it as a keyword and expects a
-# string. It used to be built with one `sprint` per interpolated part plus a
-# concatenation over the results, which meant several throwaway buffers and
-# strings per attribute. The parts are now escaped straight into a single
-# buffer instead.
+# An interpolated attribute value such as `{href = "/item/$id"}` used to be
+# assembled into a string on the spot. An element never needs that string --
+# it writes the value straight to the stream -- but a component does, since it
+# receives the property as a keyword. Since the macro cannot tell which of the
+# two it is expanding for, every element paid for a string it then threw away.
+#
+# So the parts are kept as they are and joined only where a string is actually
+# required, which is the component branch of `_render_tag`. Elements write the
+# parts directly and allocate nothing.
 #
 # Each part is still escaped individually, exactly as before, so a `SafeString`
 # interpolated into an attribute continues to pass through unescaped.
 function _sanitise(ex::Expr)
     if Meta.isexpr(ex, :string)
-        buffer = gensym("attribute")
-        # Every referenced function is spliced as a value rather than named,
-        # because the result is escaped into the caller's module.
-        body = Expr(:block)
-        for arg in ex.args
-            push!(body.args, if isa(arg, AbstractString)
-                # Literal segments are escaped here, during expansion.
-                Expr(:call, print, buffer, sprint(escape_attr, arg))
-            else
-                Expr(:call, escape_attr, buffer, arg)
-            end)
+        # Literal segments are escaped here, during expansion, and marked safe
+        # so that joining them later leaves them alone. Everything else is
+        # escaped when it is written.
+        parts = map(ex.args) do arg
+            isa(arg, AbstractString) ? SafeString(sprint(escape_attr, arg)) : arg
         end
-        push!(
-            body.args,
-            Expr(:call, SafeString, Expr(:call, String, Expr(:call, take!, buffer))),
-        )
-        # The literal segments give an exact lower bound on the result, so size
-        # the buffer up front rather than letting it grow.
-        sizehint =
-            sum(
-                (sizeof(sprint(escape_attr, a)) for a in ex.args if isa(a, AbstractString));
-                init = 0,
-            ) + 8 * count(a -> !isa(a, AbstractString), ex.args)
-        allocate = Expr(:call, IOBuffer, Expr(:parameters, Expr(:kw, :sizehint, sizehint)))
-        return Expr(:let, Expr(:(=), buffer, allocate), body)
+        return Expr(:call, InterpolatedAttribute, Expr(:tuple, parts...))
     else
         return ex
     end

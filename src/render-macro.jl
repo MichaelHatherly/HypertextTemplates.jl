@@ -128,5 +128,10 @@ _render_return(::IO, other::Any) = error("unsupported `@render` destination `$(o
 
 # Components take their properties as keywords, so the props plan that `@<`
 # builds for elements has nothing to do here.
+#
+# This is also the one place a component can be reached, and so the one place
+# an interpolated attribute has to become a string. `_materialise` is a no-op
+# unless the property types say otherwise, so a component with no interpolated
+# attribute pays nothing for the check.
 _render_tag(io::IO, tag, plan, props, slots, source, revise) =
-    tag(; props..., V"source" = source, V"io" = io, V"slots" = slots)
+    tag(; _materialise(props)..., V"source" = source, V"io" = io, V"slots" = slots)
