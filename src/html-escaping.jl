@@ -14,6 +14,48 @@ macro esc_str(txt)
     return SafeString(sprint(escape_html, txt))
 end
 
+# `print(io, ::Int)` builds a `String` first, so it allocates on every integer
+# written. In a page of any size that dominates: a 200 row table spent about
+# 85% of its allocations there. Integers are extremely common in templates --
+# loop counters, ids, indices, sizes -- so they get written digit by digit into
+# a fixed size stack buffer instead, and handed to the stream in one go.
+#
+# `Bool` is deliberately excluded: it prints as `true`/`false`, not `1`/`0`.
+# `Int128`/`UInt128` and `BigInt` are excluded too, since for those the
+# buffered loop is slower than `print` and they are vanishingly rare here.
+const NativeInteger = Union{Int8,Int16,Int32,Int64,UInt8,UInt16,UInt32,UInt64}
+
+function _write_integer(io::IO, n::NativeInteger)
+    negative = n < 0
+    # Negating `typemin` wraps back to `typemin`, whose reinterpretation as an
+    # unsigned value is exactly the magnitude wanted, so this needs no special
+    # case.
+    u = negative ? unsigned(-n) : unsigned(n)
+    # 20 digits holds `typemax(UInt64)`; the buffer is oversized for headroom
+    # and never escapes, so it stays on the stack.
+    buffer = Ref{NTuple{24,UInt8}}()
+    len = 0
+    GC.@preserve buffer begin
+        ptr = Base.unsafe_convert(Ptr{UInt8}, buffer)
+        index = 24
+        while true
+            quotient, remainder = divrem(u, oftype(u, 10))
+            unsafe_store!(ptr, UInt8('0') + (remainder % UInt8), index)
+            index -= 1
+            len += 1
+            u = quotient
+            iszero(u) && break
+        end
+        if negative
+            unsafe_store!(ptr, UInt8('-'), index)
+            index -= 1
+            len += 1
+        end
+        unsafe_write(io, ptr + index, UInt(len))
+    end
+    return nothing
+end
+
 """
     escape_html(io::IO, value)
 
@@ -100,6 +142,7 @@ escape_html(io::IO, ss::SafeString) = print(io, ss.str)
 # Numbers cannot produce any character that needs escaping, so skip both the
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_html(io::IO, value::NativeInteger) = _write_integer(io, value)
 # A single character needs at most one substitution, and checking it directly
 # avoids the `string` allocation the generic fallback would make.
 function escape_html(io::IO, value::Char)
@@ -207,6 +250,7 @@ end
 
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
 escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_attr(io::IO, value::NativeInteger) = _write_integer(io, value)
 # See `escape_html(::IO, ::Char)` above.
 function escape_attr(io::IO, value::Char)
     if value == '&'
