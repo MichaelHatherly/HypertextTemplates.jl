@@ -76,14 +76,23 @@ macro deftag(name)
 end
 
 function deftag(name::Symbol)
+    # The generated macro is defined in, and expands in, the caller's module,
+    # so every name its body mentions has to be qualified. An unqualified
+    # `esc`, `Expr`, `GlobalRef` or `Symbol` would resolve against the caller's
+    # bindings instead of `Base`/`Core`, and a caller that happens to define
+    # any of those names would break every tag macro in their module with an
+    # error pointing into this file. `HypertextTemplates` is spliced as a
+    # module value for the same reason: the caller need not have it in scope
+    # under that name, or at all.
+    tag_macro = Core.GlobalRef(HypertextTemplates, Symbol("@<"))
     return esc(
         quote
             $(Expr(:function, name))
             macro $(name)(args...)
-                return esc(
-                    Expr(
+                return $(Base.esc)(
+                    $(Core.Expr)(
                         :macrocall,
-                        GlobalRef(HypertextTemplates, Symbol("@<")),
+                        $(Core.GlobalRef)($(tag_macro.mod), $(QuoteNode(tag_macro.name))),
                         __source__,
                         $(name),
                         args...,
