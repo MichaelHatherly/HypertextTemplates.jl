@@ -110,31 +110,11 @@ function escape_html(io::IO, value::AbstractString)
     end
 end
 
-# Fast path for the string types that actually show up in templates. Rather
-# than writing one character at a time we scan the code units and write the
-# runs between escapable characters in one go. Scanning bytes is safe because
-# the characters we escape are all ASCII and ASCII bytes never appear inside a
-# multi-byte UTF-8 sequence.
+# Fast path for the string types that actually show up in templates: see
+# `_escape_scan` below. Scanning bytes is safe because every character replaced
+# is ASCII, and ASCII bytes never appear inside a multi-byte UTF-8 sequence.
 function escape_html(io::IO, value::Union{String,SubString{String}})
-    n = ncodeunits(value)
-    start = 1
-    i = 1
-    @inbounds while i <= n
-        b = codeunit(value, i)
-        if b == UInt8('&') || b == UInt8('<') || b == UInt8('>')
-            i > start && _write_range(io, value, start, i - 1)
-            if b == UInt8('&')
-                write(io, "&amp;")
-            elseif b == UInt8('<')
-                write(io, "&lt;")
-            else
-                write(io, "&gt;")
-            end
-            start = i + 1
-        end
-        i += 1
-    end
-    start <= n && _write_range(io, value, start, n)
+    _escape_scan(io, value, Val(false))
     return nothing
 end
 
@@ -166,6 +146,103 @@ function escape_html(io::IO, value::Char)
 end
 escape_html(io::IO, other) = (print(EscapeStream{false}(io), other); nothing)
 escape_html(io::IO, value, revise) = escape_html(io, value)
+
+# Escaping used to write each entity with its own `write(io, "&lt;")`, which on
+# text that needs a lot of escaping meant a write per character. Instead the
+# escaped form is assembled in a fixed stack buffer and handed over a block at
+# a time, so the cost per character is a couple of stores rather than a call
+# into the stream.
+#
+# The clean prefix is still written straight from the source string, so text
+# that needs no escaping at all -- the common case -- costs one scan and one
+# write and never touches the scratch buffer.
+const ESCAPE_BLOCK = 256
+
+@inline function _escapable(b::UInt8, attribute::Bool)
+    return b == UInt8('&') ||
+           b == UInt8('<') ||
+           b == UInt8('>') ||
+           (attribute && (b == UInt8('"') || b == UInt8('\'')))
+end
+
+@inline function _store_entity(
+    out::Ptr{UInt8},
+    filled::Int,
+    bytes::NTuple{N,UInt8},
+) where {N}
+    for index = 1:N
+        unsafe_store!(out, bytes[index], filled + index)
+    end
+    return filled + N
+end
+
+@inline function _store_escaped(
+    out::Ptr{UInt8},
+    filled::Int,
+    b::UInt8,
+    ::Val{attribute},
+) where {attribute}
+    if b == UInt8('&')
+        return _store_entity(out, filled, map(UInt8, ('&', 'a', 'm', 'p', ';')))
+    elseif b == UInt8('<')
+        return _store_entity(out, filled, map(UInt8, ('&', 'l', 't', ';')))
+    elseif b == UInt8('>')
+        return _store_entity(out, filled, map(UInt8, ('&', 'g', 't', ';')))
+    elseif attribute && b == UInt8('"')
+        return _store_entity(out, filled, map(UInt8, ('&', 'q', 'u', 'o', 't', ';')))
+    elseif attribute && b == UInt8('\'')
+        return _store_entity(out, filled, map(UInt8, ('&', '#', '3', '9', ';')))
+    else
+        unsafe_store!(out, b, filled + 1)
+        return filled + 1
+    end
+end
+
+function _escape_blocked(
+    io::IO,
+    value::Union{String,SubString{String}},
+    from::Int,
+    to::Int,
+    ::Val{attribute},
+) where {attribute}
+    # The longest entity is six bytes, so the block can overshoot by five
+    # before the check below; the headroom covers it.
+    scratch = Ref{NTuple{ESCAPE_BLOCK + 8,UInt8}}()
+    GC.@preserve scratch begin
+        out = Base.unsafe_convert(Ptr{UInt8}, scratch)
+        filled = 0
+        @inbounds for i = from:to
+            filled = _store_escaped(out, filled, codeunit(value, i), Val(attribute))
+            if filled >= ESCAPE_BLOCK
+                unsafe_write(io, out, UInt(filled))
+                filled = 0
+            end
+        end
+        filled > 0 && unsafe_write(io, out, UInt(filled))
+    end
+    return nothing
+end
+
+function _escape_scan(
+    io::IO,
+    value::Union{String,SubString{String}},
+    ::Val{attribute},
+) where {attribute}
+    n = ncodeunits(value)
+    n == 0 && return nothing
+    first = 0
+    @inbounds for i = 1:n
+        if _escapable(codeunit(value, i), attribute)
+            first = i
+            break
+        end
+    end
+    # Nothing to escape: hand the whole string over in one write.
+    first == 0 && return _write_range(io, value, 1, n)
+    first > 1 && _write_range(io, value, 1, first - 1)
+    _escape_blocked(io, value, first, n, Val(attribute))
+    return nothing
+end
 
 # Write `value[from:to]` (code unit indices) without materialising a substring.
 @inline function _write_range(
@@ -225,33 +302,7 @@ end
 
 # See `escape_html` above for why the code unit scan is safe.
 function escape_attr(io::IO, value::Union{String,SubString{String}})
-    n = ncodeunits(value)
-    start = 1
-    i = 1
-    @inbounds while i <= n
-        b = codeunit(value, i)
-        if b == UInt8('&') ||
-           b == UInt8('<') ||
-           b == UInt8('>') ||
-           b == UInt8('"') ||
-           b == UInt8('\'')
-            i > start && _write_range(io, value, start, i - 1)
-            if b == UInt8('&')
-                write(io, "&amp;")
-            elseif b == UInt8('<')
-                write(io, "&lt;")
-            elseif b == UInt8('>')
-                write(io, "&gt;")
-            elseif b == UInt8('"')
-                write(io, "&quot;")
-            else
-                write(io, "&#39;")
-            end
-            start = i + 1
-        end
-        i += 1
-    end
-    start <= n && _write_range(io, value, start, n)
+    _escape_scan(io, value, Val(true))
     return nothing
 end
 

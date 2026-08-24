@@ -361,6 +361,72 @@ end
         # these 200 rows; keeping the pieces costs nothing over a plain value.
         @test interpolated <= plain + 1_000
     end
+    @testset "Escaping Blocks" begin
+        # Escaped output is assembled in a fixed stack buffer and handed over a
+        # block at a time. The buffer must never escape to the heap, or the
+        # scan would allocate on every string rendered.
+        struct DiscardingSink <: IO end
+        Base.unsafe_write(::DiscardingSink, ::Ptr{UInt8}, n::UInt) = Int(n)
+        Base.write(::DiscardingSink, byte::UInt8) = 1
+        sink = DiscardingSink()
+
+        subjects = [
+            "" => "empty",
+            "hi" => "short plain",
+            "a<b>&c" => "short mixed",
+            repeat("abc ", 400) => "long plain",
+            repeat("a<b>&c ", 250) => "long mixed",
+            repeat("<", 1000) => "nothing but escapes",
+            repeat("héllo ☃ ", 100) => "unicode",
+            "\"'&<>" => "every escapable character",
+        ]
+        for (subject, _) in subjects
+            HypertextTemplates.escape_html(sink, subject)
+            HypertextTemplates.escape_attr(sink, subject)
+        end
+        function repeatedly(escaper, subject, n)
+            for _ = 1:n
+                escaper(sink, subject)
+            end
+        end
+        for (subject, name) in subjects
+            repeatedly(HypertextTemplates.escape_html, subject, 3)
+            repeatedly(HypertextTemplates.escape_attr, subject, 3)
+            @testset "$name" begin
+                @test (@allocated repeatedly(
+                    HypertextTemplates.escape_html,
+                    subject,
+                    500,
+                )) == 0
+                @test (@allocated repeatedly(
+                    HypertextTemplates.escape_attr,
+                    subject,
+                    500,
+                )) == 0
+            end
+        end
+
+        # A block boundary must not corrupt output, so check lengths either
+        # side of it, including where an entity would straddle the edge.
+        for length in [
+            HypertextTemplates.ESCAPE_BLOCK .+ (-3:3)...,
+            2 * HypertextTemplates.ESCAPE_BLOCK,
+        ]
+            for filler in ("x", "<", "&", "\"")
+                subject = repeat(filler, length)
+                @test sprint(HypertextTemplates.escape_html, subject) ==
+                      replace(subject, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+                @test sprint(HypertextTemplates.escape_attr, subject) == replace(
+                    subject,
+                    "&" => "&amp;",
+                    "<" => "&lt;",
+                    ">" => "&gt;",
+                    "\"" => "&quot;",
+                    "'" => "&#39;",
+                )
+            end
+        end
+    end
     @testset "Once Blocks" begin
         # An `IOContext` hands its properties back as `Any`, so the set behind
         # `@__once__` has to be asserted back to its real type or every
