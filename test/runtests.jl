@@ -40,6 +40,16 @@ Base.show(io::IO, ::ContextSensitive) =
     print(io, get(io, :compact, false) ? "compact" : "full")
 const context_sensitive = ContextSensitive()
 
+# Long enough to cross the escaping block boundary several times, so that
+# arbitrary values go through the same blocked path the string escapers use.
+struct ShowsLongMixed end
+Base.show(io::IO, ::ShowsLongMixed) = print(io, repeat("a<b>&c\"d'e ", 200))
+const shows_long_mixed = ShowsLongMixed()
+
+struct ShowsLongPlain end
+Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
+const shows_long_plain = ShowsLongPlain()
+
 # Records the type of every property it is handed, so that the lazy form of an
 # interpolated attribute can be caught if it ever escapes to a component.
 const observed_properties = Any[]
@@ -563,6 +573,9 @@ end
             Some("<x>"),
             big(2)^70,
             Int128(-5),
+            shows_angles,
+            shows_long_mixed,
+            shows_long_plain,
         ]
             @test sprint(HypertextTemplates.escape_html, value) ==
                   reference(HypertextTemplates.escape_html, value)

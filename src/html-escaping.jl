@@ -200,7 +200,7 @@ end
 
 function _escape_blocked(
     io::IO,
-    value::Union{String,SubString{String}},
+    source::Ptr{UInt8},
     from::Int,
     to::Int,
     ::Val{attribute},
@@ -211,8 +211,8 @@ function _escape_blocked(
     GC.@preserve scratch begin
         out = Base.unsafe_convert(Ptr{UInt8}, scratch)
         filled = 0
-        @inbounds for i = from:to
-            filled = _store_escaped(out, filled, codeunit(value, i), Val(attribute))
+        for i = from:to
+            filled = _store_escaped(out, filled, unsafe_load(source, i), Val(attribute))
             if filled >= ESCAPE_BLOCK
                 unsafe_write(io, out, UInt(filled))
                 filled = 0
@@ -223,24 +223,37 @@ function _escape_blocked(
     return nothing
 end
 
-function _escape_scan(
+# Works from a pointer so that the string escapers and the wrapper used for
+# arbitrary values share one implementation; the wrapper only ever has a
+# pointer to hand.
+function _escape_bytes(
     io::IO,
-    value::Union{String,SubString{String}},
+    source::Ptr{UInt8},
+    n::Int,
     ::Val{attribute},
 ) where {attribute}
-    n = ncodeunits(value)
-    n == 0 && return nothing
+    n <= 0 && return nothing
     first = 0
-    @inbounds for i = 1:n
-        if _escapable(codeunit(value, i), attribute)
+    for i = 1:n
+        if _escapable(unsafe_load(source, i), attribute)
             first = i
             break
         end
     end
-    # Nothing to escape: hand the whole string over in one write.
-    first == 0 && return _write_range(io, value, 1, n)
-    first > 1 && _write_range(io, value, 1, first - 1)
-    _escape_blocked(io, value, first, n, Val(attribute))
+    # Nothing to escape: hand the whole run over in one write.
+    if first == 0
+        unsafe_write(io, source, UInt(n))
+        return nothing
+    end
+    first > 1 && unsafe_write(io, source, UInt(first - 1))
+    _escape_blocked(io, source, first, n, Val(attribute))
+    return nothing
+end
+
+function _escape_scan(io::IO, value::Union{String,SubString{String}}, escaping::Val)
+    n = ncodeunits(value)
+    n == 0 && return nothing
+    GC.@preserve value _escape_bytes(io, pointer(value), n, escaping)
     return nothing
 end
 
@@ -370,21 +383,6 @@ function Base.unsafe_write(
     ptr::Ptr{UInt8},
     n::UInt,
 ) where {attribute}
-    io = stream.io
-    start = 1
-    index = 1
-    while index <= n
-        byte = unsafe_load(ptr, index)
-        if byte == UInt8('&') ||
-           byte == UInt8('<') ||
-           byte == UInt8('>') ||
-           (attribute && (byte == UInt8('"') || byte == UInt8('\'')))
-            index > start && unsafe_write(io, ptr + start - 1, UInt(index - start))
-            write(stream, byte)
-            start = index + 1
-        end
-        index += 1
-    end
-    start <= n && unsafe_write(io, ptr + start - 1, UInt(n - start + 1))
+    _escape_bytes(stream.io, ptr, Int(n), Val(attribute))
     return Int(n)
 end
