@@ -978,6 +978,41 @@ end
         end
         cycles(batcher, sink, 5)
         @test (@allocated cycles(batcher, sink, 100)) < 100 * 150
+
+        # The write path no longer reads the clock, which leaves the flush
+        # timer as the only thing bounding latency. So check it directly: a
+        # producer that emits a little and then stalls must have that little
+        # delivered while it is still stalled, not once it finishes.
+        function stalling(io)
+            @render io @div begin
+                @span "a"
+                sleep(0.25)
+                @span "b"
+                sleep(0.25)
+                @span "c"
+            end
+        end
+        function quick(io)
+            @render io @div begin
+                @span "a"
+                @span "b"
+                @span "c"
+            end
+        end
+        # Warm up first: compiling the render, the iterator and this loop body
+        # would otherwise be charged to the first chunk's arrival.
+        collect(StreamingRender(quick))
+        collect(StreamingRender(stalling))
+        started = Base.time()
+        arrivals = Tuple{Float64,String}[]
+        for chunk in StreamingRender(stalling)
+            push!(arrivals, (Base.time() - started, String(copy(chunk))))
+        end
+        @test join(last.(arrivals)) == sprint(stalling)
+        # The producer runs for about half a second. Anything under a tenth of
+        # that means the timer flushed while it was asleep rather than the
+        # bytes waiting for it to return.
+        @test first(first(arrivals)) < 0.05
     end
     @testset "Macro Hygiene" begin
         # The macro that `@deftag` generates is defined in, and expands in, the

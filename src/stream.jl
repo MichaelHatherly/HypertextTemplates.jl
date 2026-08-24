@@ -25,7 +25,7 @@ mutable struct MicroBatchWriter <: IO
     buffer::IOBuffer
     max_buffer_size::Int      # Maximum bytes before forced flush
     max_buffer_time::Float64  # Maximum seconds before flush
-    last_write_time::Float64
+    last_flush_time::Float64
     write_count::Int
     immediate_threshold::Int  # Bytes above which to send immediately
 
@@ -47,11 +47,21 @@ mutable struct MicroBatchWriter <: IO
     end
 end
 
-# Determine if the buffer should be flushed based on multiple criteria.
-# This balances between minimizing Channel operations and keeping latency low.
-function should_flush_micro_batch(mbw::MicroBatchWriter, now::Float64 = time())
-    position(mbw.buffer) >= mbw.max_buffer_size ||        # Buffer is full
-        (position(mbw.buffer) > 0 && now - mbw.last_write_time >= mbw.max_buffer_time) ||  # Time limit reached
+# Determine if the buffer should be flushed. Both rules are reads of fields the
+# writer already keeps, which matters: this runs on every single write, and a
+# document is thousands of writes long.
+#
+# There used to be a third rule here, "the previous write was more than
+# `max_buffer_time` ago", which meant calling `time()` on every write. At about
+# 36 ns a call and six thousand writes for a forty kilobyte document that came
+# to roughly 215 us -- more than everything else in the stream put together --
+# and it bought nothing. Data cannot sit in the buffer for longer than 64
+# writes because of the rule below, and a producer that goes quiet for longer
+# than that has to have yielded to do it, which is precisely when the flush
+# timer gets to run. Latency is the timer's job; these two rules only have to
+# stop the buffer growing.
+function should_flush_micro_batch(mbw::MicroBatchWriter)
+    position(mbw.buffer) >= mbw.max_buffer_size ||  # Buffer is full
         mbw.write_count >= 64  # Many small writes (prevents pathological cases)
 end
 
@@ -73,7 +83,6 @@ end
 # stream than it needs to be.
 function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
     n == 0 && return 0
-    now = time()
     if n >= mbw.immediate_threshold
         # Large chunks bypass buffering for low latency.
         if position(mbw.buffer) > 0
@@ -86,12 +95,11 @@ function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
         unsafe_write(mbw.buffer, p, n)
         mbw.write_count += 1
 
-        if should_flush_micro_batch(mbw, now)
+        if should_flush_micro_batch(mbw)
             flush(mbw)
         end
     end
 
-    mbw.last_write_time = now
     return Int(n)
 end
 
@@ -120,7 +128,7 @@ function Base.flush(mbw::MicroBatchWriter)
         truncate(mbw.buffer, 0)
         put!(mbw.channel, bytes)
         mbw.write_count = 0
-        mbw.last_write_time = time()
+        mbw.last_flush_time = time()
     end
     nothing
 end
@@ -134,11 +142,13 @@ end
     create_flush_timer(writer::MicroBatchWriter)
 
 Create a Timer that periodically flushes the writer's buffer if data is present
-and enough time has passed since the last write.
+and enough time has passed since the last flush.
 
 The timer is crucial for bounded latency - without it, small writes that don't
 trigger size-based flushing could sit in the buffer indefinitely. This ensures
-that even a single character written will appear within max_buffer_time.
+that even a single character written will appear within max_buffer_time. It is
+the only thing that bounds latency: the write path deliberately never reads the
+clock, since doing so once per write cost more than the rest of the stream.
 """
 function create_flush_timer(writer::MicroBatchWriter)
     # spawn=true on Julia 1.12+ prevents the timer from pinning the task to a thread,
@@ -153,7 +163,7 @@ function create_flush_timer(writer::MicroBatchWriter)
         # The timer runs independently of writes, so we need to check if a flush
         # is actually needed to avoid empty chunks and unnecessary channel operations
         if position(writer.buffer) > 0 &&
-           time() - writer.last_write_time >= writer.max_buffer_time
+           time() - writer.last_flush_time >= writer.max_buffer_time
             try
                 flush(writer)
             catch e
