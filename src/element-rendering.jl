@@ -29,23 +29,11 @@ _void_element(elem::Symbol) = elem in VOID_ELEMENTS
 # Custom elements defined with a `String` name are never void elements.
 _void_element(_) = false
 
-function _render_tag(
-    io::IO,
-    tag::AbstractElement,
-    static_props,
-    props,
-    slots,
-    source,
-    revise,
-)
+function _render_tag(io::IO, tag::AbstractElement, plan, props, slots, source, revise)
     _render_prefix(io, tag)
     name = _element_name(tag)
     print(io, "<", name)
-    if isempty(static_props)
-        _render_props(io, props)
-    else
-        print(io, static_props)
-    end
+    _render_props(io, plan, props)
     _is_revise_loaded() && _render_source_prop(io, source, revise)
     print(io, ">")
     children = get(slots, S"default", nothing)
@@ -92,6 +80,35 @@ function _render_props(props)
     _render_props(io, props)
     return String(take!(io))
 end
+
+# A "props plan" is the compile-time description of how an element's attributes
+# are rendered. It is a tuple of segments, each either a run of attribute text
+# that `@<` already escaped and serialised during macro expansion, or a
+# reference to a property whose value is only known at runtime.
+#
+# Both segment kinds carry their payload in a type parameter, so the plan is a
+# zero-size singleton: it costs nothing to pass and the recursion below unrolls
+# into a straight line of writes. Storing the text in the tuple *values*
+# instead would make the plan a heap-allocated object on every element.
+struct StaticProps{text} end
+struct DynamicProp{name} end
+
+@inline _render_segment(io::IO, ::StaticProps{text}, props) where {text} =
+    (print(io, text); nothing)
+@inline _render_segment(io::IO, ::DynamicProp{name}, props) where {name} =
+    _render_prop(io, name, getfield(props, name))
+
+_render_props(io::IO, ::Tuple{}, props) = nothing
+@inline function _render_props(io::IO, plan::Tuple, props)
+    _render_segment(io, first(plan), props)
+    _render_props(io, Base.tail(plan), props)
+    return nothing
+end
+
+# Splatted props contribute names that are not known until runtime, so there is
+# nothing to interleave static runs against. `@<` signals that by passing no
+# plan at all, and the merged `NamedTuple` is rendered wholesale instead.
+_render_props(io::IO, ::Nothing, props) = _render_props(io, props)
 
 _render_prefix(io::IO, element) = nothing
 

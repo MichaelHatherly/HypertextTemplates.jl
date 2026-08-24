@@ -121,5 +121,7 @@ _render_return(io::IO, ::Type{String}) = String(take!(io))
 _render_return(io::IO, ::Type{Vector{UInt8}}) = take!(io)
 _render_return(::IO, other::Any) = error("unsupported `@render` destination `$(other)`.")
 
-_render_tag(io::IO, tag, static_props, props, slots, source, revise) =
+# Components take their properties as keywords, so the props plan that `@<`
+# builds for elements has nothing to do here.
+_render_tag(io::IO, tag, plan, props, slots, source, revise) =
     tag(; props..., V"source" = source, V"io" = io, V"slots" = slots)
