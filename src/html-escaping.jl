@@ -100,6 +100,20 @@ escape_html(io::IO, ss::SafeString) = print(io, ss.str)
 # Numbers cannot produce any character that needs escaping, so skip both the
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+# A single character needs at most one substitution, and checking it directly
+# avoids the `string` allocation the generic fallback would make.
+function escape_html(io::IO, value::Char)
+    if value == '&'
+        print(io, "&amp;")
+    elseif value == '<'
+        print(io, "&lt;")
+    elseif value == '>'
+        print(io, "&gt;")
+    else
+        print(io, value)
+    end
+    return nothing
+end
 escape_html(io::IO, other) = escape_html(io, string(other))
 escape_html(io::IO, value, revise) = escape_html(io, value)
 
@@ -193,4 +207,21 @@ end
 
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
 escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+# See `escape_html(::IO, ::Char)` above.
+function escape_attr(io::IO, value::Char)
+    if value == '&'
+        print(io, "&amp;")
+    elseif value == '<'
+        print(io, "&lt;")
+    elseif value == '>'
+        print(io, "&gt;")
+    elseif value == '"'
+        print(io, "&quot;")
+    elseif value == '\''
+        print(io, "&#39;")
+    else
+        print(io, value)
+    end
+    return nothing
+end
 escape_attr(io::IO, other) = escape_attr(io, string(other))

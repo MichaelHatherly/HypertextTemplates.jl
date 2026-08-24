@@ -186,7 +186,7 @@ function _process_props(args)
             splatted = true
         elseif isnothing(static)
             _flush_static_run!(segments, static_run)
-            push!(segments, :($(DynamicProp){$(QuoteNode(_prop_name(dynamic)))}()))
+            push!(segments, _dynamic_segment(_prop_name(dynamic)))
         else
             push!(static_run, static)
         end
@@ -194,6 +194,16 @@ function _process_props(args)
     splatted && return nothing, props
     _flush_static_run!(segments, static_run)
     return Expr(:tuple, segments...), props
+end
+
+# The attribute prefixes never vary, so bake them into the segment's type
+# rather than reassembling them from the name on every render.
+function _dynamic_segment(name::Symbol)
+    return :($(DynamicProp){
+        $(QuoteNode(name)),
+        $(QuoteNode(Symbol(" ", name))),
+        $(QuoteNode(Symbol(" ", name, "=\""))),
+    }())
 end
 
 function _flush_static_run!(segments, static_run)

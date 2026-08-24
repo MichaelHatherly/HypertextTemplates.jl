@@ -29,16 +29,24 @@ _void_element(elem::Symbol) = elem in VOID_ELEMENTS
 # Custom elements defined with a `String` name are never void elements.
 _void_element(_) = false
 
+# `@element` precomputes these. The fallbacks cover any element type that was
+# built by hand rather than through the macro; they allocate, so the macro is
+# very much the preferred route.
+_element_open(element) = string("<", _element_name(element))
+_element_close(element) =
+    _void_element(_element_name(element)) ? "" : string("</", _element_name(element), ">")
+
 function _render_tag(io::IO, tag::AbstractElement, plan, props, slots, source, revise)
     _render_prefix(io, tag)
-    name = _element_name(tag)
-    print(io, "<", name)
+    print(io, _element_open(tag))
     _render_props(io, plan, props)
     _is_revise_loaded() && _render_source_prop(io, source, revise)
     print(io, ">")
     children = get(slots, S"default", nothing)
     isnothing(children) || children()
-    _void_element(name) || print(io, "</", name, ">")
+    close_tag = _element_close(tag)
+    # Empty for void elements, where the check folds away at compile time.
+    isempty(close_tag) || print(io, close_tag)
     return nothing
 end
 
@@ -91,12 +99,34 @@ end
 # into a straight line of writes. Storing the text in the tuple *values*
 # instead would make the plan a heap-allocated object on every element.
 struct StaticProps{text} end
-struct DynamicProp{name} end
+
+# `bare` is `" name"`, used when the value turns out to be `true`, and `quoted`
+# is `" name=\""`. Both are built during macro expansion for the same reason
+# the open and close tags are: emitting the whole prefix in one write beats
+# assembling it from the separator, the name and `="` on every render.
+struct DynamicProp{name,bare,quoted} end
 
 @inline _render_segment(io::IO, ::StaticProps{text}, props) where {text} =
     (print(io, text); nothing)
-@inline _render_segment(io::IO, ::DynamicProp{name}, props) where {name} =
-    _render_prop(io, name, getfield(props, name))
+
+@inline function _render_segment(
+    io::IO,
+    ::DynamicProp{name,bare,quoted},
+    props,
+) where {name,bare,quoted}
+    v = getfield(props, name)
+    if v === false
+        # Skip it entirely.
+    elseif v === true
+        # Don't print the value.
+        print(io, bare)
+    else
+        print(io, quoted)
+        escape_attr(io, v)
+        print(io, "\"")
+    end
+    return nothing
+end
 
 _render_props(io::IO, ::Tuple{}, props) = nothing
 @inline function _render_props(io::IO, plan::Tuple, props)
