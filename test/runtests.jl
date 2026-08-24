@@ -696,6 +696,39 @@ end
             append!(collected, bytes)
         end
         @test String(collected) == "<p>a1btail" * repeat("z", 200) * "</p>"
+
+        # Flushing a batch must not cost the buffer its capacity. `take!` hands
+        # the internal array to the channel and installs a fresh empty one, so
+        # the buffer would regrow from nothing on every cycle -- several
+        # reallocations per flush, and a flush happens every few hundred bytes.
+        sink = Channel{Vector{UInt8}}(64)
+        batcher = HypertextTemplates.MicroBatchWriter(sink)
+        # Each piece has to stay under `immediate_threshold`, or it bypasses
+        # the buffer entirely and there is nothing to keep.
+        piece = repeat("x", 40)
+        for _ = 1:5
+            write(batcher, piece)
+        end
+        flush(batcher)
+        @test String(take!(sink)) == repeat(piece, 5)
+        grown = length(batcher.buffer.data)
+        @test grown >= 200
+        write(batcher, "y")
+        flush(batcher)
+        @test String(take!(sink)) == "y"
+        @test length(batcher.buffer.data) >= grown
+
+        # Which is to say repeated flushes stay flat rather than paying to
+        # regrow each time.
+        function cycles(writer, channel, n)
+            for _ = 1:n
+                write(writer, "a short batch of text")
+                flush(writer)
+                take!(channel)
+            end
+        end
+        cycles(batcher, sink, 5)
+        @test (@allocated cycles(batcher, sink, 100)) < 100 * 150
     end
     @testset "Macro Hygiene" begin
         # The macro that `@deftag` generates is defined in, and expands in, the

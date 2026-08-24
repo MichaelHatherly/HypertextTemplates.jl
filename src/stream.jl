@@ -109,7 +109,15 @@ end
 function Base.flush(mbw::MicroBatchWriter)
     pos = position(mbw.buffer)
     if pos > 0
-        bytes = take!(mbw.buffer)
+        # `take!` hands the buffer's internal array to the channel and installs
+        # a fresh empty one in its place, so the buffer regrows from nothing on
+        # every cycle -- about five reallocations per flush, and a flush
+        # happens every few hundred bytes. Copying the batch out and truncating
+        # keeps the capacity for the next one.
+        bytes = Vector{UInt8}(undef, pos)
+        seekstart(mbw.buffer)
+        readbytes!(mbw.buffer, bytes, pos)
+        truncate(mbw.buffer, 0)
         put!(mbw.channel, bytes)
         mbw.write_count = 0
         mbw.last_write_time = time()
