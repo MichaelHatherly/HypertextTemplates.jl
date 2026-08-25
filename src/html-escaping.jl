@@ -333,17 +333,6 @@ function _escape_scan(io::IO, value::Union{String,SubString{String}}, escaping::
     return nothing
 end
 
-# Write `value[from:to]` (code unit indices) without materialising a substring.
-@inline function _write_range(
-    io::IO,
-    value::Union{String,SubString{String}},
-    from::Int,
-    to::Int,
-)
-    GC.@preserve value unsafe_write(io, pointer(value, from), UInt(to - from + 1))
-    return nothing
-end
-
 """
     escape_attr(io::IO, value)
 
