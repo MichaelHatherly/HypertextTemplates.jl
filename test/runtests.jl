@@ -16,6 +16,57 @@ function markdown_component_ext end
 
 end
 
+# `Base.get_extension` only exists from Julia 1.9. Before that
+# `PackageExtensionCompat` loads the extension into the package itself, so it
+# is reached as an ordinary submodule.
+function revise_extension()
+    name = :HypertextTemplatesReviseExt
+    if isdefined(Base, :get_extension)
+        return Base.get_extension(HypertextTemplates, name)
+    else
+        return isdefined(HypertextTemplates, name) ? getfield(HypertextTemplates, name) :
+               nothing
+    end
+end
+
+# Julia stack allocates the temporaries the render path relies on only from
+# 1.11, where escape analysis can see that they never leave the function.
+# Before that the escapers' scratch buffer costs a fixed 16 or 32 bytes a call,
+# and the lazy attribute wrapper costs a couple of hundred bytes an element.
+#
+# Both are constants -- per call and per element -- rather than costs per byte,
+# so the invariants the allocation tests exist to protect still hold on those
+# versions: escaping neither allocates per character nor copies its input, and
+# an interpolated attribute is still much cheaper than joining it eagerly was
+# (measured on 1.6, 204 bytes an element against 335). The totals simply are
+# not zero there, so they are bounded by these constants instead, which from
+# 1.11 on are zero and the assertions stay exact.
+const SCRATCH_BYTES = VERSION >= v"1.11" ? 0 : 64
+const LAZY_ATTRIBUTE_BYTES = VERSION >= v"1.11" ? 0 : 256
+
+# The obvious escaper, character by character, to check the byte-scanning one
+# against. Written out rather than expressed as `replace(subject, "&" =>
+# "&amp;", ...)`, since `replace` only takes more than one pair from Julia 1.7.
+function reference_escape(subject::AbstractString; attribute::Bool)
+    io = IOBuffer()
+    for character in subject
+        if character == '&'
+            print(io, "&amp;")
+        elseif character == '<'
+            print(io, "&lt;")
+        elseif character == '>'
+            print(io, "&gt;")
+        elseif attribute && character == '"'
+            print(io, "&quot;")
+        elseif attribute && character == '\''
+            print(io, "&#39;")
+        else
+            print(io, character)
+        end
+    end
+    return String(take!(io))
+end
+
 # Turns off source locations in the rendered HTML such that the reference
 # testing does not need to account for that variablity.
 function render_test(f, file)
@@ -469,8 +520,10 @@ end
         plain = @allocated plain_rows(located, 200, "/item/5")
         take!(buffer)
         # Joining eagerly cost roughly 32KB across 800 extra allocations for
-        # these 200 rows; keeping the pieces costs nothing over a plain value.
-        @test interpolated <= plain + 1_000
+        # these 200 rows; keeping the pieces costs nothing over a plain value
+        # from Julia 1.11, and well under what joining cost before that. See
+        # `LAZY_ATTRIBUTE_BYTES`.
+        @test interpolated <= plain + 1_000 + 200 * LAZY_ATTRIBUTE_BYTES
     end
     @testset "Merged Opening Tags" begin
         # An opening tag whose every part is known at compile time is written
@@ -551,17 +604,21 @@ end
         for (subject, name) in subjects
             repeatedly(HypertextTemplates.escape_html, subject, 3)
             repeatedly(HypertextTemplates.escape_attr, subject, 3)
+            # Zero on 1.11 and later; see `SCRATCH_BYTES`. The bound is a
+            # constant per call either way, so growing the subject must not
+            # grow the total.
+            budget = 500 * SCRATCH_BYTES
             @testset "$name" begin
                 @test (@allocated repeatedly(
                     HypertextTemplates.escape_html,
                     subject,
                     500,
-                )) == 0
+                )) <= budget
                 @test (@allocated repeatedly(
                     HypertextTemplates.escape_attr,
                     subject,
                     500,
-                )) == 0
+                )) <= budget
             end
         end
 
@@ -595,14 +652,8 @@ end
             for position = 1:length, character in ("\"", "'", "&", "<", ">")
                 subject =
                     repeat("y", position - 1) * character * repeat("y", length - position)
-                @test sprint(HypertextTemplates.escape_attr, subject) == replace(
-                    subject,
-                    "&" => "&amp;",
-                    "<" => "&lt;",
-                    ">" => "&gt;",
-                    "\"" => "&quot;",
-                    "'" => "&#39;",
-                )
+                @test sprint(HypertextTemplates.escape_attr, subject) ==
+                      reference_escape(subject; attribute = true)
             end
         end
 
@@ -615,15 +666,9 @@ end
             for filler in ("x", "<", "&", "\"")
                 subject = repeat(filler, length)
                 @test sprint(HypertextTemplates.escape_html, subject) ==
-                      replace(subject, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
-                @test sprint(HypertextTemplates.escape_attr, subject) == replace(
-                    subject,
-                    "&" => "&amp;",
-                    "<" => "&lt;",
-                    ">" => "&gt;",
-                    "\"" => "&quot;",
-                    "'" => "&#39;",
-                )
+                      reference_escape(subject; attribute = false)
+                @test sprint(HypertextTemplates.escape_attr, subject) ==
+                      reference_escape(subject; attribute = true)
             end
         end
     end
@@ -739,8 +784,11 @@ end
         take!(buffer)
         literal = @allocated literal_paragraphs(located, 200)
         take!(buffer)
-        # Joining first cost roughly 7 extra allocations per element.
-        @test interpolated <= literal + 1_000
+        # Joining first cost roughly 7 extra allocations per element. The
+        # interpolated form makes one more escaping call per paragraph than the
+        # literal one, which before Julia 1.11 is a fixed cost each; see
+        # `SCRATCH_BYTES`.
+        @test interpolated <= literal + 1_000 + 200 * SCRATCH_BYTES
     end
     @testset "Escaping Arbitrary Values" begin
         # Values that are neither strings, numbers nor characters are escaped
@@ -844,7 +892,7 @@ end
         # under Revise. Whatever the caches hand back has to be what computing
         # the answer from scratch would have produced -- on a cold cache and on
         # a warm one alike.
-        extension = Base.get_extension(HypertextTemplates, :HypertextTemplatesReviseExt)
+        extension = revise_extension()
         @test extension !== nothing
 
         function tracked()
