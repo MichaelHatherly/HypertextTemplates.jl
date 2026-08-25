@@ -25,6 +25,36 @@ end
 # buffered loop is slower than `print` and they are vanishingly rare here.
 const NativeInteger = Union{Int8,Int16,Int32,Int64,UInt8,UInt16,UInt32,UInt64}
 
+# The number types whose printed form is known to need no escaping: digits, a
+# sign, a decimal point, and at most `Inf`, `NaN`, `e` or `im`. Writing one is
+# then just `print`, skipping both the scan and the `string` allocation the
+# generic fallback would make.
+#
+# Listed one by one rather than as `Union{Integer,AbstractFloat}`, which would
+# be a claim about every present and future subtype of those. What a value
+# prints is a property of its `show` method, not of its supertype: a type is
+# free to declare itself an `Integer` and print `<script>`, and such a value
+# would then reach the page unescaped. Anything not named here goes through
+# `EscapeStream` like any other value, which escapes whatever `show` produces.
+const UnescapedNumber = Union{
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+    Int128,
+    UInt8,
+    UInt16,
+    UInt32,
+    UInt64,
+    UInt128,
+    Bool,
+    Float16,
+    Float32,
+    Float64,
+    BigInt,
+    BigFloat,
+}
+
 function _write_integer(io::IO, n::NativeInteger)
     negative = n < 0
     # Negating `typemin` wraps back to `typemin`, whose reinterpretation as an
@@ -126,9 +156,7 @@ escape_html(io::IO, ss::SafeString) = print(io, ss.str)
 # same way to keep the outcome identical.
 _as_text(value::SafeString) = value.str
 _as_text(value) = value
-# Numbers cannot produce any character that needs escaping, so skip both the
-# scan and the `string` allocation that the generic fallback would make.
-escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_html(io::IO, value::UnescapedNumber) = (print(io, value); nothing)
 escape_html(io::IO, value::NativeInteger) = _write_integer(io, value)
 # A single character needs at most one substitution, and checking it directly
 # avoids the `string` allocation the generic fallback would make.
@@ -368,7 +396,7 @@ function escape_attr(io::IO, value::Union{String,SubString{String}})
 end
 
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
-escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_attr(io::IO, value::UnescapedNumber) = (print(io, value); nothing)
 escape_attr(io::IO, value::NativeInteger) = _write_integer(io, value)
 # See `escape_html(::IO, ::Char)` above.
 function escape_attr(io::IO, value::Char)

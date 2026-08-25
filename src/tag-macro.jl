@@ -173,7 +173,7 @@ function _process_props(args)
     props = []
     segments = []
     static_run = []
-    splatted = false
+    plannable = true
     for arg in args
         static, dynamic = _process_prop(arg)
         # `props` must be built from every argument, splats included, since it
@@ -183,16 +183,16 @@ function _process_props(args)
             # A splat contributes property names that are not known until
             # runtime, so there is nothing to interleave against. Give up on
             # the plan and let the merged `NamedTuple` be rendered wholesale.
-            splatted = true
+            plannable = false
         elseif isnothing(static)
-            _flush_static_run!(segments, static_run)
+            plannable &= _flush_static_run!(segments, static_run)
             push!(segments, _dynamic_segment(_prop_name(dynamic)))
         else
             push!(static_run, static)
         end
     end
-    splatted && return nothing, props
-    _flush_static_run!(segments, static_run)
+    plannable &= _flush_static_run!(segments, static_run)
+    plannable || return nothing, props
     return Expr(:tuple, segments...), props
 end
 
@@ -206,14 +206,22 @@ function _dynamic_segment(name::Symbol)
     }())
 end
 
+# Returns whether the run could be planned. A `false` result means the caller
+# has to abandon the plan entirely and render the properties from the
+# `NamedTuple` at run time instead.
 function _flush_static_run!(segments, static_run)
-    isempty(static_run) && return nothing
+    isempty(static_run) && return true
     text = _render_props(static_run)
     empty!(static_run)
     # A run of only `false` valued properties renders nothing at all.
-    isempty(text) && return nothing
+    isempty(text) && return true
+    # The run travels in a type parameter, and a `Symbol` cannot hold a NUL
+    # byte. Only a literal attribute value containing one gets here, which is
+    # not valid HTML to begin with -- but it used to render, so it keeps doing
+    # so through the runtime path rather than failing during expansion.
+    '\0' in text && return false
     push!(segments, :($(StaticProps){$(QuoteNode(Symbol(text)))}()))
-    return nothing
+    return true
 end
 
 _prop_name(ex::Expr) = __process_prop(ex.args[1])

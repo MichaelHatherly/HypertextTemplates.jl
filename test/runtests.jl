@@ -50,6 +50,19 @@ struct ShowsLongPlain end
 Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
 const shows_long_plain = ShowsLongPlain()
 
+# `Base`'s numbers are written without being scanned, because their printed
+# form cannot contain a character that needs escaping. That is a property of
+# their `show` methods and not of `Integer` or `AbstractFloat`, which anyone is
+# free to subtype and print whatever they like from -- so a subtype that prints
+# markup must still be escaped.
+struct AngledInteger <: Integer end
+Base.show(io::IO, ::AngledInteger) = print(io, "<script>&\"'</script>")
+const angled_integer = AngledInteger()
+
+struct AngledFloat <: AbstractFloat end
+Base.show(io::IO, ::AngledFloat) = print(io, "<script>&\"'</script>")
+const angled_float = AngledFloat()
+
 # Records the type of every property it is handed, so that the lazy form of an
 # interpolated attribute can be caught if it ever escapes to a component.
 const observed_properties = Any[]
@@ -486,6 +499,13 @@ end
         # Escaping in a literal property survives the merge.
         @test bare(io -> @render io @div {t = "a<b>&\"c"}) ==
               "<div t=\"a&lt;b&gt;&amp;&quot;c\"></div>"
+        # A merged run travels in a type parameter, which is a `Symbol` and so
+        # cannot hold a NUL byte. Such an attribute is not valid HTML anyway,
+        # but it used to render, so it has to keep rendering rather than fail
+        # during macro expansion.
+        @test bare(io -> @render io @div {t = "a\0b"} "x") == "<div t=\"a\0b\">x</div>"
+        @test bare(io -> @render io @div {class = "c", t = "a\0b"}) ==
+              "<div class=\"c\" t=\"a\0b\"></div>"
 
         # Only fully-literal plans merge; anything dynamic keeps the old path.
         @test HypertextTemplates._mergeable_plan(Tuple{})
@@ -751,6 +771,43 @@ end
                   reference(HypertextTemplates.escape_html, value)
             @test sprint(HypertextTemplates.escape_attr, value) ==
                   reference(HypertextTemplates.escape_attr, value)
+        end
+
+        # A number is written straight out, without being scanned, on the
+        # grounds that its printed form cannot need escaping. That holds for
+        # `Base`'s numbers and not for the abstract types they belong to, so a
+        # subtype that prints markup must not slip through unescaped.
+        for value in Any[angled_integer, angled_float]
+            @test sprint(HypertextTemplates.escape_html, value) ==
+                  "&lt;script&gt;&amp;\"'&lt;/script&gt;"
+            @test sprint(HypertextTemplates.escape_attr, value) ==
+                  "&lt;script&gt;&amp;&quot;&#39;&lt;/script&gt;"
+        end
+        # And the numbers that do take the fast path still print as they always
+        # did, across every type the fast path names.
+        for value in Any[
+            Int8(-8),
+            Int16(-16),
+            Int32(-32),
+            Int64(-64),
+            Int128(-128),
+            UInt8(8),
+            UInt16(16),
+            UInt32(32),
+            UInt64(64),
+            UInt128(128),
+            true,
+            false,
+            Float16(1.5),
+            Float32(-2.5),
+            1.0e10,
+            big(2)^70,
+            big"1.5",
+            typemin(Int64),
+            typemax(UInt64),
+        ]
+            @test sprint(HypertextTemplates.escape_html, value) == string(value)
+            @test sprint(HypertextTemplates.escape_attr, value) == string(value)
         end
 
         # A value whose `show` inspects the stream must see what it saw when it
