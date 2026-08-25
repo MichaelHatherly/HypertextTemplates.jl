@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Rendering is substantially faster and allocates far less. Opening tags and
+  runs of literal attributes are merged into single constants during macro
+  expansion, escaping scans eight bytes at a time and writes in blocks,
+  integers and interpolated attributes are written without building
+  intermediate strings, and `@render` fills a purpose-built append-only buffer
+  rather than an `IOBuffer`. The rendering machinery is also precompiled, so
+  the first render in a session no longer pays to compile it.
+- Under `Revise`, `@render` call sites and component line offsets are memoised
+  instead of being resolved once per rendered element.
+
+### Fixed
+
+- Fix `MethodError` when writing a string to the writer that `StreamingRender`
+  hands to its render function: `write(io, "text")` and `print(io, "text")`
+  were ambiguous against `Base`.
+- Fix `@deftag`, `@element` and `@cm_component` in modules that define a
+  binding named `esc`, `Expr`, `GlobalRef`, `Symbol`, `Val`, `read`, `String`
+  or `joinpath`, and when `HypertextTemplates` is imported under another name.
+
 ## [v2.2.4] - 2026-03-20
 
 ### Changed
