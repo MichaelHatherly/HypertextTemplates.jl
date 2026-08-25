@@ -84,8 +84,9 @@ function HTT._method_offset(::HTT.ReviseIsLoaded, f, uuid, __source__)
     world = Base.get_world_counter()
     # `mtime` returns 0.0 for anything that cannot be stat'ed, such as a call
     # site typed into the REPL. That is a stable value, which is correct here:
-    # code that lives in no file never shifts within one.
-    stamp = mtime(String(__source__.file))
+    # code that lives in no file never shifts within one. `string` rather than
+    # `String`, since a `LineNumberNode` is allowed to carry no file at all.
+    stamp = mtime(string(__source__.file))
     # The lock is held across the computation as well as the lookup, so that
     # concurrent first renders resolve a given call site once between them
     # rather than each paying the full cost.
