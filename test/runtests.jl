@@ -1,5 +1,6 @@
 import CommonMark
 import HTTP
+import Random
 import Revise
 using HypertextTemplates
 using HypertextTemplates.Elements
@@ -100,6 +101,22 @@ const shows_long_mixed = ShowsLongMixed()
 struct ShowsLongPlain end
 Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
 const shows_long_plain = ShowsLongPlain()
+
+# A stream whose write yields before it takes the bytes, the way a socket's
+# does while it waits on the network. A float's digits are generated into a
+# buffer shared by every render on the thread, so anything still pointing at
+# that buffer when the stream yields can have another render's number
+# underneath it by the time the write resumes.
+struct YieldingSink <: IO
+    inner::IOBuffer
+end
+YieldingSink() = YieldingSink(IOBuffer())
+function Base.unsafe_write(sink::YieldingSink, pointer::Ptr{UInt8}, n::UInt)
+    yield()
+    return unsafe_write(sink.inner, pointer, n)
+end
+Base.write(sink::YieldingSink, byte::UInt8) = write(sink.inner, byte)
+Base.take!(sink::YieldingSink) = take!(sink.inner)
 
 # Records the type of every property it is handed, so that the lazy form of an
 # interpolated attribute can be caught if it ever escapes to a component.
@@ -834,6 +851,101 @@ end
             @test sprint(HypertextTemplates.escape_html, value) == string(value)
             @test sprint(HypertextTemplates.escape_attr, value) == string(value)
         end
+
+        # `Float16`, `Float32` and `Float64` do not go through `print` at all.
+        # `print` asks `Base.Ryu` for the digits and lets it allocate a fresh
+        # buffer to put them in every time; the same call is made against a
+        # buffer the package already owns instead. That means restating the
+        # formatting arguments `show` passes on the way through, which are
+        # `Base`'s to change, so the result is checked against `print` itself
+        # across every `Float16` that exists and a wide sample of the two
+        # wider types -- not at a handful of hand-picked values, which would
+        # not notice a changed threshold between plain and exponent form.
+        function first_float_mismatch(values)
+            for value in values
+                expected = sprint(print, value)
+                sprint(HypertextTemplates.escape_html, value) == expected || return value
+                sprint(HypertextTemplates.escape_attr, value) == expected || return value
+            end
+            return nothing
+        end
+
+        @test first_float_mismatch(
+            reinterpret(Float16, bits) for bits = typemin(UInt16):typemax(UInt16)
+        ) === nothing
+
+        rng = Random.MersenneTwister(20260826)
+        sampled = Any[
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            0.1,
+            floatmin(Float64),
+            floatmax(Float64),
+            eps(Float64),
+            5.0e-324,
+            1.0e16,
+            1.0e17,
+            Inf,
+            -Inf,
+            NaN,
+            Float32(0.1),
+            Float32(1.0f10),
+            floatmin(Float32),
+            floatmax(Float32),
+            Float32(Inf),
+            Float32(NaN),
+        ]
+        for _ = 1:5_000
+            push!(sampled, reinterpret(Float32, rand(rng, UInt32)))
+            push!(sampled, reinterpret(Float64, rand(rng, UInt64)))
+            push!(sampled, randn(rng) * 10.0^rand(rng, -308:308))
+            push!(sampled, Float32(randn(rng) * 10.0f0^rand(rng, -38:38)))
+        end
+        @test first_float_mismatch(sampled) === nothing
+
+        # And the point of owning the buffer: writing a float costs nothing.
+        function write_floats(io, n)
+            for index = 1:n
+                HypertextTemplates.escape_html(io, index * 1.5)
+                HypertextTemplates.escape_attr(io, index / 7)
+            end
+            return nothing
+        end
+        # Pre-grown, so that what is measured is the writing and not the sink.
+        sink = IOBuffer(sizehint = 1 << 16)
+        write_floats(sink, 10)
+        truncate(sink, 0)
+        seek(sink, 0)
+        floats = @allocated write_floats(sink, 1_000)
+        truncate(sink, 0)
+        seek(sink, 0)
+        @test floats == 0
+
+        # The buffer holding the digits is shared by every render on the
+        # thread, so they are copied out before the stream is handed them: a
+        # stream that yields mid-write must not be able to pick up another
+        # render's number. Without the copy the interleaved tasks below hand
+        # each other their digits and the reads come back wrong.
+        concurrent = [index * 1.0e-3 for index = 1:64]
+        running = Task[]
+        for value in concurrent
+            push!(
+                running,
+                Threads.@spawn(begin
+                    stream = YieldingSink()
+                    for _ = 1:32
+                        HypertextTemplates.escape_html(stream, $(value))
+                    end
+                    String(take!(stream))
+                end)
+            )
+        end
+        @test all(
+            fetch(task) == repeat(sprint(print, value), 32) for
+            (value, task) in zip(concurrent, running)
+        )
 
         # A value whose `show` inspects the stream must see what it saw when it
         # was rendered into a bare buffer, so the wrapper must not forward the

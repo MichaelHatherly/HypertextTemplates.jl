@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rendering is substantially faster and allocates far less. Opening tags and
   runs of literal attributes are merged into single constants during macro
   expansion, escaping scans eight bytes at a time and writes in blocks,
-  integers and interpolated attributes are written without building
+  integers, floats and interpolated attributes are written without building
   intermediate strings, and `@render` fills a purpose-built append-only buffer
   rather than an `IOBuffer`. The rendering machinery is also precompiled, so
   the first render in a session no longer pays to compile it.

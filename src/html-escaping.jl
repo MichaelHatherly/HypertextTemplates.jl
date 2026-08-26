@@ -56,6 +56,89 @@ function _write_integer(io::IO, n::NativeInteger)
     return nothing
 end
 
+# `print(io, ::Float64)` has the same problem an integer had, one step removed:
+# `show` hands `Base.Ryu` a fresh `StringVector` for the digits on every call,
+# so a float costs three allocations and 432 bytes before a byte reaches the
+# page. A table of measurements or prices pays that per cell.
+#
+# The digits themselves are `Base.Ryu`'s to produce -- reimplementing shortest
+# round-trip formatting to save an allocation would be a poor trade -- so what
+# is replaced is only the buffer it writes them into. `writeshortest` insists
+# on a real `Vector{UInt8}` (a stack `NTuple` behind an `AbstractVector`
+# wrapper is not enough: it takes `pointer` of the buffer), so the buffer is
+# preallocated once per thread instead of once per call.
+#
+# `Bool` is an `Integer` and never reaches here. `BigFloat` is excluded because
+# it prints through MPFR rather than Ryu.
+const NativeFloat = Union{Float16,Float32,Float64}
+
+# The bound is `Base.Ryu`'s own rather than one derived from how long a
+# shortest-round-trip `Float64` can get -- which is 24 characters, sign and
+# exponent included. `writeshortest` writes without checking, so being wrong
+# about that would be a heap overflow rather than a truncated number, and the
+# only party that can promise how much room it needs is the one doing the
+# writing. It is the same figure `Base` reserves per call.
+const FLOAT_DIGITS = Base.Ryu.neededdigits(Float64)
+
+# One scratch buffer per thread. It is filled at load time rather than reached
+# for lazily, so nothing here is ever mutated while a render might be reading
+# it, and a thread that appeared after that -- a foreign thread, or one from a
+# pool that grew -- simply falls back to `print` rather than racing for a
+# buffer that does not exist.
+const FLOAT_SCRATCH = Vector{UInt8}[]
+
+_thread_count() =
+    isdefined(Threads, :maxthreadid) ? Threads.maxthreadid() : Threads.nthreads()
+
+function _grow_float_scratch!()
+    while length(FLOAT_SCRATCH) < _thread_count()
+        push!(FLOAT_SCRATCH, Vector{UInt8}(undef, FLOAT_DIGITS))
+    end
+    return nothing
+end
+
+function _write_float(io::IO, x::NativeFloat)
+    thread = Threads.threadid()
+    thread <= length(FLOAT_SCRATCH) || return (print(io, x); nothing)
+    scratch = @inbounds FLOAT_SCRATCH[thread]
+    # The arguments are the ones `Base.show(::IO, ::AbstractFloat)` uses when
+    # reached through `print`: shortest form, no plus or space, a `.` before a
+    # bare exponent, full precision, `e` for the exponent -- `print` passes
+    # `fromprint`, so a `Float32` gets `e` and not `f` -- and neither the type
+    # annotation nor `:compact`, neither of which a rendered page ever wants.
+    # The suite checks the result against `print` across the whole bit space
+    # of `Float16` and a wide random sample of `Float32` and `Float64`, so a
+    # version that formats differently is caught rather than silently
+    # rendered.
+    stop = Base.Ryu.writeshortest(
+        scratch,
+        1,
+        x,
+        false,
+        false,
+        true,
+        -1,
+        UInt8('e'),
+        false,
+        UInt8('.'),
+        false,
+        false,
+    )
+    len = stop - 1
+    # Copied out to the stack before being written, so that the shared buffer
+    # is only ever live across the digit generation above, which cannot yield.
+    # Writing from it directly would leave it exposed for the length of the
+    # write, and a write to a socket does yield -- long enough for another
+    # render on this thread to overwrite the digits mid-flight.
+    out = Ref{NTuple{FLOAT_DIGITS,UInt8}}()
+    GC.@preserve scratch out begin
+        ptr = Base.unsafe_convert(Ptr{UInt8}, out)
+        unsafe_copyto!(ptr, pointer(scratch), len)
+        unsafe_write(io, ptr, UInt(len))
+    end
+    return nothing
+end
+
 """
     escape_html(io::IO, value)
 
@@ -130,6 +213,7 @@ _as_text(value) = value
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_html(io::IO, value::NativeInteger) = _write_integer(io, value)
+escape_html(io::IO, value::NativeFloat) = _write_float(io, value)
 # A single character needs at most one substitution, and checking it directly
 # avoids the `string` allocation the generic fallback would make.
 function escape_html(io::IO, value::Char)
@@ -359,6 +443,7 @@ end
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
 escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_attr(io::IO, value::NativeInteger) = _write_integer(io, value)
+escape_attr(io::IO, value::NativeFloat) = _write_float(io, value)
 # See `escape_html(::IO, ::Char)` above.
 function escape_attr(io::IO, value::Char)
     if value == '&'
