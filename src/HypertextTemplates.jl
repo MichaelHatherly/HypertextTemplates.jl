@@ -86,13 +86,6 @@ include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
-
-# The float scratch buffers have to exist before anything renders a float, and
-# the workload below does. Filling them here as well as in `__init__` means the
-# precompiled image holds the specialisations for the buffered path rather than
-# for the `print` fallback that an empty table would take.
-_grow_float_scratch!()
-
 # Must come last: the workload renders real templates, so everything it
 # touches has to already be defined.
 include("precompile.jl")
@@ -101,9 +94,6 @@ include("precompile.jl")
 
 function __init__()
     PackageExtensionCompat.@require_extensions
-    # The table baked into the image was sized for the machine that
-    # precompiled, which is not the one running now.
-    _grow_float_scratch!()
 end
 
 end # module HypertextTemplates

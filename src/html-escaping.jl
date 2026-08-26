@@ -64,43 +64,37 @@ end
 # The digits themselves are `Base.Ryu`'s to produce -- reimplementing shortest
 # round-trip formatting to save an allocation would be a poor trade -- so what
 # is replaced is only the buffer it writes them into. `writeshortest` insists
-# on a real `Vector{UInt8}` (a stack `NTuple` behind an `AbstractVector`
-# wrapper is not enough: it takes `pointer` of the buffer), so the buffer is
-# preallocated once per thread instead of once per call.
+# on a real `Vector{UInt8}`, which cannot live on the stack the way the
+# integer writer's does, so it is kept by the task doing the rendering and
+# reused for every float that task writes.
+#
+# Belonging to the task is what makes it safe to write straight out of: a
+# render that yields mid-write -- which one to a socket does -- resumes to
+# find its own digits still there, because whatever ran in between was another
+# task with a buffer of its own.
 #
 # `Bool` is an `Integer` and never reaches here. `BigFloat` is excluded because
 # it prints through MPFR rather than Ryu.
 const NativeFloat = Union{Float16,Float32,Float64}
 
-# The bound is `Base.Ryu`'s own rather than one derived from how long a
+# The size is `Base.Ryu`'s own figure rather than one derived from how long a
 # shortest-round-trip `Float64` can get -- which is 24 characters, sign and
 # exponent included. `writeshortest` writes without checking, so being wrong
 # about that would be a heap overflow rather than a truncated number, and the
 # only party that can promise how much room it needs is the one doing the
-# writing. It is the same figure `Base` reserves per call.
+# writing.
 const FLOAT_DIGITS = Base.Ryu.neededdigits(Float64)
 
-# One scratch buffer per thread. It is filled at load time rather than reached
-# for lazily, so nothing here is ever mutated while a render might be reading
-# it, and a thread that appeared after that -- a foreign thread, or one from a
-# pool that grew -- simply falls back to `print` rather than racing for a
-# buffer that does not exist.
-const FLOAT_SCRATCH = Vector{UInt8}[]
-
-_thread_count() =
-    isdefined(Threads, :maxthreadid) ? Threads.maxthreadid() : Threads.nthreads()
-
-function _grow_float_scratch!()
-    while length(FLOAT_SCRATCH) < _thread_count()
-        push!(FLOAT_SCRATCH, Vector{UInt8}(undef, FLOAT_DIGITS))
-    end
-    return nothing
-end
+# The task's storage is shared with everything else running in it, so the key
+# is namespaced rather than something a package could plausibly pick too.
+const FLOAT_SCRATCH_KEY = :HypertextTemplates_float_scratch
 
 function _write_float(io::IO, x::NativeFloat)
-    thread = Threads.threadid()
-    thread <= length(FLOAT_SCRATCH) || return (print(io, x); nothing)
-    scratch = @inbounds FLOAT_SCRATCH[thread]
+    scratch = get!(
+        () -> Vector{UInt8}(undef, FLOAT_DIGITS),
+        task_local_storage(),
+        FLOAT_SCRATCH_KEY,
+    )::Vector{UInt8}
     # The arguments are the ones `Base.show(::IO, ::AbstractFloat)` uses when
     # reached through `print`: shortest form, no plus or space, a `.` before a
     # bare exponent, full precision, `e` for the exponent -- `print` passes
@@ -124,18 +118,7 @@ function _write_float(io::IO, x::NativeFloat)
         false,
         false,
     )
-    len = stop - 1
-    # Copied out to the stack before being written, so that the shared buffer
-    # is only ever live across the digit generation above, which cannot yield.
-    # Writing from it directly would leave it exposed for the length of the
-    # write, and a write to a socket does yield -- long enough for another
-    # render on this thread to overwrite the digits mid-flight.
-    out = Ref{NTuple{FLOAT_DIGITS,UInt8}}()
-    GC.@preserve scratch out begin
-        ptr = Base.unsafe_convert(Ptr{UInt8}, out)
-        unsafe_copyto!(ptr, pointer(scratch), len)
-        unsafe_write(io, ptr, UInt(len))
-    end
+    GC.@preserve scratch unsafe_write(io, pointer(scratch), UInt(stop - 1))
     return nothing
 end
 

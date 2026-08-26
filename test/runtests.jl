@@ -103,10 +103,9 @@ Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
 const shows_long_plain = ShowsLongPlain()
 
 # A stream whose write yields before it takes the bytes, the way a socket's
-# does while it waits on the network. A float's digits are generated into a
-# buffer shared by every render on the thread, so anything still pointing at
-# that buffer when the stream yields can have another render's number
-# underneath it by the time the write resumes.
+# does while it waits on the network. A float's digits are handed over as a
+# pointer into a buffer that outlives the call, so whatever else runs during
+# that yield must not be able to write over them.
 struct YieldingSink <: IO
     inner::IOBuffer
 end
@@ -923,11 +922,12 @@ end
         seek(sink, 0)
         @test floats == 0
 
-        # The buffer holding the digits is shared by every render on the
-        # thread, so they are copied out before the stream is handed them: a
+        # The buffer holding the digits belongs to the task doing the
+        # rendering, which is what makes it safe to write straight out of: a
         # stream that yields mid-write must not be able to pick up another
-        # render's number. Without the copy the interleaved tasks below hand
-        # each other their digits and the reads come back wrong.
+        # render's number. Interleave renders across tasks through a stream
+        # that does yield, and check every one of them -- a buffer shared any
+        # more widely than this fails here.
         concurrent = [index * 1.0e-3 for index = 1:64]
         running = Task[]
         for value in concurrent
