@@ -81,10 +81,10 @@ function Base.take!(buffer::RenderBuffer)
     return data
 end
 
+# The rest of the `IO` interface is deliberately absent. `unsafe_write`,
+# `write` and `take!` are what a render destination is asked for, and
+# `position` is what the streaming writer asks its batch buffer for. There were
+# once `isopen`, `close`, `bytesavailable`, `isreadable` and `iswritable` here
+# as well, so the type would look like a complete `IO`; nothing called any of
+# them, and `flush` merely repeated `Base`'s own `flush(::IO) = nothing`.
 Base.position(buffer::RenderBuffer) = buffer.size
-Base.bytesavailable(::RenderBuffer) = 0
-Base.isreadable(::RenderBuffer) = false
-Base.iswritable(::RenderBuffer) = true
-Base.isopen(::RenderBuffer) = true
-Base.flush(::RenderBuffer) = nothing
-Base.close(::RenderBuffer) = nothing

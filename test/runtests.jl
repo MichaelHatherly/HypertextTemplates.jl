@@ -336,8 +336,6 @@ end
 
         buffer = RenderBuffer()
         @test position(buffer) == 0
-        @test iswritable(buffer)
-        @test !isreadable(buffer)
         @test take!(buffer) == UInt8[]
 
         # Writes of every shape, and the growth boundary crossed repeatedly.
