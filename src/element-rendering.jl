@@ -319,6 +319,12 @@ function _dynamic_line_offset(io::IO, revise)
     return offset
 end
 
+# Keyed by the component's type rather than the function object: `@component`
+# defines a named function, so the type is a singleton and the two are
+# interchangeable, but the type is what stays stable if the same definition is
+# reached through different bindings.
+const LINE_OFFSETS = SourceCache{DataType,Int}()
+
 function _compute_dynamic_line_offset(revise)
     # This calculates the line offset caused by running `Revise` and editing a
     # source file in such a way that a definition is not re-evaluated, but it's
@@ -329,9 +335,19 @@ function _compute_dynamic_line_offset(revise)
     # has expanded as well as the `Function` object itself. We then dynamically
     # lookup the function location (which `Revise` does update) and compare
     # that to the original, returning the calculated offset.
+    #
+    # `functionloc` walks the method table and goes through CodeTracking, and at
+    # about 13us a call it was the single most expensive thing left in a render
+    # under Revise -- a quarter of one. The per-render memo above collapses a
+    # page's worth of elements into one call per component, but the next render
+    # paid it again, and the render after that. It is the same answer until
+    # Revise reloads the code, which is exactly what `SourceCache` is validated
+    # against, so it is now worked out once per edit instead of once per render.
     r_func, r_source = revise
-    _, d_line = functionloc(r_func)
-    _, r_line = r_source
-    return d_line - r_line
+    file, r_line = r_source
+    return _cached(LINE_OFFSETS, typeof(r_func), file) do
+        _, d_line = functionloc(r_func)
+        return d_line - r_line
+    end
 end
 _compute_dynamic_line_offset(::Nothing) = 0

@@ -933,7 +933,7 @@ end
         # the function object. A `@render` inside a capturing closure -- a
         # handler built per request, say -- hands over a fresh object every
         # call, and keying on it would add an entry per render forever.
-        cache = extension.CACHE
+        cache = extension.SITES.entries
         before = length(cache)
         for i = 1:200
             captured = i
@@ -963,7 +963,7 @@ end
         # And the table is bounded even against a stream of new call sites,
         # which is what repeated re-expansion under Revise looks like.
         before = length(cache)
-        for i = 1:(extension.CACHE_LIMIT+50)
+        for i = 1:(extension.SITES.limit+50)
             HypertextTemplates._method_offset(
                 loaded,
                 tracked,
@@ -971,7 +971,7 @@ end
                 LineNumberNode(i, Symbol(@__FILE__)),
             )
         end
-        @test length(cache) <= extension.CACHE_LIMIT
+        @test length(cache) <= extension.SITES.limit
 
         # And what it drops to get there are the entries that were already
         # doomed. An entry only ever hits when its world matches the current
@@ -984,7 +984,7 @@ end
         live = (typeof(tracked), :evict_live, LineNumberNode(2, Symbol(@__FILE__)))
         cache[stale] = (world - 1, 0.0, nothing)
         cache[live] = (world, 0.0, nothing)
-        extension._evict!(world)
+        HypertextTemplates._evict!(extension.SITES, world)
         @test !haskey(cache, stale)
         @test haskey(cache, live)
 
