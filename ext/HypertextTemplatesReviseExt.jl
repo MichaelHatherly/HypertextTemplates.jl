@@ -47,11 +47,27 @@ const CACHE_LOCK = ReentrantLock()
 const CACHE = Dict{Tuple{DataType,Symbol,LineNumberNode},Tuple{UInt,Float64,Any}}()
 
 # Re-expanding a template hands out a fresh uuid, so a long editing session
-# leaves behind an entry per revision per call site. They are small, but they
-# are also never referenced again, so the table is dropped wholesale once it
-# grows past a size no real template set reaches. The next render of each live
-# call site pays to resolve it once more.
+# leaves behind an entry per revision per call site, never referenced again.
+# The table is kept under a size no real template set reaches.
 const CACHE_LIMIT = 8192
+
+# What to throw away when it gets there.
+#
+# An entry is only ever returned when its world matches the current one, so an
+# entry stamped with an older world is already guaranteed to miss and be
+# recomputed the next time its call site renders. Dropping those costs nothing
+# that was not lost anyway -- and after an edit, which is when this table grows
+# in the first place, they are exactly the abandoned revisions.
+#
+# This used to be `empty!`, which met the bound by throwing away every live
+# entry alongside the dead ones and making the next render of every active call
+# site pay the full 53us again. It is kept below only as a floor, for the shape
+# where a single world really does hold more live call sites than the limit.
+function _evict!(world::UInt)
+    filter!(entry -> entry.second[1] == world, CACHE)
+    length(CACHE) >= CACHE_LIMIT && empty!(CACHE)
+    return nothing
+end
 
 function _resolve_method_offset(f, uuid, __source__)
     method = nothing
@@ -99,7 +115,7 @@ function HTT._method_offset(::HTT.ReviseIsLoaded, f, uuid, __source__)
         # Negative results are cached too, so a call site that cannot be
         # resolved does not repeat the search on every render.
         result = _resolve_method_offset(f, uuid, __source__)
-        length(CACHE) >= CACHE_LIMIT && empty!(CACHE)
+        length(CACHE) >= CACHE_LIMIT && _evict!(world)
         CACHE[key] = (world, stamp, result)
         return result
     finally

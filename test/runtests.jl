@@ -973,6 +973,21 @@ end
         end
         @test length(cache) <= extension.CACHE_LIMIT
 
+        # And what it drops to get there are the entries that were already
+        # doomed. An entry only ever hits when its world matches the current
+        # one, so one stamped with an older world would miss and be recomputed
+        # regardless -- those are the abandoned revisions an editing session
+        # leaves behind. An entry from the current world is still live and has
+        # to survive, which the wholesale `empty!` this replaced did not manage.
+        world = Base.get_world_counter()
+        stale = (typeof(tracked), :evict_stale, LineNumberNode(1, Symbol(@__FILE__)))
+        live = (typeof(tracked), :evict_live, LineNumberNode(2, Symbol(@__FILE__)))
+        cache[stale] = (world - 1, 0.0, nothing)
+        cache[live] = (world, 0.0, nothing)
+        extension._evict!(world)
+        @test !haskey(cache, stale)
+        @test haskey(cache, live)
+
         # Concurrent renders must agree with single-threaded ones. The cache is
         # global, so it is guarded by a lock; the per-render offset cache is not
         # shared between renders at all.
