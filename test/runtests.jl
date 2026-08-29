@@ -335,6 +335,13 @@ end
         @test contains(annotated, "<h1 data-htloc=\"$(markdown):1\"")
         @test contains(annotated, "<p data-htloc=\"$(markdown):3\"")
 
+        # A node parsed without source information has no `meta` to read one
+        # from, which is no location rather than an error.
+        bare = CommonMark.Parser()("plain *text*")
+        rendered = @render @div $bare
+        @test contains(rendered, "<em>text</em>")
+        @test !contains(rendered, "<p data-htloc")
+
         # Expansion from a call site with no file -- the REPL, or a macro
         # driven programmatically -- has to work rather than throw.
         expansion = Base.invokelatest(
@@ -1084,6 +1091,10 @@ end
         # A stream with no cache attached still has to produce the same answer.
         @test HypertextTemplates._dynamic_line_offset(IOBuffer(), revise) == direct
         @test HypertextTemplates._dynamic_line_offset(context, nothing) == 0
+        # As does one carrying some other kind of `Ref` under our key, which is
+        # an uncached lookup rather than an error.
+        foreign = IOContext(IOBuffer(), HypertextTemplates._line_offsets() => Ref{Any}())
+        @test HypertextTemplates._dynamic_line_offset(foreign, revise) == direct
 
         # The offset depends on the recorded line as well as the function, so a
         # second record for the same function must not be handed the first
@@ -1108,6 +1119,12 @@ end
         HypertextTemplates._render_source_prop(hostile, (@__FILE__, 1), nothing)
         rendered = String(take!(hostile.io))
         @test contains(rendered, "data-htloc=") && !contains(rendered, "data-htroot=")
+
+        # Including a tuple of the right shape but another integer width, which
+        # nothing here produces.
+        widened = IOContext(IOBuffer(), :__root__ => (@__FILE__, Int32(1)))
+        HypertextTemplates._render_source_prop(widened, (@__FILE__, 1), nothing)
+        @test !contains(String(take!(widened.io)), "data-htroot=")
 
         # Both paths land in a quoted attribute, so both are escaped.
         quoted = IOContext(IOBuffer(), :__root__ => ("ro\"ot", 2))

@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   across renders rather than resolved per rendered element. Entries are
   invalidated by method redefinition or a source file's modification time, and
   nothing is cached while `Revise` has revisions it has not yet applied.
+- The `Revise` source-tracking path is type stable: a resolved call site and
+  the root location a render records are concretely typed, so a `@render` no
+  longer dispatches dynamically to reach them, and a foreign offset cache in
+  the render context degrades gracefully instead of raising a `TypeError`.
+  `render` and `StreamingRender` also specialise on the function they are
+  handed rather than compiling one widened method.
 - `StreamingRender` batches more writes per chunk than before, so the chunk
   boundaries an iterating consumer observes have changed.
 - `@element` now requires its element name to be a string or symbol literal
@@ -41,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   passed a negative `chunk_size`.
 - Fix a `MethodError` when `@cm_component` is expanded somewhere without a
   source file, such as the REPL.
+- Fix a `MethodError` when rendering a `CommonMark.Node` that was parsed
+  without source information, or with a non-string `source` in its metadata,
+  while `Revise` is loaded.
 - Escape the file paths written into `data-htroot` and `data-htloc`
   attributes.
 
