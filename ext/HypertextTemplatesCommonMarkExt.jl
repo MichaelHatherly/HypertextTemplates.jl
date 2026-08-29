@@ -7,7 +7,11 @@ import TOML
 
 function HypertextTemplates.escape_html(io::IO, md::CM.Node, revise)
     html = if HypertextTemplates._should_render_data_htloc(io)
-        source = get(md.meta, "source", "")
+        # Narrowed to a `String` before the closure below captures it: `meta` is
+        # optional and holds `Any`, which would make every callback dynamic.
+        meta = md.meta
+        stored = isnothing(meta) ? "" : get(meta, "source", "")
+        source = stored isa AbstractString ? convert(String, stored) : ""
         isjulia = endswith(source, ".jl")
         # Line offsets only apply to markdown embedded in Julia source files.
         # If it is from a markdown file then offsets do not make sense.
