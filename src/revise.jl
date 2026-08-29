@@ -43,28 +43,42 @@ function _evict!(cache::SourceCache, world::UInt)
     return nothing
 end
 
+# While a Revise revision is pending, a file's mtime is ahead of its line
+# information, so answers are returned but not stored. The extension overrides
+# this.
+_source_cache_writable() = __source_cache_writable(ReviseIsLoaded())
+__source_cache_writable(::Any) = true
+
 """
     _cached(compute, cache, key, file)
 
 Return the memoised value for `key`, computing it with `compute` if the answer
 is missing or has gone stale. `file` is the source file the answer depends on.
 
-The lock spans the computation as well as the lookup, so that concurrent first
-renders of a given key resolve it once between them rather than each paying the
-full cost.
+`compute` returns a `(value, cacheable)` pair; the value is returned either way,
+`cacheable` says whether it may also be stored. The computation runs outside the
+lock: it is a pure function of the key, so racing duplicates are harmless and
+the later store wins.
 """
 function _cached(compute, cache::SourceCache{K,V}, key::K, file) where {K,V}
     world = Base.get_world_counter()
     stamp = mtime(file)
     lock(cache.lock)
-    try
-        entry = get(cache.entries, key, nothing)
-        isnothing(entry) || (entry[1] == world && entry[2] == stamp && return entry[3])
-        value = compute()
-        length(cache.entries) >= cache.limit && _evict!(cache, world)
-        cache.entries[key] = (world, stamp, value)
-        return value
+    entry = try
+        get(cache.entries, key, nothing)
     finally
         unlock(cache.lock)
     end
+    isnothing(entry) || (entry[1] == world && entry[2] == stamp && return entry[3])
+    value, cacheable = compute()
+    if cacheable && _source_cache_writable()
+        lock(cache.lock)
+        try
+            length(cache.entries) >= cache.limit && _evict!(cache, world)
+            cache.entries[key] = (world, stamp, value)
+        finally
+            unlock(cache.lock)
+        end
+    end
+    return value
 end

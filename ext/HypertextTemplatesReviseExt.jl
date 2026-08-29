@@ -5,6 +5,10 @@ import Revise
 
 HTT.__is_revise_loaded(::HTT.ReviseIsLoaded) = true
 
+# Files on either queue have an mtime ahead of what Revise has applied.
+HTT.__source_cache_writable(::HTT.ReviseIsLoaded) =
+    isempty(Revise.revision_queue) && isempty(Revise.queue_errors)
+
 function _has_uuid(vec::Vector{Base.CodeInfo}, uuid::Symbol)
     for each in vec
         if uuid in each.slotnames
@@ -48,13 +52,14 @@ function _resolve_method_offset(f, uuid, __source__)
     end
     if isnothing(method)
         @debug "could not detect method, giving up."
-        return nothing
+        return nothing, true
     else
         try
-            return Revise.CodeTracking.whereis(__source__, method)
+            return Revise.CodeTracking.whereis(__source__, method), true
         catch err
             @debug "CodeTracking.whereis failed, skipping source tracking." exception = err
-            return nothing
+            # Not memoised, so a one-off failure is retried on the next render.
+            return nothing, false
         end
     end
 end
@@ -67,12 +72,11 @@ function HTT._method_offset(::HTT.ReviseIsLoaded, f, uuid, __source__)
     key = (typeof(f), uuid, __source__)
     # `mtime` returns 0.0 for anything that cannot be stat'ed, such as a call
     # site typed into the REPL. That is a stable value, which is correct here:
-    # code that lives in no file never shifts within one. `string` rather than
-    # `String`, since a `LineNumberNode` is allowed to carry no file at all.
-    #
-    # Negative results are memoised too, so a call site that cannot be resolved
-    # does not repeat the search on every render.
-    return HTT._cached(SITES, key, string(__source__.file)) do
+    # code that lives in no file never shifts within one. A `LineNumberNode` may
+    # carry no file at all, where `string` would hand `mtime` the relative path
+    # "nothing" to stat; the empty string cannot name a file and stats to 0.0.
+    file = something(__source__.file, Symbol(""))
+    return HTT._cached(SITES, key, String(file)) do
         _resolve_method_offset(f, uuid, __source__)
     end
 end
