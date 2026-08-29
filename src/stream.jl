@@ -289,12 +289,14 @@ struct StreamingRender
     channel::Channel{Vector{UInt8}}
     task::Task
 
+    # `f::F` rather than `f::Function`: Julia does not specialize on an argument
+    # only passed along, and the render thunk is worth specializing on.
     function StreamingRender(
-        f::Function;
+        f::F;
         buffer_size::Int = 32,
         chunk_size::Int = 4096,
         immediate_threshold::Int = 64,
-    )
+    ) where {F<:Function}
         # The Channel is the synchronization point between producer and consumer.
         # buffer_size controls backpressure - when full, the producer blocks.
         channel = Channel{Vector{UInt8}}(buffer_size)
