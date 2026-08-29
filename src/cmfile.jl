@@ -134,12 +134,16 @@ macro cm_component(expr)
             $(HypertextTemplates).@text ast
         end
     end
+    # A `LineNumberNode` may carry no file, here as in the REPL case above.
+    this_file = Symbol(@__FILE__())
+    replacement = if isnothing(__source__.file)
+        LineNumberNode(__source__.line)
+    else
+        LineNumberNode(__source__.line, __source__.file)
+    end
     component_expr = MacroTools.postwalk(component_expr) do each
-        file = String(__source__.file)
-        if isa(each, LineNumberNode) &&
-           String(each.file) == @__FILE__() &&
-           each.line == line
-            return LineNumberNode(__source__.line, file)
+        if isa(each, LineNumberNode) && each.file === this_file && each.line == line
+            return replacement
         else
             return each
         end
