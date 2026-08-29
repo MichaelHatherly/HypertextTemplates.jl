@@ -95,7 +95,7 @@ end
 
 _method_offset(::Any, f, uuid, __source__) = nothing
 
-function _render(dst, dom_thunk::Function, source::Tuple{String,Integer})
+function _render(dst, dom_thunk::Function, source::Tuple{String,Int})
     io = _render_dst(dst)
     ctx = _render_context(IOContext(io, :__root__ => source, _once_ref()))
     dom_thunk(ctx, nothing)

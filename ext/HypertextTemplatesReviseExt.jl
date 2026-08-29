@@ -39,7 +39,8 @@ end
 # is redundant for calls coming from `@render`, but leaving it out would hand a
 # stale answer to any other caller resolving that uuid against a different
 # line.
-const SITES = HTT.SourceCache{Tuple{DataType,Symbol,LineNumberNode},Any}()
+const SITES =
+    HTT.SourceCache{Tuple{DataType,Symbol,LineNumberNode},Union{Nothing,Tuple{String,Int}}}()
 
 function _resolve_method_offset(f, uuid, __source__)
     method = nothing
@@ -55,7 +56,9 @@ function _resolve_method_offset(f, uuid, __source__)
         return nothing, true
     else
         try
-            return Revise.CodeTracking.whereis(__source__, method), true
+            # `whereis` does not promise an `Int` line on every version.
+            file, line = Revise.CodeTracking.whereis(__source__, method)
+            return (String(file), Int(line)), true
         catch err
             @debug "CodeTracking.whereis failed, skipping source tracking." exception = err
             # Not memoised, so a one-off failure is retried on the next render.

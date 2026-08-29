@@ -268,12 +268,12 @@ function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
         root = get(io, :__root__, nothing)
         # `:__root__` may come from the caller's own `IOContext`, so any shape
         # other than ours is treated as no root.
-        if root isa Tuple{String,Integer}
+        if root isa Tuple{String,Int}
             file, line = root
             print(io, " data-htroot=\"")
             escape_attr(io, file)
             print(io, ":")
-            _write_integer(io, Int(line))
+            _write_integer(io, line)
             print(io, "\"")
         end
         offset = _dynamic_line_offset(io, revise)
@@ -307,11 +307,12 @@ function _dynamic_line_offset(io::IO, revise)
     stored = get(io, _line_offsets(), nothing)
     # No cache on this stream: fall back to computing it every time.
     isnothing(stored) && return _compute_dynamic_line_offset(revise)
-    # Asserted for the same reason as in `_get_once`: an `IOContext` hands its
-    # properties back as `Any`, which would leave every lookup below dynamic.
-    ref = stored::Base.RefValue{IdDict{Any,Tuple{Int,Int}}}
-    isassigned(ref) || (ref[] = IdDict{Any,Tuple{Int,Int}}())
-    offsets = ref[]
+    # An `IOContext` hands properties back as `Any`, so this is narrowed rather
+    # than looked up dynamically. A foreign ref is uncached, not cached against.
+    stored isa Base.RefValue{IdDict{Any,Tuple{Int,Int}}} ||
+        return _compute_dynamic_line_offset(revise)
+    isassigned(stored) || (stored[] = IdDict{Any,Tuple{Int,Int}}())
+    offsets = stored[]
     func, source = revise
     line = Int(source[2])
     # The line is checked against the entry rather than keyed, since a
