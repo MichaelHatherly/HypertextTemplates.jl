@@ -15,9 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   integers, floats and interpolated attributes are written without building
   intermediate strings, and `@render` fills a purpose-built append-only buffer
   rather than an `IOBuffer`. The rendering machinery is also precompiled, so
-  the first render in a session no longer pays to compile it.
+  the first render in a session no longer pays to compile it. Adds a
+  `PrecompileTools` dependency.
 - Under `Revise`, `@render` call sites and component line offsets are memoised
-  instead of being resolved once per rendered element.
+  across renders rather than resolved per rendered element. Entries are
+  invalidated by method redefinition or a source file's modification time, and
+  nothing is cached while `Revise` has revisions it has not yet applied.
+- `StreamingRender` batches more writes per chunk than before, so the chunk
+  boundaries an iterating consumer observes have changed.
+- `@element` now requires its element name to be a string or symbol literal
+  and raises a descriptive error otherwise.
 
 ### Fixed
 
@@ -27,6 +34,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `@deftag`, `@element` and `@cm_component` in modules that define a
   binding named `esc`, `Expr`, `GlobalRef`, `Symbol`, `Val`, `read`, `String`
   or `joinpath`, and when `HypertextTemplates` is imported under another name.
+- Fix a race between `StreamingRender`'s flush timer and the render task that
+  could duplicate or tear bytes in the streamed output, most easily on Julia
+  1.12+.
+- Fix `StreamingRender(f; chunk_size = n)` hanging its consumer forever when
+  passed a negative `chunk_size`.
+- Fix a `MethodError` when `@cm_component` is expanded somewhere without a
+  source file, such as the REPL.
+- Escape the file paths written into `data-htroot` and `data-htloc`
+  attributes.
 
 ## [v2.2.4] - 2026-03-20
 

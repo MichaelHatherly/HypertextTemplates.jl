@@ -327,6 +327,23 @@ end
         render_test("references/markdown/markdown-ext.txt") do io
             @render io ExternalDefs.@markdown_component_ext {x = 1}
         end
+
+        # The reference renders above turn source locations off, which leaves
+        # the CommonMark extension's own `data-htloc` branch unrendered.
+        annotated = @render @markdown_component {x = 1}
+        markdown = joinpath(@__DIR__, "markdown.md")
+        @test contains(annotated, "<h1 data-htloc=\"$(markdown):1\"")
+        @test contains(annotated, "<p data-htloc=\"$(markdown):3\"")
+
+        # Expansion from a call site with no file -- the REPL, or a macro
+        # driven programmatically -- has to work rather than throw.
+        expansion = Base.invokelatest(
+            getfield(HypertextTemplates, Symbol("@cm_component")),
+            LineNumberNode(1),
+            @__MODULE__,
+            :(fileless(; x) = "markdown.md"),
+        )
+        @test expansion isa Expr
     end
     @testset "Render Root" begin
         function render_function()
@@ -672,6 +689,39 @@ end
                       reference_escape(subject; attribute = true)
             end
         end
+
+        # The escaper alternates between the block buffer and writes straight
+        # from the source, so the tail after an early entity has to come out
+        # the same as the reference at every length around the clean run.
+        for tail in (0, 1, 15, 31, 32, 33, 64, 255, 256, 257, 1_000, 10_000)
+            for prefix in ("&", "<>", "\"'", "x&", repeat("<", 40))
+                subject = prefix * repeat("x", tail)
+                @test sprint(HypertextTemplates.escape_html, subject) ==
+                      reference_escape(subject; attribute = false)
+                @test sprint(HypertextTemplates.escape_attr, subject) ==
+                      reference_escape(subject; attribute = true)
+                # Once more with a trailing entity, so the tail is a gap
+                # between two escaped regions rather than the end of the input.
+                closed = subject * "&"
+                @test sprint(HypertextTemplates.escape_html, closed) ==
+                      reference_escape(closed; attribute = false)
+                @test sprint(HypertextTemplates.escape_attr, closed) ==
+                      reference_escape(closed; attribute = true)
+            end
+        end
+        # Dense and sparse stretches in turn, which is where the block buffer
+        # and the direct writes hand over to one another.
+        for gap in (0, 1, 5, 31, 32, 33, 100), entities = 1:3
+            subject = repeat(repeat("<\"", entities) * repeat("y", gap), 40)
+            @test sprint(HypertextTemplates.escape_html, subject) ==
+                  reference_escape(subject; attribute = false)
+            @test sprint(HypertextTemplates.escape_attr, subject) ==
+                  reference_escape(subject; attribute = true)
+            # And through a substring, for a pointer the scan cannot align.
+            view = SubString("abc" * subject, 2)
+            @test sprint(HypertextTemplates.escape_attr, view) ==
+                  reference_escape(String(view); attribute = true)
+        end
     end
     @testset "Once Blocks" begin
         # An `IOContext` hands its properties back as `Any`, so the set behind
@@ -719,6 +769,20 @@ end
         probe(context, 5)
         @test probe(context, 10) == 0
         @test (@allocated probe(context, 1_000)) == 0
+
+        # A context built by hand out of some other kind of `Ref` still
+        # renders, it just does not get the fast path above.
+        handmade = IOContext(
+            IOBuffer(),
+            :__once__ => Ref{Any}(Set{Symbol}()),
+            HypertextTemplates._include_data_htloc() => false,
+        )
+        @render handmade @div begin
+            @once_button
+            @once_button
+        end
+        handmade_output = String(take!(handmade.io))
+        @test count("jquery-3.6.0.min.js", handmade_output) == 1
     end
     @testset "Interpolated Text" begin
         # An interpolated string of two or more pieces is written piece by
@@ -920,7 +984,9 @@ end
         floats = @allocated write_floats(sink, 1_000)
         truncate(sink, 0)
         seek(sink, 0)
-        @test floats == 0
+        # Zero from 1.11; before it the `task_local_storage` lookup allocates,
+        # so the bound borrows `SCRATCH_BYTES` as the version switch.
+        @test floats <= 2_000 * SCRATCH_BYTES
 
         # The buffer holding the digits belongs to the task doing the
         # rendering, which is what makes it safe to write straight out of: a
@@ -978,9 +1044,9 @@ end
     @testset "Source Tracking Caches" begin
         # Resolving a call site and computing a component's line offset are
         # both memoised, because each is expensive enough to dominate a render
-        # under Revise. Whatever the caches hand back has to be what computing
-        # the answer from scratch would have produced -- on a cold cache and on
-        # a warm one alike.
+        # under Revise. Whatever the caches hand back has to be what an
+        # independent computation produces -- on a cold cache and a warm one
+        # alike.
         extension = revise_extension()
         @test extension !== nothing
 
@@ -998,21 +1064,56 @@ end
         @test uuid !== nothing
 
         location = LineNumberNode(call_line + 1, Symbol(@__FILE__))
-        fresh = extension._resolve_method_offset(tracked, uuid, location)
+        fresh, cacheable = extension._resolve_method_offset(tracked, uuid, location)
+        @test cacheable
         loaded = HypertextTemplates.ReviseIsLoaded()
         @test HypertextTemplates._method_offset(loaded, tracked, uuid, location) == fresh
         # Again, now that the entry is warm.
         @test HypertextTemplates._method_offset(loaded, tracked, uuid, location) == fresh
 
-        # Same invariant for the per-render component offset cache.
+        # Same invariant for the per-render component offset cache. The
+        # reference comes from `functionloc` rather than from
+        # `_compute_dynamic_line_offset`, which is memoised itself and would
+        # otherwise only be checked against its own cache.
         revise = (custom_component, (@__FILE__, 1))
-        direct = HypertextTemplates._compute_dynamic_line_offset(revise)
+        direct = functionloc(custom_component)[2] - 1
+        @test HypertextTemplates._compute_dynamic_line_offset(revise) == direct
         context = IOContext(IOBuffer(), HypertextTemplates._line_offsets_ref())
         @test HypertextTemplates._dynamic_line_offset(context, revise) == direct
         @test HypertextTemplates._dynamic_line_offset(context, revise) == direct
         # A stream with no cache attached still has to produce the same answer.
         @test HypertextTemplates._dynamic_line_offset(IOBuffer(), revise) == direct
         @test HypertextTemplates._dynamic_line_offset(context, nothing) == 0
+
+        # The offset depends on the recorded line as well as the function, so a
+        # second record for the same function must not be handed the first
+        # one's answer -- from either cache.
+        shifted = (custom_component, (@__FILE__, 2))
+        @test HypertextTemplates._compute_dynamic_line_offset(shifted) == direct - 1
+        @test HypertextTemplates._dynamic_line_offset(context, shifted) == direct - 1
+
+        # A call site with no file at all is neither an error nor a stat of the
+        # relative path "nothing".
+        @test HypertextTemplates._method_offset(
+            loaded,
+            tracked,
+            uuid,
+            LineNumberNode(call_line + 1),
+        ) === nothing
+
+        # `:__root__` is only installed for a call site that had a source
+        # location; otherwise the lookup reads through to the caller's context,
+        # which can hold anything at all.
+        hostile = IOContext(IOBuffer(), :__root__ => "not a location")
+        HypertextTemplates._render_source_prop(hostile, (@__FILE__, 1), nothing)
+        rendered = String(take!(hostile.io))
+        @test contains(rendered, "data-htloc=") && !contains(rendered, "data-htroot=")
+
+        # Both paths land in a quoted attribute, so both are escaped.
+        quoted = IOContext(IOBuffer(), :__root__ => ("ro\"ot", 2))
+        HypertextTemplates._render_source_prop(quoted, ("fi\"le", 3), nothing)
+        @test String(take!(quoted.io)) ==
+              " data-htroot=\"ro&quot;ot:2\" data-htloc=\"fi&quot;le:3\""
 
         # `_render` has to actually attach that cache, and rendering has to
         # actually reach it. Checking only that the cache agrees with a fresh
@@ -1105,7 +1206,9 @@ end
         # shared between renders at all.
         sites = [first_site, second_site, tracked]
         expected = [string(site()) for site in sites]
-        outputs = Vector{Vector{String}}(undef, Threads.nthreads())
+        # Filled rather than `undef`, so a thread that dies fails the test
+        # below rather than throwing `UndefRefError` out of it.
+        outputs = [String[] for _ = 1:Threads.nthreads()]
         Threads.@threads for thread = 1:Threads.nthreads()
             collected = String[]
             for _ = 1:50, site in sites
@@ -1114,6 +1217,69 @@ end
             outputs[thread] = collected
         end
         @test all(output == repeat(expected, 50) for output in outputs)
+    end
+    @testset "Source Tracking Staleness" begin
+        # Nothing may be cached while a revision is queued: a moved-but-unchanged
+        # definition would poison the cache with nothing left to invalidate it.
+        cache = HypertextTemplates.SourceCache{Int,Int}()
+        pending = (Revise.PkgData(Base.PkgId(HypertextTemplates)), "pending.jl")
+        push!(Revise.revision_queue, pending)
+        try
+            @test !HypertextTemplates._source_cache_writable()
+            @test HypertextTemplates._cached(() -> (1, true), cache, 1, "") == 1
+            @test isempty(cache.entries)
+        finally
+            delete!(Revise.revision_queue, pending)
+        end
+        @test HypertextTemplates._source_cache_writable()
+        @test HypertextTemplates._cached(() -> (1, true), cache, 1, "") == 1
+        @test haskey(cache.entries, 1)
+
+        # A computation that reports itself uncacheable is answered but retried
+        # next time, so a transient failure is not memoised forever.
+        @test HypertextTemplates._cached(() -> (2, false), cache, 2, "") == 2
+        @test !haskey(cache.entries, 2)
+
+        # End to end: a component whose definition moves has to report its new
+        # line once Revise has caught up, whatever was rendered in between.
+        directory = mktempdir(; cleanup = true)
+        path = joinpath(directory, "shifting.jl")
+        definition(padding) = string(
+            repeat("\n", padding),
+            """
+            @component function shifting(; )
+                @div "shifting"
+            end
+            """,
+        )
+        write(path, definition(0))
+        Revise.includet(path)
+
+        # `shifting` is defined while this test runs, so reaching it has to be
+        # deferred to the world it was defined in.
+        render() = Base.invokelatest(() -> @render @<(getfield(Main, :shifting)))
+        reported(html) = parse(Int, match(r"shifting\.jl:(\d+)\"", html)[1])
+        before = reported(render())
+        key = (typeof(getfield(Main, :shifting)), 1)
+
+        write(path, definition(5))
+        # The watcher that queues a changed file is asynchronous; queueing it
+        # here rather than waiting keeps the test from racing it.
+        for (_, pkgdata) in Revise.pkgdatas, file in Revise.srcfiles(pkgdata)
+            joinpath(Revise.basedir(pkgdata), file) == path &&
+                push!(Revise.revision_queue, (pkgdata, file))
+        end
+        @test !HypertextTemplates._source_cache_writable()
+
+        # Rendering now still reports a location, but must not leave the
+        # pre-edit offset filed under the post-edit mtime.
+        @test contains(render(), "data-htloc=")
+        entry = get(HypertextTemplates.LINE_OFFSETS.entries, key, nothing)
+        @test entry === nothing || entry[2] != mtime(path)
+
+        Revise.revise()
+        @test HypertextTemplates._source_cache_writable()
+        @test reported(render()) == before + 5
     end
     @testset "Streaming" begin
         func(io = Vector{UInt8}) = @render io @streaming {n = 10000}
@@ -1222,6 +1388,40 @@ end
         # that means the timer flushed while it was asleep rather than the
         # bytes waiting for it to return.
         @test first(first(arrivals)) < 0.05
+
+        # ...and flushing from that timer must not corrupt the stream. Writes
+        # small enough to stay buffered, spaced so the 1 ms timer fires between
+        # them repeatedly. Needs threads to mean anything; corrupted most
+        # renders on four threads before the writer took a lock.
+        function dribbling(io)
+            for i = 1:40
+                write(io, "<p>")
+                write(io, lpad(string(i), 4, '0'))
+                write(io, "</p>")
+                i % 4 == 0 && sleep(0.001)
+            end
+        end
+        reference = codeunits(sprint(dribbling))
+        corrupted = 0
+        for _ = 1:25
+            collected = UInt8[]
+            for chunk in StreamingRender(dribbling)
+                append!(collected, chunk)
+            end
+            collected == reference || (corrupted += 1)
+        end
+        @test corrupted == 0
+
+        # A nonsensical `chunk_size` used to throw inside the producer task
+        # before the channel was closed, hanging the consumer in `take!`.
+        for size in (-1, 0, 1)
+            output = UInt8[]
+            task = @async for chunk in StreamingRender(quick; chunk_size = size)
+                append!(output, chunk)
+            end
+            @test timedwait(() -> istaskdone(task), 10.0) === :ok
+            @test String(output) == sprint(quick)
+        end
     end
     @testset "Macro Hygiene" begin
         # The macro that `@deftag` generates is defined in, and expands in, the
