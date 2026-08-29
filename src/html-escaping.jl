@@ -220,12 +220,12 @@ escape_html(io::IO, value, revise) = escape_html(io, value)
 # a time, so the cost per character is a couple of stores rather than a call
 # into the stream.
 #
-# The clean prefix is still written straight from the source string, so text
-# that needs no escaping at all -- the common case -- costs one scan and one
-# write and never touches the scratch buffer.
+# Clean stretches are written straight from the source string, prefix and tail
+# alike, so text that needs no escaping costs one scan and one write and never
+# touches the scratch buffer.
 const ESCAPE_BLOCK = 256
 
-@inline function _escapable(b::UInt8, attribute::Bool)
+@inline function _escapable(b::UInt8, ::Val{attribute}) where {attribute}
     return b == UInt8('&') ||
            b == UInt8('<') ||
            b == UInt8('>') ||
@@ -265,6 +265,11 @@ end
     end
 end
 
+# Shorter clean stretches are copied into the block; longer ones are worth a
+# write of their own, since a call into the stream costs a couple of dozen
+# stores.
+const ESCAPE_CLEAN_RUN = 32
+
 function _escape_blocked(
     io::IO,
     source::Ptr{UInt8},
@@ -272,17 +277,47 @@ function _escape_blocked(
     to::Int,
     ::Val{attribute},
 ) where {attribute}
-    # The longest entity is six bytes, so the block can overshoot by five
-    # before the check below; the headroom covers it.
-    scratch = Ref{NTuple{ESCAPE_BLOCK + 8,UInt8}}()
+    # Between two block checks the buffer takes one entity and then a clean
+    # run, so it carries headroom for both.
+    scratch = Ref{NTuple{ESCAPE_BLOCK + ESCAPE_CLEAN_RUN + 8,UInt8}}()
     GC.@preserve scratch begin
         out = Base.unsafe_convert(Ptr{UInt8}, scratch)
         filled = 0
-        for i = from:to
-            filled = _store_escaped(out, filled, unsafe_load(source, i), Val(attribute))
+        i = from
+        while i <= to
+            while i <= to
+                byte = unsafe_load(source, i)
+                _escapable(byte, Val(attribute)) || break
+                filled = _store_escaped(out, filled, byte, Val(attribute))
+                i += 1
+                if filled >= ESCAPE_BLOCK
+                    unsafe_write(io, out, UInt(filled))
+                    filled = 0
+                end
+            end
+            clean = 0
+            while clean < ESCAPE_CLEAN_RUN && i <= to
+                byte = unsafe_load(source, i)
+                _escapable(byte, Val(attribute)) && break
+                clean += 1
+                filled += 1
+                unsafe_store!(out, byte, filled)
+                i += 1
+            end
             if filled >= ESCAPE_BLOCK
                 unsafe_write(io, out, UInt(filled))
                 filled = 0
+            end
+            if clean == ESCAPE_CLEAN_RUN && i <= to
+                offset = _first_escapable(source + i - 1, to - i + 1, Val(attribute))
+                stretch = offset == 0 ? to - i + 1 : offset - 1
+                if stretch > 0
+                    # The block goes first, or the two writes come out swapped.
+                    filled > 0 && unsafe_write(io, out, UInt(filled))
+                    filled = 0
+                    unsafe_write(io, source + i - 1, UInt(stretch))
+                    i += stretch
+                end
             end
         end
         filled > 0 && unsafe_write(io, out, UInt(filled))
@@ -304,7 +339,7 @@ const _HIGH_PER_BYTE = 0x8080808080808080
 @inline _zero_byte(word::UInt64) = (word - _ONE_PER_BYTE) & ~word & _HIGH_PER_BYTE
 @inline _byte_present(word::UInt64, b::UInt8) = _zero_byte(word ⊻ (_ONE_PER_BYTE * b))
 
-@inline function _escapable_present(word::UInt64, attribute::Bool)
+@inline function _escapable_present(word::UInt64, ::Val{attribute}) where {attribute}
     found =
         _byte_present(word, UInt8('&')) | _byte_present(word, UInt8('<')) |
         _byte_present(word, UInt8('>'))
@@ -317,20 +352,23 @@ end
 # Below this the word loop's alignment prologue costs more than it saves.
 const _WORD_SCAN_MINIMUM = 16
 
-function _first_escapable(source::Ptr{UInt8}, n::Int, attribute::Bool)
+function _first_escapable(source::Ptr{UInt8}, n::Int, ::Val{attribute}) where {attribute}
     i = 1
     if n >= _WORD_SCAN_MINIMUM
         # Advance to an eight-byte boundary first, so the loop below never
         # issues an unaligned load.
         while i <= n && (UInt(source + i - 1) & 0x7) != 0
-            _escapable(unsafe_load(source, i), attribute) && return i
+            _escapable(unsafe_load(source, i), Val(attribute)) && return i
             i += 1
         end
         while i + 7 <= n
-            if _escapable_present(unsafe_load(Ptr{UInt64}(source + i - 1)), attribute) != 0
+            if _escapable_present(
+                unsafe_load(Ptr{UInt64}(source + i - 1)),
+                Val(attribute),
+            ) != 0
                 # Some byte in this word matches; find which.
                 for offset = 0:7
-                    _escapable(unsafe_load(source, i + offset), attribute) &&
+                    _escapable(unsafe_load(source, i + offset), Val(attribute)) &&
                         return i + offset
                 end
             end
@@ -338,7 +376,7 @@ function _first_escapable(source::Ptr{UInt8}, n::Int, attribute::Bool)
         end
     end
     while i <= n
-        _escapable(unsafe_load(source, i), attribute) && return i
+        _escapable(unsafe_load(source, i), Val(attribute)) && return i
         i += 1
     end
     return 0
@@ -354,7 +392,7 @@ function _escape_bytes(
     ::Val{attribute},
 ) where {attribute}
     n <= 0 && return nothing
-    first = _first_escapable(source, n, attribute)
+    first = _first_escapable(source, n, Val(attribute))
     # Nothing to escape: hand the whole run over in one write.
     if first == 0
         unsafe_write(io, source, UInt(n))
