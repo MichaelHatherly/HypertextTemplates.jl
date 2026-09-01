@@ -92,6 +92,21 @@ end
 end
 @deftag macro once_page end
 
+# Julia stack allocates the temporaries the render path relies on only from
+# 1.11, where escape analysis can see that they never leave the function.
+# Before that the escapers' scratch buffer costs a fixed 16 or 32 bytes a call,
+# and the lazy attribute wrapper costs a couple of hundred bytes an element.
+#
+# Both are constants -- per call and per element -- rather than costs per byte,
+# so the invariants the allocation tests exist to protect still hold on those
+# versions: escaping neither allocates per character nor copies its input, and
+# an interpolated attribute is still much cheaper than joining it eagerly was
+# (measured on 1.6, 204 bytes an element against 335). The totals simply are
+# not zero there, so they are bounded by these constants instead, which from
+# 1.11 on are zero and the assertions stay exact.
+const SCRATCH_BYTES = VERSION >= v"1.11" ? 0 : 64
+const LAZY_ATTRIBUTE_BYTES = VERSION >= v"1.11" ? 0 : 256
+
 @testset "HypertestTemplates" begin
     include("basics.jl")
     include("markdown.jl")

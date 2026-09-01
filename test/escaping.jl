@@ -191,8 +191,11 @@ end
     take!(buffer)
     literal = @allocated literal_paragraphs(located, 200)
     take!(buffer)
-    # Joining first cost roughly 7 extra allocations per element.
-    @test interpolated <= literal + 1_000
+    # Joining first cost roughly 7 extra allocations per element. The
+    # interpolated form makes one more escaping call per paragraph than the
+    # literal one, which before Julia 1.11 is a fixed cost each; see
+    # `SCRATCH_BYTES`.
+    @test interpolated <= literal + 1_000 + 200 * SCRATCH_BYTES
 end
 
 @testset "Escaping Blocks" begin
@@ -226,17 +229,21 @@ end
     for (subject, name) in subjects
         repeatedly(HypertextTemplates.escape_html, subject, 3)
         repeatedly(HypertextTemplates.escape_attr, subject, 3)
+        # Zero on 1.11 and later; see `SCRATCH_BYTES`. The bound is a
+        # constant per call either way, so growing the subject must not
+        # grow the total.
+        budget = 500 * SCRATCH_BYTES
         @testset "$name" begin
             @test (@allocated repeatedly(
                 HypertextTemplates.escape_html,
                 subject,
                 500,
-            )) == 0
+            )) <= budget
             @test (@allocated repeatedly(
                 HypertextTemplates.escape_attr,
                 subject,
                 500,
-            )) == 0
+            )) <= budget
         end
     end
 
@@ -270,14 +277,8 @@ end
         for position = 1:length, character in ("\"", "'", "&", "<", ">")
             subject =
                 repeat("y", position - 1) * character * repeat("y", length - position)
-            @test sprint(HypertextTemplates.escape_attr, subject) == replace(
-                subject,
-                "&" => "&amp;",
-                "<" => "&lt;",
-                ">" => "&gt;",
-                "\"" => "&quot;",
-                "'" => "&#39;",
-            )
+            @test sprint(HypertextTemplates.escape_attr, subject) ==
+                  reference_escape(subject; attribute = true)
         end
     end
 
@@ -290,15 +291,9 @@ end
         for filler in ("x", "<", "&", "\"")
             subject = repeat(filler, length)
             @test sprint(HypertextTemplates.escape_html, subject) ==
-                  replace(subject, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
-            @test sprint(HypertextTemplates.escape_attr, subject) == replace(
-                subject,
-                "&" => "&amp;",
-                "<" => "&lt;",
-                ">" => "&gt;",
-                "\"" => "&quot;",
-                "'" => "&#39;",
-            )
+                  reference_escape(subject; attribute = false)
+            @test sprint(HypertextTemplates.escape_attr, subject) ==
+                  reference_escape(subject; attribute = true)
         end
     end
 

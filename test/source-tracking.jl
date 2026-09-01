@@ -1,10 +1,23 @@
+# `Base.get_extension` only exists from Julia 1.9. Before that
+# `PackageExtensionCompat` loads the extension into the package itself, so it
+# is reached as an ordinary submodule.
+function revise_extension()
+    name = :HypertextTemplatesReviseExt
+    if isdefined(Base, :get_extension)
+        return Base.get_extension(HypertextTemplates, name)
+    else
+        return isdefined(HypertextTemplates, name) ? getfield(HypertextTemplates, name) :
+               nothing
+    end
+end
+
 @testset "Source Tracking Caches" begin
     # Resolving a call site and computing a component's line offset are
     # both memoised, because each is expensive enough to dominate a render
     # under Revise. Whatever the caches hand back has to be what an
     # independent computation produces -- on a cold cache and a warm one
     # alike.
-    extension = Base.get_extension(HypertextTemplates, :HypertextTemplatesReviseExt)
+    extension = revise_extension()
     @test extension !== nothing
 
     function tracked()

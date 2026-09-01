@@ -102,8 +102,10 @@ end
     plain = @allocated plain_rows(located, 200, "/item/5")
     take!(buffer)
     # Joining eagerly cost roughly 32KB across 800 extra allocations for
-    # these 200 rows; keeping the pieces costs nothing over a plain value.
-    @test interpolated <= plain + 1_000
+    # these 200 rows; keeping the pieces costs nothing over a plain value
+    # from Julia 1.11, and well under what joining cost before that. See
+    # `LAZY_ATTRIBUTE_BYTES`.
+    @test interpolated <= plain + 1_000 + 200 * LAZY_ATTRIBUTE_BYTES
 end
 
 @testset "Merged Opening Tags" begin
