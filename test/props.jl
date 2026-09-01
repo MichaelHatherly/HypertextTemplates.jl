@@ -35,15 +35,15 @@ end
     target = property_spy
     @test properties(() -> @render @property_spy {a = "/item/$index"}).a === SafeString
     @test properties(() -> @render @property_spy {a = "/x/$index", b = "/y/$index"}).b ===
-          SafeString
+        SafeString
     @test properties(() -> @render @property_spy {a = "/item/$index", extra...}).a ===
-          SafeString
+        SafeString
     @test properties(() -> @render @property_spy {extra..., a = "/item/$index"}).a ===
-          SafeString
+        SafeString
     @test properties(() -> @render @property_spy {a = "static"}).a === String
     @test properties(() -> @render @<target {a = "/item/$index"}).a === SafeString
     @test properties(() -> @render @property_forwarder {a = "/item/$index"}).a ===
-          SafeString
+        SafeString
     # `render` interpolates at its own call site, so the property arrives
     # as an ordinary string and never reaches the attribute machinery.
     @test properties(
@@ -58,15 +58,15 @@ end
         return String(take!(io))
     end
     @test bare(io -> @render io @div {href = "/item/$index"}) ==
-          "<div href=\"/item/42\"></div>"
+        "<div href=\"/item/42\"></div>"
     @test bare(io -> @render io @div {href = "/a/$index/b/$index"}) ==
-          "<div href=\"/a/42/b/42\"></div>"
+        "<div href=\"/a/42/b/42\"></div>"
     @test bare(io -> @render io @div {t = "pre $(SafeString("<b>")) post"}) ==
-          "<div t=\"pre <b> post\"></div>"
+        "<div t=\"pre <b> post\"></div>"
     @test bare(io -> @render io @div {t = "pre $("<i>") post"}) ==
-          "<div t=\"pre &lt;i&gt; post\"></div>"
+        "<div t=\"pre &lt;i&gt; post\"></div>"
     @test bare(io -> @render io @div {t = "q$("\"'&<>")z"}) ==
-          "<div t=\"q&quot;&#39;&amp;&lt;&gt;z\"></div>"
+        "<div t=\"q&quot;&#39;&amp;&lt;&gt;z\"></div>"
     @test bare(io -> @render io @div {t = "☃$(index)—"}) == "<div t=\"☃42—\"></div>"
 
     # The point of keeping the pieces unjoined is that elements stop
@@ -80,14 +80,14 @@ end
     # allocates per element and would otherwise swamp the signal.
     function interpolated_rows(io, n)
         @render io @ul begin
-            for i = 1:n
+            for i in 1:n
                 @li @a {href = "/item/$i", class = "row"} $i
             end
         end
     end
     function plain_rows(io, n, href)
         @render io @ul begin
-            for i = 1:n
+            for i in 1:n
                 @li @a {href = href, class = "row"} $i
             end
         end
@@ -122,26 +122,26 @@ end
     @test bare(io -> @render io @div "x") == "<div>x</div>"
     @test bare(io -> @render io @div {class = "a"} "x") == "<div class=\"a\">x</div>"
     @test bare(io -> @render io @div {class = "a", id = "b"}) ==
-          "<div class=\"a\" id=\"b\"></div>"
+        "<div class=\"a\" id=\"b\"></div>"
     @test bare(io -> @render io @br) == "<br>"
     @test bare(io -> @render io @img {src = "/a", alt = "b"}) ==
-          "<img src=\"/a\" alt=\"b\">"
+        "<img src=\"/a\" alt=\"b\">"
     @test bare(io -> @render io @html {lang = "en"} "x") ==
-          "<!DOCTYPE html><html lang=\"en\">x</html>"
+        "<!DOCTYPE html><html lang=\"en\">x</html>"
     @test bare(io -> @render io @div {hidden = true, disabled = false}) ==
-          "<div hidden></div>"
+        "<div hidden></div>"
     @test bare(io -> @render io @custom_element {prop = "v"} "x") ==
-          "<custom-element prop=\"v\">x</custom-element>"
+        "<custom-element prop=\"v\">x</custom-element>"
     # Escaping in a literal property survives the merge.
     @test bare(io -> @render io @div {t = "a<b>&\"c"}) ==
-          "<div t=\"a&lt;b&gt;&amp;&quot;c\"></div>"
+        "<div t=\"a&lt;b&gt;&amp;&quot;c\"></div>"
     # A merged run travels in a type parameter, which is a `Symbol` and so
     # cannot hold a NUL byte. Such an attribute is not valid HTML anyway,
     # but it used to render, so it has to keep rendering rather than fail
     # during macro expansion.
     @test bare(io -> @render io @div {t = "a\0b"} "x") == "<div t=\"a\0b\">x</div>"
     @test bare(io -> @render io @div {class = "c", t = "a\0b"}) ==
-          "<div class=\"c\" t=\"a\0b\"></div>"
+        "<div class=\"c\" t=\"a\0b\"></div>"
 
     # Only fully-literal plans merge; anything dynamic keeps the old path.
     @test HypertextTemplates._mergeable_plan(Tuple{})
@@ -149,10 +149,10 @@ end
         Tuple{HypertextTemplates.StaticProps{Symbol(" a=\"b\"")}},
     )
     @test !HypertextTemplates._mergeable_plan(
-        Tuple{HypertextTemplates.DynamicProp{:a,Symbol(" a"),Symbol(" a=\"")}},
+        Tuple{HypertextTemplates.DynamicProp{:a, Symbol(" a"), Symbol(" a=\"")}},
     )
     @test !HypertextTemplates._mergeable_plan(Nothing)
     dynamic = "d"
     @test bare(io -> @render io @div {class = "a", id = dynamic}) ==
-          "<div class=\"a\" id=\"d\"></div>"
+        "<div class=\"a\" id=\"d\"></div>"
 end

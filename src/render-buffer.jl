@@ -63,7 +63,7 @@ end
 @inline function Base.write(buffer::RenderBuffer, byte::UInt8)
     at = buffer.size
     at + 1 > length(buffer.data) && _grow!(buffer, at + 1)
-    @inbounds buffer.data[at+1] = byte
+    @inbounds buffer.data[at + 1] = byte
     buffer.size = at + 1
     return 1
 end

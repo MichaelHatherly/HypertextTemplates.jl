@@ -89,7 +89,7 @@ macro (<)(tag, args...)
     etag = esc(tag)
 
     props_plan, eprops, eslots = _process_args(args)
-    quote
+    return quote
         if $(esc(Expr(:isdefined, io)))
             $(HypertextTemplates)._render_tag(
                 $eio,
@@ -118,7 +118,7 @@ function _process_args(args)
     default_slot_contents = Expr(:block)
 
     function slot_fn(arg)
-        if Meta.isexpr(arg, :(:=), 2)
+        return if Meta.isexpr(arg, :(:=), 2)
             name, content = arg.args
             if name in slot_names
                 error("cannot include duplicate slot names: `$name`.")
@@ -199,11 +199,13 @@ end
 # The attribute prefixes never vary, so bake them into the segment's type
 # rather than reassembling them from the name on every render.
 function _dynamic_segment(name::Symbol)
-    return :($(DynamicProp){
-        $(QuoteNode(name)),
-        $(QuoteNode(Symbol(" ", name))),
-        $(QuoteNode(Symbol(" ", name, "=\""))),
-    }())
+    return :(
+        $(DynamicProp){
+            $(QuoteNode(name)),
+            $(QuoteNode(Symbol(" ", name))),
+            $(QuoteNode(Symbol(" ", name, "=\""))),
+        }()
+    )
 end
 
 # Returns whether the run could be planned. A `false` result means the caller
@@ -230,8 +232,8 @@ _prop_name(name::Symbol) = name
 function _process_prop(ex::Expr)
     if Meta.isexpr(ex, [:(=), :(:=)], 2)
         k, v = ex.args
-        if isa(k, Union{String,Symbol}) || (isa(k, QuoteNode) && isa(k.value, Symbol))
-            if isa(v, Union{AbstractString,Bool,Integer})
+        if isa(k, Union{String, Symbol}) || (isa(k, QuoteNode) && isa(k.value, Symbol))
+            if isa(v, Union{AbstractString, Bool, Integer})
                 return (
                     __process_prop(k) => _sanitise(v),
                     Expr(:(=), __process_prop(k), _sanitise(v)),

@@ -1,9 +1,9 @@
 module ExternalDefs
 
-using HypertextTemplates
+    using HypertextTemplates
 
-function markdown_component_ext end
-@deftag macro markdown_component_ext end
+    function markdown_component_ext end
+    @deftag macro markdown_component_ext end
 
 end
 

@@ -51,7 +51,7 @@ julia> @render @ion_button {color = "primary", expand = "block"} begin
 See also: [`@deftag`](@ref), [`@component`](@ref)
 """
 macro element(name, binding = name)
-    isa(name, Union{String,Symbol}) ||
+    isa(name, Union{String, Symbol}) ||
         error("element name must be a string or symbol literal. It is `$name`.")
     binding = Symbol(binding)
     if !Base.is_valid_identifier(binding)
@@ -70,7 +70,7 @@ macro element(name, binding = name)
     # itself so that this matches what the runtime check used to decide: an
     # element declared with a string name is never treated as void.
     close_tag = _void_element(name) ? "" : "</$(tag)>"
-    quote
+    return quote
         struct $(esc(type)) <: $(HypertextTemplates).AbstractElement end
         const $(esc(binding)) = $(esc(type))()
 

@@ -58,14 +58,14 @@ _element_symbol(element) = Val(Symbol(_element_name(element)))
 #   50-element template     635 -> 476 ms     (-25%, compile)
 #   200-element template   2847 -> 2186 ms    (-23%, compile)
 @inline function _render_tag(
-    io::IO,
-    tag::AbstractElement,
-    plan,
-    props,
-    slots,
-    source,
-    revise,
-)
+        io::IO,
+        tag::AbstractElement,
+        plan,
+        props,
+        slots,
+        source,
+        revise,
+    )
     _render_prefix(io, tag)
     # Both conditions are compile-time constants, so only one branch survives.
     if !_is_revise_loaded() && _mergeable_plan(typeof(plan))
@@ -104,13 +104,14 @@ function _render_props(io::IO, props)
     for (k, v) in props
         _render_prop(io, k, v)
     end
+    return
 end
 
 # `NamedTuple` props are unrolled rather than iterated so that each property is
 # rendered with its own concrete value type. Iterating `pairs(props)` widens the
 # values to their union, which costs a dynamic dispatch per property once more
 # than a handful of distinct types are involved.
-_render_props(io::IO, ::NamedTuple{(),Tuple{}}) = nothing
+_render_props(io::IO, ::NamedTuple{(), Tuple{}}) = nothing
 @inline function _render_props(io::IO, props::NamedTuple{names}) where {names}
     _render_prop(io, names[1], getfield(props, 1))
     _render_props(io, NamedTuple{Base.tail(names)}(Base.tail(Tuple(props))))
@@ -138,7 +139,7 @@ escapes into user code.
 Literal pieces arrive already escaped and wrapped in [`SafeString`](@ref);
 everything else is escaped as it is written.
 """
-struct InterpolatedAttribute{P<:Tuple}
+struct InterpolatedAttribute{P <: Tuple}
     parts::P
 end
 
@@ -169,7 +170,7 @@ _materialise(value) = value
 # actually needs joining, and whether that is so is visible in its type. When
 # nothing does -- the common case, including every component that takes no
 # interpolated attribute -- the properties are passed through untouched.
-@generated function _materialise(props::NamedTuple{names,T}) where {names,T}
+@generated function _materialise(props::NamedTuple{names, T}) where {names, T}
     # A field needs joining if its type does not rule the lazy form out. Asking
     # whether the type intersects rather than whether it is a subtype matters
     # for a field typed loosely enough to hold either, which a subtype test
@@ -208,7 +209,7 @@ struct StaticProps{text} end
 # This applies when the element carries no properties, or only literal ones,
 # and Revise is not attaching source locations between the properties and the
 # `>`. Anything else falls back to writing the parts in turn.
-@generated function _write_open(io::IO, ::Val{name}, ::StaticProps{text}) where {name,text}
+@generated function _write_open(io::IO, ::Val{name}, ::StaticProps{text}) where {name, text}
     return :(print(io, $(string("<", name, text, ">"))))
 end
 @generated function _write_open(io::IO, ::Val{name}, ::Tuple{}) where {name}
@@ -219,16 +220,16 @@ _mergeable_plan(::Type{Tuple{StaticProps{text}}}) where {text} = true
 _mergeable_plan(::Type{Tuple{}}) = true
 _mergeable_plan(::Type) = false
 
-struct DynamicProp{name,bare,quoted} end
+struct DynamicProp{name, bare, quoted} end
 
 @inline _render_segment(io::IO, ::StaticProps{text}, props) where {text} =
     (print(io, text); nothing)
 
 @inline function _render_segment(
-    io::IO,
-    ::DynamicProp{name,bare,quoted},
-    props,
-) where {name,bare,quoted}
+        io::IO,
+        ::DynamicProp{name, bare, quoted},
+        props,
+    ) where {name, bare, quoted}
     v = getfield(props, name)
     if v === false
         # Skip it entirely.
@@ -263,12 +264,12 @@ _include_data_htloc() = :include_data_htloc
 _should_render_data_htloc(io::IO) =
     _is_revise_loaded() && get(io, _include_data_htloc(), true) === true
 
-function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
+function _render_source_prop(io::IO, source::Tuple{String, Int}, revise)
     if get(io, _include_data_htloc(), true) === true
         root = get(io, :__root__, nothing)
         # `:__root__` may come from the caller's own `IOContext`, so any shape
         # other than ours is treated as no root.
-        if root isa Tuple{String,Int}
+        if root isa Tuple{String, Int}
             file, line = root
             print(io, " data-htroot=\"")
             escape_attr(io, file)
@@ -289,7 +290,7 @@ end
 _render_source_prop(io::IO, source, revise) = nothing
 
 _line_offsets() = :__htloc_offsets__
-_line_offsets_ref() = _line_offsets() => Ref{IdDict{Any,Tuple{Int,Int}}}()
+_line_offsets_ref() = _line_offsets() => Ref{IdDict{Any, Tuple{Int, Int}}}()
 
 # The offset below costs a `functionloc`, which walks the method table and goes
 # through CodeTracking: about 5us a call. It used to run once per rendered
@@ -309,9 +310,9 @@ function _dynamic_line_offset(io::IO, revise)
     isnothing(stored) && return _compute_dynamic_line_offset(revise)
     # An `IOContext` hands properties back as `Any`, so this is narrowed rather
     # than looked up dynamically. A foreign ref is uncached, not cached against.
-    stored isa Base.RefValue{IdDict{Any,Tuple{Int,Int}}} ||
+    stored isa Base.RefValue{IdDict{Any, Tuple{Int, Int}}} ||
         return _compute_dynamic_line_offset(revise)
-    isassigned(stored) || (stored[] = IdDict{Any,Tuple{Int,Int}}())
+    isassigned(stored) || (stored[] = IdDict{Any, Tuple{Int, Int}}())
     offsets = stored[]
     func, source = revise
     line = Int(source[2])
@@ -330,7 +331,7 @@ end
 # reached through different bindings.
 # The recorded line is part of the key here: this is only reached once per
 # component per render, so building one costs nothing.
-const LINE_OFFSETS = SourceCache{Tuple{DataType,Int},Int}()
+const LINE_OFFSETS = SourceCache{Tuple{DataType, Int}, Int}()
 
 function _compute_dynamic_line_offset(revise)
     # This calculates the line offset caused by running `Revise` and editing a

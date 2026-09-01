@@ -23,7 +23,7 @@ end
 # `Bool` is deliberately excluded: it prints as `true`/`false`, not `1`/`0`.
 # `Int128`/`UInt128` and `BigInt` are excluded too, since for those the
 # buffered loop is slower than `print` and they are vanishingly rare here.
-const NativeInteger = Union{Int8,Int16,Int32,Int64,UInt8,UInt16,UInt32,UInt64}
+const NativeInteger = Union{Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64}
 
 function _write_integer(io::IO, n::NativeInteger)
     negative = n < 0
@@ -33,7 +33,7 @@ function _write_integer(io::IO, n::NativeInteger)
     u = negative ? unsigned(-n) : unsigned(n)
     # 20 digits holds `typemax(UInt64)`; the buffer is oversized for headroom
     # and never escapes, so it stays on the stack.
-    buffer = Ref{NTuple{24,UInt8}}()
+    buffer = Ref{NTuple{24, UInt8}}()
     len = 0
     GC.@preserve buffer begin
         ptr = Base.unsafe_convert(Ptr{UInt8}, buffer)
@@ -75,7 +75,7 @@ end
 #
 # `Bool` is an `Integer` and never reaches here. `BigFloat` is excluded because
 # it prints through MPFR rather than Ryu.
-const NativeFloat = Union{Float16,Float32,Float64}
+const NativeFloat = Union{Float16, Float32, Float64}
 
 # The size is `Base.Ryu`'s own figure rather than one derived from how long a
 # shortest-round-trip `Float64` can get -- which is 24 characters, sign and
@@ -174,12 +174,13 @@ function escape_html(io::IO, value::AbstractString)
             print(io, c)
         end
     end
+    return
 end
 
 # Fast path for the string types that actually show up in templates: see
 # `_escape_scan` below. Scanning bytes is safe because every character replaced
 # is ASCII, and ASCII bytes never appear inside a multi-byte UTF-8 sequence.
-function escape_html(io::IO, value::Union{String,SubString{String}})
+function escape_html(io::IO, value::Union{String, SubString{String}})
     _escape_scan(io, value, Val(false))
     return nothing
 end
@@ -194,7 +195,7 @@ _as_text(value::SafeString) = value.str
 _as_text(value) = value
 # Numbers cannot produce any character that needs escaping, so skip both the
 # scan and the `string` allocation that the generic fallback would make.
-escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_html(io::IO, value::Union{Integer, AbstractFloat}) = (print(io, value); nothing)
 escape_html(io::IO, value::NativeInteger) = _write_integer(io, value)
 escape_html(io::IO, value::NativeFloat) = _write_float(io, value)
 # A single character needs at most one substitution, and checking it directly
@@ -227,28 +228,28 @@ const ESCAPE_BLOCK = 256
 
 @inline function _escapable(b::UInt8, ::Val{attribute}) where {attribute}
     return b == UInt8('&') ||
-           b == UInt8('<') ||
-           b == UInt8('>') ||
-           (attribute && (b == UInt8('"') || b == UInt8('\'')))
+        b == UInt8('<') ||
+        b == UInt8('>') ||
+        (attribute && (b == UInt8('"') || b == UInt8('\'')))
 end
 
 @inline function _store_entity(
-    out::Ptr{UInt8},
-    filled::Int,
-    bytes::NTuple{N,UInt8},
-) where {N}
-    for index = 1:N
+        out::Ptr{UInt8},
+        filled::Int,
+        bytes::NTuple{N, UInt8},
+    ) where {N}
+    for index in 1:N
         unsafe_store!(out, bytes[index], filled + index)
     end
     return filled + N
 end
 
 @inline function _store_escaped(
-    out::Ptr{UInt8},
-    filled::Int,
-    b::UInt8,
-    ::Val{attribute},
-) where {attribute}
+        out::Ptr{UInt8},
+        filled::Int,
+        b::UInt8,
+        ::Val{attribute},
+    ) where {attribute}
     if b == UInt8('&')
         return _store_entity(out, filled, map(UInt8, ('&', 'a', 'm', 'p', ';')))
     elseif b == UInt8('<')
@@ -271,15 +272,15 @@ end
 const ESCAPE_CLEAN_RUN = 32
 
 function _escape_blocked(
-    io::IO,
-    source::Ptr{UInt8},
-    from::Int,
-    to::Int,
-    ::Val{attribute},
-) where {attribute}
+        io::IO,
+        source::Ptr{UInt8},
+        from::Int,
+        to::Int,
+        ::Val{attribute},
+    ) where {attribute}
     # Between two block checks the buffer takes one entity and then a clean
     # run, so it carries headroom for both.
-    scratch = Ref{NTuple{ESCAPE_BLOCK + ESCAPE_CLEAN_RUN + 8,UInt8}}()
+    scratch = Ref{NTuple{ESCAPE_BLOCK + ESCAPE_CLEAN_RUN + 8, UInt8}}()
     GC.@preserve scratch begin
         out = Base.unsafe_convert(Ptr{UInt8}, scratch)
         filled = 0
@@ -357,17 +358,17 @@ function _first_escapable(source::Ptr{UInt8}, n::Int, ::Val{attribute}) where {a
     if n >= _WORD_SCAN_MINIMUM
         # Advance to an eight-byte boundary first, so the loop below never
         # issues an unaligned load.
-        while i <= n && (UInt(source + i - 1) & 0x7) != 0
+        while i <= n && (UInt(source + i - 1) & 0x07) != 0
             _escapable(unsafe_load(source, i), Val(attribute)) && return i
             i += 1
         end
         while i + 7 <= n
             if _escapable_present(
-                unsafe_load(Ptr{UInt64}(source + i - 1)),
-                Val(attribute),
-            ) != 0
+                    unsafe_load(Ptr{UInt64}(source + i - 1)),
+                    Val(attribute),
+                ) != 0
                 # Some byte in this word matches; find which.
-                for offset = 0:7
+                for offset in 0:7
                     _escapable(unsafe_load(source, i + offset), Val(attribute)) &&
                         return i + offset
                 end
@@ -386,11 +387,11 @@ end
 # arbitrary values share one implementation; the wrapper only ever has a
 # pointer to hand.
 function _escape_bytes(
-    io::IO,
-    source::Ptr{UInt8},
-    n::Int,
-    ::Val{attribute},
-) where {attribute}
+        io::IO,
+        source::Ptr{UInt8},
+        n::Int,
+        ::Val{attribute},
+    ) where {attribute}
     n <= 0 && return nothing
     first = _first_escapable(source, n, Val(attribute))
     # Nothing to escape: hand the whole run over in one write.
@@ -403,7 +404,7 @@ function _escape_bytes(
     return nothing
 end
 
-function _escape_scan(io::IO, value::Union{String,SubString{String}}, escaping::Val)
+function _escape_scan(io::IO, value::Union{String, SubString{String}}, escaping::Val)
     n = ncodeunits(value)
     n == 0 && return nothing
     GC.@preserve value _escape_bytes(io, pointer(value), n, escaping)
@@ -453,16 +454,17 @@ function escape_attr(io::IO, value::AbstractString)
             print(io, c)
         end
     end
+    return
 end
 
 # See `escape_html` above for why the code unit scan is safe.
-function escape_attr(io::IO, value::Union{String,SubString{String}})
+function escape_attr(io::IO, value::Union{String, SubString{String}})
     _escape_scan(io, value, Val(true))
     return nothing
 end
 
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
-escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
+escape_attr(io::IO, value::Union{Integer, AbstractFloat}) = (print(io, value); nothing)
 escape_attr(io::IO, value::NativeInteger) = _write_integer(io, value)
 escape_attr(io::IO, value::NativeFloat) = _write_float(io, value)
 # See `escape_html(::IO, ::Char)` above.
@@ -494,11 +496,11 @@ escape_attr(io::IO, other) = (print(EscapeStream{true}(io), other); nothing)
 # It deliberately does not forward `IOContext` properties. `string(value)`
 # renders into a bare buffer, so a value whose `show` consults the stream --
 # checking `:compact`, say -- must keep seeing the defaults it saw before.
-struct EscapeStream{attribute,I<:IO} <: IO
+struct EscapeStream{attribute, I <: IO} <: IO
     io::I
 end
 
-EscapeStream{attribute}(io::I) where {attribute,I<:IO} = EscapeStream{attribute,I}(io)
+EscapeStream{attribute}(io::I) where {attribute, I <: IO} = EscapeStream{attribute, I}(io)
 
 @inline function Base.write(stream::EscapeStream{attribute}, byte::UInt8) where {attribute}
     io = stream.io
@@ -522,10 +524,10 @@ end
 # the same reason it is in the escapers above: every character replaced here is
 # ASCII, and ASCII bytes never occur inside a multi-byte UTF-8 sequence.
 function Base.unsafe_write(
-    stream::EscapeStream{attribute},
-    ptr::Ptr{UInt8},
-    n::UInt,
-) where {attribute}
+        stream::EscapeStream{attribute},
+        ptr::Ptr{UInt8},
+        n::UInt,
+    ) where {attribute}
     _escape_bytes(stream.io, ptr, Int(n), Val(attribute))
     return Int(n)
 end

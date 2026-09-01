@@ -14,7 +14,7 @@ function render_test(f, file)
     io = IOBuffer()
     ctx = IOContext(io, HypertextTemplates._include_data_htloc() => false)
     f(ctx)
-    @test_reference(file, String(take!(io)))
+    return @test_reference(file, String(take!(io)))
 end
 
 @element "custom-element" custom_element

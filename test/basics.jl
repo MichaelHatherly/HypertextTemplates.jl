@@ -101,9 +101,9 @@ end
 @testset "Render Root" begin
     function render_function()
         @__LINE__, @render @div begin
-            @conditional_component {show = true}
-            @conditional_component {show = false}
-        end
+                @conditional_component {show = true}
+                @conditional_component {show = false}
+            end
     end
     line, html = render_function()
     @test contains(html, "data-htroot=\"$(@__FILE__):$(line)")

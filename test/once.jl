@@ -6,14 +6,14 @@
     # key is already present and nothing is rendered.
     function repeated(io, n)
         @render io @div begin
-            for _ = 1:n
+            for _ in 1:n
                 @once_button
             end
         end
     end
     function unrepeated(io, n)
         @render io @div begin
-            for _ = 1:n
+            for _ in 1:n
                 @button "Click Me"
             end
         end
@@ -36,7 +36,7 @@
     HypertextTemplates._add_once_key!(context, :already_present)
     function probe(io, n)
         found = 0
-        for _ = 1:n
+        for _ in 1:n
             HypertextTemplates._missing_once_key(io, :already_present) && (found += 1)
         end
         return found

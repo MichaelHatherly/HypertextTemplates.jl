@@ -120,20 +120,20 @@ macro cm_component(expr)
     # `functionloc` returns the correct location for the `@cm_component` call
     # site.
     line, component_expr = @__LINE__() + 2,
-    quote
-        $(HypertextTemplates).@component function $(name)(; $(parameters...))
-            ast = if $(_is_revise_loaded)()
-                text = $(Symbol)($(read)($path_const, $(String)))
-                # This results in a dynamic dispatch since `text` is a runtime value.
-                $(gen_func_name)($(Val){text}(); $(parameter_names...))
+        quote
+            $(HypertextTemplates).@component function $(name)(; $(parameters...))
+                ast = if $(_is_revise_loaded)()
+                    text = $(Symbol)($(read)($path_const, $(String)))
+                    # This results in a dynamic dispatch since `text` is a runtime value.
+                    $(gen_func_name)($(Val){text}(); $(parameter_names...))
             else
-                # Ideally this should be fully inferrable since
-                # `text_const` is a global constant.
-                $(gen_func_name)($(Val){$text_const}(); $(parameter_names...))
+                    # Ideally this should be fully inferrable since
+                    # `text_const` is a global constant.
+                    $(gen_func_name)($(Val){$text_const}(); $(parameter_names...))
             end
-            $(HypertextTemplates).@text ast
+                $(HypertextTemplates).@text ast
         end
-    end
+        end
     # A `LineNumberNode` may carry no file, here as in the REPL case above.
     this_file = Symbol(@__FILE__())
     replacement = if isnothing(__source__.file)
@@ -166,9 +166,9 @@ macro cm_component(expr)
             # provided to this generated function. At runtime those references
             # will be updated with the values of the individual parameters.
             @generated function $(gen_func_name)(
-                ::$(Val){text};
-                $(parameters...),
-            ) where {text}
+                    ::$(Val){text};
+                    $(parameters...),
+                ) where {text}
                 return $(HypertextTemplates)._parse_cm_content(
                     $mod_const,
                     text,

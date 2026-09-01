@@ -34,14 +34,14 @@ function HypertextTemplates.escape_html(io::IO, md::CM.Node, revise)
     else
         CM.html(md)
     end
-    print(io, strip(html))
+    return print(io, strip(html))
 end
 
 function HypertextTemplates._parse_cm_content(
-    mod::Module,
-    content::Symbol,
-    file::AbstractString,
-)
+        mod::Module,
+        content::Symbol,
+        file::AbstractString,
+    )
     ji = CM.JuliaInterpolationRule()
     parser = CM._init_parser(mod, "jmd")
     CM.enable!(parser, ji)
@@ -53,11 +53,13 @@ function HypertextTemplates._parse_cm_content(
 
     expr = Expr(:block, :(values = []))
     for v in ji.captured
-        push!(expr.args, :(
-            let x = $(v.ex)
-                push!(values, x)
-            end
-        ))
+        push!(
+            expr.args, :(
+                let x = $(v.ex)
+                    push!(values, x)
+                end
+            )
+        )
     end
     push!(expr.args, :($(CM)._interp!($ast, $(ji.captured), values)))
 

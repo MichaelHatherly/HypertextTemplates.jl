@@ -1,7 +1,7 @@
 @component function streaming(; n::Integer)
     @div {class = "streamed"} begin
         @ul begin
-            for id = 1:n
+            for id in 1:n
                 @li {id} "This is item $id."
             end
         end
@@ -58,7 +58,7 @@ end
     # Each piece has to stay under `immediate_threshold`, or it bypasses
     # the buffer entirely and there is nothing to keep.
     piece = repeat("x", 40)
-    for _ = 1:5
+    for _ in 1:5
         write(batcher, piece)
     end
     flush(batcher)
@@ -73,7 +73,7 @@ end
     # Which is to say repeated flushes stay flat rather than paying to
     # regrow each time.
     function cycles(writer, channel, n)
-        for _ = 1:n
+        for _ in 1:n
             write(writer, "a short batch of text")
             flush(writer)
             take!(channel)
@@ -107,7 +107,7 @@ end
     collect(StreamingRender(quick))
     collect(StreamingRender(stalling))
     started = Base.time()
-    arrivals = Tuple{Float64,String}[]
+    arrivals = Tuple{Float64, String}[]
     for chunk in StreamingRender(stalling)
         push!(arrivals, (Base.time() - started, String(copy(chunk))))
     end
@@ -122,7 +122,7 @@ end
     # them repeatedly. Needs threads to mean anything; corrupted most
     # renders on four threads before the writer took a lock.
     function dribbling(io)
-        for i = 1:40
+        for i in 1:40
             write(io, "<p>")
             write(io, lpad(string(i), 4, '0'))
             write(io, "</p>")
@@ -131,7 +131,7 @@ end
     end
     reference = codeunits(sprint(dribbling))
     corrupted = 0
-    for _ = 1:25
+    for _ in 1:25
         collected = UInt8[]
         for chunk in StreamingRender(dribbling)
             append!(collected, chunk)

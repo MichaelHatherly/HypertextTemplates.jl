@@ -9,7 +9,7 @@ function HypertextTemplates._template_file_lookup(::Nothing, handler)
     # page that uses the same target, as unlikely as that may be.
     uuid = string(rand(UInt); base = 62)
     target = "/template-lookup-$uuid"
-    function (request::HTTP.Request)
+    return function (request::HTTP.Request)
         request.context[:template_lookup] = target
         return _template_file_lookup_impl(handler, request, target)
     end
