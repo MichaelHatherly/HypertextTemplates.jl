@@ -317,8 +317,11 @@ end
     end
     buffer = IOBuffer(sizehint = 1 << 20)
     located = IOContext(buffer, HypertextTemplates._include_data_htloc() => false)
-    interpolated_paragraphs(located, 5)
-    literal_paragraphs(located, 5)
+    # Warmed at the size that is measured. The first render of a given shape
+    # pays one-time costs that have nothing to do with interpolation, and
+    # before Julia 1.11 they run to several times the difference under test.
+    interpolated_paragraphs(located, 200)
+    literal_paragraphs(located, 200)
     take!(buffer)
     interpolated = allocations(interpolated_paragraphs, located, 200)
     take!(buffer)
