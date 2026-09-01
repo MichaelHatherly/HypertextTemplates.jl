@@ -22,7 +22,7 @@ The writer follows these rules:
 """
 mutable struct MicroBatchWriter <: IO
     channel::Channel{Vector{UInt8}}
-    buffer::IOBuffer
+    buffer::RenderBuffer
     max_buffer_size::Int      # Maximum bytes before forced flush
     max_buffer_time::Float64  # Maximum seconds before flush
     last_flush_time::Float64
@@ -37,7 +37,7 @@ mutable struct MicroBatchWriter <: IO
     )
         new(
             channel,
-            IOBuffer(),
+            RenderBuffer(max_buffer_size),
             max_buffer_size,
             max_buffer_time,
             time(),
@@ -117,15 +117,14 @@ end
 function Base.flush(mbw::MicroBatchWriter)
     pos = position(mbw.buffer)
     if pos > 0
-        # `take!` hands the buffer's internal array to the channel and installs
-        # a fresh empty one in its place, so the buffer regrows from nothing on
-        # every cycle -- about five reallocations per flush, and a flush
-        # happens every few hundred bytes. Copying the batch out and truncating
-        # keeps the capacity for the next one.
+        # `take!` would hand the buffer's internal array to the channel and
+        # leave an empty one behind, so the buffer would regrow from nothing on
+        # every cycle -- and a flush happens every few hundred bytes. Copying
+        # the batch out and resetting keeps the capacity for the next one.
         bytes = Vector{UInt8}(undef, pos)
-        seekstart(mbw.buffer)
-        readbytes!(mbw.buffer, bytes, pos)
-        truncate(mbw.buffer, 0)
+        data = mbw.buffer.data
+        GC.@preserve bytes data unsafe_copyto!(pointer(bytes), pointer(data), pos)
+        _reset!(mbw.buffer)
         put!(mbw.channel, bytes)
         mbw.write_count = 0
         mbw.last_flush_time = time()

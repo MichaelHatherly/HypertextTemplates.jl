@@ -69,6 +69,7 @@ include("hidden-var-macros.jl")
 # `SafeString` carries no dependencies of its own and is referenced in method
 # signatures further down, so it has to be defined before them.
 include("SafeString.jl")
+include("render-buffer.jl")
 include("render-macro.jl")
 include("tag-macro.jl")
 include("text-macro.jl")

@@ -97,6 +97,7 @@ end
     include("markdown.jl")
     include("streaming.jl")
     include("props.jl")
+    include("render-buffer.jl")
     include("escaping.jl")
     include("once.jl")
     include("source-tracking.jl")

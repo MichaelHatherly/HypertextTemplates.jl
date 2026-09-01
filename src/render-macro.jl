@@ -117,8 +117,8 @@ _render_context(ctx::IOContext) =
 _once_ref() = :__once__ => Ref{Set{Symbol}}()
 
 _render_dst(io::IO) = io
-_render_dst(::Type{String}) = IOBuffer()
-_render_dst(::Type{Vector{UInt8}}) = IOBuffer()
+_render_dst(::Type{String}) = RenderBuffer()
+_render_dst(::Type{Vector{UInt8}}) = RenderBuffer()
 _render_dst(other) = error("unsupported `@render` destination `$(other)`.")
 
 _render_return(io::IO, ::IO) = io
