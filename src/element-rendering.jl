@@ -35,13 +35,21 @@ _void_element(_) = false
 _element_open(element) = string("<", _element_name(element))
 _element_close(element) =
     _void_element(_element_name(element)) ? "" : string("</", _element_name(element), ">")
+# The name in a type parameter, so that it can be merged with literal
+# properties during compilation. See `_write_open`.
+_element_symbol(element) = Val(Symbol(_element_name(element)))
 
 function _render_tag(io::IO, tag::AbstractElement, plan, props, slots, source, revise)
     _render_prefix(io, tag)
-    print(io, _element_open(tag))
-    _render_props(io, plan, props)
-    _is_revise_loaded() && _render_source_prop(io, source, revise)
-    print(io, ">")
+    # Both conditions are compile-time constants, so only one branch survives.
+    if !_is_revise_loaded() && _mergeable_plan(typeof(plan))
+        _write_open(io, _element_symbol(tag), plan isa Tuple{} ? plan : plan[1])
+    else
+        print(io, _element_open(tag))
+        _render_props(io, plan, props)
+        _is_revise_loaded() && _render_source_prop(io, source, revise)
+        print(io, ">")
+    end
     children = get(slots, S"default", nothing)
     isnothing(children) || children()
     close_tag = _element_close(tag)
@@ -165,6 +173,26 @@ struct StaticProps{text} end
 # is `" name=\""`. Both are built during macro expansion for the same reason
 # the open and close tags are: emitting the whole prefix in one write beats
 # assembling it from the separator, the name and `="` on every render.
+# Writing an element's opening tag costs about as much per `print` call as the
+# bytes themselves do, so when every part of it is known at compile time the
+# parts are merged into a single constant and written once. Both inputs live in
+# type parameters, so the merge happens during compilation and nothing is
+# assembled at run time.
+#
+# This applies when the element carries no properties, or only literal ones,
+# and Revise is not attaching source locations between the properties and the
+# `>`. Anything else falls back to writing the parts in turn.
+@generated function _write_open(io::IO, ::Val{name}, ::StaticProps{text}) where {name,text}
+    return :(print(io, $(string("<", name, text, ">"))))
+end
+@generated function _write_open(io::IO, ::Val{name}, ::Tuple{}) where {name}
+    return :(print(io, $(string("<", name, ">"))))
+end
+
+_mergeable_plan(::Type{Tuple{StaticProps{text}}}) where {text} = true
+_mergeable_plan(::Type{Tuple{}}) = true
+_mergeable_plan(::Type) = false
+
 struct DynamicProp{name,bare,quoted} end
 
 @inline _render_segment(io::IO, ::StaticProps{text}, props) where {text} =
