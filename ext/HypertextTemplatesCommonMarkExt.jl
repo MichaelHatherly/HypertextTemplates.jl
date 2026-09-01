@@ -11,7 +11,9 @@ function HypertextTemplates.escape_html(io::IO, md::CM.Node, revise)
         isjulia = endswith(source, ".jl")
         # Line offsets only apply to markdown embedded in Julia source files.
         # If it is from a markdown file then offsets do not make sense.
-        offset = isjulia ? HypertextTemplates._compute_dynamic_line_offset(revise) : 0
+        # The cached form, so a page with many markdown components resolves
+        # each component's offset once per render rather than once per node.
+        offset = isjulia ? HypertextTemplates._dynamic_line_offset(io, revise) : 0
         function sourcepos(pos)
             line = pos[1][1]
             if line > 0 && isfile(source)

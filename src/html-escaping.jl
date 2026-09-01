@@ -110,35 +110,22 @@ function escape_html(io::IO, value::AbstractString)
     end
 end
 
-# Fast path for the string types that actually show up in templates. Rather
-# than writing one character at a time we scan the code units and write the
-# runs between escapable characters in one go. Scanning bytes is safe because
-# the characters we escape are all ASCII and ASCII bytes never appear inside a
-# multi-byte UTF-8 sequence.
+# Fast path for the string types that actually show up in templates: see
+# `_escape_scan` below. Scanning bytes is safe because every character replaced
+# is ASCII, and ASCII bytes never appear inside a multi-byte UTF-8 sequence.
 function escape_html(io::IO, value::Union{String,SubString{String}})
-    n = ncodeunits(value)
-    start = 1
-    i = 1
-    @inbounds while i <= n
-        b = codeunit(value, i)
-        if b == UInt8('&') || b == UInt8('<') || b == UInt8('>')
-            i > start && _write_range(io, value, start, i - 1)
-            if b == UInt8('&')
-                write(io, "&amp;")
-            elseif b == UInt8('<')
-                write(io, "&lt;")
-            else
-                write(io, "&gt;")
-            end
-            start = i + 1
-        end
-        i += 1
-    end
-    start <= n && _write_range(io, value, start, n)
+    _escape_scan(io, value, Val(false))
     return nothing
 end
 
 escape_html(io::IO, ss::SafeString) = print(io, ss.str)
+
+# Concatenating a `SafeString` into a longer string yields ordinary text, and
+# the result is then escaped as a whole. `@text` writes the pieces of such a
+# string separately rather than joining them, so it flattens each piece the
+# same way to keep the outcome identical.
+_as_text(value::SafeString) = value.str
+_as_text(value) = value
 # Numbers cannot produce any character that needs escaping, so skip both the
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
@@ -157,17 +144,202 @@ function escape_html(io::IO, value::Char)
     end
     return nothing
 end
-escape_html(io::IO, other) = escape_html(io, string(other))
+escape_html(io::IO, other) = (print(EscapeStream{false}(io), other); nothing)
 escape_html(io::IO, value, revise) = escape_html(io, value)
 
-# Write `value[from:to]` (code unit indices) without materialising a substring.
-@inline function _write_range(
+# Escaping used to write each entity with its own `write(io, "&lt;")`, which on
+# text that needs a lot of escaping meant a write per character. Instead the
+# escaped form is assembled in a fixed stack buffer and handed over a block at
+# a time, so the cost per character is a couple of stores rather than a call
+# into the stream.
+#
+# Clean stretches are written straight from the source string, prefix and tail
+# alike, so text that needs no escaping costs one scan and one write and never
+# touches the scratch buffer.
+const ESCAPE_BLOCK = 256
+
+@inline function _escapable(b::UInt8, ::Val{attribute}) where {attribute}
+    return b == UInt8('&') ||
+           b == UInt8('<') ||
+           b == UInt8('>') ||
+           (attribute && (b == UInt8('"') || b == UInt8('\'')))
+end
+
+@inline function _store_entity(
+    out::Ptr{UInt8},
+    filled::Int,
+    bytes::NTuple{N,UInt8},
+) where {N}
+    for index = 1:N
+        unsafe_store!(out, bytes[index], filled + index)
+    end
+    return filled + N
+end
+
+@inline function _store_escaped(
+    out::Ptr{UInt8},
+    filled::Int,
+    b::UInt8,
+    ::Val{attribute},
+) where {attribute}
+    if b == UInt8('&')
+        return _store_entity(out, filled, map(UInt8, ('&', 'a', 'm', 'p', ';')))
+    elseif b == UInt8('<')
+        return _store_entity(out, filled, map(UInt8, ('&', 'l', 't', ';')))
+    elseif b == UInt8('>')
+        return _store_entity(out, filled, map(UInt8, ('&', 'g', 't', ';')))
+    elseif attribute && b == UInt8('"')
+        return _store_entity(out, filled, map(UInt8, ('&', 'q', 'u', 'o', 't', ';')))
+    elseif attribute && b == UInt8('\'')
+        return _store_entity(out, filled, map(UInt8, ('&', '#', '3', '9', ';')))
+    else
+        unsafe_store!(out, b, filled + 1)
+        return filled + 1
+    end
+end
+
+# Shorter clean stretches are copied into the block; longer ones are worth a
+# write of their own, since a call into the stream costs a couple of dozen
+# stores.
+const ESCAPE_CLEAN_RUN = 32
+
+function _escape_blocked(
     io::IO,
-    value::Union{String,SubString{String}},
+    source::Ptr{UInt8},
     from::Int,
     to::Int,
-)
-    GC.@preserve value unsafe_write(io, pointer(value, from), UInt(to - from + 1))
+    ::Val{attribute},
+) where {attribute}
+    # Between two block checks the buffer takes one entity and then a clean
+    # run, so it carries headroom for both.
+    scratch = Ref{NTuple{ESCAPE_BLOCK + ESCAPE_CLEAN_RUN + 8,UInt8}}()
+    GC.@preserve scratch begin
+        out = Base.unsafe_convert(Ptr{UInt8}, scratch)
+        filled = 0
+        i = from
+        while i <= to
+            while i <= to
+                byte = unsafe_load(source, i)
+                _escapable(byte, Val(attribute)) || break
+                filled = _store_escaped(out, filled, byte, Val(attribute))
+                i += 1
+                if filled >= ESCAPE_BLOCK
+                    unsafe_write(io, out, UInt(filled))
+                    filled = 0
+                end
+            end
+            clean = 0
+            while clean < ESCAPE_CLEAN_RUN && i <= to
+                byte = unsafe_load(source, i)
+                _escapable(byte, Val(attribute)) && break
+                clean += 1
+                filled += 1
+                unsafe_store!(out, byte, filled)
+                i += 1
+            end
+            if filled >= ESCAPE_BLOCK
+                unsafe_write(io, out, UInt(filled))
+                filled = 0
+            end
+            if clean == ESCAPE_CLEAN_RUN && i <= to
+                offset = _first_escapable(source + i - 1, to - i + 1, Val(attribute))
+                stretch = offset == 0 ? to - i + 1 : offset - 1
+                if stretch > 0
+                    # The block goes first, or the two writes come out swapped.
+                    filled > 0 && unsafe_write(io, out, UInt(filled))
+                    filled = 0
+                    unsafe_write(io, source + i - 1, UInt(stretch))
+                    i += stretch
+                end
+            end
+        end
+        filled > 0 && unsafe_write(io, out, UInt(filled))
+    end
+    return nothing
+end
+
+# Locating the first byte that needs an entity is the whole cost of escaping
+# text that turns out to need none, which is most of what a template writes. It
+# is done eight bytes at a time: a word is read, and a handful of arithmetic
+# operations say whether any byte in it is one of the ones being looked for.
+#
+# `(v - ones) & ~v & highs` leaves a high bit set in each zero byte of `v`, so
+# xor-ing the word with a repeated target byte turns "is this byte present"
+# into "is any byte zero".
+const _ONE_PER_BYTE = 0x0101010101010101
+const _HIGH_PER_BYTE = 0x8080808080808080
+
+@inline _zero_byte(word::UInt64) = (word - _ONE_PER_BYTE) & ~word & _HIGH_PER_BYTE
+@inline _byte_present(word::UInt64, b::UInt8) = _zero_byte(word ⊻ (_ONE_PER_BYTE * b))
+
+@inline function _escapable_present(word::UInt64, ::Val{attribute}) where {attribute}
+    found =
+        _byte_present(word, UInt8('&')) | _byte_present(word, UInt8('<')) |
+        _byte_present(word, UInt8('>'))
+    if attribute
+        found |= _byte_present(word, UInt8('"')) | _byte_present(word, UInt8('\''))
+    end
+    return found
+end
+
+# Below this the word loop's alignment prologue costs more than it saves.
+const _WORD_SCAN_MINIMUM = 16
+
+function _first_escapable(source::Ptr{UInt8}, n::Int, ::Val{attribute}) where {attribute}
+    i = 1
+    if n >= _WORD_SCAN_MINIMUM
+        # Advance to an eight-byte boundary first, so the loop below never
+        # issues an unaligned load.
+        while i <= n && (UInt(source + i - 1) & 0x7) != 0
+            _escapable(unsafe_load(source, i), Val(attribute)) && return i
+            i += 1
+        end
+        while i + 7 <= n
+            if _escapable_present(
+                unsafe_load(Ptr{UInt64}(source + i - 1)),
+                Val(attribute),
+            ) != 0
+                # Some byte in this word matches; find which.
+                for offset = 0:7
+                    _escapable(unsafe_load(source, i + offset), Val(attribute)) &&
+                        return i + offset
+                end
+            end
+            i += 8
+        end
+    end
+    while i <= n
+        _escapable(unsafe_load(source, i), Val(attribute)) && return i
+        i += 1
+    end
+    return 0
+end
+
+# Works from a pointer so that the string escapers and the wrapper used for
+# arbitrary values share one implementation; the wrapper only ever has a
+# pointer to hand.
+function _escape_bytes(
+    io::IO,
+    source::Ptr{UInt8},
+    n::Int,
+    ::Val{attribute},
+) where {attribute}
+    n <= 0 && return nothing
+    first = _first_escapable(source, n, Val(attribute))
+    # Nothing to escape: hand the whole run over in one write.
+    if first == 0
+        unsafe_write(io, source, UInt(n))
+        return nothing
+    end
+    first > 1 && unsafe_write(io, source, UInt(first - 1))
+    _escape_blocked(io, source, first, n, Val(attribute))
+    return nothing
+end
+
+function _escape_scan(io::IO, value::Union{String,SubString{String}}, escaping::Val)
+    n = ncodeunits(value)
+    n == 0 && return nothing
+    GC.@preserve value _escape_bytes(io, pointer(value), n, escaping)
     return nothing
 end
 
@@ -218,33 +390,7 @@ end
 
 # See `escape_html` above for why the code unit scan is safe.
 function escape_attr(io::IO, value::Union{String,SubString{String}})
-    n = ncodeunits(value)
-    start = 1
-    i = 1
-    @inbounds while i <= n
-        b = codeunit(value, i)
-        if b == UInt8('&') ||
-           b == UInt8('<') ||
-           b == UInt8('>') ||
-           b == UInt8('"') ||
-           b == UInt8('\'')
-            i > start && _write_range(io, value, start, i - 1)
-            if b == UInt8('&')
-                write(io, "&amp;")
-            elseif b == UInt8('<')
-                write(io, "&lt;")
-            elseif b == UInt8('>')
-                write(io, "&gt;")
-            elseif b == UInt8('"')
-                write(io, "&quot;")
-            else
-                write(io, "&#39;")
-            end
-            start = i + 1
-        end
-        i += 1
-    end
-    start <= n && _write_range(io, value, start, n)
+    _escape_scan(io, value, Val(true))
     return nothing
 end
 
@@ -268,4 +414,50 @@ function escape_attr(io::IO, value::Char)
     end
     return nothing
 end
-escape_attr(io::IO, other) = escape_attr(io, string(other))
+escape_attr(io::IO, other) = (print(EscapeStream{true}(io), other); nothing)
+
+# Values that are neither strings, numbers nor characters used to be turned
+# into a `String` and then scanned, allocating a throwaway copy of every
+# interpolated `Symbol`, `Date`, `UUID` and so on. Printing through this
+# wrapper escapes the bytes as `print` produces them, with no copy in between.
+# The type parameter selects attribute escaping, and is resolved at compile
+# time.
+#
+# It deliberately does not forward `IOContext` properties. `string(value)`
+# renders into a bare buffer, so a value whose `show` consults the stream --
+# checking `:compact`, say -- must keep seeing the defaults it saw before.
+struct EscapeStream{attribute,I<:IO} <: IO
+    io::I
+end
+
+EscapeStream{attribute}(io::I) where {attribute,I<:IO} = EscapeStream{attribute,I}(io)
+
+@inline function Base.write(stream::EscapeStream{attribute}, byte::UInt8) where {attribute}
+    io = stream.io
+    if byte == UInt8('&')
+        write(io, "&amp;")
+    elseif byte == UInt8('<')
+        write(io, "&lt;")
+    elseif byte == UInt8('>')
+        write(io, "&gt;")
+    elseif attribute && byte == UInt8('"')
+        write(io, "&quot;")
+    elseif attribute && byte == UInt8('\'')
+        write(io, "&#39;")
+    else
+        write(io, byte)
+    end
+    return 1
+end
+
+# Runs between escapable bytes are forwarded whole. Scanning bytes is safe for
+# the same reason it is in the escapers above: every character replaced here is
+# ASCII, and ASCII bytes never occur inside a multi-byte UTF-8 sequence.
+function Base.unsafe_write(
+    stream::EscapeStream{attribute},
+    ptr::Ptr{UInt8},
+    n::UInt,
+) where {attribute}
+    _escape_bytes(stream.io, ptr, Int(n), Val(attribute))
+    return Int(n)
+end
