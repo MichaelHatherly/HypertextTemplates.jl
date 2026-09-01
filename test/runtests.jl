@@ -96,4 +96,5 @@ end
     include("basics.jl")
     include("markdown.jl")
     include("streaming.jl")
+    include("hygiene.jl")
 end
