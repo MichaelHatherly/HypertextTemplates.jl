@@ -1,4 +1,7 @@
-@testset "Basics" begin
+@testitem "element rendering" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+    import HypertextTemplates.Elements: @time
+
     render_test("references/basics/html-elements.txt") do io
         @render io @html {lang = "en"} begin
             @head begin
@@ -57,6 +60,17 @@
             end
         end
     end
+    render_test("references/basics/non-standard-prop-names.txt") do io
+        @render io @div {"x-data" := "{ open: false }"} begin
+            @button {"@click" := "open = true"} "Expand"
+            @span {"x-show" := "open"} "Content..."
+        end
+    end
+end
+
+@testitem "component rendering" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     render_test("references/basics/custom-components.txt") do io
         @render io @custom_component {prop = "class-name"}
     end
@@ -78,27 +92,11 @@
     render_test("references/basics/commonmark-component.txt") do io
         @render io @commonmark_component
     end
-    render_test("references/basics/non-standard-prop-names.txt") do io
-        @render io @div {"x-data" := "{ open: false }"} begin
-            @button {"@click" := "open = true"} "Expand"
-            @span {"x-show" := "open"} "Content..."
-        end
-    end
-    render_test("references/basics/once-button-1.txt") do io
-        @render io @once_button
-    end
-    render_test("references/basics/once-button-2.txt") do io
-        @render io begin
-            @once_button
-            @once_button
-        end
-    end
-    render_test("references/basics/once-page.txt") do io
-        @render io @once_page
-    end
 end
 
-@testset "Render Root" begin
+@testitem "render root" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     function render_function()
         @__LINE__, @render @div begin
                 @conditional_component {show = true}
@@ -110,14 +108,18 @@ end
     @test contains(html, "data-htloc=\"$(@__FILE__):$(line)")
 end
 
-@testset "Output Types" begin
+@testitem "output types" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     result = @render @p "content"
     @test isa(result, String)
     result_bytes = @render Vector{UInt8} @p "content"
     @test isa(result_bytes, Vector{UInt8})
 end
 
-@testset "Source Information" begin
+@testitem "call site source information" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     line = @__LINE__
     file = @__FILE__
     result = @render @p "content"

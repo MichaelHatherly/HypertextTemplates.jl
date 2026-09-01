@@ -1,4 +1,4 @@
-@testset "Render Buffer" begin
+@testitem "render buffer writes" tags = [:core] setup = [Templates] begin
     # The sink `@render` builds for itself. It replaces `IOBuffer`, so it
     # has to behave like one for everything a render does to it.
     RenderBuffer = HypertextTemplates.RenderBuffer
@@ -8,7 +8,7 @@
     @test take!(buffer) == UInt8[]
 
     # Writes of every shape, and the growth boundary crossed repeatedly.
-    for total in (0, 1, 63, 64, 65, 127, 128, 1000, 100_000)
+    function check_growth(total)
         reference = IOBuffer()
         buffer = RenderBuffer()
         written = 0
@@ -24,20 +24,26 @@
         @test position(buffer) == total
         @test take!(buffer) == take!(reference)
     end
+    for total in (0, 1, 63, 64, 65, 127, 128, 1000, 100_000)
+        check_growth(total)
+    end
 
     # Single bytes, mixed with block writes.
-    reference = IOBuffer()
-    buffer = RenderBuffer()
-    for index in 1:300
-        if iseven(index)
-            write(reference, UInt8(index % 256))
-            write(buffer, UInt8(index % 256))
-        else
-            print(reference, "chunk-$index/")
-            print(buffer, "chunk-$index/")
+    function check_mixed_widths()
+        reference = IOBuffer()
+        buffer = RenderBuffer()
+        for index in 1:300
+            if iseven(index)
+                write(reference, UInt8(index % 256))
+                write(buffer, UInt8(index % 256))
+            else
+                print(reference, "chunk-$index/")
+                print(buffer, "chunk-$index/")
+            end
         end
+        @test take!(buffer) == take!(reference)
     end
-    @test take!(buffer) == take!(reference)
+    check_mixed_widths()
 
     # `take!` hands the bytes over and leaves an empty buffer behind.
     buffer = RenderBuffer()
@@ -56,8 +62,13 @@
     buffer = RenderBuffer()
     print(buffer, "héllo — ☃")
     @test String(take!(buffer)) == "héllo — ☃"
+end
 
-    # And it is what a destination-less render actually uses.
+@testitem "render buffer is the render sink" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    RenderBuffer = HypertextTemplates.RenderBuffer
+
     @test HypertextTemplates._render_dst(String) isa RenderBuffer
     @test HypertextTemplates._render_dst(Vector{UInt8}) isa RenderBuffer
     supplied = IOBuffer()

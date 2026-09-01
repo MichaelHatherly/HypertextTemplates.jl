@@ -1,64 +1,74 @@
-# A stream whose write yields before it takes the bytes, the way a socket's
-# does while it waits on the network. A float's digits are handed over as a
-# pointer into a buffer that outlives the call, so whatever else runs during
-# that yield must not be able to write over them.
-struct YieldingSink <: IO
-    inner::IOBuffer
-end
-YieldingSink() = YieldingSink(IOBuffer())
-function Base.unsafe_write(sink::YieldingSink, pointer::Ptr{UInt8}, n::UInt)
-    yield()
-    return unsafe_write(sink.inner, pointer, n)
-end
-Base.write(sink::YieldingSink, byte::UInt8) = write(sink.inner, byte)
-Base.take!(sink::YieldingSink) = take!(sink.inner)
+# Sinks and values that the escaping tests measure the escapers against.
+@testmodule Escapes begin
 
-# The obvious escaper, character by character, to check the byte-scanning one
-# against. Written out rather than expressed as `replace(subject, "&" =>
-# "&amp;", ...)`, since `replace` only takes more than one pair from Julia 1.7.
-function reference_escape(subject::AbstractString; attribute::Bool)
-    io = IOBuffer()
-    for character in subject
-        if character == '&'
-            print(io, "&amp;")
-        elseif character == '<'
-            print(io, "&lt;")
-        elseif character == '>'
-            print(io, "&gt;")
-        elseif attribute && character == '"'
-            print(io, "&quot;")
-        elseif attribute && character == '\''
-            print(io, "&#39;")
-        else
-            print(io, character)
-        end
+    export YieldingSink, reference_escape
+    export shows_angles, context_sensitive, shows_long_mixed, shows_long_plain
+
+    # A stream whose write yields before it takes the bytes, the way a socket's
+    # does while it waits on the network. A float's digits are handed over as a
+    # pointer into a buffer that outlives the call, so whatever else runs during
+    # that yield must not be able to write over them.
+    struct YieldingSink <: IO
+        inner::IOBuffer
     end
-    return String(take!(io))
+    YieldingSink() = YieldingSink(IOBuffer())
+    function Base.unsafe_write(sink::YieldingSink, pointer::Ptr{UInt8}, n::UInt)
+        yield()
+        return unsafe_write(sink.inner, pointer, n)
+    end
+    Base.write(sink::YieldingSink, byte::UInt8) = write(sink.inner, byte)
+    Base.take!(sink::YieldingSink) = take!(sink.inner)
+
+    # The obvious escaper, character by character, to check the byte-scanning one
+    # against. Written out rather than expressed as `replace(subject, "&" =>
+    # "&amp;", ...)`, since `replace` only takes more than one pair from Julia 1.7.
+    function reference_escape(subject::AbstractString; attribute::Bool)
+        io = IOBuffer()
+        for character in subject
+            if character == '&'
+                print(io, "&amp;")
+            elseif character == '<'
+                print(io, "&lt;")
+            elseif character == '>'
+                print(io, "&gt;")
+            elseif attribute && character == '"'
+                print(io, "&quot;")
+            elseif attribute && character == '\''
+                print(io, "&#39;")
+            else
+                print(io, character)
+            end
+        end
+        return String(take!(io))
+    end
+
+    # Values used to check how arbitrary objects are escaped: one whose `show`
+    # emits every character that needs escaping, and one that inspects the stream
+    # it is printed to.
+    struct ShowsAngles end
+    Base.show(io::IO, ::ShowsAngles) = print(io, "<&\"'>")
+    const shows_angles = ShowsAngles()
+
+    struct ContextSensitive end
+    Base.show(io::IO, ::ContextSensitive) =
+        print(io, get(io, :compact, false) ? "compact" : "full")
+    const context_sensitive = ContextSensitive()
+
+    # Long enough to cross the escaping block boundary several times, so that
+    # arbitrary values go through the same blocked path the string escapers use.
+    struct ShowsLongMixed end
+    Base.show(io::IO, ::ShowsLongMixed) = print(io, repeat("a<b>&c \"d\" 'e' ", 200))
+    const shows_long_mixed = ShowsLongMixed()
+
+    struct ShowsLongPlain end
+    Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
+    const shows_long_plain = ShowsLongPlain()
+
 end
 
-# Values used to check how arbitrary objects are escaped: one whose `show`
-# emits every character that needs escaping, and one that inspects the stream
-# it is printed to.
-struct ShowsAngles end
-Base.show(io::IO, ::ShowsAngles) = print(io, "<&\"'>")
-const shows_angles = ShowsAngles()
+@testitem "escaping arbitrary values" tags = [:escaping] setup = [Templates, Escapes] begin
+    using HypertextTemplates.Elements
 
-struct ContextSensitive end
-Base.show(io::IO, ::ContextSensitive) =
-    print(io, get(io, :compact, false) ? "compact" : "full")
-const context_sensitive = ContextSensitive()
-
-# Long enough to cross the escaping block boundary several times, so that
-# arbitrary values go through the same blocked path the string escapers use.
-struct ShowsLongMixed end
-Base.show(io::IO, ::ShowsLongMixed) = print(io, repeat("a<b>&c\"d'e ", 200))
-const shows_long_mixed = ShowsLongMixed()
-
-struct ShowsLongPlain end
-Base.show(io::IO, ::ShowsLongPlain) = print(io, repeat("plain text here ", 200))
-const shows_long_plain = ShowsLongPlain()
-
-@testset "Escaping Arbitrary Values" begin
     # Values that are neither strings, numbers nor characters are escaped
     # as they print, rather than being turned into a string first. The
     # result has to match what escaping `string(value)` produced.
@@ -88,6 +98,32 @@ const shows_long_plain = ShowsLongPlain()
         @test sprint(HypertextTemplates.escape_attr, value) ==
             reference(HypertextTemplates.escape_attr, value)
     end
+
+    # A value whose `show` inspects the stream must see what it saw when it
+    # was rendered into a bare buffer, so the wrapper must not forward the
+    # surrounding `IOContext`.
+    buffer = IOBuffer()
+    HypertextTemplates.escape_html(
+        IOContext(buffer, :compact => true),
+        context_sensitive,
+    )
+    @test String(take!(buffer)) == "full"
+
+    # Rendered without source locations, which Revise would otherwise add.
+    function plain(f)
+        io = IOBuffer()
+        f(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+    @test plain(io -> @render io @div $(:sym)) == "<div>sym</div>"
+    @test plain(io -> @render io @div {id = :sym}) == "<div id=\"sym\"></div>"
+    @test plain(io -> @render io @div $(shows_angles)) == "<div>&lt;&amp;\"'&gt;</div>"
+    @test plain(io -> @render io @div {t = shows_angles}) ==
+        "<div t=\"&lt;&amp;&quot;&#39;&gt;\"></div>"
+end
+
+@testitem "escaping numbers" tags = [:escaping, :perf] setup = [Templates, Escapes] begin
+    import Random
 
     # A number is written straight out, without being scanned, since its
     # printed form cannot need escaping. It has to come out exactly as
@@ -184,13 +220,15 @@ const shows_long_plain = ShowsLongPlain()
     write_floats(sink, 10)
     truncate(sink, 0)
     seek(sink, 0)
-    floats = @allocated write_floats(sink, 1_000)
+    floats = allocations(write_floats, sink, 1_000)
     truncate(sink, 0)
     seek(sink, 0)
     # Zero from 1.11; before it the `task_local_storage` lookup allocates,
     # so the bound borrows `SCRATCH_BYTES` as the version switch.
     @test floats <= 2_000 * SCRATCH_BYTES
+end
 
+@testitem "float digits belong to the rendering task" tags = [:escaping] setup = [Templates, Escapes] begin
     # The buffer holding the digits belongs to the task doing the
     # rendering, which is what makes it safe to write straight out of: a
     # stream that yields mid-write must not be able to pick up another
@@ -217,31 +255,11 @@ const shows_long_plain = ShowsLongPlain()
         fetch(task) == repeat(sprint(print, value), 32) for
             (value, task) in zip(concurrent, running)
     )
-
-    # A value whose `show` inspects the stream must see what it saw when it
-    # was rendered into a bare buffer, so the wrapper must not forward the
-    # surrounding `IOContext`.
-    buffer = IOBuffer()
-    HypertextTemplates.escape_html(
-        IOContext(buffer, :compact => true),
-        context_sensitive,
-    )
-    @test String(take!(buffer)) == "full"
-
-    # Rendered without source locations, which Revise would otherwise add.
-    function plain(f)
-        io = IOBuffer()
-        f(IOContext(io, HypertextTemplates._include_data_htloc() => false))
-        return String(take!(io))
-    end
-    @test plain(io -> @render io @div $(:sym)) == "<div>sym</div>"
-    @test plain(io -> @render io @div {id = :sym}) == "<div id=\"sym\"></div>"
-    @test plain(io -> @render io @div $(shows_angles)) == "<div>&lt;&amp;\"'&gt;</div>"
-    @test plain(io -> @render io @div {t = shows_angles}) ==
-        "<div t=\"&lt;&amp;&quot;&#39;&gt;\"></div>"
 end
 
-@testset "Interpolated Text" begin
+@testitem "interpolated text" tags = [:escaping, :perf] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     # An interpolated string of two or more pieces is written piece by
     # piece rather than joined first. Joining flattened any `SafeString`
     # among the pieces into ordinary text, so the pieces have to be
@@ -299,13 +317,8 @@ end
     end
     buffer = IOBuffer(sizehint = 1 << 20)
     located = IOContext(buffer, HypertextTemplates._include_data_htloc() => false)
-    interpolated_paragraphs(located, 5)
-    literal_paragraphs(located, 5)
-    take!(buffer)
-    interpolated = @allocated interpolated_paragraphs(located, 200)
-    take!(buffer)
-    literal = @allocated literal_paragraphs(located, 200)
-    take!(buffer)
+    interpolated = steady_allocations(interpolated_paragraphs, buffer, located, 200)
+    literal = steady_allocations(literal_paragraphs, buffer, located, 200)
     # Joining first cost roughly 7 extra allocations per element. The
     # interpolated form makes one more escaping call per paragraph than the
     # literal one, which before Julia 1.11 is a fixed cost each; see
@@ -313,7 +326,7 @@ end
     @test interpolated <= literal + 1_000 + 200 * SCRATCH_BYTES
 end
 
-@testset "Escaping Blocks" begin
+@testitem "escaping keeps its block buffer on the stack" tags = [:escaping, :perf] setup = [Templates, Escapes] begin
     # Escaped output is assembled in a fixed stack buffer and handed over a
     # block at a time. The buffer must never escape to the heap, or the
     # scan would allocate on every string rendered.
@@ -336,36 +349,38 @@ end
         HypertextTemplates.escape_html(sink, subject)
         HypertextTemplates.escape_attr(sink, subject)
     end
-    function repeatedly(escaper, subject, n)
+    function repeatedly(escaper, sink, subject, n)
         for _ in 1:n
             escaper(sink, subject)
         end
     end
     for (subject, name) in subjects
-        repeatedly(HypertextTemplates.escape_html, subject, 3)
-        repeatedly(HypertextTemplates.escape_attr, subject, 3)
+        repeatedly(HypertextTemplates.escape_html, sink, subject, 3)
+        repeatedly(HypertextTemplates.escape_attr, sink, subject, 3)
         # Zero on 1.11 and later; see `SCRATCH_BYTES`. The bound is a
         # constant per call either way, so growing the subject must not
         # grow the total.
         budget = 500 * SCRATCH_BYTES
         @testset "$name" begin
-            @test (
-                @allocated repeatedly(
-                    HypertextTemplates.escape_html,
-                    subject,
-                    500,
-                )
+            @test allocations(
+                repeatedly,
+                HypertextTemplates.escape_html,
+                sink,
+                subject,
+                500,
             ) <= budget
-            @test (
-                @allocated repeatedly(
-                    HypertextTemplates.escape_attr,
-                    subject,
-                    500,
-                )
+            @test allocations(
+                repeatedly,
+                HypertextTemplates.escape_attr,
+                sink,
+                subject,
+                500,
             ) <= budget
         end
     end
+end
 
+@testitem "escaping finds every escapable byte" tags = [:escaping] setup = [Templates, Escapes] begin
     # The scan for the first escapable byte reads eight bytes at a time,
     # after a prologue that walks to an eight-byte boundary. So an escapable
     # character has to be found at every position, at every length spanning
@@ -400,7 +415,9 @@ end
                 reference_escape(subject; attribute = true)
         end
     end
+end
 
+@testitem "escaping across block boundaries" tags = [:escaping] setup = [Templates, Escapes] begin
     # A block boundary must not corrupt output, so check lengths either
     # side of it, including where an entity would straddle the edge.
     for length in [

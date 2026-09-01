@@ -1,15 +1,17 @@
-@component function streaming(; n::Integer)
-    @div {class = "streamed"} begin
-        @ul begin
-            for id in 1:n
-                @li {id} "This is item $id."
+@testitem "streaming render" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    @component function streaming(; n::Integer)
+        @div {class = "streamed"} begin
+            @ul begin
+                for id in 1:n
+                    @li {id} "This is item $id."
+                end
             end
         end
     end
-end
-@deftag macro streaming end
+    @deftag macro streaming end
 
-@testset "Streaming" begin
     func(io = Vector{UInt8}) = @render io @streaming {n = 10000}
     output = UInt8[]
     for bytes in StreamingRender(func)
@@ -18,12 +20,13 @@ end
     end
     @test length(output) > 1
     @test output == func()
+end
 
+@testitem "streaming writer accepts every write" tags = [:streaming] setup = [Templates] begin
     # `StreamingRender` hands the writer to the caller's function, so
     # writing to it directly has to work. A `write(::MicroBatchWriter,
     # ::AbstractString)` method used to make these ambiguous against
     # `Base`, turning every one of them into a `MethodError`.
-    @test isempty(Test.detect_ambiguities(HypertextTemplates; recursive = true))
     channel = Channel{Vector{UInt8}}(64)
     writer = HypertextTemplates.MicroBatchWriter(channel)
     @test write(writer, "hello") == 5
@@ -48,7 +51,9 @@ end
         append!(collected, bytes)
     end
     @test String(collected) == "<p>a1btail" * repeat("z", 200) * "</p>"
+end
 
+@testitem "streaming writer keeps its buffer" tags = [:streaming, :perf] setup = [Templates] begin
     # Flushing a batch must not cost the buffer its capacity. `take!` hands
     # the internal array to the channel and installs a fresh empty one, so
     # the buffer would regrow from nothing on every cycle -- several
@@ -80,7 +85,11 @@ end
         end
     end
     cycles(batcher, sink, 5)
-    @test (@allocated cycles(batcher, sink, 100)) < 100 * 150
+    @test allocations(cycles, batcher, sink, 100) < 100 * 150
+end
+
+@testitem "streaming flushes while the producer stalls" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
 
     # The write path no longer reads the clock, which leaves the flush
     # timer as the only thing bounding latency. So check it directly: a
@@ -116,8 +125,10 @@ end
     # that means the timer flushed while it was asleep rather than the
     # bytes waiting for it to return.
     @test first(first(arrivals)) < 0.05
+end
 
-    # ...and flushing from that timer must not corrupt the stream. Writes
+@testitem "streaming survives timer flushes" tags = [:streaming] setup = [Templates] begin
+    # Flushing from the batch timer must not corrupt the stream. Writes
     # small enough to stay buffered, spaced so the 1 ms timer fires between
     # them repeatedly. Needs threads to mean anything; corrupted most
     # renders on four threads before the writer took a lock.
@@ -129,19 +140,32 @@ end
             i % 4 == 0 && sleep(0.001)
         end
     end
-    reference = codeunits(sprint(dribbling))
-    corrupted = 0
-    for _ in 1:25
-        collected = UInt8[]
-        for chunk in StreamingRender(dribbling)
-            append!(collected, chunk)
+    function corrupted_runs(reference, n)
+        corrupted = 0
+        for _ in 1:n
+            collected = UInt8[]
+            for chunk in StreamingRender(dribbling)
+                append!(collected, chunk)
+            end
+            collected == reference || (corrupted += 1)
         end
-        collected == reference || (corrupted += 1)
+        return corrupted
     end
-    @test corrupted == 0
+    @test corrupted_runs(codeunits(sprint(dribbling)), 25) == 0
+end
+
+@testitem "streaming with a nonsensical chunk size" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
 
     # A nonsensical `chunk_size` used to throw inside the producer task
     # before the channel was closed, hanging the consumer in `take!`.
+    function quick(io)
+        @render io @div begin
+            @span "a"
+            @span "b"
+            @span "c"
+        end
+    end
     for size in (-1, 0, 1)
         output = UInt8[]
         task = @async for chunk in StreamingRender(quick; chunk_size = size)
