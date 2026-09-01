@@ -317,16 +317,8 @@ end
     end
     buffer = IOBuffer(sizehint = 1 << 20)
     located = IOContext(buffer, HypertextTemplates._include_data_htloc() => false)
-    # Warmed at the size that is measured. The first render of a given shape
-    # pays one-time costs that have nothing to do with interpolation, and
-    # before Julia 1.11 they run to several times the difference under test.
-    interpolated_paragraphs(located, 200)
-    literal_paragraphs(located, 200)
-    take!(buffer)
-    interpolated = allocations(interpolated_paragraphs, located, 200)
-    take!(buffer)
-    literal = allocations(literal_paragraphs, located, 200)
-    take!(buffer)
+    interpolated = steady_allocations(interpolated_paragraphs, buffer, located, 200)
+    literal = steady_allocations(literal_paragraphs, buffer, located, 200)
     # Joining first cost roughly 7 extra allocations per element. The
     # interpolated form makes one more escaping call per paragraph than the
     # literal one, which before Julia 1.11 is a fixed cost each; see

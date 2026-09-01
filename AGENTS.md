@@ -57,7 +57,8 @@ directory.
 A test item's body is module top level, not a function body. A loop that assigns to a
 name from the surrounding scope warns there, and `@allocated` measures reading the
 globals an argument comes from as well as the call, so put both inside a function.
-`allocations` is the helper for the second.
+`allocations` measures one call that way, and `steady_allocations`
+repeats it so the one-time costs of the first renders stay out of the number.
 
 ### Working on macros
 

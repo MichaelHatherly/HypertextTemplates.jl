@@ -96,13 +96,8 @@
     end
     buffer = IOBuffer(sizehint = 1 << 20)
     located = IOContext(buffer, HypertextTemplates._include_data_htloc() => false)
-    interpolated_rows(located, 5)
-    plain_rows(located, 5, "/item/5")
-    take!(buffer)
-    interpolated = allocations(interpolated_rows, located, 200)
-    take!(buffer)
-    plain = allocations(plain_rows, located, 200, "/item/5")
-    take!(buffer)
+    interpolated = steady_allocations(interpolated_rows, buffer, located, 200)
+    plain = steady_allocations(plain_rows, buffer, located, 200, "/item/5")
     # Joining eagerly cost roughly 32KB across 800 extra allocations for
     # these 200 rows; keeping the pieces costs nothing over a plain value
     # from Julia 1.11, and well under what joining cost before that. See

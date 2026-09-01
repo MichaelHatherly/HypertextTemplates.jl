@@ -15,7 +15,7 @@
     using ReferenceTests
     using Test
 
-    export render_test, allocations
+    export render_test, allocations, steady_allocations
     export SCRATCH_BYTES, LAZY_ATTRIBUTE_BYTES
     export custom_element, @custom_element
     export custom_component, @custom_component
@@ -44,6 +44,21 @@
     # arguments come from. Measuring in here keeps them concrete locals, so what
     # is measured is the call.
     allocations(f, args...) = @allocated f(args...)
+
+    # What a render costs once the one-time costs are behind it. Compilation
+    # dominates the first call and, before Julia 1.11, a further round of it
+    # lands on the second, which together run to several times the differences
+    # these comparisons bound. `buffer` is emptied before each call so every
+    # measurement starts from the same sink.
+    function steady_allocations(f, buffer, args...)
+        used = typemax(Int)
+        for _ in 1:4
+            take!(buffer)
+            used = min(used, allocations(f, args...))
+        end
+        take!(buffer)
+        return used
+    end
 
     @element "custom-element" custom_element
     @deftag macro custom_element end
