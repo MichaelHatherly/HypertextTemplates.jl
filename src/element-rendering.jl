@@ -251,8 +251,9 @@ _render_props(io::IO, ::Tuple{}, props) = nothing
 end
 
 # Splatted props contribute names that are not known until runtime, so there is
-# nothing to interleave static runs against. `@<` signals that by passing no
-# plan at all, and the merged `NamedTuple` is rendered wholesale instead.
+# nothing to interleave static runs against, and a literal value carrying a NUL
+# byte cannot be put in a type parameter at all. `@<` signals either by passing
+# no plan, and the merged `NamedTuple` is rendered wholesale instead.
 _render_props(io::IO, ::Nothing, props) = _render_props(io, props)
 
 _render_prefix(io::IO, element) = nothing

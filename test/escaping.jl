@@ -74,6 +74,35 @@ const shows_long_plain = ShowsLongPlain()
               reference(HypertextTemplates.escape_attr, value)
     end
 
+    # A number is written straight out, without being scanned, since its
+    # printed form cannot need escaping. It has to come out exactly as
+    # `print` would render it, at every width and at the boundaries where
+    # the digit by digit writer is easiest to get wrong.
+    for value in Any[
+        Int8(-8),
+        Int16(-16),
+        Int32(-32),
+        Int64(-64),
+        Int128(-128),
+        UInt8(8),
+        UInt16(16),
+        UInt32(32),
+        UInt64(64),
+        UInt128(128),
+        true,
+        false,
+        Float16(1.5),
+        Float32(-2.5),
+        1.0e10,
+        big(2)^70,
+        big"1.5",
+        typemin(Int64),
+        typemax(UInt64),
+    ]
+        @test sprint(HypertextTemplates.escape_html, value) == string(value)
+        @test sprint(HypertextTemplates.escape_attr, value) == string(value)
+    end
+
     # A value whose `show` inspects the stream must see what it saw when it
     # was rendered into a bare buffer, so the wrapper must not forward the
     # surrounding `IOContext`.

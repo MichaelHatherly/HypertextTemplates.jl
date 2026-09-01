@@ -133,6 +133,13 @@ end
     # Escaping in a literal property survives the merge.
     @test bare(io -> @render io @div {t = "a<b>&\"c"}) ==
           "<div t=\"a&lt;b&gt;&amp;&quot;c\"></div>"
+    # A merged run travels in a type parameter, which is a `Symbol` and so
+    # cannot hold a NUL byte. Such an attribute is not valid HTML anyway,
+    # but it used to render, so it has to keep rendering rather than fail
+    # during macro expansion.
+    @test bare(io -> @render io @div {t = "a\0b"} "x") == "<div t=\"a\0b\">x</div>"
+    @test bare(io -> @render io @div {class = "c", t = "a\0b"}) ==
+          "<div class=\"c\" t=\"a\0b\"></div>"
 
     # Only fully-literal plans merge; anything dynamic keeps the old path.
     @test HypertextTemplates._mergeable_plan(Tuple{})
