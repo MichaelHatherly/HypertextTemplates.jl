@@ -89,6 +89,67 @@ function _render_props(props)
     return String(take!(io))
 end
 
+"""
+    InterpolatedAttribute(parts::Tuple)
+
+The unjoined pieces of an interpolated attribute value, such as the `"/item/"`
+and `id` of `{href = "/item/\$id"}`.
+
+Elements write the pieces straight to the stream, so nothing is built to be
+thrown away. Only a component needs the value as a string, and `_render_tag`
+joins it there, immediately before the component is called -- so a component
+still receives the `SafeString` it has always received, and this type never
+escapes into user code.
+
+Literal pieces arrive already escaped and wrapped in [`SafeString`](@ref);
+everything else is escaped as it is written.
+"""
+struct InterpolatedAttribute{P<:Tuple}
+    parts::P
+end
+
+@inline _write_parts(io::IO, ::Tuple{}) = nothing
+@inline function _write_parts(io::IO, parts::Tuple)
+    escape_attr(io, first(parts))
+    _write_parts(io, Base.tail(parts))
+    return nothing
+end
+
+escape_attr(io::IO, value::InterpolatedAttribute) = _write_parts(io, value.parts)
+
+# Joining is only ever reached through the component branch below.
+function _materialise(value::InterpolatedAttribute)
+    io = IOBuffer(; sizehint = _sizehint(value.parts))
+    _write_parts(io, value.parts)
+    return SafeString(String(take!(io)))
+end
+_materialise(value) = value
+
+# The already-escaped literal pieces give an exact lower bound on the result.
+@inline _sizehint(::Tuple{}) = 0
+@inline _sizehint(parts::Tuple) = _partsize(first(parts)) + _sizehint(Base.tail(parts))
+@inline _partsize(part::SafeString) = ncodeunits(part)
+@inline _partsize(part) = 8
+
+# Rebuilding the property `NamedTuple` is only worth doing when something in it
+# actually needs joining, and whether that is so is visible in its type. When
+# nothing does -- the common case, including every component that takes no
+# interpolated attribute -- the properties are passed through untouched.
+@generated function _materialise(props::NamedTuple{names,T}) where {names,T}
+    # A field needs joining if its type does not rule the lazy form out. Asking
+    # whether the type intersects rather than whether it is a subtype matters
+    # for a field typed loosely enough to hold either, which a subtype test
+    # would wave through and leave unjoined.
+    types = T.parameters
+    lazy(S) = typeintersect(S, InterpolatedAttribute) !== Union{}
+    any(lazy, types) || return :(props)
+    values = map(eachindex(types)) do index
+        field = :(getfield(props, $index))
+        lazy(types[index]) ? :(_materialise($field)) : field
+    end
+    return :(NamedTuple{names}(($(values...),)))
+end
+
 # A "props plan" is the compile-time description of how an element's attributes
 # are rendered. It is a tuple of segments, each either a run of attribute text
 # that `@<` already escaped and serialised during macro expansion, or a
