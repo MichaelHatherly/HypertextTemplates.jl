@@ -29,6 +29,9 @@ jobs:
       contents: read
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
+    # The thread-safety testsets pass vacuously on a single-threaded runner.
+    env:
+      JULIA_NUM_THREADS: "4"
     strategy:
       fail-fast: false
       matrix:

@@ -28,6 +28,9 @@ mutable struct MicroBatchWriter <: IO
     last_flush_time::Float64
     write_count::Int
     immediate_threshold::Int  # Bytes above which to send immediately
+    # Guards the fields above: the flush timer runs on its own thread on 1.12+
+    # (`spawn = true`) and `RenderBuffer` is unsynchronised.
+    lock::ReentrantLock
 
     function MicroBatchWriter(
         channel::Channel{Vector{UInt8}};
@@ -35,6 +38,8 @@ mutable struct MicroBatchWriter <: IO
         max_buffer_time::Float64 = 0.001,  # 1ms
         immediate_threshold::Int = 64,
     )
+        # A negative size would throw in `RenderBuffer`.
+        max_buffer_size = max(1, max_buffer_size)
         new(
             channel,
             RenderBuffer(max_buffer_size),
@@ -43,6 +48,7 @@ mutable struct MicroBatchWriter <: IO
             time(),
             0,
             immediate_threshold,
+            ReentrantLock(),
         )
     end
 end
@@ -67,11 +73,13 @@ end
 
 function Base.write(mbw::MicroBatchWriter, byte::UInt8)
     # Single bytes always go to buffer
-    write(mbw.buffer, byte)
-    mbw.write_count += 1
+    Base.@lock mbw.lock begin
+        write(mbw.buffer, byte)
+        mbw.write_count += 1
 
-    if should_flush_micro_batch(mbw)
-        flush(mbw)
+        if should_flush_micro_batch(mbw)
+            flush(mbw)
+        end
     end
 
     return 1
@@ -83,20 +91,24 @@ end
 # stream than it needs to be.
 function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
     n == 0 && return 0
-    if n >= mbw.immediate_threshold
-        # Large chunks bypass buffering for low latency.
-        if position(mbw.buffer) > 0
-            flush(mbw)  # Ensure ordering - buffered data goes first
-        end
-        data = Vector{UInt8}(undef, n)
-        GC.@preserve data unsafe_copyto!(pointer(data), p, n)
-        put!(mbw.channel, data)
-    else
-        unsafe_write(mbw.buffer, p, n)
-        mbw.write_count += 1
+    # Held across the `put!` too: releasing it earlier would let the timer
+    # flush later bytes into the channel ahead of this chunk.
+    Base.@lock mbw.lock begin
+        if n >= mbw.immediate_threshold
+            # Large chunks bypass buffering for low latency.
+            if position(mbw.buffer) > 0
+                flush(mbw)  # Ensure ordering - buffered data goes first
+            end
+            data = Vector{UInt8}(undef, n)
+            GC.@preserve data unsafe_copyto!(pointer(data), p, n)
+            put!(mbw.channel, data)
+        else
+            unsafe_write(mbw.buffer, p, n)
+            mbw.write_count += 1
 
-        if should_flush_micro_batch(mbw)
-            flush(mbw)
+            if should_flush_micro_batch(mbw)
+                flush(mbw)
+            end
         end
     end
 
@@ -114,7 +126,10 @@ end
 # `write(::UInt8)` covers strings, byte vectors and code units alike, with no
 # ambiguity to resolve.
 
-function Base.flush(mbw::MicroBatchWriter)
+Base.flush(mbw::MicroBatchWriter) = Base.@lock mbw.lock _flush_locked!(mbw)
+
+# Call only with `mbw.lock` held.
+function _flush_locked!(mbw::MicroBatchWriter)
     pos = position(mbw.buffer)
     if pos > 0
         # `take!` would hand the buffer's internal array to the channel and
@@ -159,19 +174,21 @@ function create_flush_timer(writer::MicroBatchWriter)
     end
 
     Timer(writer.max_buffer_time; timer_kwargs...) do timer
-        # The timer runs independently of writes, so we need to check if a flush
-        # is actually needed to avoid empty chunks and unnecessary channel operations
-        if position(writer.buffer) > 0 &&
-           time() - writer.last_flush_time >= writer.max_buffer_time
-            try
-                flush(writer)
-            catch e
-                # Channel closure is normal during shutdown - just stop the timer
-                if e isa InvalidStateException
-                    close(timer)
-                else
-                    rethrow(e)
+        try
+            Base.@lock writer.lock begin
+                # The timer runs independently of writes, so we need to check if a flush
+                # is actually needed to avoid empty chunks and unnecessary channel operations
+                if position(writer.buffer) > 0 &&
+                   time() - writer.last_flush_time >= writer.max_buffer_time
+                    _flush_locked!(writer)
                 end
+            end
+        catch e
+            # Channel closure is normal during shutdown - just stop the timer
+            if e isa InvalidStateException
+                close(timer)
+            else
+                rethrow(e)
             end
         end
     end
@@ -287,21 +304,24 @@ struct StreamingRender
         # Producer task runs the user's rendering function in a separate thread.
         # Using @spawn allows true parallelism between rendering and consumption.
         task = Threads.@spawn begin
-            # MicroBatchWriter wraps the channel with intelligent buffering.
-            # chunk_size is capped at 256 to prevent excessive memory usage
-            # while maintaining compatibility with the old API.
-            writer = MicroBatchWriter(
-                channel;
-                max_buffer_size = min(chunk_size, 256),
-                max_buffer_time = 0.001,
-                immediate_threshold = immediate_threshold,
-            )
-
-            # The timer ensures bounded latency even for small writes.
-            # It runs independently and flushes the buffer periodically.
-            timer = create_flush_timer(writer)
-
+            # Set up inside the `try` so a throw cannot leave the channel open.
+            writer = nothing
+            timer = nothing
             try
+                # MicroBatchWriter wraps the channel with intelligent buffering.
+                # chunk_size is capped at 256 to prevent excessive memory usage
+                # while maintaining compatibility with the old API.
+                writer = MicroBatchWriter(
+                    channel;
+                    max_buffer_size = clamp(chunk_size, 1, 256),
+                    max_buffer_time = 0.001,
+                    immediate_threshold = immediate_threshold,
+                )
+
+                # The timer ensures bounded latency even for small writes.
+                # It runs independently and flushes the buffer periodically.
+                timer = create_flush_timer(writer)
+
                 # User's rendering function writes to our MicroBatchWriter,
                 # which handles the complexity of when to send chunks.
                 f(writer)
@@ -311,8 +331,8 @@ struct StreamingRender
             finally
                 # Cleanup order matters: timer first (stop flushing),
                 # then writer (flush remaining), then channel (signal EOF)
-                close(timer)
-                close(writer)
+                timer === nothing || close(timer)
+                writer === nothing || close(writer)
                 close(channel)
             end
         end

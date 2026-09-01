@@ -116,4 +116,38 @@ end
     # that means the timer flushed while it was asleep rather than the
     # bytes waiting for it to return.
     @test first(first(arrivals)) < 0.05
+
+    # ...and flushing from that timer must not corrupt the stream. Writes
+    # small enough to stay buffered, spaced so the 1 ms timer fires between
+    # them repeatedly. Needs threads to mean anything; corrupted most
+    # renders on four threads before the writer took a lock.
+    function dribbling(io)
+        for i = 1:40
+            write(io, "<p>")
+            write(io, lpad(string(i), 4, '0'))
+            write(io, "</p>")
+            i % 4 == 0 && sleep(0.001)
+        end
+    end
+    reference = codeunits(sprint(dribbling))
+    corrupted = 0
+    for _ = 1:25
+        collected = UInt8[]
+        for chunk in StreamingRender(dribbling)
+            append!(collected, chunk)
+        end
+        collected == reference || (corrupted += 1)
+    end
+    @test corrupted == 0
+
+    # A nonsensical `chunk_size` used to throw inside the producer task
+    # before the channel was closed, hanging the consumer in `take!`.
+    for size in (-1, 0, 1)
+        output = UInt8[]
+        task = @async for chunk in StreamingRender(quick; chunk_size = size)
+            append!(output, chunk)
+        end
+        @test timedwait(() -> istaskdone(task), 10.0) === :ok
+        @test String(output) == sprint(quick)
+    end
 end
