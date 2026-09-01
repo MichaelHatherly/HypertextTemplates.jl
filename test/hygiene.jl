@@ -1,4 +1,4 @@
-@testset "Macro Hygiene" begin
+@testitem "deftag hygiene" tags = [:hygiene] setup = [Templates] begin
     # The macro that `@deftag` generates is defined in, and expands in, the
     # caller's module, so a caller that defines a binding named `esc`,
     # `Expr`, `GlobalRef` or `Symbol` used to break every tag macro in
@@ -59,6 +59,9 @@
             @test include_string(Main, code) == "<div>1</div>"
         end
     end
+end
+
+@testitem "cm_component hygiene" tags = [:hygiene, :markdown] setup = [Templates] begin
     # `@cm_component` expands into the caller's module too, and names
     # `Symbol`, `read`, `String`, `Val` and `joinpath` in what it generates.
     markdown = joinpath(mktempdir(), "hygiene.md")
@@ -87,7 +90,9 @@
         )
         @test occursin("Heading", rendered)
     end
+end
 
+@testitem "element hygiene" tags = [:hygiene] setup = [Templates] begin
     # `@element` goes through the same code path as `@component`.
     @test include_string(
         Main,
@@ -102,6 +107,9 @@
         HygieneElement.run()
         """,
     ) == "<my-widget id=\"a\">x</my-widget>"
+end
+
+@testitem "renamed package hygiene" tags = [:hygiene] setup = [Templates] begin
     # The package need not be in scope under its own name.
     @test include_string(
         Main,

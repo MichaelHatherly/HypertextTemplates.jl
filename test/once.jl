@@ -1,4 +1,23 @@
-@testset "Once Blocks" begin
+@testitem "once rendering" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    render_test("references/once/button-1.txt") do io
+        @render io @once_button
+    end
+    render_test("references/once/button-2.txt") do io
+        @render io begin
+            @once_button
+            @once_button
+        end
+    end
+    render_test("references/once/page.txt") do io
+        @render io @once_page
+    end
+end
+
+@testitem "once membership lookup" tags = [:core, :perf] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     # An `IOContext` hands its properties back as `Any`, so the set behind
     # `@__once__` has to be asserted back to its real type or every
     # membership test becomes a dynamic dispatch that boxes -- an
@@ -43,7 +62,7 @@
     end
     probe(context, 5)
     @test probe(context, 10) == 0
-    @test (@allocated probe(context, 1_000)) == 0
+    @test allocations(probe, context, 1_000) == 0
 
     # A context built by hand out of some other kind of `Ref` still
     # renders, it just does not get the fast path above.

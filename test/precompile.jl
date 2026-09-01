@@ -1,4 +1,4 @@
-@testset "Precompile Workload" begin
+@testitem "precompile workload" tags = [:core] setup = [Templates] begin
     # The workload only pays for itself if it keeps covering the shapes the
     # render path branches on. Assert each one is still reached, so a later
     # edit that quietly drops a branch fails here rather than silently

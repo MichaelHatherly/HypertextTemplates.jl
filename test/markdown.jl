@@ -1,18 +1,22 @@
-module ExternalDefs
+@testitem "markdown components" tags = [:markdown] setup = [Templates] begin
+    import CommonMark
+    using HypertextTemplates.Elements
+
+    module ExternalDefs
 
     using HypertextTemplates
 
     function markdown_component_ext end
     @deftag macro markdown_component_ext end
 
-end
+    end
 
-@cm_component markdown_component(; x) = joinpath(@__DIR__, "markdown.md")
-@deftag macro markdown_component end
+    @cm_component markdown_component(; x) = joinpath(@__DIR__, "markdown.md")
+    @deftag macro markdown_component end
 
-@cm_component ExternalDefs.markdown_component_ext(; x) = joinpath(@__DIR__, "markdown.md")
+    @cm_component ExternalDefs.markdown_component_ext(; x) =
+        joinpath(@__DIR__, "markdown.md")
 
-@testset "Markdown" begin
     render_test("references/markdown/markdown.txt") do io
         @render io @markdown_component {x = 1}
     end
@@ -33,7 +37,9 @@ end
     rendered = @render @div $bare
     @test contains(rendered, "<em>text</em>")
     @test !contains(rendered, "<p data-htloc")
+end
 
+@testitem "cm_component expansion without a call site" tags = [:markdown] setup = [Templates] begin
     # Expansion from a call site with no file -- the REPL, or a macro
     # driven programmatically -- has to work rather than throw.
     expansion = Base.invokelatest(

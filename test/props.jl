@@ -1,18 +1,20 @@
-# Records the type of every property it is handed, so that the lazy form of an
-# interpolated attribute can be caught if it ever escapes to a component.
-const observed_properties = Any[]
-@component function property_spy(; a = nothing, b = nothing)
-    push!(observed_properties, (a = typeof(a), b = typeof(b)))
-    @div {x = a}
-end
-@deftag macro property_spy end
+@testitem "interpolated attributes" tags = [:props, :perf] setup = [Templates] begin
+    using HypertextTemplates.Elements
 
-@component function property_forwarder(; a)
-    @<property_spy {a = a}
-end
-@deftag macro property_forwarder end
+    # Records the type of every property it is handed, so that the lazy form of
+    # an interpolated attribute can be caught if it ever escapes to a component.
+    observed_properties = Any[]
+    @component function property_spy(; a = nothing, b = nothing)
+        push!(observed_properties, (a = typeof(a), b = typeof(b)))
+        @div {x = a}
+    end
+    @deftag macro property_spy end
 
-@testset "Interpolated Attributes" begin
+    @component function property_forwarder(; a)
+        @<property_spy {a = a}
+    end
+    @deftag macro property_forwarder end
+
     # An interpolated attribute keeps its pieces unjoined so that elements
     # can write them straight out. A component still has to receive the
     # joined `SafeString` it always has, and the lazy form must never reach
@@ -97,9 +99,9 @@ end
     interpolated_rows(located, 5)
     plain_rows(located, 5, "/item/5")
     take!(buffer)
-    interpolated = @allocated interpolated_rows(located, 200)
+    interpolated = allocations(interpolated_rows, located, 200)
     take!(buffer)
-    plain = @allocated plain_rows(located, 200, "/item/5")
+    plain = allocations(plain_rows, located, 200, "/item/5")
     take!(buffer)
     # Joining eagerly cost roughly 32KB across 800 extra allocations for
     # these 200 rows; keeping the pieces costs nothing over a plain value
@@ -108,7 +110,9 @@ end
     @test interpolated <= plain + 1_000 + 200 * LAZY_ATTRIBUTE_BYTES
 end
 
-@testset "Merged Opening Tags" begin
+@testitem "merged opening tags" tags = [:props] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
     # An opening tag whose every part is known at compile time is written
     # as one constant rather than assembled from three writes. The merge
     # must produce exactly the same bytes, including for void elements,
