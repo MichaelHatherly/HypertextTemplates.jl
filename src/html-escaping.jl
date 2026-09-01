@@ -56,6 +56,72 @@ function _write_integer(io::IO, n::NativeInteger)
     return nothing
 end
 
+# `print(io, ::Float64)` has the same problem an integer had, one step removed:
+# `show` hands `Base.Ryu` a fresh `StringVector` for the digits on every call,
+# so a float costs three allocations and 432 bytes before a byte reaches the
+# page. A table of measurements or prices pays that per cell.
+#
+# The digits themselves are `Base.Ryu`'s to produce -- reimplementing shortest
+# round-trip formatting to save an allocation would be a poor trade -- so what
+# is replaced is only the buffer it writes them into. `writeshortest` insists
+# on a real `Vector{UInt8}`, which cannot live on the stack the way the
+# integer writer's does, so it is kept by the task doing the rendering and
+# reused for every float that task writes.
+#
+# Belonging to the task is what makes it safe to write straight out of: a
+# render that yields mid-write -- which one to a socket does -- resumes to
+# find its own digits still there, because whatever ran in between was another
+# task with a buffer of its own.
+#
+# `Bool` is an `Integer` and never reaches here. `BigFloat` is excluded because
+# it prints through MPFR rather than Ryu.
+const NativeFloat = Union{Float16,Float32,Float64}
+
+# The size is `Base.Ryu`'s own figure rather than one derived from how long a
+# shortest-round-trip `Float64` can get -- which is 24 characters, sign and
+# exponent included. `writeshortest` writes without checking, so being wrong
+# about that would be a heap overflow rather than a truncated number, and the
+# only party that can promise how much room it needs is the one doing the
+# writing.
+const FLOAT_DIGITS = Base.Ryu.neededdigits(Float64)
+
+# The task's storage is shared with everything else running in it, so the key
+# is namespaced rather than something a package could plausibly pick too.
+const FLOAT_SCRATCH_KEY = :HypertextTemplates_float_scratch
+
+function _write_float(io::IO, x::NativeFloat)
+    scratch = get!(
+        () -> Vector{UInt8}(undef, FLOAT_DIGITS),
+        task_local_storage(),
+        FLOAT_SCRATCH_KEY,
+    )::Vector{UInt8}
+    # The arguments are the ones `Base.show(::IO, ::AbstractFloat)` uses when
+    # reached through `print`: shortest form, no plus or space, a `.` before a
+    # bare exponent, full precision, `e` for the exponent -- `print` passes
+    # `fromprint`, so a `Float32` gets `e` and not `f` -- and neither the type
+    # annotation nor `:compact`, neither of which a rendered page ever wants.
+    # The suite checks the result against `print` across the whole bit space
+    # of `Float16` and a wide random sample of `Float32` and `Float64`, so a
+    # version that formats differently is caught rather than silently
+    # rendered.
+    stop = Base.Ryu.writeshortest(
+        scratch,
+        1,
+        x,
+        false,
+        false,
+        true,
+        -1,
+        UInt8('e'),
+        false,
+        UInt8('.'),
+        false,
+        false,
+    )
+    GC.@preserve scratch unsafe_write(io, pointer(scratch), UInt(stop - 1))
+    return nothing
+end
+
 """
     escape_html(io::IO, value)
 
@@ -130,6 +196,7 @@ _as_text(value) = value
 # scan and the `string` allocation that the generic fallback would make.
 escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_html(io::IO, value::NativeInteger) = _write_integer(io, value)
+escape_html(io::IO, value::NativeFloat) = _write_float(io, value)
 # A single character needs at most one substitution, and checking it directly
 # avoids the `string` allocation the generic fallback would make.
 function escape_html(io::IO, value::Char)
@@ -397,6 +464,7 @@ end
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
 escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_attr(io::IO, value::NativeInteger) = _write_integer(io, value)
+escape_attr(io::IO, value::NativeFloat) = _write_float(io, value)
 # See `escape_html(::IO, ::Char)` above.
 function escape_attr(io::IO, value::Char)
     if value == '&'
