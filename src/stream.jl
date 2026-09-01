@@ -95,39 +95,16 @@ function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
     return Int(n)
 end
 
-# The core write logic implements the micro-batching strategy.
-# This is where we decide whether to send data immediately or accumulate it.
-function Base.write(
-    mbw::MicroBatchWriter,
-    bytes::Union{AbstractVector{UInt8},AbstractString},
-)
-    byte_count = sizeof(bytes)
-    now = time()
-
-    if byte_count >= mbw.immediate_threshold
-        # Large chunks bypass buffering for low latency.
-        # Common case: complete HTML elements, large text blocks
-        if position(mbw.buffer) > 0
-            flush(mbw)  # Ensure ordering - buffered data goes first
-        end
-
-        # Direct channel write avoids double-buffering overhead
-        data = bytes isa Vector{UInt8} ? copy(bytes) : Vector{UInt8}(codeunits(bytes))
-        put!(mbw.channel, data)
-    else
-        # Small writes are buffered to avoid Channel overhead.
-        # Common case: individual tags, attributes, small text
-        write(mbw.buffer, bytes)
-        mbw.write_count += 1
-
-        if should_flush_micro_batch(mbw, now)
-            flush(mbw)
-        end
-    end
-
-    mbw.last_write_time = now
-    return byte_count
-end
+# There is deliberately no `write(::MicroBatchWriter, ::AbstractString)` method
+# here. One used to exist, and it was ambiguous against four of `Base`'s own
+# `write` methods, so `write(writer, "text")` and `print(writer, "text")` both
+# raised a `MethodError` -- which the streaming function hands the writer to a
+# caller, so reaching it took nothing more than writing a string to it.
+#
+# `unsafe_write` above carries the same micro-batching logic and is what every
+# one of those `Base` methods funnels into, so implementing it and
+# `write(::UInt8)` covers strings, byte vectors and code units alike, with no
+# ambiguity to resolve.
 
 function Base.flush(mbw::MicroBatchWriter)
     pos = position(mbw.buffer)
