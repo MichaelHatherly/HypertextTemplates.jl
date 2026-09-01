@@ -28,7 +28,7 @@
     # Single bytes, mixed with block writes.
     reference = IOBuffer()
     buffer = RenderBuffer()
-    for index = 1:300
+    for index in 1:300
         if iseven(index)
             write(reference, UInt8(index % 256))
             write(buffer, UInt8(index % 256))
@@ -65,7 +65,7 @@
 
     # Renders that grow past the initial capacity must still be exact.
     big = @render @ul begin
-        for index = 1:2000
+        for index in 1:2000
             @li {class = "row", "data-index" := index} "item $index & more"
         end
     end
@@ -77,7 +77,7 @@
     # location differs from the render above, so it is checked on its own
     # rather than compared byte for byte.
     bytes = @render Vector{UInt8} @ul begin
-        for index = 1:2000
+        for index in 1:2000
             @li {class = "row", "data-index" := index} "item $index & more"
         end
     end

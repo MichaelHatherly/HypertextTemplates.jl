@@ -6,53 +6,53 @@
     # `using` it, used to fail for the same reason.
     cases = [
         "esc" => """
-            module HygieneEsc
-            using HypertextTemplates, HypertextTemplates.Elements
-            esc = "shadowed"
-            @component function w(; n)
-                @div \$n
-            end
-            @deftag macro w end
-            run() = @render @w {n = 1}
-            end
-            HygieneEsc.run()
-        """,
+                module HygieneEsc
+                using HypertextTemplates, HypertextTemplates.Elements
+                esc = "shadowed"
+                @component function w(; n)
+                    @div \$n
+                end
+                @deftag macro w end
+                run() = @render @w {n = 1}
+                end
+                HygieneEsc.run()
+            """,
         "Expr" => """
-            module HygieneExpr
-            using HypertextTemplates, HypertextTemplates.Elements
-            Expr = "shadowed"
-            @component function w(; n)
-                @div \$n
-            end
-            @deftag macro w end
-            run() = @render @w {n = 1}
-            end
-            HygieneExpr.run()
-        """,
+                module HygieneExpr
+                using HypertextTemplates, HypertextTemplates.Elements
+                Expr = "shadowed"
+                @component function w(; n)
+                    @div \$n
+                end
+                @deftag macro w end
+                run() = @render @w {n = 1}
+                end
+                HygieneExpr.run()
+            """,
         "GlobalRef" => """
-            module HygieneGlobalRef
-            using HypertextTemplates, HypertextTemplates.Elements
-            GlobalRef = "shadowed"
-            @component function w(; n)
-                @div \$n
-            end
-            @deftag macro w end
-            run() = @render @w {n = 1}
-            end
-            HygieneGlobalRef.run()
-        """,
+                module HygieneGlobalRef
+                using HypertextTemplates, HypertextTemplates.Elements
+                GlobalRef = "shadowed"
+                @component function w(; n)
+                    @div \$n
+                end
+                @deftag macro w end
+                run() = @render @w {n = 1}
+                end
+                HygieneGlobalRef.run()
+            """,
         "Symbol" => """
-            module HygieneSymbol
-            using HypertextTemplates, HypertextTemplates.Elements
-            Symbol = "shadowed"
-            @component function w(; n)
-                @div \$n
-            end
-            @deftag macro w end
-            run() = @render @w {n = 1}
-            end
-            HygieneSymbol.run()
-        """,
+                module HygieneSymbol
+                using HypertextTemplates, HypertextTemplates.Elements
+                Symbol = "shadowed"
+                @component function w(; n)
+                    @div \$n
+                end
+                @deftag macro w end
+                run() = @render @w {n = 1}
+                end
+                HygieneSymbol.run()
+            """,
     ]
     for (shadowed, code) in cases
         @testset "shadowed `$shadowed`" begin
@@ -63,13 +63,15 @@
     # `Symbol`, `read`, `String`, `Val` and `joinpath` in what it generates.
     markdown = joinpath(mktempdir(), "hygiene.md")
     write(markdown, "# Heading\n\nSome *prose* with \$value in it.\n")
-    for (index, assignment) in enumerate([
-        "Symbol = \"shadowed\"",
-        "read = \"shadowed\"",
-        "String = \"shadowed\"",
-        "Val = \"shadowed\"",
-        "joinpath = \"shadowed\"",
-    ])
+    for (index, assignment) in enumerate(
+            [
+                "Symbol = \"shadowed\"",
+                "read = \"shadowed\"",
+                "String = \"shadowed\"",
+                "Val = \"shadowed\"",
+                "joinpath = \"shadowed\"",
+            ]
+        )
         rendered = include_string(
             Main,
             """

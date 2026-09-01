@@ -7,7 +7,7 @@ function revise_extension()
         return Base.get_extension(HypertextTemplates, name)
     else
         return isdefined(HypertextTemplates, name) ? getfield(HypertextTemplates, name) :
-               nothing
+            nothing
     end
 end
 
@@ -93,7 +93,7 @@ end
     quoted = IOContext(IOBuffer(), :__root__ => ("ro\"ot", 2))
     HypertextTemplates._render_source_prop(quoted, ("fi\"le", 3), nothing)
     @test String(take!(quoted.io)) ==
-          " data-htroot=\"ro&quot;ot:2\" data-htloc=\"fi&quot;le:3\""
+        " data-htroot=\"ro&quot;ot:2\" data-htloc=\"fi&quot;le:3\""
 
     # `_render` has to actually attach that cache, and rendering has to
     # actually reach it. Checking only that the cache agrees with a fresh
@@ -128,7 +128,7 @@ end
     # call, and keying on it would add an entry per render forever.
     cache = extension.SITES.entries
     before = length(cache)
-    for i = 1:200
+    for i in 1:200
         captured = i
         closure = () -> @render @div $captured
         closure()
@@ -137,7 +137,7 @@ end
 
     apply(f) = f()
     before = length(cache)
-    for i = 1:200
+    for i in 1:200
         captured = i
         apply() do
             @render @div $captured
@@ -156,7 +156,7 @@ end
     # And the table is bounded even against a stream of new call sites,
     # which is what repeated re-expansion under Revise looks like.
     before = length(cache)
-    for i = 1:(extension.SITES.limit+50)
+    for i in 1:(extension.SITES.limit + 50)
         HypertextTemplates._method_offset(
             loaded,
             tracked,
@@ -188,10 +188,10 @@ end
     expected = [string(site()) for site in sites]
     # Filled rather than `undef`, so a thread that dies fails the test
     # below rather than throwing `UndefRefError` out of it.
-    outputs = [String[] for _ = 1:Threads.nthreads()]
-    Threads.@threads for thread = 1:Threads.nthreads()
+    outputs = [String[] for _ in 1:Threads.nthreads()]
+    Threads.@threads for thread in 1:Threads.nthreads()
         collected = String[]
-        for _ = 1:50, site in sites
+        for _ in 1:50, site in sites
             push!(collected, string(site()))
         end
         outputs[thread] = collected
@@ -202,7 +202,7 @@ end
 @testset "Source Tracking Staleness" begin
     # Nothing may be cached while a revision is queued: a moved-but-unchanged
     # definition would poison the cache with nothing left to invalidate it.
-    cache = HypertextTemplates.SourceCache{Int,Int}()
+    cache = HypertextTemplates.SourceCache{Int, Int}()
     pending = (Revise.PkgData(Base.PkgId(HypertextTemplates)), "pending.jl")
     push!(Revise.revision_queue, pending)
     try

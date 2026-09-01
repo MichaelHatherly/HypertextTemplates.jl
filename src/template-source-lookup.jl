@@ -18,7 +18,7 @@ template.
 TemplateFileLookup(handler) = _template_file_lookup(nothing, handler)
 
 function _template_file_lookup(::Any, handler)
-    function (request)
+    return function (request)
         return handler(request)
     end
 end

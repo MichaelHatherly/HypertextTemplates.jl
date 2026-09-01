@@ -1,4 +1,3 @@
-
 @testset "Precompile Workload" begin
     # The workload only pays for itself if it keeps covering the shapes the
     # render path branches on. Assert each one is still reached, so a later

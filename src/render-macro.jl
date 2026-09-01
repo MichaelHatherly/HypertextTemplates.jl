@@ -67,13 +67,13 @@ See also: [`StreamingRender`](@ref), [`@component`](@ref)
 macro render(destination, dom)
     thunk = Expr(:->, Expr(:tuple, S"io", S"revise"), dom)
     source = _source_info(__source__)
-    :($(HypertextTemplates)._render($(esc(destination)), $(esc(thunk)), $(source)))
+    return :($(HypertextTemplates)._render($(esc(destination)), $(esc(thunk)), $(source)))
 end
 
 macro render(dom)
     thunk = Expr(:->, Expr(:tuple, S"io", S"revise"), dom)
     source = _source_info(__source__)
-    :($(HypertextTemplates)._render(String, $(esc(thunk)), $(source)))
+    return :($(HypertextTemplates)._render(String, $(esc(thunk)), $(source)))
 end
 
 function _source_info(__source__)
@@ -95,7 +95,7 @@ end
 
 _method_offset(::Any, f, uuid, __source__) = nothing
 
-function _render(dst, dom_thunk::Function, source::Tuple{String,Int})
+function _render(dst, dom_thunk::Function, source::Tuple{String, Int})
     io = _render_dst(dst)
     ctx = _render_context(IOContext(io, :__root__ => source, _once_ref()))
     dom_thunk(ctx, nothing)

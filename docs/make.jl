@@ -6,7 +6,7 @@ using Markdown
 # Function to format and display HTML in documentation
 function display_html(html::AbstractString)
     # Create a temporary file for the HTML
-    mktempdir() do dir
+    return mktempdir() do dir
         # Format using deno fmt
         formatted = try
             # Run deno fmt and capture output
@@ -29,13 +29,15 @@ function display_html(html::AbstractString)
         end
 
         # Return as Markdown code block
-        return Markdown.parse("""
-        ---
-        ```html
-        $(strip(formatted))
-        ```
-        ---
-        """)
+        return Markdown.parse(
+            """
+            ---
+            ```html
+            $(strip(formatted))
+            ```
+            ---
+            """
+        )
     end
 end
 

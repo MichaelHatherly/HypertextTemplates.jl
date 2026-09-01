@@ -6,7 +6,7 @@
 Render the `component` with the given `properties` to the optional `dst`.
 This is the functional version of `@render`.
 """
-render(component::C; properties...) where {C<:Function} =
+render(component::C; properties...) where {C <: Function} =
     @render @<component {properties...}
-render(dst, component::C; properties...) where {C<:Function} =
+render(dst, component::C; properties...) where {C <: Function} =
     @render dst @<component {properties...}

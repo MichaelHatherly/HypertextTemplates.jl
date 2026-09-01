@@ -93,7 +93,7 @@ include("precompile.jl")
 # Initialization:
 
 function __init__()
-    PackageExtensionCompat.@require_extensions
+    return PackageExtensionCompat.@require_extensions
 end
 
 end # module HypertextTemplates

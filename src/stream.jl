@@ -33,14 +33,14 @@ mutable struct MicroBatchWriter <: IO
     lock::ReentrantLock
 
     function MicroBatchWriter(
-        channel::Channel{Vector{UInt8}};
-        max_buffer_size::Int = 256,
-        max_buffer_time::Float64 = 0.001,  # 1ms
-        immediate_threshold::Int = 64,
-    )
+            channel::Channel{Vector{UInt8}};
+            max_buffer_size::Int = 256,
+            max_buffer_time::Float64 = 0.001,  # 1ms
+            immediate_threshold::Int = 64,
+        )
         # A negative size would throw in `RenderBuffer`.
         max_buffer_size = max(1, max_buffer_size)
-        new(
+        return new(
             channel,
             RenderBuffer(max_buffer_size),
             max_buffer_size,
@@ -67,7 +67,7 @@ end
 # timer gets to run. Latency is the timer's job; these two rules only have to
 # stop the buffer growing.
 function should_flush_micro_batch(mbw::MicroBatchWriter)
-    position(mbw.buffer) >= mbw.max_buffer_size ||  # Buffer is full
+    return position(mbw.buffer) >= mbw.max_buffer_size ||  # Buffer is full
         mbw.write_count >= 64  # Many small writes (prevents pathological cases)
 end
 
@@ -144,11 +144,11 @@ function _flush_locked!(mbw::MicroBatchWriter)
         mbw.write_count = 0
         mbw.last_flush_time = time()
     end
-    nothing
+    return nothing
 end
 
 function Base.close(mbw::MicroBatchWriter)
-    flush(mbw)
+    return flush(mbw)
     # Channel is closed by StreamingRender
 end
 
@@ -173,13 +173,13 @@ function create_flush_timer(writer::MicroBatchWriter)
         (interval = writer.max_buffer_time,)
     end
 
-    Timer(writer.max_buffer_time; timer_kwargs...) do timer
+    return Timer(writer.max_buffer_time; timer_kwargs...) do timer
         try
             Base.@lock writer.lock begin
                 # The timer runs independently of writes, so we need to check if a flush
                 # is actually needed to avoid empty chunks and unnecessary channel operations
                 if position(writer.buffer) > 0 &&
-                   time() - writer.last_flush_time >= writer.max_buffer_time
+                        time() - writer.last_flush_time >= writer.max_buffer_time
                     _flush_locked!(writer)
                 end
             end
@@ -292,11 +292,11 @@ struct StreamingRender
     # `f::F` rather than `f::Function`: Julia does not specialize on an argument
     # only passed along, and the render thunk is worth specializing on.
     function StreamingRender(
-        f::F;
-        buffer_size::Int = 32,
-        chunk_size::Int = 4096,
-        immediate_threshold::Int = 64,
-    ) where {F<:Function}
+            f::F;
+            buffer_size::Int = 32,
+            chunk_size::Int = 4096,
+            immediate_threshold::Int = 64,
+        ) where {F <: Function}
         # The Channel is the synchronization point between producer and consumer.
         # buffer_size controls backpressure - when full, the producer blocks.
         channel = Channel{Vector{UInt8}}(buffer_size)

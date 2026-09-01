@@ -18,59 +18,59 @@
 
 module PrecompileWorkload
 
-using ..HypertextTemplates
-using ..Elements
+    using ..HypertextTemplates
+    using ..Elements
 
-@component function item(; name, index, active = false)
-    @li {class = active ? "item active" : "item", "data-index" := index} begin
-        @span {class = "name", title = "row $(index)"} $name
-        @text " #" index
-    end
-end
-@deftag macro item end
-
-@component function panel(; title, subtitle = nothing)
-    @section {class = "panel"} begin
-        @header begin
-            @h2 $title
-            isnothing(subtitle) || @p {class = "subtitle"} $subtitle
+    @component function item(; name, index, active = false)
+        @li {class = active ? "item active" : "item", "data-index" := index} begin
+            @span {class = "name", title = "row $(index)"} $name
+            @text " #" index
         end
-        @div {class = "body"} @__slot__
-        @div {class = "footer"} @__slot__ footer
     end
-end
-@deftag macro panel end
+    @deftag macro item end
 
-function page(io::IO, rows)
-    @render io @html {lang = "en"} begin
-        @head begin
-            @meta {charset = "UTF-8"}
-            @title "Precompile workload"
+    @component function panel(; title, subtitle = nothing)
+        @section {class = "panel"} begin
+            @header begin
+                @h2 $title
+                isnothing(subtitle) || @p {class = "subtitle"} $subtitle
+            end
+            @div {class = "body"} @__slot__
+            @div {class = "footer"} @__slot__ footer
         end
-        @body {class = "page"} begin
-            @panel {title = "Rows", subtitle = "generated"} begin
-                footer := @small "footer slot"
-                @ul {class = "list"} begin
-                    for (index, row) in enumerate(rows)
-                        @item {name = row, index = index, active = isodd(index)}
+    end
+    @deftag macro panel end
+
+    function page(io::IO, rows)
+        return @render io @html {lang = "en"} begin
+            @head begin
+                @meta {charset = "UTF-8"}
+                @title "Precompile workload"
+            end
+            @body {class = "page"} begin
+                @panel {title = "Rows", subtitle = "generated"} begin
+                    footer := @small "footer slot"
+                    @ul {class = "list"} begin
+                        for (index, row) in enumerate(rows)
+                            @item {name = row, index = index, active = isodd(index)}
+                        end
                     end
                 end
-            end
-            @p "Literal text with & and <angles>."
-            @div begin
-                for row in rows
-                    @<item {name = row, index = length(row), active = false}
+                @p "Literal text with & and <angles>."
+                @div begin
+                    for row in rows
+                        @<item {name = row, index = length(row), active = false}
+                    end
                 end
+                @span $(1) $(2.5) $(:sym) $(true) $(SafeString("<b>safe</b>"))
+                @br
             end
-            @span $(1) $(2.5) $(:sym) $(true) $(SafeString("<b>safe</b>"))
-            @br
         end
     end
-end
 
-# `@render` without a destination builds and takes its own buffer, which is a
-# separate specialisation from the one above.
-standalone() = @render @div {class = "standalone"} "text & more"
+    # `@render` without a destination builds and takes its own buffer, which is a
+    # separate specialisation from the one above.
+    standalone() = @render @div {class = "standalone"} "text & more"
 
 end
 

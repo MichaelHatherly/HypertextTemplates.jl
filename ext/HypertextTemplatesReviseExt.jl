@@ -40,7 +40,7 @@ end
 # stale answer to any other caller resolving that uuid against a different
 # line.
 const SITES =
-    HTT.SourceCache{Tuple{DataType,Symbol,LineNumberNode},Union{Nothing,Tuple{String,Int}}}()
+    HTT.SourceCache{Tuple{DataType, Symbol, LineNumberNode}, Union{Nothing, Tuple{String, Int}}}()
 
 function _resolve_method_offset(f, uuid, __source__)
     method = nothing

@@ -17,14 +17,14 @@ __is_revise_loaded(::Any) = false
 # memo used for every such answer rather than each caller growing its own.
 #
 # None of it runs unless Revise is loaded.
-struct SourceCache{K,V}
+struct SourceCache{K, V}
     lock::ReentrantLock
-    entries::Dict{K,Tuple{UInt,Float64,V}}
+    entries::Dict{K, Tuple{UInt, Float64, V}}
     limit::Int
 end
 
-SourceCache{K,V}(; limit::Int = 8192) where {K,V} =
-    SourceCache{K,V}(ReentrantLock(), Dict{K,Tuple{UInt,Float64,V}}(), limit)
+SourceCache{K, V}(; limit::Int = 8192) where {K, V} =
+    SourceCache{K, V}(ReentrantLock(), Dict{K, Tuple{UInt, Float64, V}}(), limit)
 
 # Re-expanding a template hands out fresh keys, so a long editing session leaves
 # behind entries that are never referenced again, and the table is kept under a
@@ -60,7 +60,7 @@ is missing or has gone stale. `file` is the source file the answer depends on.
 lock: it is a pure function of the key, so racing duplicates are harmless and
 the later store wins.
 """
-function _cached(compute, cache::SourceCache{K,V}, key::K, file) where {K,V}
+function _cached(compute, cache::SourceCache{K, V}, key::K, file) where {K, V}
     world = Base.get_world_counter()
     stamp = mtime(file)
     lock(cache.lock)
