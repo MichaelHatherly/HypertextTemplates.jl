@@ -45,8 +45,19 @@ regression that passed.
 Test files are split by concern. Put a new test where its concern already lives rather
 than starting a file.
 
+Each test is a `@testitem` run by TestItemRunner, so one can be run on its own by name or
+by tag. Components and helpers shared across items live in the `Templates` setup module,
+which a test item reaches with `setup = [Templates]`; `Templates` also imports Revise,
+CommonMark and HTTP, which is what puts the extensions in play for the whole suite.
+
 Source locations are stripped when rendering under test so references stay stable. New
-reference tests go through that same helper.
+reference tests go through `render_test`, which resolves its path against the test
+directory.
+
+A test item's body is module top level, not a function body. A loop that assigns to a
+name from the surrounding scope warns there, and `@allocated` measures reading the
+globals an argument comes from as well as the call, so put both inside a function.
+`allocations` is the helper for the second.
 
 ### Working on macros
 
