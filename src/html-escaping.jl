@@ -67,9 +67,52 @@ function escape_html(io::IO, value::AbstractString)
         end
     end
 end
+
+# Fast path for the string types that actually show up in templates. Rather
+# than writing one character at a time we scan the code units and write the
+# runs between escapable characters in one go. Scanning bytes is safe because
+# the characters we escape are all ASCII and ASCII bytes never appear inside a
+# multi-byte UTF-8 sequence.
+function escape_html(io::IO, value::Union{String,SubString{String}})
+    n = ncodeunits(value)
+    start = 1
+    i = 1
+    @inbounds while i <= n
+        b = codeunit(value, i)
+        if b == UInt8('&') || b == UInt8('<') || b == UInt8('>')
+            i > start && _write_range(io, value, start, i - 1)
+            if b == UInt8('&')
+                write(io, "&amp;")
+            elseif b == UInt8('<')
+                write(io, "&lt;")
+            else
+                write(io, "&gt;")
+            end
+            start = i + 1
+        end
+        i += 1
+    end
+    start <= n && _write_range(io, value, start, n)
+    return nothing
+end
+
 escape_html(io::IO, ss::SafeString) = print(io, ss.str)
+# Numbers cannot produce any character that needs escaping, so skip both the
+# scan and the `string` allocation that the generic fallback would make.
+escape_html(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_html(io::IO, other) = escape_html(io, string(other))
 escape_html(io::IO, value, revise) = escape_html(io, value)
+
+# Write `value[from:to]` (code unit indices) without materialising a substring.
+@inline function _write_range(
+    io::IO,
+    value::Union{String,SubString{String}},
+    from::Int,
+    to::Int,
+)
+    GC.@preserve value unsafe_write(io, pointer(value, from), UInt(to - from + 1))
+    return nothing
+end
 
 """
     escape_attr(io::IO, value)
@@ -115,5 +158,39 @@ function escape_attr(io::IO, value::AbstractString)
         end
     end
 end
+
+# See `escape_html` above for why the code unit scan is safe.
+function escape_attr(io::IO, value::Union{String,SubString{String}})
+    n = ncodeunits(value)
+    start = 1
+    i = 1
+    @inbounds while i <= n
+        b = codeunit(value, i)
+        if b == UInt8('&') ||
+           b == UInt8('<') ||
+           b == UInt8('>') ||
+           b == UInt8('"') ||
+           b == UInt8('\'')
+            i > start && _write_range(io, value, start, i - 1)
+            if b == UInt8('&')
+                write(io, "&amp;")
+            elseif b == UInt8('<')
+                write(io, "&lt;")
+            elseif b == UInt8('>')
+                write(io, "&gt;")
+            elseif b == UInt8('"')
+                write(io, "&quot;")
+            else
+                write(io, "&#39;")
+            end
+            start = i + 1
+        end
+        i += 1
+    end
+    start <= n && _write_range(io, value, start, n)
+    return nothing
+end
+
 escape_attr(io::IO, ss::SafeString) = print(io, ss.str)
+escape_attr(io::IO, value::Union{Integer,AbstractFloat}) = (print(io, value); nothing)
 escape_attr(io::IO, other) = escape_attr(io, string(other))

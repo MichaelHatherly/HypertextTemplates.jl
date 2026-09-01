@@ -49,9 +49,9 @@ end
 
 # Determine if the buffer should be flushed based on multiple criteria.
 # This balances between minimizing Channel operations and keeping latency low.
-function should_flush_micro_batch(mbw::MicroBatchWriter)
+function should_flush_micro_batch(mbw::MicroBatchWriter, now::Float64 = time())
     position(mbw.buffer) >= mbw.max_buffer_size ||        # Buffer is full
-        (position(mbw.buffer) > 0 && time() - mbw.last_write_time >= mbw.max_buffer_time) ||  # Time limit reached
+        (position(mbw.buffer) > 0 && now - mbw.last_write_time >= mbw.max_buffer_time) ||  # Time limit reached
         mbw.write_count >= 10  # Many small writes (prevents pathological cases)
 end
 
@@ -67,6 +67,34 @@ function Base.write(mbw::MicroBatchWriter, byte::UInt8)
     return 1
 end
 
+# Without this method `Base`'s generic fallback would push every byte through
+# `write(::MicroBatchWriter, ::UInt8)` one at a time, which both defeats the
+# micro-batching heuristics and makes escaped text far more expensive to
+# stream than it needs to be.
+function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
+    n == 0 && return 0
+    now = time()
+    if n >= mbw.immediate_threshold
+        # Large chunks bypass buffering for low latency.
+        if position(mbw.buffer) > 0
+            flush(mbw)  # Ensure ordering - buffered data goes first
+        end
+        data = Vector{UInt8}(undef, n)
+        GC.@preserve data unsafe_copyto!(pointer(data), p, n)
+        put!(mbw.channel, data)
+    else
+        unsafe_write(mbw.buffer, p, n)
+        mbw.write_count += 1
+
+        if should_flush_micro_batch(mbw, now)
+            flush(mbw)
+        end
+    end
+
+    mbw.last_write_time = now
+    return Int(n)
+end
+
 # The core write logic implements the micro-batching strategy.
 # This is where we decide whether to send data immediately or accumulate it.
 function Base.write(
@@ -74,6 +102,7 @@ function Base.write(
     bytes::Union{AbstractVector{UInt8},AbstractString},
 )
     byte_count = sizeof(bytes)
+    now = time()
 
     if byte_count >= mbw.immediate_threshold
         # Large chunks bypass buffering for low latency.
@@ -91,12 +120,12 @@ function Base.write(
         write(mbw.buffer, bytes)
         mbw.write_count += 1
 
-        if should_flush_micro_batch(mbw)
+        if should_flush_micro_batch(mbw, now)
             flush(mbw)
         end
     end
 
-    mbw.last_write_time = time()
+    mbw.last_write_time = now
     return byte_count
 end
 
