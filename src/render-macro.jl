@@ -82,8 +82,7 @@ function _source_info(__source__)
     euuid = esc(uuid)
     quuid = QuoteNode(Symbol(lstrip(String(uuid), '#')))
     return quote
-        let $(euuid) =
-                $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
+        let $(euuid) = $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
             $(HypertextTemplates)._method_offset(
                 $(HypertextTemplates).ReviseIsLoaded(),
                 $(euuid),
@@ -98,16 +97,22 @@ _method_offset(::Any, f, uuid, __source__) = nothing
 
 function _render(dst, dom_thunk::Function, source::Tuple{String,Integer})
     io = _render_dst(dst)
-    ctx = IOContext(io, :__root__ => source, _once_ref())
+    ctx = _render_context(IOContext(io, :__root__ => source, _once_ref()))
     dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
 function _render(dst, dom_thunk::Function, source::Nothing)
     io = _render_dst(dst)
-    ctx = IOContext(io, _once_ref())
+    ctx = _render_context(IOContext(io, _once_ref()))
     dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
+
+# The source-location cache is only ever read when Revise is loaded, and
+# `_is_revise_loaded` is a compile-time constant, so a plain render carries
+# neither the extra context entry nor the `Ref` that backs it.
+_render_context(ctx::IOContext) =
+    _is_revise_loaded() ? IOContext(ctx, _line_offsets_ref()) : ctx
 
 _once_ref() = :__once__ => Ref{Set{Symbol}}()
 

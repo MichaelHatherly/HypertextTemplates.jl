@@ -97,5 +97,6 @@ end
     include("markdown.jl")
     include("streaming.jl")
     include("props.jl")
+    include("source-tracking.jl")
     include("hygiene.jl")
 end
