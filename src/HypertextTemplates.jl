@@ -46,6 +46,7 @@ module HypertextTemplates
 
 import PackageExtensionCompat
 import MacroTools
+import PrecompileTools
 
 # Exports:
 
@@ -66,13 +67,16 @@ export StreamingRender
 
 include("revise.jl")
 include("hidden-var-macros.jl")
+# `SafeString` carries no dependencies of its own and is referenced in method
+# signatures further down, so it has to be defined before them.
+include("SafeString.jl")
+include("render-buffer.jl")
 include("render-macro.jl")
 include("tag-macro.jl")
 include("text-macro.jl")
 include("component-macro.jl")
 include("slot-macro.jl")
 include("element-rendering.jl")
-include("SafeString.jl")
 include("html-escaping.jl")
 include("element-macro.jl")
 include("deftag.jl")
@@ -82,6 +86,9 @@ include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
+# Must come last: the workload renders real templates, so everything it
+# touches has to already be defined.
+include("precompile.jl")
 
 # Initialization:
 

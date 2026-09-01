@@ -82,8 +82,7 @@ function _source_info(__source__)
     euuid = esc(uuid)
     quuid = QuoteNode(Symbol(lstrip(String(uuid), '#')))
     return quote
-        let $(euuid) =
-                $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
+        let $(euuid) = $(esc(Expr(:isdefined, self))) ? $(esc(Symbol("#self#"))) : nothing
             $(HypertextTemplates)._method_offset(
                 $(HypertextTemplates).ReviseIsLoaded(),
                 $(euuid),
@@ -96,24 +95,30 @@ end
 
 _method_offset(::Any, f, uuid, __source__) = nothing
 
-function _render(dst, dom_thunk::Function, source::Tuple{String,Integer})
+function _render(dst, dom_thunk::Function, source::Tuple{String,Int})
     io = _render_dst(dst)
-    ctx = IOContext(io, :__root__ => source, _once_ref())
+    ctx = _render_context(IOContext(io, :__root__ => source, _once_ref()))
     dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
 function _render(dst, dom_thunk::Function, source::Nothing)
     io = _render_dst(dst)
-    ctx = IOContext(io, _once_ref())
+    ctx = _render_context(IOContext(io, _once_ref()))
     dom_thunk(ctx, nothing)
     return _render_return(io, dst)
 end
 
+# The source-location cache is only ever read when Revise is loaded, and
+# `_is_revise_loaded` is a compile-time constant, so a plain render carries
+# neither the extra context entry nor the `Ref` that backs it.
+_render_context(ctx::IOContext) =
+    _is_revise_loaded() ? IOContext(ctx, _line_offsets_ref()) : ctx
+
 _once_ref() = :__once__ => Ref{Set{Symbol}}()
 
 _render_dst(io::IO) = io
-_render_dst(::Type{String}) = IOBuffer()
-_render_dst(::Type{Vector{UInt8}}) = IOBuffer()
+_render_dst(::Type{String}) = RenderBuffer()
+_render_dst(::Type{Vector{UInt8}}) = RenderBuffer()
 _render_dst(other) = error("unsupported `@render` destination `$(other)`.")
 
 _render_return(io::IO, ::IO) = io
@@ -121,5 +126,12 @@ _render_return(io::IO, ::Type{String}) = String(take!(io))
 _render_return(io::IO, ::Type{Vector{UInt8}}) = take!(io)
 _render_return(::IO, other::Any) = error("unsupported `@render` destination `$(other)`.")
 
-_render_tag(io::IO, tag, static_props, props, slots, source, revise) =
-    tag(; props..., V"source" = source, V"io" = io, V"slots" = slots)
+# Components take their properties as keywords, so the props plan that `@<`
+# builds for elements has nothing to do here.
+#
+# This is also the one place a component can be reached, and so the one place
+# an interpolated attribute has to become a string. `_materialise` is a no-op
+# unless the property types say otherwise, so a component with no interpolated
+# attribute pays nothing for the check.
+_render_tag(io::IO, tag, plan, props, slots, source, revise) =
+    tag(; _materialise(props)..., V"source" = source, V"io" = io, V"slots" = slots)

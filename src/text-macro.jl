@@ -42,8 +42,28 @@ julia> # Mix with elements
 See also: [`SafeString`](@ref), [`escape_html`](@ref)
 """
 macro text(content...)
-    fn(s::AbstractString) = :(print($(esc(S"io")), $(sprint(escape_html, s))))
-    fn(other) = :($(escape_html)($(esc(S"io")), $(esc(other)), $(esc(S"revise"))))
-    content = fn.(content)
-    return Expr(:block, content...)
+    return Expr(:block, map(_text_content, content)...)
 end
+
+# Literal text is escaped here, during macro expansion, and written as a
+# constant.
+_text_literal(s::AbstractString) = :(print($(esc(S"io")), $(sprint(escape_html, s))))
+
+_text_content(s::AbstractString) = _text_literal(s)
+function _text_content(other)
+    # An interpolated string of two or more pieces is concatenated before being
+    # escaped, so the pieces can just as well be written one after another --
+    # which skips building the joined string only to scan and discard it.
+    #
+    # A single-piece string is deliberately left alone. There, `string` can
+    # hand back a `SafeString` unchanged, so `"$value"` renders it unescaped
+    # while `"x$value"` does not, and that difference is observable.
+    if Meta.isexpr(other, :string) && length(other.args) > 1
+        return Expr(:block, map(_text_piece, other.args)...)
+    end
+    return :($(escape_html)($(esc(S"io")), $(esc(other)), $(esc(S"revise"))))
+end
+
+_text_piece(s::AbstractString) = _text_literal(s)
+_text_piece(other) =
+    :($(escape_html)($(esc(S"io")), $(_as_text)($(esc(other))), $(esc(S"revise"))))

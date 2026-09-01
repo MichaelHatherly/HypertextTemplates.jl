@@ -22,12 +22,15 @@ The writer follows these rules:
 """
 mutable struct MicroBatchWriter <: IO
     channel::Channel{Vector{UInt8}}
-    buffer::IOBuffer
+    buffer::RenderBuffer
     max_buffer_size::Int      # Maximum bytes before forced flush
     max_buffer_time::Float64  # Maximum seconds before flush
-    last_write_time::Float64
+    last_flush_time::Float64
     write_count::Int
     immediate_threshold::Int  # Bytes above which to send immediately
+    # Guards the fields above: the flush timer runs on its own thread on 1.12+
+    # (`spawn = true`) and `RenderBuffer` is unsynchronised.
+    lock::ReentrantLock
 
     function MicroBatchWriter(
         channel::Channel{Vector{UInt8}};
@@ -35,60 +38,43 @@ mutable struct MicroBatchWriter <: IO
         max_buffer_time::Float64 = 0.001,  # 1ms
         immediate_threshold::Int = 64,
     )
+        # A negative size would throw in `RenderBuffer`.
+        max_buffer_size = max(1, max_buffer_size)
         new(
             channel,
-            IOBuffer(),
+            RenderBuffer(max_buffer_size),
             max_buffer_size,
             max_buffer_time,
             time(),
             0,
             immediate_threshold,
+            ReentrantLock(),
         )
     end
 end
 
-# Determine if the buffer should be flushed based on multiple criteria.
-# This balances between minimizing Channel operations and keeping latency low.
+# Determine if the buffer should be flushed. Both rules are reads of fields the
+# writer already keeps, which matters: this runs on every single write, and a
+# document is thousands of writes long.
+#
+# There used to be a third rule here, "the previous write was more than
+# `max_buffer_time` ago", which meant calling `time()` on every write. At about
+# 36 ns a call and six thousand writes for a forty kilobyte document that came
+# to roughly 215 us -- more than everything else in the stream put together --
+# and it bought nothing. Data cannot sit in the buffer for longer than 64
+# writes because of the rule below, and a producer that goes quiet for longer
+# than that has to have yielded to do it, which is precisely when the flush
+# timer gets to run. Latency is the timer's job; these two rules only have to
+# stop the buffer growing.
 function should_flush_micro_batch(mbw::MicroBatchWriter)
-    position(mbw.buffer) >= mbw.max_buffer_size ||        # Buffer is full
-        (position(mbw.buffer) > 0 && time() - mbw.last_write_time >= mbw.max_buffer_time) ||  # Time limit reached
-        mbw.write_count >= 10  # Many small writes (prevents pathological cases)
+    position(mbw.buffer) >= mbw.max_buffer_size ||  # Buffer is full
+        mbw.write_count >= 64  # Many small writes (prevents pathological cases)
 end
 
 function Base.write(mbw::MicroBatchWriter, byte::UInt8)
     # Single bytes always go to buffer
-    write(mbw.buffer, byte)
-    mbw.write_count += 1
-
-    if should_flush_micro_batch(mbw)
-        flush(mbw)
-    end
-
-    return 1
-end
-
-# The core write logic implements the micro-batching strategy.
-# This is where we decide whether to send data immediately or accumulate it.
-function Base.write(
-    mbw::MicroBatchWriter,
-    bytes::Union{AbstractVector{UInt8},AbstractString},
-)
-    byte_count = sizeof(bytes)
-
-    if byte_count >= mbw.immediate_threshold
-        # Large chunks bypass buffering for low latency.
-        # Common case: complete HTML elements, large text blocks
-        if position(mbw.buffer) > 0
-            flush(mbw)  # Ensure ordering - buffered data goes first
-        end
-
-        # Direct channel write avoids double-buffering overhead
-        data = bytes isa Vector{UInt8} ? copy(bytes) : Vector{UInt8}(codeunits(bytes))
-        put!(mbw.channel, data)
-    else
-        # Small writes are buffered to avoid Channel overhead.
-        # Common case: individual tags, attributes, small text
-        write(mbw.buffer, bytes)
+    Base.@lock mbw.lock begin
+        write(mbw.buffer, byte)
         mbw.write_count += 1
 
         if should_flush_micro_batch(mbw)
@@ -96,17 +82,67 @@ function Base.write(
         end
     end
 
-    mbw.last_write_time = time()
-    return byte_count
+    return 1
 end
 
-function Base.flush(mbw::MicroBatchWriter)
+# Without this method `Base`'s generic fallback would push every byte through
+# `write(::MicroBatchWriter, ::UInt8)` one at a time, which both defeats the
+# micro-batching heuristics and makes escaped text far more expensive to
+# stream than it needs to be.
+function Base.unsafe_write(mbw::MicroBatchWriter, p::Ptr{UInt8}, n::UInt)
+    n == 0 && return 0
+    # Held across the `put!` too: releasing it earlier would let the timer
+    # flush later bytes into the channel ahead of this chunk.
+    Base.@lock mbw.lock begin
+        if n >= mbw.immediate_threshold
+            # Large chunks bypass buffering for low latency.
+            if position(mbw.buffer) > 0
+                flush(mbw)  # Ensure ordering - buffered data goes first
+            end
+            data = Vector{UInt8}(undef, n)
+            GC.@preserve data unsafe_copyto!(pointer(data), p, n)
+            put!(mbw.channel, data)
+        else
+            unsafe_write(mbw.buffer, p, n)
+            mbw.write_count += 1
+
+            if should_flush_micro_batch(mbw)
+                flush(mbw)
+            end
+        end
+    end
+
+    return Int(n)
+end
+
+# There is deliberately no `write(::MicroBatchWriter, ::AbstractString)` method
+# here. One used to exist, and it was ambiguous against four of `Base`'s own
+# `write` methods, so `write(writer, "text")` and `print(writer, "text")` both
+# raised a `MethodError` -- which the streaming function hands the writer to a
+# caller, so reaching it took nothing more than writing a string to it.
+#
+# `unsafe_write` above carries the same micro-batching logic and is what every
+# one of those `Base` methods funnels into, so implementing it and
+# `write(::UInt8)` covers strings, byte vectors and code units alike, with no
+# ambiguity to resolve.
+
+Base.flush(mbw::MicroBatchWriter) = Base.@lock mbw.lock _flush_locked!(mbw)
+
+# Call only with `mbw.lock` held.
+function _flush_locked!(mbw::MicroBatchWriter)
     pos = position(mbw.buffer)
     if pos > 0
-        bytes = take!(mbw.buffer)
+        # `take!` would hand the buffer's internal array to the channel and
+        # leave an empty one behind, so the buffer would regrow from nothing on
+        # every cycle -- and a flush happens every few hundred bytes. Copying
+        # the batch out and resetting keeps the capacity for the next one.
+        bytes = Vector{UInt8}(undef, pos)
+        data = mbw.buffer.data
+        GC.@preserve bytes data unsafe_copyto!(pointer(bytes), pointer(data), pos)
+        _reset!(mbw.buffer)
         put!(mbw.channel, bytes)
         mbw.write_count = 0
-        mbw.last_write_time = time()
+        mbw.last_flush_time = time()
     end
     nothing
 end
@@ -120,11 +156,13 @@ end
     create_flush_timer(writer::MicroBatchWriter)
 
 Create a Timer that periodically flushes the writer's buffer if data is present
-and enough time has passed since the last write.
+and enough time has passed since the last flush.
 
 The timer is crucial for bounded latency - without it, small writes that don't
 trigger size-based flushing could sit in the buffer indefinitely. This ensures
-that even a single character written will appear within max_buffer_time.
+that even a single character written will appear within max_buffer_time. It is
+the only thing that bounds latency: the write path deliberately never reads the
+clock, since doing so once per write cost more than the rest of the stream.
 """
 function create_flush_timer(writer::MicroBatchWriter)
     # spawn=true on Julia 1.12+ prevents the timer from pinning the task to a thread,
@@ -136,19 +174,21 @@ function create_flush_timer(writer::MicroBatchWriter)
     end
 
     Timer(writer.max_buffer_time; timer_kwargs...) do timer
-        # The timer runs independently of writes, so we need to check if a flush
-        # is actually needed to avoid empty chunks and unnecessary channel operations
-        if position(writer.buffer) > 0 &&
-           time() - writer.last_write_time >= writer.max_buffer_time
-            try
-                flush(writer)
-            catch e
-                # Channel closure is normal during shutdown - just stop the timer
-                if e isa InvalidStateException
-                    close(timer)
-                else
-                    rethrow(e)
+        try
+            Base.@lock writer.lock begin
+                # The timer runs independently of writes, so we need to check if a flush
+                # is actually needed to avoid empty chunks and unnecessary channel operations
+                if position(writer.buffer) > 0 &&
+                   time() - writer.last_flush_time >= writer.max_buffer_time
+                    _flush_locked!(writer)
                 end
+            end
+        catch e
+            # Channel closure is normal during shutdown - just stop the timer
+            if e isa InvalidStateException
+                close(timer)
+            else
+                rethrow(e)
             end
         end
     end
@@ -249,12 +289,14 @@ struct StreamingRender
     channel::Channel{Vector{UInt8}}
     task::Task
 
+    # `f::F` rather than `f::Function`: Julia does not specialize on an argument
+    # only passed along, and the render thunk is worth specializing on.
     function StreamingRender(
-        f::Function;
+        f::F;
         buffer_size::Int = 32,
         chunk_size::Int = 4096,
         immediate_threshold::Int = 64,
-    )
+    ) where {F<:Function}
         # The Channel is the synchronization point between producer and consumer.
         # buffer_size controls backpressure - when full, the producer blocks.
         channel = Channel{Vector{UInt8}}(buffer_size)
@@ -262,21 +304,24 @@ struct StreamingRender
         # Producer task runs the user's rendering function in a separate thread.
         # Using @spawn allows true parallelism between rendering and consumption.
         task = Threads.@spawn begin
-            # MicroBatchWriter wraps the channel with intelligent buffering.
-            # chunk_size is capped at 256 to prevent excessive memory usage
-            # while maintaining compatibility with the old API.
-            writer = MicroBatchWriter(
-                channel;
-                max_buffer_size = min(chunk_size, 256),
-                max_buffer_time = 0.001,
-                immediate_threshold = immediate_threshold,
-            )
-
-            # The timer ensures bounded latency even for small writes.
-            # It runs independently and flushes the buffer periodically.
-            timer = create_flush_timer(writer)
-
+            # Set up inside the `try` so a throw cannot leave the channel open.
+            writer = nothing
+            timer = nothing
             try
+                # MicroBatchWriter wraps the channel with intelligent buffering.
+                # chunk_size is capped at 256 to prevent excessive memory usage
+                # while maintaining compatibility with the old API.
+                writer = MicroBatchWriter(
+                    channel;
+                    max_buffer_size = clamp(chunk_size, 1, 256),
+                    max_buffer_time = 0.001,
+                    immediate_threshold = immediate_threshold,
+                )
+
+                # The timer ensures bounded latency even for small writes.
+                # It runs independently and flushes the buffer periodically.
+                timer = create_flush_timer(writer)
+
                 # User's rendering function writes to our MicroBatchWriter,
                 # which handles the complexity of when to send chunks.
                 f(writer)
@@ -286,8 +331,8 @@ struct StreamingRender
             finally
                 # Cleanup order matters: timer first (stop flushing),
                 # then writer (flush remaining), then channel (signal EOF)
-                close(timer)
-                close(writer)
+                timer === nothing || close(timer)
+                writer === nothing || close(writer)
                 close(channel)
             end
         end

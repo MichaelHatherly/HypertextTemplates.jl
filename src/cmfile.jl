@@ -123,23 +123,27 @@ macro cm_component(expr)
     quote
         $(HypertextTemplates).@component function $(name)(; $(parameters...))
             ast = if $(_is_revise_loaded)()
-                text = Symbol(read($path_const, String))
+                text = $(Symbol)($(read)($path_const, $(String)))
                 # This results in a dynamic dispatch since `text` is a runtime value.
-                $(gen_func_name)(Val{text}(); $(parameter_names...))
+                $(gen_func_name)($(Val){text}(); $(parameter_names...))
             else
                 # Ideally this should be fully inferrable since
                 # `text_const` is a global constant.
-                $(gen_func_name)(Val{$text_const}(); $(parameter_names...))
+                $(gen_func_name)($(Val){$text_const}(); $(parameter_names...))
             end
             $(HypertextTemplates).@text ast
         end
     end
+    # A `LineNumberNode` may carry no file, here as in the REPL case above.
+    this_file = Symbol(@__FILE__())
+    replacement = if isnothing(__source__.file)
+        LineNumberNode(__source__.line)
+    else
+        LineNumberNode(__source__.line, __source__.file)
+    end
     component_expr = MacroTools.postwalk(component_expr) do each
-        file = String(__source__.file)
-        if isa(each, LineNumberNode) &&
-           String(each.file) == @__FILE__() &&
-           each.line == line
-            return LineNumberNode(__source__.line, file)
+        if isa(each, LineNumberNode) && each.file === this_file && each.line == line
+            return replacement
         else
             return each
         end
@@ -147,8 +151,8 @@ macro cm_component(expr)
 
     return esc(
         quote
-            const $(path_const) = joinpath($dir, $(path))
-            const $(text_const) = Symbol(read($path_const, String))
+            const $(path_const) = $(joinpath)($dir, $(path))
+            const $(text_const) = $(Symbol)($(read)($path_const, $(String)))
             const $(mod_const) = @__MODULE__
 
             # Changes to the markdown file linked should cause the pkgimage to
@@ -162,7 +166,7 @@ macro cm_component(expr)
             # provided to this generated function. At runtime those references
             # will be updated with the values of the individual parameters.
             @generated function $(gen_func_name)(
-                ::Val{text};
+                ::$(Val){text};
                 $(parameters...),
             ) where {text}
                 return $(HypertextTemplates)._parse_cm_content(

@@ -93,9 +93,20 @@ end
 
 function _get_once(io::IO)
     once_ref = get(io, :__once__, nothing)
+    isnothing(once_ref) && error("missing `once` object.")
+    # An `IOContext` stores its properties as `Any`, so narrowing to the type
+    # `@render` installs is what keeps the membership tests below from boxing
+    # on every `@__once__`. Other `Ref` shapes still work, without that.
+    if once_ref isa Base.RefValue{Set{Symbol}}
+        isassigned(once_ref) || (once_ref[] = Set{Symbol}())
+        return once_ref[]
+    end
+    return _get_once_generic(once_ref)
+end
+
+function _get_once_generic(once_ref)
     isassigned(once_ref) || (once_ref[] = Set{Symbol}())
-    once = once_ref[]
-    return isnothing(once) ? error("missing `once` object.") : once
+    return once_ref[]::Set{Symbol}
 end
 
 _missing_once_key(io::IO, key::Symbol) = !(key in _get_once(io))

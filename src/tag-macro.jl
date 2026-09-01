@@ -88,13 +88,13 @@ macro (<)(tag, args...)
     erevise = esc(revise)
     etag = esc(tag)
 
-    static_prop_str, eprops, eslots = _process_args(args)
+    props_plan, eprops, eslots = _process_args(args)
     quote
         if $(esc(Expr(:isdefined, io)))
             $(HypertextTemplates)._render_tag(
                 $eio,
                 $etag,
-                $static_prop_str,
+                $props_plan,
                 $eprops,
                 $eslots,
                 $source,
@@ -111,7 +111,7 @@ macro (<)(tag, args...)
 end
 
 function _process_args(args)
-    static_props = ""
+    props_plan = :(())
     props = nothing
     slot_args = []
     slot_names = Set{Symbol}([])
@@ -142,7 +142,7 @@ function _process_args(args)
     for arg in args
         if Meta.isexpr(arg, :braces)
             if isnothing(props)
-                static_props, prop_pairs = _process_props(arg.args)
+                props_plan, prop_pairs = _process_props(arg.args)
                 props = :((; $(esc.(prop_pairs)...)))
             else
                 error("duplicate `{}` props.")
@@ -158,24 +158,74 @@ function _process_args(args)
 
     slots = :((; $(slot_args...), V"default" = () -> $(default_slot_contents)))
 
-    return static_props, something(props, :((;))), slots
+    return props_plan, something(props, :((;))), slots
 end
 
+# Build the "props plan" described in `element-rendering.jl`: consecutive
+# literal properties are escaped and serialised here, at macro expansion time,
+# and only the properties whose values are genuinely dynamic are left to be
+# rendered per call. Segments are emitted in source order, so the attribute
+# order the user wrote is preserved.
+#
+# Previously this was all-or-nothing: a single dynamic property sent every
+# other property on the element back through the runtime path.
 function _process_props(args)
     props = []
-    dynamic_props = []
-    static_props = []
+    segments = []
+    static_run = []
+    plannable = true
     for arg in args
         static, dynamic = _process_prop(arg)
+        # `props` must be built from every argument, splats included, since it
+        # is what a component receives as keywords.
         push!(props, dynamic)
-        isnothing(static) ? push!(dynamic_props, dynamic) : push!(static_props, static)
+        if Meta.isexpr(dynamic, :...)
+            # A splat contributes property names that are not known until
+            # runtime, so there is nothing to interleave against. Give up on
+            # the plan and let the merged `NamedTuple` be rendered wholesale.
+            plannable = false
+        elseif isnothing(static)
+            plannable &= _flush_static_run!(segments, static_run)
+            push!(segments, _dynamic_segment(_prop_name(dynamic)))
+        else
+            push!(static_run, static)
+        end
     end
-    if isempty(dynamic_props)
-        return _render_props(static_props), props
-    else
-        return "", props
-    end
+    plannable &= _flush_static_run!(segments, static_run)
+    plannable || return nothing, props
+    return Expr(:tuple, segments...), props
 end
+
+# The attribute prefixes never vary, so bake them into the segment's type
+# rather than reassembling them from the name on every render.
+function _dynamic_segment(name::Symbol)
+    return :($(DynamicProp){
+        $(QuoteNode(name)),
+        $(QuoteNode(Symbol(" ", name))),
+        $(QuoteNode(Symbol(" ", name, "=\""))),
+    }())
+end
+
+# Returns whether the run could be planned. A `false` result means the caller
+# has to abandon the plan entirely and render the properties from the
+# `NamedTuple` at run time instead.
+function _flush_static_run!(segments, static_run)
+    isempty(static_run) && return true
+    text = _render_props(static_run)
+    empty!(static_run)
+    # A run of only `false` valued properties renders nothing at all.
+    isempty(text) && return true
+    # The run travels in a type parameter, and a `Symbol` cannot hold a NUL
+    # byte. Only a literal attribute value containing one gets here, which is
+    # not valid HTML to begin with -- but it used to render, so it keeps doing
+    # so through the runtime path rather than failing during expansion.
+    '\0' in text && return false
+    push!(segments, :($(StaticProps){$(QuoteNode(Symbol(text)))}()))
+    return true
+end
+
+_prop_name(ex::Expr) = __process_prop(ex.args[1])
+_prop_name(name::Symbol) = name
 
 function _process_prop(ex::Expr)
     if Meta.isexpr(ex, [:(=), :(:=)], 2)
@@ -203,11 +253,27 @@ __process_prop(s::AbstractString) = Symbol(s)
 __process_prop(s::Symbol) = s
 __process_prop(s::QuoteNode) = s.value
 
+# An interpolated attribute value such as `{href = "/item/$id"}` used to be
+# assembled into a string on the spot. An element never needs that string --
+# it writes the value straight to the stream -- but a component does, since it
+# receives the property as a keyword. Since the macro cannot tell which of the
+# two it is expanding for, every element paid for a string it then threw away.
+#
+# So the parts are kept as they are and joined only where a string is actually
+# required, which is the component branch of `_render_tag`. Elements write the
+# parts directly and allocate nothing.
+#
+# Each part is still escaped individually, exactly as before, so a `SafeString`
+# interpolated into an attribute continues to pass through unescaped.
 function _sanitise(ex::Expr)
-    fn(s::AbstractString) = sprint(escape_attr, s)
-    fn(other) = :(sprint($(escape_attr), $(other)))
     if Meta.isexpr(ex, :string)
-        return Expr(:call, SafeString, Expr(:string, fn.(ex.args)...))
+        # Literal segments are escaped here, during expansion, and marked safe
+        # so that joining them later leaves them alone. Everything else is
+        # escaped when it is written.
+        parts = map(ex.args) do arg
+            isa(arg, AbstractString) ? SafeString(sprint(escape_attr, arg)) : arg
+        end
+        return Expr(:call, InterpolatedAttribute, Expr(:tuple, parts...))
     else
         return ex
     end

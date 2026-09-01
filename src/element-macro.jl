@@ -51,6 +51,8 @@ julia> @render @ion_button {color = "primary", expand = "block"} begin
 See also: [`@deftag`](@ref), [`@component`](@ref)
 """
 macro element(name, binding = name)
+    isa(name, Union{String,Symbol}) ||
+        error("element name must be a string or symbol literal. It is `$name`.")
     binding = Symbol(binding)
     if !Base.is_valid_identifier(binding)
         error(
@@ -58,11 +60,25 @@ macro element(name, binding = name)
         )
     end
     type = Symbol("$(binding)Type")
+    # The open and close tags never vary for a given element, so build them
+    # here rather than reassembling them from the name on every render. Writing
+    # `"</div>"` in one go is markedly cheaper than `"</"`, the name and `">"`
+    # as three separate writes.
+    tag = string(name)
+    open_tag = "<$(tag)"
+    # Void elements have no closing tag. `_void_element` is applied to `name`
+    # itself so that this matches what the runtime check used to decide: an
+    # element declared with a string name is never treated as void.
+    close_tag = _void_element(name) ? "" : "</$(tag)>"
     quote
         struct $(esc(type)) <: $(HypertextTemplates).AbstractElement end
         const $(esc(binding)) = $(esc(type))()
 
         $(HypertextTemplates)._element_name(::$(esc(type))) = $(QuoteNode(name))
+        $(HypertextTemplates)._element_open(::$(esc(type))) = $(open_tag)
+        $(HypertextTemplates)._element_close(::$(esc(type))) = $(close_tag)
+        $(HypertextTemplates)._element_symbol(::$(esc(type))) =
+            $(Val)($(QuoteNode(Symbol(tag))))
 
         export $(esc(binding))
     end
