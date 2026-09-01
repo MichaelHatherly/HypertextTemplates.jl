@@ -102,4 +102,5 @@ end
     include("once.jl")
     include("source-tracking.jl")
     include("hygiene.jl")
+    include("precompile.jl")
 end

@@ -46,6 +46,7 @@ module HypertextTemplates
 
 import PackageExtensionCompat
 import MacroTools
+import PrecompileTools
 
 # Exports:
 
@@ -85,6 +86,9 @@ include("render.jl")
 include("stream.jl")
 include("cmfile.jl")
 include("once.jl")
+# Must come last: the workload renders real templates, so everything it
+# touches has to already be defined.
+include("precompile.jl")
 
 # Initialization:
 
