@@ -211,20 +211,21 @@ _should_render_data_htloc(io::IO) =
 function _render_source_prop(io::IO, source::Tuple{String,Int}, revise)
     if get(io, _include_data_htloc(), true) === true
         root = get(io, :__root__, nothing)
-        if !isnothing(root)
-            # Asserted for the same reason as elsewhere: the stream hands this
-            # back as `Any`, and this runs once per element. `_render` accepts
-            # any `Integer` for the line, so it is narrowed rather than assumed.
-            file, line = root::Tuple{String,Integer}
-            # Written piecewise rather than interpolated: interpolation would
-            # build and discard a string on every element.
-            print(io, " data-htroot=\"", file, ":")
+        # `:__root__` may come from the caller's own `IOContext`, so any shape
+        # other than ours is treated as no root.
+        if root isa Tuple{String,Integer}
+            file, line = root
+            print(io, " data-htroot=\"")
+            escape_attr(io, file)
+            print(io, ":")
             _write_integer(io, Int(line))
             print(io, "\"")
         end
         offset = _dynamic_line_offset(io, revise)
         file, line = source
-        print(io, " data-htloc=\"", file, ":")
+        print(io, " data-htloc=\"")
+        escape_attr(io, file)
+        print(io, ":")
         _write_integer(io, line + offset)
         print(io, "\"")
     end
@@ -233,7 +234,7 @@ end
 _render_source_prop(io::IO, source, revise) = nothing
 
 _line_offsets() = :__htloc_offsets__
-_line_offsets_ref() = _line_offsets() => Ref{IdDict{Any,Int}}()
+_line_offsets_ref() = _line_offsets() => Ref{IdDict{Any,Tuple{Int,Int}}}()
 
 # The offset below costs a `functionloc`, which walks the method table and goes
 # through CodeTracking: about 5us a call. It used to run once per rendered
@@ -253,16 +254,27 @@ function _dynamic_line_offset(io::IO, revise)
     isnothing(stored) && return _compute_dynamic_line_offset(revise)
     # Asserted for the same reason as in `_get_once`: an `IOContext` hands its
     # properties back as `Any`, which would leave every lookup below dynamic.
-    ref = stored::Base.RefValue{IdDict{Any,Int}}
-    isassigned(ref) || (ref[] = IdDict{Any,Int}())
+    ref = stored::Base.RefValue{IdDict{Any,Tuple{Int,Int}}}
+    isassigned(ref) || (ref[] = IdDict{Any,Tuple{Int,Int}}())
     offsets = ref[]
-    func, _ = revise
+    func, source = revise
+    line = Int(source[2])
+    # The line is checked against the entry rather than keyed, since a
+    # `(func, line)` key would be boxed into the `IdDict` per element.
     cached = get(offsets, func, nothing)
-    isnothing(cached) || return cached
+    isnothing(cached) || (cached[1] == line && return cached[2])
     offset = _compute_dynamic_line_offset(revise)
-    offsets[func] = offset
+    offsets[func] = (line, offset)
     return offset
 end
+
+# Keyed by the component's type rather than the function object: `@component`
+# defines a named function, so the type is a singleton and the two are
+# interchangeable, but the type is what stays stable if the same definition is
+# reached through different bindings.
+# The recorded line is part of the key here: this is only reached once per
+# component per render, so building one costs nothing.
+const LINE_OFFSETS = SourceCache{Tuple{DataType,Int},Int}()
 
 function _compute_dynamic_line_offset(revise)
     # This calculates the line offset caused by running `Revise` and editing a
@@ -274,9 +286,19 @@ function _compute_dynamic_line_offset(revise)
     # has expanded as well as the `Function` object itself. We then dynamically
     # lookup the function location (which `Revise` does update) and compare
     # that to the original, returning the calculated offset.
+    #
+    # `functionloc` walks the method table and goes through CodeTracking, and at
+    # about 13us a call it was the single most expensive thing left in a render
+    # under Revise -- a quarter of one. The per-render memo above collapses a
+    # page's worth of elements into one call per component, but the next render
+    # paid it again, and the render after that. It is the same answer until
+    # Revise reloads the code, which is exactly what `SourceCache` is validated
+    # against, so it is now worked out once per edit instead of once per render.
     r_func, r_source = revise
-    _, d_line = functionloc(r_func)
-    _, r_line = r_source
-    return d_line - r_line
+    file, r_line = r_source
+    return _cached(LINE_OFFSETS, (typeof(r_func), Int(r_line)), file) do
+        _, d_line = functionloc(r_func)
+        return Int(d_line) - Int(r_line), true
+    end
 end
 _compute_dynamic_line_offset(::Nothing) = 0
