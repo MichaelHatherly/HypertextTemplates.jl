@@ -17,8 +17,7 @@ template.
 """
 TemplateFileLookup(handler) = _template_file_lookup(nothing, handler)
 
-function _template_file_lookup(::Any, handler)
-    return function (request)
-        return handler(request)
-    end
-end
+# This interface function is extended by the `HypertextTemplatesHTTPExt`
+# extension module. See that file for the real definition.
+_template_file_lookup(::Any, handler) =
+    error("`TemplateFileLookup` needs `HTTP.jl` to work.")

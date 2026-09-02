@@ -305,3 +305,21 @@ end
     @test HypertextTemplates._source_cache_writable()
     @test reported(render()) == before + 5
 end
+
+@testitem "the template file lookup needs HTTP" tags = [:source] setup = [Templates] begin
+    # The suite loads HTTP, so the extension covers `TemplateFileLookup`
+    # itself. Reaching the fallback that reports the missing package means
+    # calling past the extension's `Nothing` method.
+    without_http() = HypertextTemplates._template_file_lookup(missing, identity)
+    @test_throws ErrorException without_http()
+
+    # Matching a message with `@test_throws` needs Julia 1.8, and 1.6 is
+    # supported, so the text is read off the exception instead.
+    caught = try
+        without_http()
+        nothing
+    catch error
+        error
+    end
+    @test occursin("`HTTP.jl`", string(caught))
+end
