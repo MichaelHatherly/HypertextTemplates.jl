@@ -94,6 +94,60 @@ end
     end
 end
 
+@testitem "a slot the caller did not pass" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    @component function needs_heading()
+        @div @__slot__ heading
+    end
+
+    function message(f)
+        try
+            f()
+            return nothing
+        catch error
+            return isa(error, ErrorException) ? error.msg : rethrow()
+        end
+    end
+
+    # Every call site passes a default slot, so the message reports the named
+    # slots the caller wrote and stays quiet about the one it did not.
+    @test message(() -> @render @<needs_heading) ==
+        "component `needs_heading` has no slot named `heading`: no named slots were passed."
+    @test message(
+        () -> @render @<needs_heading begin
+            footing := @p "content"
+        end
+    ) ==
+        "component `needs_heading` has no slot named `heading`: the named slots passed were `footing`."
+    # Content written for the default slot is still not a named slot.
+    @test message(() -> @render @<needs_heading "content") ==
+        "component `needs_heading` has no slot named `heading`: no named slots were passed."
+end
+
+@testitem "tags used outside a render" tags = [:core] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    # `@deftag` splices the element or component itself into the `@<` call, so
+    # the name the message reports has to come back off that value rather than
+    # off the expression the template wrote.
+    function message(f)
+        try
+            f()
+            return nothing
+        catch error
+            return isa(error, ErrorException) ? error.msg : rethrow()
+        end
+    end
+
+    @test message(() -> @div "content") ==
+        "`@div` and `@<div` cannot be used outside of a `@render` or `@component` macro."
+    @test message(() -> @custom_element) ==
+        "`@custom-element` and `@<custom-element` cannot be used outside of a `@render` or `@component` macro."
+    @test message(() -> @custom_component) ==
+        "`@custom_component` and `@<custom_component` cannot be used outside of a `@render` or `@component` macro."
+end
+
 @testitem "render root" tags = [:core] setup = [Templates] begin
     using HypertextTemplates.Elements
 

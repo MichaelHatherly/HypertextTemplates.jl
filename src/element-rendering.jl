@@ -4,6 +4,21 @@ Base.show(io::IO, element::AbstractElement) = print(io, "<", _element_name(eleme
 
 _element_name(_) = error("Method not implemented.")
 
+# `@deftag` splices the element or component itself into the `@<` call, so the
+# name the template wrote is gone by expansion and only the value is left.
+_tag_name(tag::AbstractElement) = _element_name(tag)
+_tag_name(tag::Function) = nameof(tag)
+_tag_name(tag) = tag
+
+# Formatting here rather than at each `@<` site keeps a string per element out
+# of every expansion.
+@noinline function _outside_render(tag)
+    name = _tag_name(tag)
+    return error(
+        "`@$(name)` and `@<$(name)` cannot be used outside of a `@render` or `@component` macro.",
+    )
+end
+
 # A `Tuple` rather than a `Set` so that the membership test is a chain of
 # pointer comparisons that constant-folds away entirely when the element name
 # is statically known, which it is for every `@element`-defined tag. A `Set`

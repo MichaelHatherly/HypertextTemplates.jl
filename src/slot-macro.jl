@@ -70,5 +70,30 @@ julia> @render @modal {title = "Confirm"} begin
 See also: [`@component`](@ref)
 """
 macro __slot__(name = S"default")
-    return esc(:(getfield($(S"slots"), $(QuoteNode(name)))()))
+    slots = esc(S"slots")
+    key = QuoteNode(name)
+    revise = esc(S"revise")
+    revise_defined = esc(Expr(:isdefined, S"revise"))
+    # Which slots were passed is part of the `NamedTuple`'s type, so this test
+    # is settled during compilation and a slot that was passed costs nothing.
+    return quote
+        if haskey($(slots), $(key))
+            getfield($(slots), $(key))()
+        else
+            $(_missing_slot)($(slots), $(key), $(revise_defined) ? $(revise) : nothing)
+        end
+    end
+end
+
+@noinline function _missing_slot(slots::NamedTuple, name::Symbol, revise)
+    # `revise` carries the component's own function, which is the only place
+    # the component's name is still available by the time a slot is looked up.
+    component = isnothing(revise) ? "this component" : "component `$(nameof(revise[1]))`"
+    # Every call site passes a default slot whether or not the caller wrote
+    # content for it, so listing it would name a slot the template never
+    # mentioned. It is also why the default can never be the missing one.
+    named = filter(each -> each !== S"default", keys(slots))
+    available = isempty(named) ? "no named slots were passed" :
+        "the named slots passed were $(join(map(each -> "`$(each)`", named), ", "))"
+    return error("$(component) has no slot named `$(name)`: $(available).")
 end

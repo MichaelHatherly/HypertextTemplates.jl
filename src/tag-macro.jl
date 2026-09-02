@@ -101,11 +101,7 @@ macro (<)(tag, args...)
                 $(esc(Expr(:isdefined, revise))) ? $(erevise) : nothing,
             )
         else
-            error(
-                $(
-                    "`@$tag` and `<$tag` cannot be used outside of a `@render` or `@component` macro."
-                ),
-            )
+            $(HypertextTemplates)._outside_render($etag)
         end
     end
 end
