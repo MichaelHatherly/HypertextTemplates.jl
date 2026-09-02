@@ -8,6 +8,10 @@ It is rarely needed directly since the `\$` interpolation syntax provides the
 same functionality more concisely.
 
 Text content is automatically HTML-escaped unless wrapped in [`SafeString`](@ref).
+The exception is a `script` or a `style`, whose bodies are raw text rather than
+markup: content written directly in one goes out unescaped, with the sequences
+that would end the element neutralised instead. The innermost element is what
+decides, so `@text` inside an element nested in a script is escaped again.
 
 # Arguments
 - `content...`: One or more values to render as text
@@ -45,9 +49,25 @@ macro text(content...)
     return Expr(:block, map(_text_content, content)...)
 end
 
-# Literal text is escaped here, during macro expansion, and written as a
-# constant.
-_text_literal(s::AbstractString) = :(print($(esc(S"io")), $(sprint(escape_html, s))))
+# Literal text is escaped during expansion and written as a constant. One that
+# escaping changes carries both forms, and `_literal_text` picks between them
+# from the stream's type, so it costs an extra constant and nothing at render
+# time.
+function _text_literal(s::AbstractString)
+    escaped = sprint(escape_html, s)
+    content = escaped == s ? s : :($(_literal_text)($(esc(S"io")), $(s), $(escaped)))
+    return :(print($(esc(S"io")), $(content)))
+end
+
+# `value` arrives hygiene-escaped: the caller knows whether it has a piece of
+# an interpolated string to flatten first.
+_escape_content(value) = :(
+    $(_write_content)(
+        $(esc(S"io")),
+        $(value),
+        $(esc(S"revise")),
+    )
+)
 
 _text_content(s::AbstractString) = _text_literal(s)
 function _text_content(other)
@@ -61,9 +81,8 @@ function _text_content(other)
     if Meta.isexpr(other, :string) && length(other.args) > 1
         return Expr(:block, map(_text_piece, other.args)...)
     end
-    return :($(escape_html)($(esc(S"io")), $(esc(other)), $(esc(S"revise"))))
+    return _escape_content(esc(other))
 end
 
 _text_piece(s::AbstractString) = _text_literal(s)
-_text_piece(other) =
-    :($(escape_html)($(esc(S"io")), $(_as_text)($(esc(other))), $(esc(S"revise"))))
+_text_piece(other) = _escape_content(:($(_as_text)($(esc(other)))))

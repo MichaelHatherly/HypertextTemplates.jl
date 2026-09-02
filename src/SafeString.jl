@@ -31,7 +31,30 @@ julia> # Common use case: pre-rendered markdown
 
 julia> @render @article \$(SafeString(markdown_html))
 "<article><p>Already <em>escaped</em> content</p></article>"
+
+julia> # Inside a script the element's own end tag is still neutralised
+       @render @script \$(SafeString("var s = '</script>';"))
+"<script>var s = '<\\\\/script>';</script>"
 ```
+
+!!! note "Inside a `script` or a `style`"
+    Those two hold raw text, and nothing written in one is escaped, a
+    `SafeString` included. What is still neutralised there is the sequence that
+    would take the parser out of the element, since a `</script` carried in
+    trusted JSON built from a user's data would end the `script` and leave the
+    rest of the value as markup. `<\\/` is what JavaScript reads as `</` inside
+    a string and is a valid JSON string escape, so the program the script runs
+    and the value it parses are unchanged.
+
+    An end tag for any other element is left alone: the parser reads the name
+    after the `</` and hands the characters back as text unless they name the
+    element that is open. So markup written into a `script` for a page to read
+    back, a `text/template` block, survives as markup.
+
+    The one sequence with no faithful spelling is `<!--`, which opens a state
+    where a `script`'s own end tag stops closing it. It is neutralised to
+    `<\\!--`, which JSON does not accept, so a JSON value carrying a comment
+    opener will not parse back.
 
 # Security best practices
 ```julia

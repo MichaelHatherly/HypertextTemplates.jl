@@ -11,7 +11,8 @@
 # The workload deliberately covers each shape the render path branches on:
 # static props, dynamic props, interpolated attributes, elements with and
 # without children, void elements, components reached both through a `@deftag`
-# macro and through `@<`, default and named slots, and the escaping of the
+# macro and through `@<`, default and named slots, raw text elements, slot
+# content rendered inside one, an element nested in one, and the escaping of the
 # value types that turn up in templates. Revise is not loaded during
 # precompilation, so what is cached is the non-Revise path, which is the one
 # that runs in production.
@@ -28,6 +29,11 @@ module PrecompileWorkload
         end
     end
     @deftag macro item end
+
+    @component function inline_script()
+        @script @__slot__
+    end
+    @deftag macro inline_script end
 
     @component function panel(; title, subtitle = nothing)
         @section {class = "panel"} begin
@@ -46,6 +52,7 @@ module PrecompileWorkload
             @head begin
                 @meta {charset = "UTF-8"}
                 @title "Precompile workload"
+                @style "main > .list { content: \"&\" }"
             end
             @body {class = "page"} begin
                 @panel {title = "Rows", subtitle = "generated"} begin
@@ -63,6 +70,10 @@ module PrecompileWorkload
                     end
                 end
                 @span $(1) $(2.5) $(:sym) $(true) $(SafeString("<b>safe</b>"))
+                @script "if (rows.length < 2 && ready) { init(\"</script>\"); }"
+                @script "var count = " $(length(rows)) ", data = " $(SafeString("{}")) ";"
+                @inline_script "if (ready) { start(\"</script>\", " $(length(rows)) "); }"
+                @script {type = "text/template"} @div $(first(rows))
                 @br
             end
         end

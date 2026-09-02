@@ -72,13 +72,16 @@ See also: [`@component`](@ref)
 macro __slot__(name = S"default")
     slots = esc(S"slots")
     key = QuoteNode(name)
+    # Handed the stream the component has reached, so the content is written as
+    # the content of whatever element renders it.
+    io = esc(S"io")
     revise = esc(S"revise")
     revise_defined = esc(Expr(:isdefined, S"revise"))
     # Which slots were passed is part of the `NamedTuple`'s type, so this test
     # is settled during compilation and a slot that was passed costs nothing.
     return quote
         if haskey($(slots), $(key))
-            getfield($(slots), $(key))()
+            getfield($(slots), $(key))($(io))
         else
             $(_missing_slot)($(slots), $(key), $(revise_defined) ? $(revise) : nothing)
         end

@@ -70,6 +70,9 @@ macro element(name, binding = name)
     # itself so that this matches what the runtime check used to decide: an
     # element declared with a string name is never treated as void.
     close_tag = _void_element(name) ? "" : "</$(tag)>"
+    # Decided here, from the name, so that a child's text knows during
+    # expansion whether it is being written into raw text.
+    raw_text = _raw_text_element(name)
     return quote
         struct $(esc(type)) <: $(HypertextTemplates).AbstractElement end
         const $(esc(binding)) = $(esc(type))()
@@ -77,6 +80,7 @@ macro element(name, binding = name)
         $(HypertextTemplates)._element_name(::$(esc(type))) = $(QuoteNode(name))
         $(HypertextTemplates)._element_open(::$(esc(type))) = $(open_tag)
         $(HypertextTemplates)._element_close(::$(esc(type))) = $(close_tag)
+        $(HypertextTemplates)._raw_text_element(::$(esc(type))) = $(raw_text)
         $(HypertextTemplates)._element_symbol(::$(esc(type))) =
             $(Val)($(QuoteNode(Symbol(tag))))
 

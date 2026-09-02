@@ -88,7 +88,8 @@ macro (<)(tag, args...)
     erevise = esc(revise)
     etag = esc(tag)
 
-    props_plan, eprops, eslots = _process_args(_plans_props(tag), args)
+    props_plan, eprops, eslots =
+        _process_args(_raw_text_children(tag), _script_children(tag), _plans_props(tag), args)
     return quote
         if $(esc(Expr(:isdefined, io)))
             $(HypertextTemplates)._render_tag(
@@ -106,13 +107,22 @@ macro (<)(tag, args...)
     end
 end
 
+_text_call(content) = :($(HypertextTemplates).@text $content)
+
+# A slot renders where the component writes it, not where it was passed, and
+# what a write is escaped as follows from the element it lands in. So the
+# stream arrives as an argument rather than being captured from the call site:
+# content passed into a slot a `script` renders goes through that script's raw
+# text writer. The parameter is the hidden name `io` is bound to elsewhere.
+_slot_closure(contents) = Expr(:->, Expr(:tuple, esc(S"io")), contents)
+
 # Components take properties as keywords and never look at the plan. `@deftag`
 # splices the component into the `@<` call, which is what makes that knowable
 # during expansion; a tag arriving with the render may still be an element.
 _plans_props(tag::Function) = false
 _plans_props(_) = true
 
-function _process_args(plans::Bool, args)
+function _process_args(raw::Bool, script::Bool, plans::Bool, args)
     props_plan = plans ? :(()) : :nothing
     props = nothing
     slot_args = []
@@ -127,15 +137,15 @@ function _process_args(plans::Bool, args)
             else
                 push!(slot_names, name)
                 if isa(content, String) || Meta.isexpr(content, :string)
-                    content = :($(HypertextTemplates).@text $content)
+                    content = _text_call(content)
                 end
-                push!(slot_args, Expr(:(=), esc(name), :(() -> $(esc(content)))))
+                push!(slot_args, Expr(:(=), esc(name), _slot_closure(esc(content))))
             end
         else
             if isa(arg, String) || Meta.isexpr(arg, :string)
-                arg = :($(HypertextTemplates).@text $arg)
+                arg = _text_call(arg)
             elseif Meta.isexpr(arg, :$, 1)
-                arg = :($(HypertextTemplates).@text $(arg.args[1]))
+                arg = _text_call(arg.args[1])
             end
             push!(default_slot_contents.args, esc(arg))
         end
@@ -158,9 +168,24 @@ function _process_args(plans::Bool, args)
         end
     end
 
-    slots = :((; $(slot_args...), V"default" = () -> $(default_slot_contents)))
+    default = _default_slot(raw, script, default_slot_contents)
+    slots = :((; $(slot_args...), V"default" = $(_slot_closure(default))))
 
     return props_plan, something(props, :((;))), slots
+end
+
+# The writer carries the state a sequence divided across two children needs, so
+# it stands in for `io` across the whole default slot and every child reaches
+# the same one. Only that slot is wrapped: an element renders no other, and one
+# with no children has nothing to write through it.
+function _default_slot(raw::Bool, script::Bool, contents::Expr)
+    (raw && !isempty(contents.args)) || return contents
+    io = esc(S"io")
+    return Expr(
+        :do,
+        :($(HypertextTemplates)._raw_text_scope($(io), $(Val(script)))),
+        Expr(:->, Expr(:tuple, io), contents),
+    )
 end
 
 # Build the "props plan" described in `element-rendering.jl`: consecutive

@@ -99,14 +99,15 @@ end
             reference(HypertextTemplates.escape_attr, value)
     end
 
-    # A value whose `show` inspects the stream must see what it saw when it
-    # was rendered into a bare buffer, so the wrapper must not forward the
-    # surrounding `IOContext`.
+    # A value whose `show` inspects the stream is answered by the destination,
+    # not by the wrapper escaping its output.
     buffer = IOBuffer()
     HypertextTemplates.escape_html(
         IOContext(buffer, :compact => true),
         context_sensitive,
     )
+    @test String(take!(buffer)) == "compact"
+    HypertextTemplates.escape_html(buffer, context_sensitive)
     @test String(take!(buffer)) == "full"
 
     # Rendered without source locations, which Revise would otherwise add.
@@ -464,5 +465,561 @@ end
         view = SubString("abc" * subject, 2)
         @test sprint(HypertextTemplates.escape_attr, view) ==
             reference_escape(String(view); attribute = true)
+    end
+end
+
+@testitem "esc_str escapes during expansion" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    # The literal is escaped while the macro expands, so what is left in the
+    # code is a `SafeString` constant that rendering writes out untouched.
+    expanded = @macroexpand esc"<b>Bold & bright</b>"
+    @test expanded isa SafeString
+    @test expanded == SafeString("&lt;b&gt;Bold &amp; bright&lt;/b&gt;")
+    @test String(expanded) == sprint(HypertextTemplates.escape_html, "<b>Bold & bright</b>")
+
+    # Only the three characters `escape_html` replaces are replaced: quotes are
+    # left alone, so this is not a substitute for attribute escaping.
+    @test esc"'\"" == SafeString("'\"")
+
+    # A string macro receives its text unprocessed, so `$` is content rather
+    # than interpolation.
+    @test esc"$name" == SafeString("\$name")
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # Being safe, the escaped text survives a second pass through the escapers
+    # unchanged, in text and in an attribute alike.
+    @test bare(io -> @render io @div $(esc"<b>x</b>")) == "<div>&lt;b&gt;x&lt;/b&gt;</div>"
+    @test bare(io -> @render io @div {title = esc"<x>"}) == "<div title=\"&lt;x&gt;\"></div>"
+end
+
+
+@testitem "splatted attribute names are validated" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    named(name, value) = NamedTuple{(Symbol(name),)}((value,))
+
+    # A name goes into the tag as it stands, so one that could break out is
+    # refused: a literal during expansion, a splatted one as it is written.
+    attack = named("x\" onmouseover=\"alert(1)", "y")
+    @test_throws ArgumentError bare(io -> @render io @div {attack...})
+
+    # The case the check exists for, and the other route through the renderer:
+    # a `NamedTuple` unrolls with its names in the type, a `Dict` is iterated.
+    dictionary = Dict(Symbol("x\" onmouseover=\"alert(1)") => "y")
+    @test_throws ArgumentError bare(io -> @render io @div {dictionary...})
+
+    for name in
+        ["a b", "a\"b", "a'b", "a>b", "a/b", "a=b", "a\tb", "a\nb", "a\eb", "a\x7fb"]
+        props = named(name, "v")
+        @test_throws ArgumentError bare(io -> @render io @div {props...})
+        # A `false` value writes nothing at all, so there is no name to break
+        # out of.
+        skipped = named(name, false)
+        @test bare(io -> @render io @div {skipped...}) == "<div></div>"
+    end
+
+    # The error names the attribute, since a splat gives no other clue which
+    # key was at fault.
+    thrown = try
+        bare(io -> @render io @div {attack...})
+        nothing
+    catch error
+        error
+    end
+    @test occursin("onmouseover", sprint(showerror, thrown))
+
+    # Everything a template legitimately splats still renders.
+    props = (;
+        class = "card",
+        var"data-foo" = "1",
+        var"aria-label" = "Close",
+        var"@click" = "open = true",
+        hidden = true,
+    )
+    @test bare(io -> @render io @div {props...}) ==
+        "<div class=\"card\" data-foo=\"1\" aria-label=\"Close\" @click=\"open = true\" hidden></div>"
+end
+
+@testitem "escaping strings that are not String" tags = [:escaping] setup = [Templates, Escapes] begin
+    using Test: GenericString
+
+    # `String` and `SubString{String}` have a byte-scanning escaper of their
+    # own; every other string escapes through the wrapper and must match it.
+    subject = "a<b>&c \"d\" 'e' ☃ plain text here"
+    views = Any[
+        SubString(SubString("z" * subject, 2), 1),
+        GenericString(subject),
+        GenericString(""),
+        GenericString("<"),
+    ]
+    @static if VERSION >= v"1.8"
+        push!(views, LazyString(subject, "<&>", 42))
+    end
+    for value in views
+        reference = String(value)
+        @test sprint(HypertextTemplates.escape_html, value) ==
+            reference_escape(reference; attribute = false)
+        @test sprint(HypertextTemplates.escape_attr, value) ==
+            reference_escape(reference; attribute = true)
+    end
+
+    # Long enough to cross the block boundary several times, so the stream
+    # wrapper's blocked writes are exercised rather than a single short run.
+    long = repeat("a<b>&c \"d\" 'e' ", 200)
+    @test sprint(HypertextTemplates.escape_html, GenericString(long)) ==
+        reference_escape(long; attribute = false)
+    @test sprint(HypertextTemplates.escape_attr, GenericString(long)) ==
+        reference_escape(long; attribute = true)
+end
+
+@testitem "script and style bodies are raw text" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # A browser does not decode entities inside a script or a style, so
+    # escaping the body changes the program it runs and the rules it applies.
+    @test bare(io -> @render io @script "if (a < b && c) {}") ==
+        "<script>if (a < b && c) {}</script>"
+    @test bare(io -> @render io @style "a > b { content: \"&\" }") ==
+        "<style>a > b { content: \"&\" }</style>"
+
+    # Interpolated content is written the same way.
+    code = "x < y && y > z"
+    @test bare(io -> @render io @script $code) == "<script>x < y && y > z</script>"
+    @test bare(io -> @render io @script "var x = $code;") ==
+        "<script>var x = x < y && y > z;</script>"
+    @test bare(io -> @render io @script "n = " $(42) ";") == "<script>n = 42;</script>"
+
+    # What raw text cannot carry is the sequence that ends it.
+    attack = "</script><img src=x onerror=alert(1)>"
+    @test bare(io -> @render io @script $attack) ==
+        "<script><\\/script><img src=x onerror=alert(1)></script>"
+    @test bare(io -> @render io @script "a</script>b") == "<script>a<\\/script>b</script>"
+    @test bare(io -> @render io @script "a</SCRIPT >b") == "<script>a<\\/SCRIPT >b</script>"
+    @test bare(io -> @render io @script "</") == "<script></</script>"
+    @test bare(io -> @render io @script "<") == "<script><</script>"
+    # Only the element's own end tag closes it. A `style` is left by `</style`
+    # and by nothing else, so the `</script` in the same value stays as it is.
+    @test bare(io -> @render io @style $("</style><script>alert(1)</script>")) ==
+        "<style><\\/style><script>alert(1)</script></style>"
+    # An end tag for some other element is text the tokenizer hands back, so
+    # there is nothing to neutralise in it.
+    @test bare(io -> @render io @script "a" $("</b>") "c") == "<script>a</b>c</script>"
+    # The sequence is neutralised wherever it lands, including when it is
+    # divided between the end of one interpolated value and the start of the
+    # next.
+    @test bare(io -> @render io @script "a" $("</scr") $("ipt>") "c") ==
+        "<script>a<\\/script>c</script>"
+
+    # `SafeString` says the content is already what it should be, and nothing
+    # in it is escaped. What still cannot appear in the body is the sequence
+    # that ends the element, whoever wrote it.
+    safe = SafeString("if (a < b) { document.write(\"</script>\") }")
+    @test bare(io -> @render io @script $safe) ==
+        "<script>if (a < b) { document.write(\"<\\/script>\") }</script>"
+
+    # Only the raw text elements change; anything alongside one is escaped.
+    @test bare(
+        io -> @render io @div begin
+            @script "a<b"
+            "c<d"
+        end
+    ) == "<div><script>a<b</script>c&lt;d</div>"
+    # A nested element starts markup again, so its children are escaped. Its
+    # tags pass through intact, since `</div` does not close a `script`.
+    @test bare(io -> @render io @script @div "a<b") ==
+        "<script><div>a&lt;b</div></script>"
+    @test bare(io -> @render io @textarea "a<b") == "<textarea>a&lt;b</textarea>"
+
+    # Attributes are attributes wherever they are written.
+    @test bare(io -> @render io @script {src = "/a?b=1&c=2"}) ==
+        "<script src=\"/a?b=1&amp;c=2\"></script>"
+
+    # Settled during expansion, and `@<` over a variable does not know its
+    # element until the render, so its children are escaped.
+    dynamic = Elements.script
+    @test bare(io -> @render io @<dynamic "a<b") == "<script>a&lt;b</script>"
+end
+
+@testitem "raw text carries through `@text`" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # `@text` writes the content of the element it is written in, and a
+    # `script` or a `style` holds raw text.
+    @test bare(io -> @render io @script @text "if (a < b && c)") ==
+        "<script>if (a < b && c)</script>"
+    @test bare(io -> @render io @style @text "a > b { }") == "<style>a > b { }</style>"
+
+    # Julia's own control flow decides when a write happens, not where it goes.
+    value = "a < b"
+    condition = true
+    @test bare(
+        io -> @render io @script begin
+            if condition
+                @text value
+            end
+        end
+    ) == "<script>a < b</script>"
+
+    # Neutralised in what `@text` writes, and across the boundary after it.
+    @test bare(io -> @render io @script @text "</script>") ==
+        "<script><\\/script></script>"
+    @test bare(
+        io -> @render io @script begin
+            @text "x<"
+            "/script>"
+        end
+    ) == "<script>x<\\/script></script>"
+
+    # Everywhere else `@text` escapes, as it always has.
+    @test bare(io -> @render io @div @text "a<b") == "<div>a&lt;b</div>"
+    @test bare(io -> @render io @div @text value) == "<div>a &lt; b</div>"
+end
+
+@testitem "slots write their element's raw text" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    @component function inline_script()
+        @script @__slot__
+    end
+
+    @component function trailing_script()
+        @script begin
+            @__slot__
+            "/script>"
+        end
+    end
+
+    # A string literal directly before a macro call is that call's docstring,
+    # so the child before the slot is written with `@text` instead.
+    @component function leading_script()
+        @script begin
+            @text "x<"
+            @__slot__
+        end
+    end
+
+    @component function named_script()
+        @script @__slot__ js
+    end
+
+    @component function plain_div()
+        @div @__slot__
+    end
+
+    # A slot is written where the component renders it, so content passed into
+    # one inside a `script` is that script's raw text however the call site
+    # wrote it.
+    @test bare(io -> @render io @<inline_script "if (a < b)") ==
+        "<script>if (a < b)</script>"
+    code = "x < y && y > z"
+    @test bare(io -> @render io @<inline_script $code) ==
+        "<script>x < y && y > z</script>"
+    @test bare(
+        io -> @render io @<named_script begin
+            js := "a < b"
+        end
+    ) == "<script>a < b</script>"
+
+    # One writer covers the whole of the element's children, slot content
+    # included, so a sequence divided across the slot boundary is caught either
+    # way round.
+    @test bare(io -> @render io @<trailing_script "x<") ==
+        "<script>x<\\/script></script>"
+    @test bare(io -> @render io @<leading_script "/script>") ==
+        "<script>x<\\/script></script>"
+
+    # `SafeString` still says nothing in the content is escaped, and the
+    # writer still keeps the sequence that ends the element out of it.
+    @test bare(io -> @render io @<inline_script $(SafeString("a < b</script>"))) ==
+        "<script>a < b<\\/script></script>"
+
+    # A slot rendered outside a raw text element escapes as it always has.
+    @test bare(io -> @render io @<plain_div "a<b") == "<div>a&lt;b</div>"
+    @test bare(io -> @render io @<plain_div $code) ==
+        "<div>x &lt; y &amp;&amp; y &gt; z</div>"
+end
+
+@testitem "an element nested in raw text starts markup again" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # The innermost element decides. A `script` body is raw text, but an
+    # element written inside one is markup again, so its children are escaped.
+    # Its own tags reach the page as they were written: `</div` is not what
+    # closes a `script`, so the writer leaves it alone.
+    value = "a<b"
+    @test bare(io -> @render io @script @div "a<b") ==
+        "<script><div>a&lt;b</div></script>"
+    @test bare(io -> @render io @script @div $value) ==
+        "<script><div>a&lt;b</div></script>"
+    @test bare(io -> @render io @style @div "a<b") ==
+        "<style><div>a&lt;b</div></style>"
+    @test bare(io -> @render io @style @div $value) ==
+        "<style><div>a&lt;b</div></style>"
+
+    # Which is what a template script needs: the block is parsed as HTML by
+    # the page later, so an entity written in it is decoded then, content that
+    # reached it from a user has to be escaped for that parse, and the markup
+    # the template wrote has to survive it as markup.
+    user_input = "<img src=x onerror=alert(1)>"
+    @test bare(io -> @render io @script {type = "text/template"} @div $user_input) ==
+        "<script type=\"text/template\"><div>&lt;img src=x onerror=alert(1)&gt;</div></script>"
+
+    # Escaping the nested element's children already keeps a `<` out of them,
+    # so what the writer is left to catch is a `SafeString`, which says the
+    # content is already what it should be and is written through untouched.
+    @test bare(io -> @render io @script @div $("</script>")) ==
+        "<script><div>&lt;/script&gt;</div></script>"
+    @test bare(io -> @render io @script @div $(SafeString("</script>"))) ==
+        "<script><div><\\/script></div></script>"
+
+    # The rule applies at every depth, since each element is asked about its
+    # own children rather than the one it is written in.
+    @test bare(io -> @render io @script @div @span $value) ==
+        "<script><div><span>a&lt;b</span></div></script>"
+
+    # `@text` and slot content follow the element they land in, not the one
+    # the template wrote them under.
+    @test bare(io -> @render io @script @div @text value) ==
+        "<script><div>a&lt;b</div></script>"
+
+    @component function nested_slot()
+        @script @div @__slot__
+    end
+
+    @test bare(io -> @render io @<nested_slot $value) ==
+        "<script><div>a&lt;b</div></script>"
+
+    # `@<` over a variable only learns which element it is rendering at the
+    # render itself, and that is when the decision is made.
+    nested = Elements.div
+    @test bare(io -> @render io @script @<nested $value) ==
+        "<script><div>a&lt;b</div></script>"
+end
+
+@testitem "raw text end tags split across children" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # A raw text element writes its children one call at a time, so the
+    # sequence that ends it can arrive split between two of them.
+    head = "x<"
+    tail = "/script><img src=x onerror=alert(1)>"
+    split = "<script>x<\\/script><img src=x onerror=alert(1)></script>"
+    @test bare(io -> @render io @script $head $tail) == split
+    # An interpolated string is written a piece at a time, which splits it the
+    # same way inside a single child.
+    @test bare(io -> @render io @script "$head$tail") == split
+    # A literal child is neutralised while the macro expands, and one ending in
+    # `<` leaves the decision to whatever follows it.
+    @test bare(io -> @render io @script "x<" $tail) == split
+    @test bare(io -> @render io @script $("x<") "/script>x") ==
+        "<script>x<\\/script>x</script>"
+    @test bare(io -> @render io @style $("a<") $("/style>b")) ==
+        "<style>a<\\/style>b</style>"
+
+    # A `<` that nothing completes is written as it stands, at the end of a
+    # child or at the end of the element.
+    @test bare(io -> @render io @script $("a<") $(" b")) == "<script>a< b</script>"
+    @test bare(io -> @render io @script $("a<")) == "<script>a<</script>"
+    @test bare(io -> @render io @script $("a<") $("<") $("/script")) ==
+        "<script>a<<\\/script</script>"
+
+    # Ordinary comparisons are untouched, whichever child they land in.
+    @test bare(io -> @render io @script $("a < b") $("<= c") $("d << e")) ==
+        "<script>a < b<= cd << e</script>"
+end
+
+@testitem "a SafeString in raw text cannot end the element" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # A `SafeString` in a `script` is usually JSON built from a user's data,
+    # where a `</script` would close the element and leave the rest as markup.
+    @test bare(io -> @render io @script $(SafeString("</script><b>x</b>"))) ==
+        "<script><\\/script><b>x</b></script>"
+    # A `<script` only does anything from inside the escaped state, which the
+    # neutralised comment keeps out of reach, so it is written as it stands.
+    @test bare(io -> @render io @script $(SafeString("<!--<script>"))) ==
+        "<script><\\!--<script></script>"
+    @test bare(io -> @render io @style $(SafeString("</style>"))) ==
+        "<style><\\/style></style>"
+
+    # Written through the same writer as every other child, so a sequence
+    # divided between it and its neighbour is caught either way round.
+    @test bare(io -> @render io @script $(SafeString("x<")) "/script>") ==
+        "<script>x<\\/script></script>"
+    @test bare(io -> @render io @script "x<" $(SafeString("/script>"))) ==
+        "<script>x<\\/script></script>"
+
+    # Entities in it stay the characters they spell, and a `<` that ends
+    # nothing stays as it is.
+    @test bare(io -> @render io @script $(SafeString("a &lt; b &amp;&amp; c"))) ==
+        "<script>a &lt; b &amp;&amp; c</script>"
+    @test bare(io -> @render io @script $(SafeString("if (a < b) {}"))) ==
+        "<script>if (a < b) {}</script>"
+
+    # Outside a raw text element a `SafeString` is written exactly as it is.
+    @test bare(io -> @render io @div $(SafeString("</script><b>x</b>"))) ==
+        "<div></script><b>x</b></div>"
+    @test bare(io -> @render io @textarea $(SafeString("</b>"))) ==
+        "<textarea></b></textarea>"
+end
+
+@testitem "script data escaped states cannot be entered" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # `<!--` enters script data escaped, where a `<script` reaches double
+    # escaped and `</script>` stops ending the element. The comment is the only
+    # way in, so neutralising it keeps both states out of reach.
+    @test bare(io -> @render io @script "<!--") == "<script><\\!--</script>"
+    @test bare(io -> @render io @script $("<!--<script>")) ==
+        "<script><\\!--<script></script>"
+    # So a `<script` needs nothing: with no comment ahead of it the tokenizer
+    # is still in script data, where it is ordinary text.
+    @test bare(io -> @render io @script "<script>") == "<script><script></script>"
+    @test bare(io -> @render io @script $("<ScRiPt>")) == "<script><ScRiPt></script>"
+
+    # The comment can arrive divided between two children, at any point.
+    @test bare(io -> @render io @script $("<") $("!--")) == "<script><\\!--</script>"
+    @test bare(io -> @render io @script $("<!-") $("-")) == "<script><\\!--</script>"
+    # A literal ends a child the same way an interpolated value does.
+    @test bare(io -> @render io @script "x<" $("!-- y")) ==
+        "<script>x<\\!-- y</script>"
+
+    # A `<` that begins nothing is left as it stands, however far into a
+    # sequence it looked like going.
+    @test bare(io -> @render io @script $("a < b") $("c <= d") $("e << f")) ==
+        "<script>a < bc <= de << f</script>"
+    @test bare(io -> @render io @script $("<!x") $("<!-y") $("<span>")) ==
+        "<script><!x<!-y<span></script>"
+    @test bare(io -> @render io @script $("</scr") $("x")) == "<script></scrx</script>"
+    @test bare(io -> @render io @script $("</scrip")) == "<script></scrip</script>"
+    # A `</` that ends nothing is an end tag the tokenizer hands back as text.
+    @test bare(io -> @render io @script $("x</ y")) == "<script>x</ y</script>"
+
+    # A `style` has no escaped state, so neither sequence means anything there.
+    @test bare(io -> @render io @style $("<!--<script>")) ==
+        "<style><!--<script></style>"
+    @test bare(io -> @render io @style $("a<") $("/style>")) ==
+        "<style>a<\\/style></style>"
+    # Each element answers only for its own end tag.
+    @test bare(io -> @render io @style $("</script>")) == "<style></script></style>"
+    @test bare(io -> @render io @script $("</style>")) == "<script></style></script>"
+end
+
+@testitem "raw text pieces neutralise as the whole body would" tags = [:escaping] setup = [Templates] begin
+    using HypertextTemplates.Elements
+    import Random
+
+    function bare(render)
+        io = IOBuffer()
+        render(IOContext(io, HypertextTemplates._include_data_htloc() => false))
+        return String(take!(io))
+    end
+
+    # A scan over the body in one piece, to check the writer's piecewise one
+    # against however the body was divided up.
+    function reference(body::AbstractString; script::Bool)
+        io = IOBuffer()
+        endtag = script ? "</script" : "</style"
+        index = 1
+        while index <= lastindex(body)
+            rest = SubString(body, index)
+            matched = if lowercase(first(rest, length(endtag))) == endtag
+                length(endtag)
+            elseif script && startswith(rest, "<!--")
+                4
+            else
+                0
+            end
+            if matched == 0
+                print(io, body[index])
+                index += 1
+            else
+                print(io, "<\\", SubString(rest, 2, matched))
+                index += matched
+            end
+        end
+        return String(take!(io))
+    end
+
+    # Built from the sequences and their parts, so completions, near misses
+    # and split completions turn up often rather than by chance.
+    fragments = [
+        "<", "</", "<!", "<!-", "<!--", "</s", "</scr", "</script", "</ScRiPt",
+        "</sty", "</style", "</STYLE", "</div", "<script", "<style",
+        "/", "!", "-", "--", "s", "sc", "cript", "ript", "SCRIPT",
+        "tyle", "yle", "le", "t", "e", ">",
+        "x", " ", "a < b", "<=", "<<",
+    ]
+    rng = Random.MersenneTwister(20250901)
+    for _ in 1:500
+        first_piece, second, third =
+            (join(rand(rng, fragments, rand(rng, 0:3))) for _ in 1:3)
+        body = string(first_piece, second, third)
+        @test bare(io -> @render io @script $first_piece $second $third) ==
+            string("<script>", reference(body; script = true), "</script>")
+        @test bare(io -> @render io @style $first_piece $second $third) ==
+            string("<style>", reference(body; script = false), "</style>")
+        # A `SafeString` child is written through the writer as any other is,
+        # so the same body neutralises the same way.
+        safe_first, safe_second, safe_third =
+            SafeString(first_piece), SafeString(second), SafeString(third)
+        @test bare(io -> @render io @script $safe_first $safe_second $safe_third) ==
+            string("<script>", reference(body; script = true), "</script>")
+        @test bare(io -> @render io @style $safe_first $safe_second $safe_third) ==
+            string("<style>", reference(body; script = false), "</style>")
     end
 end

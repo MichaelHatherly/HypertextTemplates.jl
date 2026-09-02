@@ -44,6 +44,26 @@ _void_element(elem::Symbol) = elem in VOID_ELEMENTS
 # Custom elements defined with a `String` name are never void elements.
 _void_element(_) = false
 
+# These two hold raw text, where entities are not decoded, so escaping the body
+# changes the program that runs. `RawTextWriter` handles what cannot appear
+# there, and needs to know which of the two it is writing.
+#
+# `textarea` and `title` are left out deliberately: their content is escapable
+# raw text, where ordinary escaping is right.
+const RAW_TEXT_ELEMENTS = (:script, :style)
+_raw_text_element(elem::Symbol) = elem in RAW_TEXT_ELEMENTS
+# A custom element declared with a `String` name is parsed as ordinary markup.
+_raw_text_element(_) = false
+
+# `@deftag` splices the element into the `@<` call, so `@script` and `@style`
+# are known during expansion. `@<` over a variable is the exception: the
+# element only arrives with the render, and the children are escaped.
+_raw_text_children(tag::AbstractElement) = _raw_text_element(tag)
+_raw_text_children(_) = false
+
+# Only asked of a raw text element, and only a symbol name makes one.
+_script_children(tag) = _raw_text_children(tag) && _element_name(tag) === :script
+
 # `@element` precomputes these. The fallbacks cover any element type that was
 # built by hand rather than through the macro; they allocate, so the macro is
 # very much the preferred route.
@@ -94,17 +114,75 @@ _element_symbol(element) = Val(Symbol(_element_name(element)))
         print(io, ">")
     end
     children = get(slots, S"default", nothing)
-    isnothing(children) || children()
+    # A raw text element builds its writer in the default slot itself, so the
+    # closure gets the stream as it stands; every other element renders markup,
+    # which inside a raw text one means a markup stream over that writer. Both
+    # conditions are compile-time constants.
+    if !isnothing(children)
+        if _raw_text_children(tag)
+            children(io)
+        else
+            _markup_scope(children, io)
+        end
+    end
     close_tag = _element_close(tag)
     # Empty for void elements, where the check folds away at compile time.
     isempty(close_tag) || print(io, close_tag)
     return nothing
 end
 
+# A name goes into the tag as it stands, since no encoding of it reads back as
+# one attribute, so a name that can leave its attribute can only be refused:
+# `{d...}` over a dictionary keyed on user input would otherwise write
+# `x" onmouseover="alert(1)` and hand the page a second attribute.
+#
+# The forbidden set is HTML's own. Bytes above ASCII belong to a multi-byte
+# character and are left to the parser. A literal name is checked while `@<`
+# serialises it, so a bad one fails to compile; a name arriving with the render
+# is checked here.
+@inline _valid_attribute_byte(byte::UInt8) =
+    byte > UInt8(' ') &&
+    byte != UInt8('"') &&
+    byte != UInt8('\'') &&
+    byte != UInt8('>') &&
+    byte != UInt8('/') &&
+    byte != UInt8('=') &&
+    byte != 0x7f
+
+# Symbols are interned for the life of the session, so the name their pointer
+# refers to cannot be collected while it is being read.
+function _check_attribute_name(name::Symbol)
+    bytes = Base.unsafe_convert(Ptr{UInt8}, name)
+    index = 1
+    while true
+        byte = unsafe_load(bytes, index)
+        iszero(byte) && return nothing
+        _valid_attribute_byte(byte) || _invalid_attribute_name(name)
+        index += 1
+    end
+    return
+end
+
+function _check_attribute_name(name::AbstractString)
+    for index in 1:ncodeunits(name)
+        _valid_attribute_byte(codeunit(name, index)) || _invalid_attribute_name(name)
+    end
+    return nothing
+end
+
+_check_attribute_name(name) = _check_attribute_name(string(name))
+
+@noinline _invalid_attribute_name(name) = throw(
+    ArgumentError(
+        "invalid HTML attribute name `$(name)`: a name cannot contain a control character, a space, or any of `\"`, `'`, `>`, `/`, `=`.",
+    ),
+)
+
 @inline function _render_prop(io::IO, k, v)
     if v === false
         # Skip it entirely.
     else
+        _check_attribute_name(k)
         print(io, " ", k)
         if v === true
             # Don't print the value.
