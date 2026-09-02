@@ -103,7 +103,7 @@ macro cm_component(expr)
     elseif MacroTools.@capture(expr, name_() = path_)
         name, [], path
     else
-        error("invalid `@cm_component` synctax. Must be: name(; params...) = path")
+        error("invalid `@cm_component` syntax. Must be: name(; params...) = path")
     end
 
     # Handle direct REPL usage where `__source__` is not defined.
@@ -116,38 +116,40 @@ macro cm_component(expr)
 
     parameter_names = _extract_parameter_name.(parameters)
 
-    # Adjust the source information of the component definition such that
-    # `functionloc` returns the correct location for the `@cm_component` call
-    # site.
-    line, component_expr = @__LINE__() + 2,
-        quote
-            $(HypertextTemplates).@component function $(name)(; $(parameters...))
-                ast = if $(_is_revise_loaded)()
-                    text = $(Symbol)($(read)($path_const, $(String)))
-                    # This results in a dynamic dispatch since `text` is a runtime value.
-                    $(gen_func_name)($(Val){text}(); $(parameter_names...))
-            else
-                    # Ideally this should be fully inferrable since
-                    # `text_const` is a global constant.
-                    $(gen_func_name)($(Val){$text_const}(); $(parameter_names...))
-            end
-                $(HypertextTemplates).@text ast
-        end
-        end
+    # `@component` takes the definition location off the `LineNumberNode` in
+    # its own macro call, so the call site goes into that slot directly. A
+    # `quote` would fill it with a location in this file instead.
+    #
     # A `LineNumberNode` may carry no file, here as in the REPL case above.
-    this_file = Symbol(@__FILE__())
-    replacement = if isnothing(__source__.file)
+    location = if isnothing(__source__.file)
         LineNumberNode(__source__.line)
     else
         LineNumberNode(__source__.line, __source__.file)
     end
-    component_expr = MacroTools.postwalk(component_expr) do each
-        if isa(each, LineNumberNode) && each.file === this_file && each.line == line
-            return replacement
-        else
-            return each
-        end
-    end
+    component_expr = Expr(
+        :macrocall,
+        Expr(:., HypertextTemplates, QuoteNode(Symbol("@component"))),
+        location,
+        :(
+            function $(name)(; $(parameters...))
+                # Under Revise the file is read back on every render, so edits
+                # show up without redefining the component. `text` is then a
+                # runtime value, costing a dynamic dispatch and a `@generated`
+                # specialisation per distinct version of the file the session
+                # has seen; nothing reclaims those. The price of picking up
+                # edits with no file watcher, and only paid under Revise.
+                ast = if $(_is_revise_loaded)()
+                    text = $(Symbol)($(read)($path_const, $(String)))
+                    $(gen_func_name)($(Val){text}(); $(parameter_names...))
+                else
+                    # Ideally this should be fully inferrable since
+                    # `text_const` is a global constant.
+                    $(gen_func_name)($(Val){$text_const}(); $(parameter_names...))
+                end
+                return $(HypertextTemplates).@text ast
+            end
+        ),
+    )
 
     return esc(
         quote

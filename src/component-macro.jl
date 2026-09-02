@@ -78,59 +78,43 @@ See also: [`@deftag`](@ref), [`@__slot__`](@ref), [`@render`](@ref)
 macro component(expr)
     io = esc(S"io")
     slots = esc(S"slots")
-    source = esc(S"source")
     revise = esc(S"revise")
-    line, block = if MacroTools.@capture(
+    name, kwargs, body = if MacroTools.@capture(
             expr, function name_(; kwargs__)
                 body__
             end
         )
-        # IMPORTANT: variables below and `quote` syntax much remain as is such
-        # that the line offset calculation remains correct.
-        @__LINE__() + 2,
-            quote
-                function $(esc(name))(;
-                        $(source) = ("", 0),
-                        $(io)::IO = IOBuffer(),
-                        $(slots)::NamedTuple = (;),
-                        $(esc.(kwargs)...),
-                    )
-                    $(revise) = ($(esc(name)), $(String(__source__.file), __source__.line))
-                    $(esc.(body)...)
-            end
-            end
+        name, kwargs, body
     elseif MacroTools.@capture(
             expr, function name_()
                 body__
             end
         )
-        # IMPORTANT: variables below and `quote` syntax much remain as is such
-        # that the line offset calculation remains correct.
-        @__LINE__() + 2,
-            quote
-                function $(esc(name))(;
-                        $(source) = ("", 0),
-                        $(io)::IO = IOBuffer(),
-                        $(slots)::NamedTuple = (;),
-                    )
-                    $(revise) = ($(esc(name)), $(String(__source__.file), __source__.line))
-                    $(esc.(body)...)
-            end
-            end
+        name, [], body
     else
         error("invalid use of `@component`. Must be a function definition or a code block.")
     end
 
-    # Rewrite line numbers within the function expression such that the
-    # `functionloc` of this function matches the definition location rather
-    # than the `quote` location.
-    return MacroTools.postwalk(block) do each
-        if isa(each, LineNumberNode) &&
-                String(each.file) == @__FILE__() &&
-                each.line == line
-            return LineNumberNode(__source__.line, __source__.file)
-        else
-            return each
-        end
-    end
+    # `functionloc` reads the location off the `LineNumberNode` the body opens
+    # with, so the definition site goes in here directly. A `quote` would
+    # supply one pointing into this file instead.
+    location = LineNumberNode(__source__.line, __source__.file)
+    signature = :(
+        $(esc(name))(;
+            $(io)::IO = IOBuffer(),
+            $(slots)::NamedTuple = (;),
+            $(esc.(kwargs)...),
+        )
+    )
+    definition = Expr(
+        :function,
+        signature,
+        Expr(
+            :block,
+            location,
+            :($(revise) = ($(esc(name)), $(String(__source__.file), __source__.line))),
+            esc.(body)...,
+        ),
+    )
+    return Expr(:block, location, definition)
 end
