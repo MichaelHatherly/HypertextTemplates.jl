@@ -1,14 +1,16 @@
 # Rendering & Performance
 
-This guide covers the rendering system in HypertextTemplates.jl, including performance optimization techniques and advanced rendering patterns.
+Where output goes, and what it costs to put it there.
 
 ## The `@render` Macro
 
-The `@render` macro is the primary way to convert templates into output. It supports multiple output targets and streaming capabilities.
+`@render` turns a template into output. Where that output goes depends on the
+destination it is given.
 
 ### Basic Rendering
 
-The `@render` macro converts your template expressions into HTML output. By default, it returns a String containing the rendered HTML. You can render single elements or multiple elements in a block, and the macro handles all the necessary HTML generation including proper escaping and tag structure.
+With no destination `@render` returns a `String`. A block renders each element
+in turn:
 
 ```@example basic-rendering
 using HypertextTemplates
@@ -32,7 +34,8 @@ Main.display_html(html2) #hide
 
 ### Rendering to IO
 
-When building web applications or generating large documents, rendering directly to an IO stream avoids the memory overhead of creating intermediate strings. This approach is particularly beneficial for server responses where you can write directly to the network socket, or when generating files where you can stream directly to disk. The syntax is identical to string rendering - just pass an IO object as the first argument.
+Pass an `IO` as the first argument and the render writes through to it, with no
+string built along the way. That is what a server response or a file wants.
 
 ```@example iobuffer-render
 using HypertextTemplates
@@ -68,19 +71,23 @@ bytes = @render Vector{UInt8} @div "Binary content"
 println(typeof(bytes), ": ", String(bytes))
 ```
 
-## Zero-Allocation Design
+## What a Render Allocates
 
-HypertextTemplates is designed to minimize memory allocations during rendering.
+A render allocates a few hundred bytes for the context it carries, then nothing
+per element. There is no DOM, nothing is concatenated, and escaping a value
+builds no intermediate string. A three item list and a three thousand item one
+cost the same. What grows with the page is the destination's own storage, the
+buffer behind a `String` or a `Vector{UInt8}`; write to a socket or a file and
+even that goes away.
 
 ### Direct IO Streaming
 
-Instead of building intermediate representations, content streams directly:
+Given an `IO`, the render writes to it as it goes:
 
 ```@example direct-streaming
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# This creates no intermediate strings or DOM objects
 title = "My Article"
 paragraphs = ["First paragraph.", "Second paragraph.", "Third paragraph."]
 
@@ -95,24 +102,22 @@ end
 result = String(take!(io))
 Main.display_html(result) #hide
 
-# This is equivalent to manual IO operations:
-# write(io, "<article>")
-# write(io, "<h1>")
-# write(io, escaped_title)
-# write(io, "</h1>")
-# ...
+# The writes it makes are: "<article>", "<h1>", the escaped title,
+# "</h1>", and so on to the closing tag.
 ```
 
-### Precompiled Templates
+### Static Structure Becomes Constants
 
-HypertextTemplates performs compile-time optimization on your templates by identifying static HTML content and precompiling it. This means that any HTML structure that doesn't contain dynamic values (interpolations with `$`) is transformed into efficient string literals at compile time. When you render the template, only the dynamic parts need processing, while static HTML is emitted directly. This optimization happens automatically and can dramatically improve performance for templates with mostly static content.
+A tag name and the run of literal attributes that follows it are known while
+the macro expands, so they are merged into single string constants there.
+Rendering writes those constants out; the work left at run time is the
+interpolated values and the control flow around them.
 
 ```@example precompiled
 using HypertextTemplates
 using HypertextTemplates.Elements
 
 @component function static_heavy()
-    # All static HTML is precompiled
     @div {class = "container"} begin
         @header {class = "header"} begin
             @nav begin
@@ -128,37 +133,10 @@ end
 
 @deftag macro static_heavy end
 
-# When rendered, only the slot content is processed at runtime
 html = @render @static_heavy begin
     @p "This is the dynamic content that goes in the slot."
 end
 
-Main.display_html(html) #hide
-```
-
-### Efficient String Handling
-
-The rendering system uses efficient string operations:
-
-```@example efficient-strings
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-# Strings are written directly, not concatenated
-@component function efficient_list(; items)
-    @ul begin
-        for item in items
-            # Each write is a separate IO operation
-            # No string concatenation happens
-            @li $item
-        end
-    end
-end
-
-@deftag macro efficient_list end
-
-items = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
-html = @render @efficient_list {items}
 Main.display_html(html) #hide
 ```
 
@@ -199,62 +177,52 @@ for (i, chunk) in enumerate(chunks)
 end
 ```
 
-### HTTP Streaming Example
+### HTTP Streaming
 
-With HTTP.jl:
+Each chunk is a `Vector{UInt8}` ready to write to a response body. HTTP.jl is
+not a dependency of this manual, so the example below is not executed here:
 
-```@example http-streaming
-using HypertextTemplates
-using HypertextTemplates.Elements
+```julia
+using HTTP
+using HypertextTemplates, HypertextTemplates.Elements
 
-# Simulated streaming example (without actual HTTP.jl dependency)
-function simulate_streaming_response()
-    chunks = String[]
-
-    for chunk in StreamingRender() do render_io
-        @render render_io @html begin
-            @head @title "Streaming Page"
-            @body begin
-                @h1 "Live Data"
-                for i in 1:5  # Reduced for example
-                    @p "Item $i"
+function handle_request(req)
+    return HTTP.Response(200, ["Content-Type" => "text/html"]) do io
+        for chunk in StreamingRender() do render_io
+            @render render_io @html begin
+                @head @title "Streaming Page"
+                @body begin
+                    @h1 "Live Data"
+                    for i in 1:1000
+                        @p "Item $i"
+                    end
                 end
             end
         end
+            write(io, chunk)
+        end
     end
-        push!(chunks, String(chunk))
-    end
-
-    return chunks
-end
-
-# Show how the content would be streamed
-chunks = simulate_streaming_response()
-println("Streamed $(length(chunks)) chunks")
-for (i, chunk) in enumerate(chunks[1:min(3, length(chunks))])
-    println("\nChunk $i preview: ", first(chunk, 100), "...")
 end
 ```
 
 ### Micro-batching
 
-StreamingRender uses intelligent micro-batching for optimal performance:
+A render makes thousands of small writes. Handing each one to the consumer
+separately would cost more than the render does, so they are batched. A write of
+`immediate_threshold` bytes or more goes over as its own chunk. Smaller ones
+accumulate until the batch fills, until 64 of them have arrived, or until a
+timer fires a millisecond after the last flush. Chunk boundaries therefore
+follow the batching and have nothing to do with where elements begin and end.
 
 ```@example micro-batching
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Internal behavior:
-# - Large writes (≥64 bytes): Sent immediately
-# - Small writes: Batched up to 256 bytes or 1ms timeout
-# - Configurable via keyword arguments to `StreamingRender`
-
-# This results in efficient chunking
 chunks = String[]
 for chunk in StreamingRender() do io
     @render io @ul begin
-        for i in 1:20  # Reduced for example
-            @li "Item $i"  # Small writes are batched
+        for i in 1:20
+            @li "Item $i"
         end
     end
 end
@@ -262,21 +230,21 @@ end
 end
 
 println("Total chunks: ", length(chunks))
-if !isempty(chunks)
-    println("First chunk size: ", length(chunks[1]), " bytes")
-    println("First chunk preview: ", first(chunks[1], 100), "...")
-end
+println("First chunk: ", repr(first(chunks)))
 ```
 
 ### StreamingRender Configuration
 
-Configure streaming behavior:
+Three keywords control the batching. `chunk_size` is how many bytes a batch may
+reach before it is flushed, clamped to 256. `immediate_threshold` is the write
+size that bypasses batching. `buffer_size` is how many chunks the channel holds
+before the render task blocks, which is what applies backpressure when a
+consumer reads more slowly than the render produces.
 
 ```@example streaming-config
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Example showing configuration (without actual large document)
 @component function sample_document()
     @div begin
         @h1 "Document Title"
@@ -291,18 +259,13 @@ end
 
 @deftag macro sample_document end
 
-# Custom buffering settings
-io_buffer = IOBuffer()
-io = IOContext(
-    io_buffer,
-)
-
 chunks = String[]
 for chunk in StreamingRender(;
-    buffer_size = 512,
+    chunk_size = 128,
     immediate_threshold = 128,
+    buffer_size = 8,
 ) do render_io
-    @render IOContext(render_io, io) @sample_document
+    @render render_io @sample_document
 end
     push!(chunks, String(chunk))
 end
@@ -345,7 +308,9 @@ client disconnects or the consumer has seen enough.
 
 ### Buffered Rendering
 
-For complex layouts, use intermediate buffers:
+A fragment can be rendered on its own and spliced in later, which is what
+caching part of a page needs. The buffer holds markup this code produced, so it
+goes back in as a `SafeString`:
 
 ```@example buffered-rendering
 using HypertextTemplates
@@ -371,14 +336,12 @@ end
 end
 
 @component function two_column_layout(; left_content, right_content)
-    # Render columns in parallel (conceptually)
     left_buffer = IOBuffer()
     right_buffer = IOBuffer()
 
-    @render left_buffer @div {class = "column-left"} left_content()
-    @render right_buffer @div {class = "column-right"} right_content()
+    @render left_buffer @div {class = "column-left"} @<left_content
+    @render right_buffer @div {class = "column-right"} @<right_content
 
-    # Combine results
     @div {class = "two-column"} begin
         @text SafeString(String(take!(left_buffer)))
         @text SafeString(String(take!(right_buffer)))
@@ -387,15 +350,15 @@ end
 
 @deftag macro two_column_layout end
 
-# Example usage
 html = @render @two_column_layout {left_content, right_content}
 
 Main.display_html(html) #hide
 ```
 
-### Lazy Rendering
+### Loading Data During a Render
 
-Defer expensive computations:
+A component runs while the page renders. It can fetch what it needs at that
+point, and the caller does not have to prepare everything up front:
 
 ```@example lazy-rendering
 using HypertextTemplates
@@ -414,22 +377,20 @@ end
 
 @component function lazy_section(; data_loader)
     @div {class = "lazy-load"} begin
-        # Only load data when actually rendering
         data = data_loader()
 
         if isnothing(data)
             @p "No data available"
         else
-            render_data(; data)
+            @<render_data {data}
         end
     end
 end
 
 @deftag macro lazy_section end
 
-# Simulate expensive operations
+# Stands in for a database call
 function expensive_database_query()
-    # In real code, this would be a database call
     return (title = "Query Results", items = ["Result 1", "Result 2", "Result 3"])
 end
 
@@ -462,8 +423,7 @@ using HypertextTemplates.Elements
 
 @component function progressive_gallery(; images)
     @div {class = "gallery"} begin
-        # Basic version (fast)
-        for (i, img) in enumerate(images)
+        for img in images
             @img {
                 src = img.thumbnail,
                 "data-full-src" := img.full_size,

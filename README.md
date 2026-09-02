@@ -5,17 +5,20 @@
 
 _HTML templating system for Julia_
 
-HypertextTemplates.jl provides a Julian approach to writing HTML using macros that feel natural within the language. Build web pages using Julia's control flow, components, and type safety—all with zero-allocation rendering for maximum performance.
+HypertextTemplates.jl renders HTML from Julia macros. Elements are macros,
+attributes use a `{}` syntax that mimics a NamedTuple, and loops and
+conditionals are Julia's own. There is no separate template language and no
+template parser at run time.
 
 ## Features
 
-- **Native Julia syntax** - Write HTML using macros that integrate seamlessly with Julia's control flow
-- **Component system** - Create reusable components with props and slots
-- **Zero-allocation rendering** - Direct IO streaming without intermediate DOM construction
-- **Automatic HTML escaping** - Secure by default with automatic escaping, use `SafeString` for trusted content
-- **Development tools** - Source location tracking and editor integration for debugging
-- **Streaming rendering** - Asynchronous rendering with micro-batched output
-- **Markdown integration** - Create components from Markdown files with interpolation support
+- **Templates are Julia** - Control flow, function calls and stack traces work the way they do everywhere else
+- **Component system** - Reusable components with props and slots
+- **Escaped by default** - Interpolated values are escaped; `SafeString` is the one way to opt out
+- **Static structure folded into constants** - Tags and literal attributes become constants while the macro expands
+- **Streaming** - Render straight to an `IO`, or in chunks with `StreamingRender`
+- **Development tools** - Source locations in the output, and a key press over an element opens the template that wrote it
+- **Markdown integration** - Components from Markdown files, with props interpolated into them
 
 ## Quick Example
 
@@ -55,7 +58,7 @@ julia> using HypertextTemplates
 
 ## Documentation
 
-For comprehensive documentation, examples, and guides, visit the [documentation](https://michaelhatherly.github.io/HypertextTemplates.jl/stable).
+Guides, examples and the API reference are in the [documentation](https://michaelhatherly.github.io/HypertextTemplates.jl/stable).
 
 ## License
 
