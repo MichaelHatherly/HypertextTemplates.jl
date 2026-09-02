@@ -1,19 +1,25 @@
 """
     TemplateFileLookup(handler)
 
-This is a developer tool that can be added to an `HTTP` handler stack to allow
-the user to open the template file in their default editor by holding down the
-`Ctrl` key and clicking on the rendered template. This is useful for debugging
-navigating the template files instead of having to manually search through a
-codebase for the template file that renders a given item within a page.
+A developer tool that opens the template behind part of a rendered page in your
+editor, instead of searching a codebase for whatever wrote a given item. Add it
+to an `HTTP` handler stack:
 
 ```julia
 HTTP.serve(router |> TemplateFileLookup, host, port)
 ```
 
+Hold the pointer over the part of the page you are interested in and press
+`Ctrl+1` to open the template the page was rendered from, or `Ctrl+2` to open
+the one that wrote the element under the pointer. The file opens in the editor
+`InteractiveUtils.edit` chooses, which `JULIA_EDITOR` controls.
+
+Both rely on the `data-htroot` and `data-htloc` attributes, which a render only
+writes when `Revise` is loaded.
+
 Always add the `TemplateFileLookup` handler after the other handlers, since it
-needs to inject a script into the response to listen for clicks on the rendered
-template.
+injects a script into the response and needs the rendered page to inject it
+into.
 """
 TemplateFileLookup(handler) = _template_file_lookup(nothing, handler)
 

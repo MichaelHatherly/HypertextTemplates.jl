@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to HypertextTemplates.jl! This guide will help you get up and running with Julia's HTML templating system.
+Start here if you have not used the package before.
 
 ## Installation
 
@@ -202,9 +202,8 @@ end
 Main.display_html(html) #hide
 ```
 
-### Understanding Components
-
-Components are functions that accept props and generate HTML. Use `@deftag` to create a convenient macro shortcut:
+A component is a function that takes props and writes HTML. `@deftag` gives it a
+macro shortcut, so `@card` stands in for `@<card`.
 
 ## Components with Slots
 
@@ -310,8 +309,12 @@ The blocks below are not executed by this manual, since the "wrong" half of each
 
 ### 2. Missing `begin...end` Blocks
 
+Without a block the three lines are three separate statements: the render
+produces an empty `div`, and the two element macros that follow it error with
+"`@h1` and `@<h1` cannot be used outside of a `@render` or `@component` macro".
+
 ```julia
-# Wrong - syntax error
+# Wrong - only the div is rendered
 @render @div
     @h1 "Title"
     @p "Content"
@@ -325,9 +328,13 @@ end
 
 ### 3. Wrong Attribute Syntax
 
+Parentheses parse, so this is not a syntax error. `@render` only recognises the
+`{}` form, so `@div` is left to expand on its own and reports that it is
+outside a `@render`.
+
 ```julia
 # Wrong - using parentheses
-@render @div(class="container") "Content"  # Syntax error!
+@render @div(class="container") "Content"
 
 # Correct - use curly braces
 @render @div {class = "container"} "Content"
@@ -358,15 +365,13 @@ text = "<b>Bold</b>"
     @button {class = "btn"} $text
 end
 
-# Wrong - can't use as macro without @deftag
-@render @my_button {text = "Submit"}  # Error!
+# Wrong - no such macro, so this is an UndefVarError
+@render @my_button {text = "Submit"}
 
-# Correct - either use @< or define a tag
-@render @<my_button {text = "Submit"}  # Works
+# Correct - reach the component with @<
+@render @<my_button {text = "Submit"}
 
-# Or better, define the tag
+# Or define the tag and use it like any element
 @deftag macro my_button end
-@render @my_button {text = "Submit"}  # Now works!
+@render @my_button {text = "Submit"}
 ```
-
-Happy templating with HypertextTemplates.jl!

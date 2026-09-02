@@ -1,6 +1,8 @@
 # Components Guide
 
-Components are the building blocks for creating reusable, maintainable templates in HypertextTemplates.jl. This guide covers everything from basic component creation to advanced patterns.
+A component is a function that writes HTML. This page covers the props it
+takes, the content it accepts from its caller, and the ways components fit
+together.
 
 ## Basic Component Definition
 
@@ -97,7 +99,7 @@ Main.display_html(ans) #hide
 
 ### Typed Props
 
-Leverage Julia's type system for safer components:
+Annotate a prop to have its type checked when the component is called:
 
 ```@example typed-props
 using HypertextTemplates
@@ -287,7 +289,7 @@ Main.display_html(html2) #hide
 
 ## Component Composition
 
-Components can use other components, enabling powerful composition patterns:
+A component can render other components:
 
 ### Basic Composition
 
@@ -491,10 +493,9 @@ end
 
 @deftag macro alert end
 
-# Test different alert types
 @render @alert {type = "info", message = "This is information"}
 
-Main.display_html(ans)
+Main.display_html(ans) #hide
 ```
 
 ```@example conditional-components
@@ -701,39 +702,31 @@ end
 Main.display_html(html) #hide
 ```
 
-### Safe Rendering Pattern
+### Rendering Around Missing Data
 
-While HypertextTemplates renders directly to IO (making traditional try-catch error boundaries impossible), you can implement safe rendering patterns:
+A render writes as it goes. An exception part way through leaves everything
+before it already written: rendering to a `String` throws that buffer away, but
+an `IO` destination keeps what reached it. Handle missing data inside the
+component:
 
 ```@example safe-rendering
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Helper function to safely access nested data
-safe_get(obj, field, default="N/A") = try
-    getfield(obj, field)
-catch
-    default
-end
-
-# Component that handles potentially missing data
-@component function user_card(; user=nothing)
+@component function user_card(; user = nothing)
     @div {class = "user-card"} begin
-        if user !== nothing
-            @h3 safe_get(user, :name, "Unknown User")
-            @p "Email: " safe_get(user, :email)
-            @p "Role: " safe_get(user, :role, "Guest")
+        if isnothing(user)
+            @div {class = "empty-state"} @p "No user data available"
         else
-            @div {class = "empty-state"} begin
-                @p "No user data available"
-            end
+            @h3 $(get(user, :name, "Unknown User"))
+            @p "Email: " $(get(user, :email, "N/A"))
+            @p "Role: " $(get(user, :role, "Guest"))
         end
     end
 end
 
 @deftag macro user_card end
 
-# Example with valid user
 user = (name = "Alice", email = "alice@example.com", role = "Admin")
 html1 = @render @user_card {user}
 
@@ -741,15 +734,15 @@ Main.display_html(html1) #hide
 ```
 
 ```@example safe-rendering
-# Example with missing user
+# No user at all
 html2 = @render @user_card {}
 
 Main.display_html(html2) #hide
 ```
 
 ```@example safe-rendering
-# Example with partial data
-partial_user = (name = "Bob")  # Missing email and role
+# Only some of the fields
+partial_user = (name = "Bob",)
 html3 = @render @user_card {user = partial_user}
 
 Main.display_html(html3) #hide

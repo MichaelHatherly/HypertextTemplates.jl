@@ -4,7 +4,8 @@ HypertextTemplates.jl integrates with CommonMark.jl, so you can create component
 
 ## Prerequisites
 
-The Markdown integration features are provided through Julia's package extension system, which means they become available automatically when CommonMark.jl is present in your environment. This design keeps HypertextTemplates lightweight for users who don't need Markdown support while providing the integration for those who do. Adding CommonMark.jl to your project enables all the Markdown-related functionality described in this guide.
+Everything on this page lives in a package extension, so it loads once
+CommonMark.jl is in the environment:
 
 ```julia
 using Pkg
@@ -355,45 +356,12 @@ html = @render @enhanced_markdown {
 Main.display_html(html) #hide
 ```
 
-## Best Practices
+## Caching Parsed Markdown
 
-### 1. File Organization
-
-Structure your Markdown files logically:
-
-```
-project/
-├── src/
-│   └── components.jl
-├── content/
-│   ├── pages/
-│   │   ├── home.md
-│   │   └── about.md
-│   ├── blog/
-│   │   └── posts/
-│   └── docs/
-│       ├── getting-started.md
-│       └── api-reference.md
-```
-
-### 2. Props Documentation
-
-Document props in your Markdown files:
-
-```markdown
-<!-- product-template.md -->
-<!-- Props: name (String), price (Float64), description (String) -->
-
-# $(name)
-
-**Price:** $(price)
-
-$(description)
-```
-
-### 3. Performance
-
-Cache parsed Markdown for frequently accessed content:
+`@cm_component` parses its file while the macro expands, so a render pays
+nothing for it, except under Revise where the file is re-read so that edits show
+up. Markdown read at render time does pay on every render, and a cache keyed by
+path keeps that to once per file:
 
 ```@example markdown
 const MARKDOWN_CACHE = Dict{String, String}()

@@ -1,18 +1,21 @@
 # Core Concepts
 
-Understanding the core concepts of HypertextTemplates.jl will help you use the library effectively and write maintainable templates.
+What the macros do with a template, and why one behaves the way it does.
 
 ## Macro-Based DSL Philosophy
 
-HypertextTemplates.jl uses Julia's macro system to create a domain-specific language (DSL) for HTML generation. This approach provides several benefits:
+Every element is a macro. A template is ordinary Julia code that writes HTML as
+it runs.
 
 ### Compile-Time Optimization
+
+Tag names and literal attributes are known while the macro expands. They become
+constants there, and the render writes them out.
 
 ```@example compile-time
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# This macro call...
 html = @render @div {class = "container"} @p "Hello"
 
 Main.display_html(html) #hide
@@ -20,13 +23,13 @@ Main.display_html(html) #hide
 
 ### Native Julia Integration
 
-The DSL feels like natural Julia code because it *is* Julia code:
+A loop or a branch in a template is the loop or branch you would write anywhere
+else:
 
 ```@example control-flow
 using HypertextTemplates
 using HypertextTemplates.Elements
 
-# Regular Julia control flow works seamlessly
 @render @ul begin
     for i in 1:5
         if isodd(i)
@@ -40,9 +43,10 @@ end
 Main.display_html(ans) #hide
 ```
 
-### Type Safety
+### Typed Props
 
-Julia's type system helps catch errors at compile time:
+Props are keyword arguments. Annotate one and Julia checks it when the component
+is called, raising a `TypeError` that names the prop.
 
 ```@example type-safety
 using HypertextTemplates
@@ -58,7 +62,6 @@ end
 
 @deftag macro typed_list end
 
-# Julia's type system helps catch errors
 items = ["Apple", "Banana", "Cherry"]
 html = @render @typed_list {items}
 
@@ -210,9 +213,9 @@ end
 Main.display_html(html) #hide
 ```
 
-## Zero-Allocation Design
+## Streaming Design
 
-The macro expansion described above feeds a rendering pipeline that writes straight to an `IO` stream. There is no DOM, no string concatenation, and no intermediate buffer, so memory use stays flat as output grows and the first byte reaches the client before the last one is computed. [Rendering & Performance](rendering.md) covers the pipeline, the streaming API, and how to keep a template on the fast path.
+The macro expansion described above feeds a rendering pipeline that writes straight to an `IO` stream. There is no DOM and no string concatenation, so a render allocates a few hundred bytes of context and nothing per element, however long the document runs, and the first byte reaches the client before the last one is computed. Rendering to a `String` fills an append-only buffer and hands you its contents; rendering to an `IO` writes through to it. [Rendering & Performance](rendering.md) covers the pipeline, the streaming API, and how to keep a template on the fast path.
 
 ## Control Flow Integration
 
@@ -251,7 +254,7 @@ Main.display_html(html2) #hide
 html3 = @render @select begin
     [@option {value = i} "Option " $i for i in 1:5]
 end
-println("\nComprehension:")
+
 Main.display_html(html3) #hide
 ```
 
@@ -373,28 +376,26 @@ Main.display_html(html) #hide
 
 ### Component Transformation
 
-The `@component` macro transforms the function to:
-1. Accept rendering context (IO stream)
-2. Handle slot content (both default and named slots)
-3. Manage source location tracking (in development mode)
-4. Support streaming render (for async operations)
+`@component` rewrites the function definition. This component:
 
-For example, this component:
 ```julia
 @component function example(; prop)
     @div $prop
 end
 ```
 
-Is transformed into a function that:
-- Accepts an internal `__io__` parameter for rendering
-- Can receive slot content via hidden parameters
-- Tracks its definition location for debugging
-- Works seamlessly with `StreamingRender`
+becomes a function that takes two keyword arguments alongside `prop`: the stream
+to write to, and the slot content the caller passed. Both carry hidden names
+that user code cannot collide with, and the body also binds the definition's
+file and line so `data-htloc` can point back at it. `@macroexpand` shows the
+whole expansion.
+
+Because the stream is a plain argument, a component writes wherever it is told
+to: an `IOBuffer`, a socket, or the batching writer behind `StreamingRender`.
 
 ## Performance Considerations
 
-The zero-allocation design and macro system combine to optimize performance at multiple levels:
+Macro expansion and the streaming design each cut work out of a render:
 
 ### Compile-Time Work
 

@@ -45,6 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `close(::StreamingRender)` stops a stream the consumer abandons, releasing
   the render task and its flush timer. A stream also closes itself once the
   render finishes.
+- A Development Tools page in the manual covers the `data-htloc` and
+  `data-htroot` attributes a render writes under Revise, how to switch them off,
+  `TemplateFileLookup` and the key presses that open a template from the
+  browser, live reloading of components and Markdown files, and rendering a
+  `Bonito.App` inside a template. None of that was documented outside a
+  docstring.
 
 ### Fixed
 
@@ -101,6 +107,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   while `Revise` is loaded.
 - Escape the file paths written into `data-htroot` and `data-htloc`
   attributes.
+- Manual examples that rendered nothing where the surrounding text said they
+  rendered a fragment. Calling a component as a plain function sends its output
+  to a buffer of its own, and an element child that is neither a literal nor an
+  interpolation is evaluated and discarded; both are written with `@<` and `$`
+  now.
+- Manual claims that did not match the implementation: rendering was described
+  as zero-allocation, typed props as checked at compile time, two working
+  parenthesis and newline forms as syntax errors, and `StreamingRender`'s
+  batching timeout as configurable. The `TemplateFileLookup` docstring
+  described a `Ctrl` click; the handler listens for `Ctrl+1` and `Ctrl+2` over
+  the element instead.
 
 ## [v2.2.4] - 2026-03-20
 

@@ -13,7 +13,8 @@ using HypertextTemplates.Elements
 
 ### Common Elements
 
-HypertextTemplates provides macros for every standard HTML element, allowing you to write HTML using Julia's native macro syntax. Each element is exposed as a macro (prefixed with `@`) that mirrors its HTML counterpart. These macros handle proper tag generation, nesting, attribute handling, and automatic escaping. The element macros are organized into logical groups based on their semantic purpose in HTML, making it easy to find and use the elements you need for structuring documents, creating forms, embedding media, or building complex layouts.
+`Elements` covers the HTML5 element set, each one a macro named after its tag.
+Anything outside that set, SVG included, is defined with [`@element`](@ref):
 
 ```julia
 # Structural elements
@@ -531,7 +532,8 @@ are escaped the way every other element's are.
 
 ### SVG Elements
 
-SVG elements work like regular elements:
+SVG tags are not part of `Elements`. Define the ones you use with `@element`
+and they behave like any other element:
 
 ```@example svg-elements
 using HypertextTemplates
@@ -607,7 +609,10 @@ Main.display_html(html) #hide
 
 ### Pre-escaped Content
 
-In rare cases where you need to include pre-escaped or specially formatted attribute values that should bypass the automatic escaping system, you can use `SafeString`. This is typically needed when working with attribute values that have already been processed by another system or contain special formatting that must be preserved exactly. However, this should be used with extreme caution and only with trusted content, as it bypasses the security protections that prevent XSS attacks through attribute injection.
+A value wrapped in `SafeString` is written as it stands, in an attribute as
+much as in element content. Wrap only markup you produced yourself: a value
+that reached you from a user and goes out through a `SafeString` is an
+injection.
 
 ```@example pre-escaped
 using HypertextTemplates
