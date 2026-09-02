@@ -17,18 +17,20 @@ concurrency:
 
 jobs:
   finalize:
-    needs: [format, test]
+    needs: [format, test, docs]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - run: |
           echo format: ${{ needs.format.result }}
           echo test: ${{ needs.test.result }}
+          echo docs: ${{ needs.docs.result }}
 
       - run: exit 1
         if: |
           (needs.format.result != 'success') ||
-          (needs.test.result != 'success')
+          (needs.test.result != 'success') ||
+          (needs.docs.result != 'success')
 
   format:
     permissions:
@@ -72,6 +74,7 @@ jobs:
       matrix:
         version:
           - "1.6"
+          - "1.10"
           - "1.11"
           - "1.12"
         os:
@@ -83,6 +86,10 @@ jobs:
             os: windows-latest
           - version: "1.6"
             os: macOS-latest
+          - version: "1.10"
+            os: windows-latest
+          - version: "1.10"
+            os: macOS-latest
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -90,11 +97,31 @@ jobs:
       - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
         with:
           version: ${{ matrix.version }}
-          include-all-prereleases: true
 
       - uses: julia-actions/cache@a7bed9df697e5d7309d68afe7542a87621a8b6c8 # v3.3.0
 
       - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1.7.0
 
       - uses: julia-actions/julia-runtest@6e050c8013b833b1195105ff2fce9cd802f53271 # v1.12.0
-        continue-on-error: ${{ matrix.version == 'nightly' }}
+
+  docs:
+    permissions:
+      contents: write
+      statuses: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: "1"
+
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+        run: julia --project=docs/ docs/make.jl

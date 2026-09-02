@@ -253,21 +253,31 @@ The `@__slot__` marker shows where child content renders inside the component.
 
 By default, `@render` returns a String, but you can specify other outputs:
 
-```julia
+```@example getting-started
+using HypertextTemplates
+using HypertextTemplates.Elements
+
 # Render to an IO buffer
 io = IOBuffer()
 @render io @div "Hello, IO!"
 result = String(take!(io))
+```
 
+```@example getting-started
 # Render to a byte array
 bytes = @render Vector{UInt8} @div "Hello, bytes!"
+```
 
+```@example getting-started
 # Render to a file
-open("output.html", "w") do file
+path = joinpath(mktempdir(), "output.html")
+open(path, "w") do file
     @render file @html begin
         @body @h1 "Saved to file!"
     end
 end
+
+read(path, String)
 ```
 
 ## Next Steps
@@ -284,16 +294,22 @@ Now that you understand the basics:
 Avoid these common mistakes when starting with HypertextTemplates:
 
 ### 1. Forgetting `$` for Variables
-```julia
+
+```@example getting-started
 # Wrong - variable not interpolated
 name = "Julia"
-@render @p "Hello, name"  # Output: <p>Hello, name</p>
-
-# Correct - use $ to interpolate
-@render @p "Hello, " $name  # Output: <p>Hello, Julia</p>
+@render @p "Hello, name"
 ```
 
+```@example getting-started
+# Correct - use $ to interpolate
+@render @p "Hello, " $name
+```
+
+The blocks below are not executed by this manual, since the "wrong" half of each one does not run.
+
 ### 2. Missing `begin...end` Blocks
+
 ```julia
 # Wrong - syntax error
 @render @div
@@ -308,6 +324,7 @@ end
 ```
 
 ### 3. Wrong Attribute Syntax
+
 ```julia
 # Wrong - using parentheses
 @render @div(class="container") "Content"  # Syntax error!
@@ -317,16 +334,24 @@ end
 ```
 
 ### 4. String Literals vs Expressions
-```julia
-# String literals are NOT escaped (trusted content)
-@render @p "<b>Bold</b>"  # Output: <p><b>Bold</b></p>
 
-# Variables ARE escaped (safe from XSS)
-text = "<b>Bold</b>"
-@render @p $text  # Output: <p>&lt;b&gt;Bold&lt;/b&gt;</p>
+Both are escaped, so both render the same HTML. The difference is when the
+escaping happens: a literal is escaped once while the macro expands, an
+interpolated value on every render.
+
+```@example getting-started
+# Escaped during macro expansion
+@render @p "<b>Bold</b>"
 ```
 
-### 5. Component Usage Without @deftag
+```@example getting-started
+# Escaped on every render (safe from XSS)
+text = "<b>Bold</b>"
+@render @p $text
+```
+
+### 5. Component Usage Without `@deftag`
+
 ```julia
 # Define component
 @component function my_button(; text = "Click")

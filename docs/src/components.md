@@ -924,7 +924,3 @@ Main.display_html(ans) #hide
 
 Main.display_html(ans) #hide
 ```
-
-## Summary
-
-Components combine reusability, composition through slots, type safety, and flexible rendering to create maintainable templates. Use these patterns to structure your applications effectively.

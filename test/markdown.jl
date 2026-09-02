@@ -31,6 +31,12 @@
     @test contains(annotated, "<h1 data-htloc=\"$(markdown):1\"")
     @test contains(annotated, "<p data-htloc=\"$(markdown):3\"")
 
+    # The component `@cm_component` builds has to report the `@cm_component`
+    # call as its definition site rather than a line inside the package.
+    definition_line = @__LINE__() + 1
+    @cm_component located_component(; x) = joinpath(@__DIR__, "markdown.md")
+    @test functionloc(located_component) == (@__FILE__, definition_line)
+
     # A node parsed without source information has no `meta` to read one
     # from, which is no location rather than an error.
     bare = CommonMark.Parser()("plain *text*")

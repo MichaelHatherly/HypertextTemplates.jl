@@ -310,6 +310,37 @@ end
 println("Configured streaming produced ", length(chunks), " chunks")
 ```
 
+### Stopping a Stream Early
+
+Rendering runs in its own task, so a consumer that stops reading part way
+through leaves that task blocked with nowhere to put the next chunk. `close`
+releases it:
+
+```@example streaming-close
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+stream = StreamingRender() do io
+    @render io @ul begin
+        for i in 1:10_000
+            @li "Item $i"
+        end
+    end
+end
+
+first_chunk = nothing
+for chunk in stream
+    global first_chunk = String(chunk)
+    break
+end
+close(stream)
+
+println("Read ", length(first_chunk), " bytes, then closed the stream")
+```
+
+Reading a stream to the end closes it for you, so `close` is only needed when a
+client disconnects or the consumer has seen enough.
+
 ## Advanced Patterns
 
 ### Buffered Rendering
@@ -521,15 +552,3 @@ Main.display_html(ans) #hide
 
 Main.display_html(ans) #hide
 ```
-
-## Summary
-
-HypertextTemplates.jl's rendering system provides:
-
-- **Zero-allocation design** for maximum performance
-- **Flexible output targets** (String, IO, custom types)
-- **Streaming support** for large/async content  
-- **Micro-batching** for optimal chunking
-- **Direct IO operations** avoiding intermediate strings
-
-The key to performance is understanding that templates compile to direct IO operations, making HypertextTemplates as fast as hand-written HTML generation code while maintaining the convenience of a DSL.

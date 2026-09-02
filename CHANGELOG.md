@@ -27,13 +27,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the render context degrades gracefully instead of raising a `TypeError`.
   `render` and `StreamingRender` also specialise on the function they are
   handed rather than compiling one widened method.
+- An opening tag now merges its leading literal attributes into one constant
+  even when dynamic attributes follow, and a component call site no longer
+  expands the attribute plan it would discard, so those sites expand faster.
+- Using an element or component outside `@render` names the tag correctly in
+  the error, a missing named slot reports the component, the slot and the slots
+  that were passed, and `TemplateFileLookup` errors when `HTTP` is not loaded
+  instead of silently doing nothing.
+- `Random` is no longer a dependency.
 - `StreamingRender` batches more writes per chunk than before, so the chunk
   boundaries an iterating consumer observes have changed.
 - `@element` now requires its element name to be a string or symbol literal
   and raises a descriptive error otherwise.
 
+### Added
+
+- `close(::StreamingRender)` stops a stream the consumer abandons, releasing
+  the render task and its flush timer. A stream also closes itself once the
+  render finishes.
+
 ### Fixed
 
+- `<script>` and `<style>` contents are written as raw text. They were
+  entity-escaped, which browsers do not decode inside those elements, so
+  `@script "if (a < b) {}"` produced broken JavaScript. What is neutralised is
+  whatever would take the parser back out of the element: that element's own
+  end tag, `</style` or `</script`, and `<!--` in a `script`, each written with
+  a backslash after the `<`. A sequence is caught wherever in the body it
+  falls: inside one child, divided between two of them, or divided across a
+  slot boundary. An end tag for any other element is left as it stands, since
+  the parser reads the name after the `</` and hands the characters back as
+  text. Content written directly in the element is its raw text, `@text` and the
+  content passed into a slot the element renders included. The innermost
+  element decides, so an element nested inside a `script` or a `style` starts
+  markup again and its own children are escaped: a `<script type="text/template">`
+  block is parsed as HTML by the page later, and a value that reached it from a
+  user would otherwise become markup in that parse. Nothing written in these two
+  elements is entity-escaped, a `SafeString` included, and the sequences are
+  neutralised in a `SafeString` as well: trusted JSON assembled from a user's
+  data can carry a `</script`, which ended the `script` and left the rest of the
+  value as markup. `<\/` is what JavaScript reads as `</` inside a string and is
+  a valid JSON string escape, so the program and the data it parses are
+  unchanged. `<\!--` is not a JSON escape, so a value carrying a comment opener
+  will not parse back; there is no spelling that both contains the sequence and
+  survives, and containment wins.
+- A value interpolated into a template is shown the destination the render was
+  given, so a `show` method that consults the stream sees the properties the
+  caller's `IOContext` carries rather than the defaults. It previously saw the
+  defaults everywhere except inside a `script` or a `style`.
+- Attribute names taken from a splatted collection are validated and an
+  `ArgumentError` names the offender. A name containing `"`, `>`, `=` or
+  whitespace was written raw and could inject attributes.
+- A `StreamingRender` whose render function throws now rethrows that exception
+  to the consumer after the chunks already rendered. It closed cleanly, so the
+  consumer received a truncated document and no error.
+- The `StreamingRender` docstring describes what `chunk_size` does; it was
+  documented as unused.
 - Fix `MethodError` when writing a string to the writer that `StreamingRender`
   hands to its render function: `write(io, "text")` and `print(io, "text")`
   were ambiguous against `Base`.
@@ -173,8 +222,8 @@ Initial release.
 [v2.2.0]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.0
 [v2.2.1]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.1
 [v2.2.2]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.2
-[v2.2.4]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.4
 [v2.2.3]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.3
+[v2.2.4]: https://github.com/MichaelHatherly/HypertextTemplates.jl/releases/tag/v2.2.4
 [#8]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/8
 [#10]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/10
 [#11]: https://github.com/MichaelHatherly/HypertextTemplates.jl/issues/11

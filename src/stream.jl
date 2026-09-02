@@ -216,8 +216,14 @@ immediately for low latency, while smaller writes are batched for efficiency.
 
 # Keywords
 - `buffer_size::Int=32`: Number of chunks the channel can buffer before blocking
-- `chunk_size::Int=4096`: Legacy parameter (kept for compatibility, no longer used)
+- `chunk_size::Int=4096`: Bytes a batch may reach before it is flushed, clamped to
+  the range `1:256`
 - `immediate_threshold::Int=64`: Bytes above which writes bypass buffering for low latency
+
+Rendering runs in its own task. An exception thrown by `func` is rethrown from
+the iteration, after the chunks rendered before it, so a failed render is
+reported to whoever is consuming the stream. A consumer that stops reading part
+way through should `close` the stream to release that task.
 
 # Examples
 ```jldoctest
@@ -287,6 +293,7 @@ See also: [`@render`](@ref), [`MicroBatchWriter`](@ref)
 """
 struct StreamingRender
     channel::Channel{Vector{UInt8}}
+    timer::Timer
     task::Task
 
     # `f::F` rather than `f::Function`: Julia does not specialize on an argument
@@ -301,44 +308,68 @@ struct StreamingRender
         # buffer_size controls backpressure - when full, the producer blocks.
         channel = Channel{Vector{UInt8}}(buffer_size)
 
+        # MicroBatchWriter wraps the channel with intelligent buffering.
+        # chunk_size is capped at 256 to prevent excessive memory usage
+        # while maintaining compatibility with the old API.
+        writer = MicroBatchWriter(
+            channel;
+            max_buffer_size = clamp(chunk_size, 1, 256),
+            max_buffer_time = 0.001,
+            immediate_threshold = immediate_threshold,
+        )
+
+        # Bounds latency for small writes. Built here rather than inside the
+        # task so `close` can stop it without waiting for the producer.
+        timer = create_flush_timer(writer)
+
         # Producer task runs the user's rendering function in a separate thread.
         # Using @spawn allows true parallelism between rendering and consumption.
         task = Threads.@spawn begin
-            # Set up inside the `try` so a throw cannot leave the channel open.
-            writer = nothing
-            timer = nothing
             try
-                # MicroBatchWriter wraps the channel with intelligent buffering.
-                # chunk_size is capped at 256 to prevent excessive memory usage
-                # while maintaining compatibility with the old API.
-                writer = MicroBatchWriter(
-                    channel;
-                    max_buffer_size = clamp(chunk_size, 1, 256),
-                    max_buffer_time = 0.001,
-                    immediate_threshold = immediate_threshold,
-                )
-
-                # The timer ensures bounded latency even for small writes.
-                # It runs independently and flushes the buffer periodically.
-                timer = create_flush_timer(writer)
-
                 # User's rendering function writes to our MicroBatchWriter,
                 # which handles the complexity of when to send chunks.
                 f(writer)
-            catch e
-                @error "Error in streaming render" exception = (e, catch_backtrace())
-                rethrow(e)
-            finally
                 # Cleanup order matters: timer first (stop flushing),
                 # then writer (flush remaining), then channel (signal EOF)
-                timer === nothing || close(timer)
-                writer === nothing || close(writer)
+                close(timer)
+                close(writer)
                 close(channel)
+            catch e
+                close(timer)
+                # `close(::StreamingRender)` shuts the channel while the
+                # producer may be parked in `put!`, which throws here. The
+                # consumer has walked away: nobody to report to or flush into.
+                if !(e isa InvalidStateException && !isopen(channel))
+                    # The last batch is still in the writer, and owed.
+                    close(writer)
+                    # `take!` drains what was rendered and then throws this, so
+                    # a failed render surfaces as an exception rather than a
+                    # truncated document. Carrying the object over rather than
+                    # the task's failure keeps the producer machinery out of
+                    # the consumer's stack trace.
+                    close(channel, e)
+                end
             end
         end
 
-        return new(channel, task)
+        return new(channel, timer, task)
     end
+end
+
+"""
+    close(s::StreamingRender)
+
+Stop a stream that will not be read to the end.
+
+Closing the channel unblocks a producer parked in `put!` and lets it unwind,
+and stops the flush timer. The iterator does this itself once the producer
+signals the end of the stream, so only a consumer that abandons a stream part
+way through has to call it.
+"""
+function Base.close(s::StreamingRender)
+    close(s.timer)
+    close(s.channel)
+    return nothing
 end
 
 # Iterator interface makes StreamingRender work in for loops.
@@ -352,11 +383,11 @@ function Base.iterate(s::StreamingRender, state = nothing)
         return (chunk, nothing)
     catch e
         # Channel closure is used to signal end of stream
-        if e isa InvalidStateException && !isopen(s.channel)
-            return nothing
-        else
-            rethrow(e)
-        end
+        finished = e isa InvalidStateException && !isopen(s.channel)
+        # Finished or failed, nothing more is coming, so stop the flush timer.
+        close(s)
+        finished && return nothing
+        rethrow(e)
     end
 end
 Base.eltype(::Type{StreamingRender}) = Vector{UInt8}

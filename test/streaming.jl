@@ -154,6 +154,117 @@ end
     @test corrupted_runs(codeunits(sprint(dribbling)), 25) == 0
 end
 
+@testitem "streaming rethrows the producer's exception" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
+    import Logging
+
+    # A producer that throws used to close the channel cleanly, so the
+    # consumer saw an ordinary end of stream and was handed a truncated
+    # document with no indication that anything had gone wrong.
+    function failing(io)
+        @render io @div begin
+            @span "before the failure"
+            error("render failed")
+        end
+    end
+
+    # Drained in a loop because that is how the chunks reach an HTTP
+    # response.
+    function drain(f)
+        collected = UInt8[]
+        try
+            for chunk in StreamingRender(f)
+                append!(collected, chunk)
+            end
+        catch exception
+            return collected, exception
+        end
+        return collected, nothing
+    end
+
+    # Nothing may be logged either: the exception is the report.
+    rendered, caught = @test_logs min_level = Logging.Error drain(failing)
+    @test caught isa ErrorException
+    @test caught.msg == "render failed"
+    # The exception comes after what the render managed, which is small enough
+    # to still be sitting in the writer's batch when the throw happens.
+    @test contains(String(rendered), "before the failure")
+
+    # `collect` goes through the same iterator and must throw too.
+    @test_throws ErrorException collect(StreamingRender(failing))
+end
+
+@testitem "streaming stops when the consumer walks away" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
+    import Logging
+
+    # Abandoning the loop used to leave the producer parked in `put!` holding
+    # the writer's lock, the channel open, and the flush timer firing every
+    # millisecond into a callback that could never take that lock.
+    function long(io)
+        @render io @ul begin
+            for id in 1:100_000
+                @li {id} "This is item $id."
+            end
+        end
+    end
+
+    # A task takes its logger from wherever it is constructed, so the producer
+    # has to start inside the block below for what it logs to reach the
+    # collector rather than the global logger.
+    function abandon()
+        stream = StreamingRender(long)
+        for _ in stream
+            break
+        end
+        close(stream)
+        # The producer unwinds after `close` returns, so anything it says on
+        # the way out lands outside the block unless it is waited for here.
+        timedwait(() -> istaskdone(stream.task), 10.0)
+        return stream
+    end
+
+    # Nothing is logged: walking away is not a failed render.
+    stream = @test_logs min_level = Logging.Error abandon()
+    @test !isopen(stream.channel)
+    @test !isopen(stream.timer)
+    @test timedwait(() -> istaskdone(stream.task), 10.0) === :ok
+    @test !istaskfailed(stream.task)
+end
+
+@testitem "streaming closes itself when the render finishes" tags = [:streaming] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    # A completed render must not leave its flush timer behind either, so the
+    # iterator closes the stream when the producer signals the end.
+    function quick(io)
+        @render io @div begin
+            @span "a"
+            @span "b"
+            @span "c"
+        end
+    end
+
+    stream = StreamingRender(quick)
+    @test !isempty(collect(stream))
+    @test !isopen(stream.timer)
+    @test !isopen(stream.channel)
+    @test timedwait(() -> istaskdone(stream.task), 10.0) === :ok
+end
+
+@testitem "streaming chunk size bounds a batch" tags = [:streaming] setup = [Templates] begin
+    # `chunk_size` is documented as the size a batch may reach before it is
+    # flushed, so a byte-sized one has to send each small write on its own
+    # while the default gathers them into a single chunk.
+    function dribble(io)
+        for _ in 1:5
+            write(io, "ab")
+        end
+    end
+    @test length(collect(StreamingRender(dribble; chunk_size = 1))) == 5
+    @test length(collect(StreamingRender(dribble))) < 5
+end
+
 @testitem "streaming with a nonsensical chunk size" tags = [:streaming] setup = [Templates] begin
     using HypertextTemplates.Elements
 

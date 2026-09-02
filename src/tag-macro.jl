@@ -88,7 +88,8 @@ macro (<)(tag, args...)
     erevise = esc(revise)
     etag = esc(tag)
 
-    props_plan, eprops, eslots = _process_args(args)
+    props_plan, eprops, eslots =
+        _process_args(_raw_text_children(tag), _script_children(tag), _plans_props(tag), args)
     return quote
         if $(esc(Expr(:isdefined, io)))
             $(HypertextTemplates)._render_tag(
@@ -101,17 +102,28 @@ macro (<)(tag, args...)
                 $(esc(Expr(:isdefined, revise))) ? $(erevise) : nothing,
             )
         else
-            error(
-                $(
-                    "`@$tag` and `<$tag` cannot be used outside of a `@render` or `@component` macro."
-                ),
-            )
+            $(HypertextTemplates)._outside_render($etag)
         end
     end
 end
 
-function _process_args(args)
-    props_plan = :(())
+_text_call(content) = :($(HypertextTemplates).@text $content)
+
+# A slot renders where the component writes it, not where it was passed, and
+# what a write is escaped as follows from the element it lands in. So the
+# stream arrives as an argument rather than being captured from the call site:
+# content passed into a slot a `script` renders goes through that script's raw
+# text writer. The parameter is the hidden name `io` is bound to elsewhere.
+_slot_closure(contents) = Expr(:->, Expr(:tuple, esc(S"io")), contents)
+
+# Components take properties as keywords and never look at the plan. `@deftag`
+# splices the component into the `@<` call, which is what makes that knowable
+# during expansion; a tag arriving with the render may still be an element.
+_plans_props(tag::Function) = false
+_plans_props(_) = true
+
+function _process_args(raw::Bool, script::Bool, plans::Bool, args)
+    props_plan = plans ? :(()) : :nothing
     props = nothing
     slot_args = []
     slot_names = Set{Symbol}([])
@@ -125,15 +137,15 @@ function _process_args(args)
             else
                 push!(slot_names, name)
                 if isa(content, String) || Meta.isexpr(content, :string)
-                    content = :($(HypertextTemplates).@text $content)
+                    content = _text_call(content)
                 end
-                push!(slot_args, Expr(:(=), esc(name), :(() -> $(esc(content)))))
+                push!(slot_args, Expr(:(=), esc(name), _slot_closure(esc(content))))
             end
         else
             if isa(arg, String) || Meta.isexpr(arg, :string)
-                arg = :($(HypertextTemplates).@text $arg)
+                arg = _text_call(arg)
             elseif Meta.isexpr(arg, :$, 1)
-                arg = :($(HypertextTemplates).@text $(arg.args[1]))
+                arg = _text_call(arg.args[1])
             end
             push!(default_slot_contents.args, esc(arg))
         end
@@ -142,7 +154,7 @@ function _process_args(args)
     for arg in args
         if Meta.isexpr(arg, :braces)
             if isnothing(props)
-                props_plan, prop_pairs = _process_props(arg.args)
+                props_plan, prop_pairs = _process_props(arg.args, plans)
                 props = :((; $(esc.(prop_pairs)...)))
             else
                 error("duplicate `{}` props.")
@@ -156,9 +168,24 @@ function _process_args(args)
         end
     end
 
-    slots = :((; $(slot_args...), V"default" = () -> $(default_slot_contents)))
+    default = _default_slot(raw, script, default_slot_contents)
+    slots = :((; $(slot_args...), V"default" = $(_slot_closure(default))))
 
     return props_plan, something(props, :((;))), slots
+end
+
+# The writer carries the state a sequence divided across two children needs, so
+# it stands in for `io` across the whole default slot and every child reaches
+# the same one. Only that slot is wrapped: an element renders no other, and one
+# with no children has nothing to write through it.
+function _default_slot(raw::Bool, script::Bool, contents::Expr)
+    (raw && !isempty(contents.args)) || return contents
+    io = esc(S"io")
+    return Expr(
+        :do,
+        :($(HypertextTemplates)._raw_text_scope($(io), $(Val(script)))),
+        Expr(:->, Expr(:tuple, io), contents),
+    )
 end
 
 # Build the "props plan" described in `element-rendering.jl`: consecutive
@@ -169,16 +196,19 @@ end
 #
 # Previously this was all-or-nothing: a single dynamic property sent every
 # other property on the element back through the runtime path.
-function _process_props(args)
+function _process_props(args, plans::Bool)
     props = []
     segments = []
     static_run = []
-    plannable = true
+    plannable = plans
     for arg in args
         static, dynamic = _process_prop(arg)
         # `props` must be built from every argument, splats included, since it
         # is what a component receives as keywords.
         push!(props, dynamic)
+        # No plan to build, or an argument below made one impossible. Either
+        # way the properties render from the `NamedTuple` instead.
+        plannable || continue
         if Meta.isexpr(dynamic, :...)
             # A splat contributes property names that are not known until
             # runtime, so there is nothing to interleave against. Give up on
@@ -191,7 +221,7 @@ function _process_props(args)
             push!(static_run, static)
         end
     end
-    plannable &= _flush_static_run!(segments, static_run)
+    plannable = plannable && _flush_static_run!(segments, static_run)
     plannable || return nothing, props
     return Expr(:tuple, segments...), props
 end
@@ -213,7 +243,7 @@ end
 # `NamedTuple` at run time instead.
 function _flush_static_run!(segments, static_run)
     isempty(static_run) && return true
-    text = _render_props(static_run)
+    text = _attribute_text(static_run)
     empty!(static_run)
     # A run of only `false` valued properties renders nothing at all.
     isempty(text) && return true

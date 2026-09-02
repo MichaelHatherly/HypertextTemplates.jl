@@ -8,7 +8,8 @@ HypertextTemplates provides a macro-based DSL where all HTML elements are expose
 allowing natural integration of Julia control flow directly in templates.
 
 # Key Features
-- **Zero-allocation rendering**: Direct IO streaming without intermediate DOM
+- **Direct IO streaming**: output is written straight to the destination, with no
+  intermediate DOM and no strings built along the way
 - **Component system**: Reusable components with props and slots
 - **Auto-escaping**: Automatic HTML escaping for security (bypass with `SafeString`)
 - **Streaming support**: Efficient chunked rendering for large documents

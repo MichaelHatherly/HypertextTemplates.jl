@@ -77,4 +77,8 @@ end
     end
     handmade_output = String(take!(handmade.io))
     @test count("jquery-3.6.0.min.js", handmade_output) == 1
+
+    # A stream that carries no set at all is a component called outside a
+    # render, which says so rather than quietly rendering the block twice.
+    @test_throws ErrorException HypertextTemplates._missing_once_key(IOBuffer(), :key)
 end

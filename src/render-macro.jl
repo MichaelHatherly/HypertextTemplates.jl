@@ -127,11 +127,13 @@ _render_return(io::IO, ::Type{Vector{UInt8}}) = take!(io)
 _render_return(::IO, other::Any) = error("unsupported `@render` destination `$(other)`.")
 
 # Components take their properties as keywords, so the props plan that `@<`
-# builds for elements has nothing to do here.
+# builds for elements has nothing to do here. Neither does the call site's
+# location: a component writes no tag of its own, and the elements it renders
+# each report their own location for `data-htloc`.
 #
 # This is also the one place a component can be reached, and so the one place
 # an interpolated attribute has to become a string. `_materialise` is a no-op
 # unless the property types say otherwise, so a component with no interpolated
 # attribute pays nothing for the check.
 _render_tag(io::IO, tag, plan, props, slots, source, revise) =
-    tag(; _materialise(props)..., V"source" = source, V"io" = io, V"slots" = slots)
+    tag(; _materialise(props)..., V"io" = io, V"slots" = slots)
