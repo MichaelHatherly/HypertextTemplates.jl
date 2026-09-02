@@ -310,6 +310,37 @@ end
 println("Configured streaming produced ", length(chunks), " chunks")
 ```
 
+### Stopping a Stream Early
+
+Rendering runs in its own task, so a consumer that stops reading part way
+through leaves that task blocked with nowhere to put the next chunk. `close`
+releases it:
+
+```@example streaming-close
+using HypertextTemplates
+using HypertextTemplates.Elements
+
+stream = StreamingRender() do io
+    @render io @ul begin
+        for i in 1:10_000
+            @li "Item $i"
+        end
+    end
+end
+
+first_chunk = nothing
+for chunk in stream
+    global first_chunk = String(chunk)
+    break
+end
+close(stream)
+
+println("Read ", length(first_chunk), " bytes, then closed the stream")
+```
+
+Reading a stream to the end closes it for you, so `close` is only needed when a
+client disconnects or the consumer has seen enough.
+
 ## Advanced Patterns
 
 ### Buffered Rendering
