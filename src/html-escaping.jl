@@ -744,10 +744,25 @@ escape_attr(io::IO, other) = (print(EscapeStream{true}(io), other); nothing)
 # character as `print` produces them, with no `String` copy in between. The
 # type parameter selects attribute escaping at compile time.
 #
+<<<<<<< HEAD
 # A `WrappedIO` like the raw text writers, so a `show` method reached through
 # it is answered by the destination. Otherwise the same value would lay itself
 # out to a default width in a `p` and the caller's width in a `script`.
 struct EscapeStream{attribute, I <: IO} <: WrappedIO
+||||||| parent of 68ceab1 (fix: answer for the destination a render was given)
+# It deliberately does not forward `IOContext` properties. `string(value)`
+# renders into a bare buffer, so a value whose `show` consults the stream --
+# checking `:compact`, say -- must keep seeing the defaults it saw before.
+struct EscapeStream{attribute, I <: IO} <: IO
+=======
+# Like the raw text writers it is a `WrappedIO`, so a `show` method reached
+# through it is asked its questions by the destination the render was given
+# rather than by the wrapper. Otherwise the same value would lay itself out to
+# a default width in a `p` and to the caller's width in a `script`, which is
+# the wrapper that happened to be in the way rather than anything the template
+# said.
+struct EscapeStream{attribute, I <: IO} <: WrappedIO
+>>>>>>> 68ceab1 (fix: answer for the destination a render was given)
     io::I
 end
 

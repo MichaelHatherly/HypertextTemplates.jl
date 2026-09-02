@@ -99,8 +99,18 @@ end
             reference(HypertextTemplates.escape_attr, value)
     end
 
+<<<<<<< HEAD
     # A value whose `show` inspects the stream is answered by the destination,
     # not by the wrapper escaping its output.
+||||||| parent of 68ceab1 (fix: answer for the destination a render was given)
+    # A value whose `show` inspects the stream must see what it saw when it
+    # was rendered into a bare buffer, so the wrapper must not forward the
+    # surrounding `IOContext`.
+=======
+    # A value whose `show` inspects the stream is answered by the destination
+    # the render was given rather than by the wrapper escaping its output, so
+    # it sees the properties the caller set.
+>>>>>>> 68ceab1 (fix: answer for the destination a render was given)
     buffer = IOBuffer()
     HypertextTemplates.escape_html(
         IOContext(buffer, :compact => true),
