@@ -706,14 +706,3 @@ Main.display_html(html2) #hide
 2. **Create domain-specific tags** - Use `@deftag` for common patterns
 3. **Leverage `$` interpolation** - Cleaner than multiple `@text` calls
 4. **Cache expensive operations** - Use memoization for complex computations
-
-## Summary
-
-Advanced features in HypertextTemplates.jl enable:
-
-- **Dependency management** with `@__once__`
-- **Custom DSLs** via `@deftag`
-- **Dynamic rendering** with `@<`
-- **Sophisticated patterns** like render props
-
-These features combine to support complex application architectures while maintaining the simplicity and performance that makes HypertextTemplates.jl powerful.

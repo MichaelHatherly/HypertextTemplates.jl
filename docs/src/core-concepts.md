@@ -212,67 +212,7 @@ Main.display_html(html) #hide
 
 ## Zero-Allocation Design
 
-The performance benefits of the macro system extend to the rendering pipeline through zero-allocation design:
-
-### Direct IO Streaming
-
-Instead of building a DOM tree, content streams directly to IO:
-
-```@example io-streaming
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-# No intermediate string allocations
-io = IOBuffer()
-@render io @div begin
-    for i in 1:5
-        @p "Paragraph " $i
-    end
-end
-
-result = String(take!(io))
-
-Main.display_html(result) #hide
-```
-
-### Efficient String Building
-
-The rendering process uses Julia's efficient IO system:
-
-```@example efficient-building
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-# Internally uses write() calls, not string concatenation
-html = @render @div begin
-    @h1 "Title"
-    @p "Content"
-end
-
-Main.display_html(html) #hide
-
-# This is equivalent to direct write() calls:
-# write(io, "<div>")
-# write(io, "<h1>")
-# write(io, "Title")
-# write(io, "</h1>")
-# ...
-```
-
-### Rendering Pipeline
-
-The rendering pipeline works as follows:
-
-1. **Macro Expansion**: Templates are transformed into Julia code at compile time
-2. **IO Target**: All output goes to an IO stream (provided or created)
-3. **Direct Writing**: HTML strings and escaped content are written directly
-4. **No Buffering**: Content flows straight through without intermediate storage
-
-This design means:
-- Memory usage is constant regardless of output size
-- First byte is written immediately (no buffering)
-- Suitable for very large documents
-- Optimal for streaming responses
+The macro expansion described above feeds a rendering pipeline that writes straight to an `IO` stream. There is no DOM, no string concatenation, and no intermediate buffer, so memory use stays flat as output grows and the first byte reaches the client before the last one is computed. [Rendering & Performance](rendering.md) covers the pipeline, the streaming API, and how to keep a template on the fast path.
 
 ## Control Flow Integration
 
@@ -512,45 +452,4 @@ Main.display_html(html) #hide
 
 ## HTML Escaping Strategy
 
-Complementing the performance features, HypertextTemplates provides automatic security through its escaping strategy:
-
-### Automatic Escaping
-
-All dynamic content is escaped by default:
-
-```@example auto-escaping
-using HypertextTemplates
-using HypertextTemplates.Elements
-
-unsafe = "<script>alert('xss')</script>"
-html = @render @p $unsafe
-
-Main.display_html(html) #hide
-```
-
-### Escape Rules
-
-1. String literals in templates are NOT escaped (trusted content)
-2. Variables and expressions with `$` or `@text` ARE escaped
-3. Attribute values from variables ARE escaped
-4. Element content from components is already rendered (not double-escaped)
-
-### Performance
-
-Escaping uses optimized routines:
-- Fast-path for strings without special characters
-- Efficient replacement for strings with special characters
-- Minimal allocations during escaping
-
-## Summary
-
-These core concepts build on each other:
-
-1. **Macros** provide the foundation with compile-time optimization
-2. **`{}` attributes** extend the macro syntax for properties
-3. **Text rendering** handles content with automatic security
-4. **Zero-allocation design** ensures performance at scale
-5. **Control flow** integration leverages Julia's expressiveness
-6. **Components** combine all concepts for reusable templates
-
-Each concept reinforces the others, creating a cohesive system that's fast, safe, and natural to use.
+Anything interpolated with `$` or `@text` is escaped before it reaches the output, so a value that came from a user cannot close a tag or open a script. String literals written directly in a template are escaped too, during macro expansion, so what the render writes is the already-escaped text and nothing is escaped twice. A `script` and a `style` hold raw text rather than markup, so what is written directly in one goes out unescaped and that element's own end tag is neutralised instead, in a `SafeString` as much as in anything else. The innermost element decides, so an element nested inside a script starts markup again and its children are escaped, which is what a `<script type="text/template">` block needs from a value the page will later parse as HTML. [HTML Elements & Attributes](elements-attributes.md#Escaping-and-Security) sets out the full rules, the `SafeString` escape hatch, and `@esc_str` for escaping a value once at macro expansion.

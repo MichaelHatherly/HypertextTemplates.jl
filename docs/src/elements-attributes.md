@@ -442,6 +442,7 @@ html = @render @div begin
     @script {type = "text/javascript"} """
         console.log("This is preserved as-is");
         const data = { value: 123 };
+        if (data.value > 100 && data.value < 200) { ready(); }
     """
 
     @style """
@@ -454,6 +455,79 @@ end
 
 Main.display_html(html) #hide
 ```
+
+A browser decodes no entity inside a script or a style, so `&lt;` there is the
+five characters it spells rather than a `<`. Children of these two elements are
+written without entity escaping for that reason, literal and interpolated
+alike, and what cannot appear in them is whatever would take the parser back
+out of the element. In a style that is only its own end tag, `</style`; in a
+script, `</script` and `<!--`, since a comment puts the parser in a state where
+the element's own `</script>` no longer ends it. Both are written with a
+backslash after the `<`, which JavaScript reads as the sequence itself inside a
+string. An end tag for any other element is left alone, since the parser reads
+the name after the `</` and hands the characters back as text unless they name
+the element that is open:
+
+```@example script-style
+comment = "</script><img src=x onerror=alert(1)>"
+html = @render @script "var comment = \"$comment\";"
+
+Main.display_html(html) #hide
+```
+
+Whatever a `@script` or a `@style` writes directly is that element's raw text:
+literal children, interpolated values, `@text`, and content passed into a slot
+the element renders. A component can therefore take a script body from its
+caller and have it come out as JavaScript:
+
+```@example script-style
+@component function inline_script()
+    @script @__slot__
+end
+
+@deftag macro inline_script end
+
+html = @render @inline_script "if (a < b && c) { ready(); }"
+
+Main.display_html(html) #hide
+```
+
+The innermost element is what decides, so an element nested inside a script or
+a style starts markup again and its own children are escaped. That is what a
+template script needs. A `<script type="text/template">` block holds markup
+rather than a program: the page reads it back out and parses it as HTML, and
+the parse decodes any entity in it, so a value that reached the block from a
+user has to be escaped for that later parse or it becomes markup in the page
+the template is expanded into.
+
+```@example script-style
+user_input = "<img src=x onerror=alert(1)>"
+html = @render @script {type = "text/template"} @div $user_input
+
+Main.display_html(html) #hide
+```
+
+The nested element's own tags reach the page as they were written, so the block
+is still markup when the page parses it back.
+
+A [`SafeString`](@ref) written in a script or a style is not escaped either,
+and the same sequences are neutralised in it. Trusted JSON assembled from a
+user's data can carry a `</script`, and that would end the element and leave
+the rest of the value as markup. `<\/` is what JavaScript reads as `</` inside
+a string and is a valid JSON string escape, so what the script runs and what it
+parses are unchanged. The comment opener is the exception: `<\!--` is not a
+JSON escape, so a value carrying one will not parse back.
+
+```@example script-style
+payload = SafeString("{\"bio\": \"</script><img src=x onerror=alert(1)>\"}")
+html = @render @script "var data = " $payload ";"
+
+Main.display_html(html) #hide
+```
+
+`@<` given a variable is the one place the element is not known while the macro
+expands. Which element it renders only arrives with the render, so its children
+are escaped the way every other element's are.
 
 ### SVG Elements
 
@@ -488,13 +562,45 @@ Main.display_html(html) #hide
 
 Attribute values from variables are automatically escaped:
 
-```@example auto-escaping
+```@example attr-escaping
 using HypertextTemplates
 using HypertextTemplates.Elements
 
 user_input = "\" onclick=\"alert('xss')\""
 html = @render @div {title = user_input} "Safe"
 # Output shows escaped attributes
+
+Main.display_html(html) #hide
+```
+
+Element content goes through the same treatment:
+
+```@example attr-escaping
+unsafe = "<script>alert('xss')</script>"
+html = @render @p $unsafe
+
+Main.display_html(html) #hide
+```
+
+### Escape Rules
+
+1. String literals in templates ARE escaped, once, during macro expansion
+2. Variables and expressions with `$` or `@text` ARE escaped
+3. Attribute values from variables ARE escaped
+4. Element content from components is already rendered (not double-escaped)
+5. Content written directly in a `@script` or a `@style` is not entity-escaped,
+   since those two hold raw text; that element's own end tag is neutralised
+   instead, in a `SafeString` as much as in anything else. An element nested
+   inside one is markup again and its children ARE escaped
+
+Escaping is written to stay off the allocator: a string with no special characters takes a fast path that writes it through unchanged, and only a string that needs replacing pays for one.
+
+### Escaping a Literal at Macro Expansion
+
+A string literal written straight into a template is escaped during macro expansion, so the render writes a constant and pays nothing. A string held in a variable is escaped on every render instead. The `@esc_str` string macro closes that gap: it escapes the literal once during expansion and hands back a [`SafeString`](@ref), which the renderer writes without escaping it again.
+
+```@example attr-escaping
+html = @render @p $(esc"5 > 3 && 2 < 4")
 
 Main.display_html(html) #hide
 ```
@@ -699,16 +805,3 @@ html = @render @button {
 
 Main.display_html(html) #hide
 ```
-
-## Summary
-
-HypertextTemplates.jl provides a comprehensive and flexible system for working with HTML elements and attributes:
-
-- All standard HTML elements available as macros
-- Flexible attribute syntax with `{}` notation
-- Support for dynamic and computed attributes
-- Automatic security through escaping
-- Custom element definition support
-- Advanced patterns for complex use cases
-
-The system is designed to feel natural to Julia developers while providing all the features needed for modern web development.

@@ -552,15 +552,3 @@ Main.display_html(ans) #hide
 
 Main.display_html(ans) #hide
 ```
-
-## Summary
-
-HypertextTemplates.jl's rendering system provides:
-
-- **Zero-allocation design** for maximum performance
-- **Flexible output targets** (String, IO, custom types)
-- **Streaming support** for large/async content  
-- **Micro-batching** for optimal chunking
-- **Direct IO operations** avoiding intermediate strings
-
-The key to performance is understanding that templates compile to direct IO operations, making HypertextTemplates as fast as hand-written HTML generation code while maintaining the convenience of a DSL.
