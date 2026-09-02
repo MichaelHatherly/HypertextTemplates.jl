@@ -46,6 +46,13 @@ makedocs(
     format = Documenter.HTML(),
     modules = [HypertextTemplates],
     doctest = true,
+    # `@cm_component` resolves a relative path against the working directory
+    # when the call site has no file of its own, which is the case for code in
+    # an `@example` block. Running examples from `fixtures/` lets the Markdown
+    # pages name their files the way a user's own code would. The directory
+    # sits outside `src/` because Documenter turns every `.md` file under
+    # `src/` into a page of the manual.
+    workdir = joinpath(@__DIR__, "fixtures"),
     pages = [
         "Home" => "index.md",
         "Getting Started" => "getting-started.md",
