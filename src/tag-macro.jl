@@ -88,7 +88,7 @@ macro (<)(tag, args...)
     erevise = esc(revise)
     etag = esc(tag)
 
-    props_plan, eprops, eslots = _process_args(args)
+    props_plan, eprops, eslots = _process_args(_plans_props(tag), args)
     return quote
         if $(esc(Expr(:isdefined, io)))
             $(HypertextTemplates)._render_tag(
@@ -106,8 +106,14 @@ macro (<)(tag, args...)
     end
 end
 
-function _process_args(args)
-    props_plan = :(())
+# Components take properties as keywords and never look at the plan. `@deftag`
+# splices the component into the `@<` call, which is what makes that knowable
+# during expansion; a tag arriving with the render may still be an element.
+_plans_props(tag::Function) = false
+_plans_props(_) = true
+
+function _process_args(plans::Bool, args)
+    props_plan = plans ? :(()) : :nothing
     props = nothing
     slot_args = []
     slot_names = Set{Symbol}([])
@@ -138,7 +144,7 @@ function _process_args(args)
     for arg in args
         if Meta.isexpr(arg, :braces)
             if isnothing(props)
-                props_plan, prop_pairs = _process_props(arg.args)
+                props_plan, prop_pairs = _process_props(arg.args, plans)
                 props = :((; $(esc.(prop_pairs)...)))
             else
                 error("duplicate `{}` props.")
@@ -165,16 +171,19 @@ end
 #
 # Previously this was all-or-nothing: a single dynamic property sent every
 # other property on the element back through the runtime path.
-function _process_props(args)
+function _process_props(args, plans::Bool)
     props = []
     segments = []
     static_run = []
-    plannable = true
+    plannable = plans
     for arg in args
         static, dynamic = _process_prop(arg)
         # `props` must be built from every argument, splats included, since it
         # is what a component receives as keywords.
         push!(props, dynamic)
+        # No plan to build, or an argument below made one impossible. Either
+        # way the properties render from the `NamedTuple` instead.
+        plannable || continue
         if Meta.isexpr(dynamic, :...)
             # A splat contributes property names that are not known until
             # runtime, so there is nothing to interleave against. Give up on
@@ -187,7 +196,7 @@ function _process_props(args)
             push!(static_run, static)
         end
     end
-    plannable &= _flush_static_run!(segments, static_run)
+    plannable = plannable && _flush_static_run!(segments, static_run)
     plannable || return nothing, props
     return Expr(:tuple, segments...), props
 end
@@ -209,7 +218,7 @@ end
 # `NamedTuple` at run time instead.
 function _flush_static_run!(segments, static_run)
     isempty(static_run) && return true
-    text = _render_props(static_run)
+    text = _attribute_text(static_run)
     empty!(static_run)
     # A run of only `false` valued properties renders nothing at all.
     isempty(text) && return true

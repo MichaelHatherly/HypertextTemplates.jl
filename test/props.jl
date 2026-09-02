@@ -142,16 +142,113 @@ end
     @test bare(io -> @render io @div {class = "c", t = "a\0b"}) ==
         "<div class=\"c\" t=\"a\0b\"></div>"
 
-    # Only fully-literal plans merge; anything dynamic keeps the old path.
-    @test HypertextTemplates._mergeable_plan(Tuple{})
-    @test HypertextTemplates._mergeable_plan(
-        Tuple{HypertextTemplates.StaticProps{Symbol(" a=\"b\"")}},
-    )
-    @test !HypertextTemplates._mergeable_plan(
-        Tuple{HypertextTemplates.DynamicProp{:a, Symbol(" a"), Symbol(" a=\"")}},
-    )
-    @test !HypertextTemplates._mergeable_plan(Nothing)
     dynamic = "d"
     @test bare(io -> @render io @div {class = "a", id = dynamic}) ==
         "<div class=\"a\" id=\"d\"></div>"
+end
+
+@testitem "how much of an opening tag is merged" tags = [:props] setup = [Templates] begin
+    # What the merge is for is the number of writes, so that is what is
+    # measured. Reference tests only see the bytes, and the whole path is
+    # skipped while Revise is loaded -- which it is for this suite -- so the
+    # merge is driven directly rather than through a render.
+    mutable struct RecordingIO <: IO
+        sink::IOBuffer
+        writes::Vector{String}
+        RecordingIO() = new(IOBuffer(), String[])
+    end
+    function Base.unsafe_write(io::RecordingIO, source::Ptr{UInt8}, n::UInt)
+        push!(io.writes, unsafe_string(source, n))
+        return unsafe_write(io.sink, source, n)
+    end
+    function Base.write(io::RecordingIO, byte::UInt8)
+        push!(io.writes, string(Char(byte)))
+        return write(io.sink, byte)
+    end
+
+    function merged(plan, props)
+        io = RecordingIO()
+        HypertextTemplates._write_open(io, Val(:div), plan, props)
+        return String(take!(io.sink)), io.writes
+    end
+
+    static = HypertextTemplates.StaticProps{Symbol(" class=\"btn\"")}()
+    dynamic = HypertextTemplates.DynamicProp{:id, Symbol(" id"), Symbol(" id=\"")}()
+
+    # Nothing but the tag name, and a plan that is one literal run: the
+    # whole opening tag, closing `>` included, is one constant.
+    @test merged((), (;)) == ("<div>", ["<div>"])
+    @test merged((static,), (;)) == ("<div class=\"btn\">", ["<div class=\"btn\">"])
+
+    # A literal run before the first dynamic property joins the tag name,
+    # and the properties that follow are written as they always were.
+    html, writes = merged((static, dynamic), (; id = "x"))
+    @test html == "<div class=\"btn\" id=\"x\">"
+    @test first(writes) == "<div class=\"btn\""
+
+    # With nothing literal to lead with there is nothing to merge, but the
+    # bytes are the same either way.
+    html, writes = merged((dynamic,), (; id = "x"))
+    @test html == "<div id=\"x\">"
+    @test first(writes) == "<div"
+
+    # A literal run after a dynamic property cannot join anything, since
+    # what precedes it is only known once the value is written.
+    html, writes = merged((dynamic, static), (; id = "x"))
+    @test html == "<div id=\"x\" class=\"btn\">"
+    @test first(writes) == "<div"
+
+    # However much of the tag gets merged, the bytes have to be the ones the
+    # unmerged path writes. Reference tests cannot check this, since they run
+    # with Revise loaded and Revise takes the unmerged path for every element.
+    function unmerged(plan, props)
+        io = IOBuffer()
+        print(io, "<div")
+        HypertextTemplates._render_plan(io, plan, props)
+        print(io, ">")
+        return String(take!(io))
+    end
+    flag = HypertextTemplates.DynamicProp{:hidden, Symbol(" hidden"), Symbol(" hidden=\"")}()
+    quoted = HypertextTemplates.StaticProps{Symbol(" t=\"a&lt;b&quot;c\"")}()
+    plans = (
+        (),
+        (static,),
+        (quoted,),
+        (static, quoted),
+        (dynamic,),
+        (static, dynamic),
+        (dynamic, static),
+        (static, dynamic, quoted),
+        (flag, static),
+    )
+    props = (; id = "a\"<b", hidden = true)
+    for plan in plans
+        @test first(merged(plan, props)) == unmerged(plan, props)
+    end
+    # A property that is `false` renders nothing at all, merged or not.
+    @test first(merged((static, flag), (; hidden = false))) ==
+        unmerged((static, flag), (; hidden = false))
+end
+
+@testitem "components expand without a props plan" tags = [:props] setup = [Templates] begin
+    using HypertextTemplates.Elements
+
+    # `@deftag` splices the component or the element itself into the `@<`
+    # call, so a call site written `@custom_component {...}` already knows at
+    # expansion time which of the two it is calling. A component takes its
+    # properties as keywords and never reads the plan, and building one anyway
+    # made every distinct run of literal attributes a distinct type for
+    # `_render_tag` to be specialised on.
+    @test !HypertextTemplates._plans_props(custom_component)
+    @test HypertextTemplates._plans_props(Elements.div)
+    # A tag that only arrives with the render may still be an element.
+    @test HypertextTemplates._plans_props(:tag_in_a_variable)
+
+    @test !occursin(
+        "StaticProps",
+        string(@macroexpand @custom_component {prop = "literal"}),
+    )
+    @test occursin("StaticProps", string(@macroexpand @div {class = "literal"}))
+    dynamic = custom_component
+    @test occursin("StaticProps", string(@macroexpand @<dynamic {prop = "literal"}))
 end

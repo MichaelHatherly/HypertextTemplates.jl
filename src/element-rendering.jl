@@ -83,11 +83,13 @@ _element_symbol(element) = Val(Symbol(_element_name(element)))
     )
     _render_prefix(io, tag)
     # Both conditions are compile-time constants, so only one branch survives.
-    if !_is_revise_loaded() && _mergeable_plan(typeof(plan))
-        _write_open(io, _element_symbol(tag), plan isa Tuple{} ? plan : plan[1])
+    # A plan is a `Tuple` unless `@<` gave up on one, which splatted props and
+    # a literal value carrying a NUL byte both do.
+    if !_is_revise_loaded() && plan isa Tuple
+        _write_open(io, _element_symbol(tag), plan, props)
     else
         print(io, _element_open(tag))
-        _render_props(io, plan, props)
+        _render_plan(io, plan, props)
         _is_revise_loaded() && _render_source_prop(io, source, revise)
         print(io, ">")
     end
@@ -133,7 +135,10 @@ _render_props(io::IO, ::NamedTuple{(), Tuple{}}) = nothing
     return nothing
 end
 
-function _render_props(props)
+# The attribute text a run of literal properties renders to. `@<` calls this
+# during expansion and puts the result in a `StaticProps` type parameter, so
+# nothing here runs while a page is being rendered.
+function _attribute_text(props)
     io = RenderBuffer()
     _render_props(io, props)
     return String(take!(io))
@@ -211,30 +216,35 @@ end
 # instead would make the plan a heap-allocated object on every element.
 struct StaticProps{text} end
 
+# A generator runs in the world age its own method was defined in, so this has
+# to sit above the one that reads it.
+_static_text(::Type{StaticProps{text}}) where {text} = text
+
+# A `print` call costs about as much as the bytes it writes, so the parts of an
+# opening tag known at compile time are merged into one constant. The tag name
+# takes the literal run leading the plan with it, and the closing `>` too when
+# that run is the whole plan. Nothing after the first dynamic property can
+# merge, since where it starts depends on that property's value.
+#
+# None of this applies under Revise, whose source location goes between the
+# properties and the `>`.
+@generated function _write_open(io::IO, ::Val{name}, plan::Tuple, props) where {name}
+    segments = plan.parameters
+    leading = !isempty(segments) && segments[1] <: StaticProps
+    open = leading ? string("<", name, _static_text(segments[1])) : string("<", name)
+    length(segments) == (leading ? 1 : 0) && return :(print(io, $(string(open, ">"))))
+    rest = leading ? :($(Base.tail)(plan)) : :(plan)
+    return quote
+        print(io, $(open))
+        _render_plan(io, $(rest), props)
+        print(io, ">")
+    end
+end
+
 # `bare` is `" name"`, used when the value turns out to be `true`, and `quoted`
 # is `" name=\""`. Both are built during macro expansion for the same reason
 # the open and close tags are: emitting the whole prefix in one write beats
 # assembling it from the separator, the name and `="` on every render.
-# Writing an element's opening tag costs about as much per `print` call as the
-# bytes themselves do, so when every part of it is known at compile time the
-# parts are merged into a single constant and written once. Both inputs live in
-# type parameters, so the merge happens during compilation and nothing is
-# assembled at run time.
-#
-# This applies when the element carries no properties, or only literal ones,
-# and Revise is not attaching source locations between the properties and the
-# `>`. Anything else falls back to writing the parts in turn.
-@generated function _write_open(io::IO, ::Val{name}, ::StaticProps{text}) where {name, text}
-    return :(print(io, $(string("<", name, text, ">"))))
-end
-@generated function _write_open(io::IO, ::Val{name}, ::Tuple{}) where {name}
-    return :(print(io, $(string("<", name, ">"))))
-end
-
-_mergeable_plan(::Type{Tuple{StaticProps{text}}}) where {text} = true
-_mergeable_plan(::Type{Tuple{}}) = true
-_mergeable_plan(::Type) = false
-
 struct DynamicProp{name, bare, quoted} end
 
 @inline _render_segment(io::IO, ::StaticProps{text}, props) where {text} =
@@ -259,10 +269,10 @@ struct DynamicProp{name, bare, quoted} end
     return nothing
 end
 
-_render_props(io::IO, ::Tuple{}, props) = nothing
-@inline function _render_props(io::IO, plan::Tuple, props)
+_render_plan(io::IO, ::Tuple{}, props) = nothing
+@inline function _render_plan(io::IO, plan::Tuple, props)
     _render_segment(io, first(plan), props)
-    _render_props(io, Base.tail(plan), props)
+    _render_plan(io, Base.tail(plan), props)
     return nothing
 end
 
@@ -270,7 +280,7 @@ end
 # nothing to interleave static runs against, and a literal value carrying a NUL
 # byte cannot be put in a type parameter at all. `@<` signals either by passing
 # no plan, and the merged `NamedTuple` is rendered wholesale instead.
-_render_props(io::IO, ::Nothing, props) = _render_props(io, props)
+_render_plan(io::IO, ::Nothing, props) = _render_props(io, props)
 
 _render_prefix(io::IO, element) = nothing
 
