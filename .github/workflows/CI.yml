@@ -43,7 +43,7 @@ jobs:
 
       - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
 
-      - uses: taiki-e/install-action@fa23953489c080190314742a9b907f8e97c6767c # v2.87.10
+      - uses: taiki-e/install-action@9534c84618278caac52cb373bb164ed464dbd8af # v2.87.11
         with:
           tool: just
 
