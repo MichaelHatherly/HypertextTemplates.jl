@@ -39,6 +39,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   boundaries an iterating consumer observes have changed.
 - `@element` now requires its element name to be a string or symbol literal
   and raises a descriptive error otherwise.
+- The packages that trigger an extension now have compat bounds. They had
+  none, so an extension could load against any release. The bounds cover every
+  major release the extensions work with:
+  - `Bonito` 4 and 5
+  - `CommonMark` 0.8 to 1
+  - `HTTP` 1 and 2
+  - `Revise` 3
+
+  Julia 1.6 to 1.8 accept a compat entry for a package outside `[deps]` only
+  when `[extras]` lists it, so the four are listed there too.
 
 ### Added
 
