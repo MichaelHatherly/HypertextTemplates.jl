@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Rendering &amp; Performance · HypertextTemplates</title><meta name="title" content="Rendering &amp; Performance · HypertextTemplates"/><meta property="og:title" content="Rendering &amp; Performance · HypertextTemplates"/><meta property="twitter:title" content="Rendering &amp; Performance · HypertextTemplates"/><meta name="description" content="Documentation for HypertextTemplates."/><meta property="og:description" content="Documentation for HypertextTemplates."/><meta property="twitter:description" content="Documentation for HypertextTemplates."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.63.2/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">HypertextTemplates</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../getting-started/">Getting Started</a></li><li><span class="tocitem">Guides</span><ul><li><a class="tocitem" href="../core-concepts/">Core Concepts</a></li><li><a class="tocitem" href="../components/">Components</a></li><li><a class="tocitem" href="../elements-attributes/">Elements &amp; Attributes</a></li><li class="is-active"><a class="tocitem" href>Rendering &amp; Performance</a><ul class="internal"><li><a class="tocitem" href="#The-@render-Macro"><span>The <code>@render</code> Macro</span></a></li><li><a class="tocitem" href="#What-a-Render-Allocates"><span>What a Render Allocates</span></a></li><li><a class="tocitem" href="#StreamingRender"><span>StreamingRender</span></a></li><li><a class="tocitem" href="#Advanced-Patterns"><span>Advanced Patterns</span></a></li><li><a class="tocitem" href="#Best-Practices"><span>Best Practices</span></a></li></ul></li></ul></li><li><span class="tocitem">Advanced</span><ul><li><a class="tocitem" href="../advanced-features/">Advanced Features</a></li><li><a class="tocitem" href="../markdown-integration/">Markdown Integration</a></li><li><a class="tocitem" href="../development-tools/">Development Tools</a></li></ul></li><li><a class="tocitem" href="../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Guides</a></li><li class="is-active"><a href>Rendering &amp; Performance</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Rendering &amp; Performance</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/MichaelHatherly/HypertextTemplates.jl/blob/main/docs/src/rendering.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Rendering-and-Performance"><a class="docs-heading-anchor" href="#Rendering-and-Performance">Rendering &amp; Performance</a><a id="Rendering-and-Performance-1"></a><a class="docs-heading-anchor-permalink" href="#Rendering-and-Performance" title="Permalink"></a></h1><p>Where output goes, and what it costs to put it there.</p><h2 id="The-@render-Macro"><a class="docs-heading-anchor" href="#The-@render-Macro">The <code>@render</code> Macro</a><a id="The-@render-Macro-1"></a><a class="docs-heading-anchor-permalink" href="#The-@render-Macro" title="Permalink"></a></h2><p><code>@render</code> turns a template into output. Where that output goes depends on the destination it is given.</p><h3 id="Basic-Rendering"><a class="docs-heading-anchor" href="#Basic-Rendering">Basic Rendering</a><a id="Basic-Rendering-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Rendering" title="Permalink"></a></h3><p>With no destination <code>@render</code> returns a <code>String</code>. A block renders each element in turn:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Render to String (default)
+html = @render @div &quot;Hello, World!&quot;</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;Hello, World&#33;&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Render multiple elements
+html2 = @render begin
+    @h1 &quot;Title&quot;
+    @p &quot;Paragraph&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;h1&gt;Title&lt;/h1&gt;
+&lt;p&gt;Paragraph&lt;/p&gt;</code></pre>
+<hr />
+</div><h3 id="Rendering-to-IO"><a class="docs-heading-anchor" href="#Rendering-to-IO">Rendering to IO</a><a id="Rendering-to-IO-1"></a><a class="docs-heading-anchor-permalink" href="#Rendering-to-IO" title="Permalink"></a></h3><p>Pass an <code>IO</code> as the first argument and the render writes through to it, with no string built along the way. That is what a server response or a file wants.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Render to IOBuffer
+buffer = IOBuffer()
+@render buffer @div begin
+    @h1 &quot;Small Document&quot;
+    for i in 1:3
+        @p &quot;Paragraph $i&quot;
+    end
+end
+result = String(take!(buffer))</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div&gt;
+  &lt;h1&gt;Small Document&lt;/h1&gt;
+  &lt;p&gt;Paragraph 1&lt;/p&gt;
+  &lt;p&gt;Paragraph 2&lt;/p&gt;
+  &lt;p&gt;Paragraph 3&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Output-Type-Control"><a class="docs-heading-anchor" href="#Output-Type-Control">Output Type Control</a><a id="Output-Type-Control-1"></a><a class="docs-heading-anchor-permalink" href="#Output-Type-Control" title="Permalink"></a></h3><p>Specify the desired output type:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Render to String (explicit)
+str = @render String @div &quot;Content&quot;
+println(typeof(str), &quot;: &quot;, str)
+
+# Render to Vector{UInt8}
+bytes = @render Vector{UInt8} @div &quot;Binary content&quot;
+println(typeof(bytes), &quot;: &quot;, String(bytes))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">String: &lt;div&gt;Content&lt;/div&gt;
+Vector{UInt8}: &lt;div&gt;Binary content&lt;/div&gt;</code></pre><h2 id="What-a-Render-Allocates"><a class="docs-heading-anchor" href="#What-a-Render-Allocates">What a Render Allocates</a><a id="What-a-Render-Allocates-1"></a><a class="docs-heading-anchor-permalink" href="#What-a-Render-Allocates" title="Permalink"></a></h2><p>A render allocates a few hundred bytes for the context it carries, then nothing per element. There is no DOM, nothing is concatenated, and escaping a value builds no intermediate string. A three item list and a three thousand item one cost the same. What grows with the page is the destination&#39;s own storage, the buffer behind a <code>String</code> or a <code>Vector{UInt8}</code>; write to a socket or a file and even that goes away.</p><h3 id="Direct-IO-Streaming"><a class="docs-heading-anchor" href="#Direct-IO-Streaming">Direct IO Streaming</a><a id="Direct-IO-Streaming-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-IO-Streaming" title="Permalink"></a></h3><p>Given an <code>IO</code>, the render writes to it as it goes:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+title = &quot;My Article&quot;
+paragraphs = [&quot;First paragraph.&quot;, &quot;Second paragraph.&quot;, &quot;Third paragraph.&quot;]
+
+io = IOBuffer()
+@render io @article begin
+    @h1 $title
+    for paragraph in paragraphs
+        @p $paragraph
+    end
+end
+
+result = String(take!(io))
+
+# The writes it makes are: &quot;&lt;article&gt;&quot;, &quot;&lt;h1&gt;&quot;, the escaped title,
+# &quot;&lt;/h1&gt;&quot;, and so on to the closing tag.</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;article&gt;
+  &lt;h1&gt;My Article&lt;/h1&gt;
+  &lt;p&gt;First paragraph.&lt;/p&gt;
+  &lt;p&gt;Second paragraph.&lt;/p&gt;
+  &lt;p&gt;Third paragraph.&lt;/p&gt;
+&lt;/article&gt;</code></pre>
+<hr />
+</div><h3 id="Static-Structure-Becomes-Constants"><a class="docs-heading-anchor" href="#Static-Structure-Becomes-Constants">Static Structure Becomes Constants</a><a id="Static-Structure-Becomes-Constants-1"></a><a class="docs-heading-anchor-permalink" href="#Static-Structure-Becomes-Constants" title="Permalink"></a></h3><p>A tag name and the run of literal attributes that follows it are known while the macro expands, so they are merged into single string constants there. Rendering writes those constants out; the work left at run time is the interpolated values and the control flow around them.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function static_heavy()
+    @div {class = &quot;container&quot;} begin
+        @header {class = &quot;header&quot;} begin
+            @nav begin
+                @a {href = &quot;/&quot;} &quot;Home&quot;
+                @a {href = &quot;/about&quot;} &quot;About&quot;
+            end
+        end
+        @article {class = &quot;content&quot;} begin
+            @__slot__  # Only dynamic part
+        end
+    end
+end
+
+@deftag macro static_heavy end
+
+html = @render @static_heavy begin
+    @p &quot;This is the dynamic content that goes in the slot.&quot;
+end</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;container&quot;&gt;
+  &lt;header class&#61;&quot;header&quot;&gt;
+    &lt;nav&gt;&lt;a href&#61;&quot;/&quot;&gt;Home&lt;/a&gt;&lt;a href&#61;&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;article class&#61;&quot;content&quot;&gt;
+    &lt;p&gt;This is the dynamic content that goes in the slot.&lt;/p&gt;
+  &lt;/article&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="StreamingRender"><a class="docs-heading-anchor" href="#StreamingRender">StreamingRender</a><a id="StreamingRender-1"></a><a class="docs-heading-anchor-permalink" href="#StreamingRender" title="Permalink"></a></h2><p>For large documents or slow-loading content, use <code>StreamingRender</code> to send content as it becomes available.</p><h3 id="Basic-Streaming"><a class="docs-heading-anchor" href="#Basic-Streaming">Basic Streaming</a><a id="Basic-Streaming-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Streaming" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Create a streaming render iterator
+stream = StreamingRender() do io
+    @render io @div begin
+        @h1 &quot;Streaming Example&quot;
+
+        # Render multiple sections
+        for i in 1:3
+            @section begin
+                @h2 &quot;Section $i&quot;
+                @p &quot;This is paragraph $i&quot;
+            end
+        end
+    end
+end
+
+# Consume the stream
+chunks = String[]
+for chunk in stream
+    push!(chunks, String(chunk))
+end
+
+println(&quot;Streamed $(length(chunks)) chunks:&quot;)
+for (i, chunk) in enumerate(chunks)
+    println(&quot;Chunk $i: &quot;, repr(chunk))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Streamed 1 chunks:
+Chunk 1: &quot;&lt;div&gt;&lt;h1&gt;Streaming Example&lt;/h1&gt;&lt;section&gt;&lt;h2&gt;Section 1&lt;/h2&gt;&lt;p&gt;This is paragraph 1&lt;/p&gt;&lt;/section&gt;&lt;section&gt;&lt;h2&gt;Section 2&lt;/h2&gt;&lt;p&gt;This is paragraph 2&lt;/p&gt;&lt;/section&gt;&lt;section&gt;&lt;h2&gt;Section 3&lt;/h2&gt;&lt;p&gt;This is paragraph 3&lt;/p&gt;&lt;/section&gt;&lt;/div&gt;&quot;</code></pre><h3 id="HTTP-Streaming"><a class="docs-heading-anchor" href="#HTTP-Streaming">HTTP Streaming</a><a id="HTTP-Streaming-1"></a><a class="docs-heading-anchor-permalink" href="#HTTP-Streaming" title="Permalink"></a></h3><p>Each chunk is a <code>Vector{UInt8}</code> ready to write to a response body. HTTP.jl is not a dependency of this manual, so the example below is not executed here:</p><pre><code class="language-julia hljs">using HTTP
+using HypertextTemplates, HypertextTemplates.Elements
+
+function handle_request(req)
+    return HTTP.Response(200, [&quot;Content-Type&quot; =&gt; &quot;text/html&quot;]) do io
+        for chunk in StreamingRender() do render_io
+            @render render_io @html begin
+                @head @title &quot;Streaming Page&quot;
+                @body begin
+                    @h1 &quot;Live Data&quot;
+                    for i in 1:1000
+                        @p &quot;Item $i&quot;
+                    end
+                end
+            end
+        end
+            write(io, chunk)
+        end
+    end
+end</code></pre><h3 id="Micro-batching"><a class="docs-heading-anchor" href="#Micro-batching">Micro-batching</a><a id="Micro-batching-1"></a><a class="docs-heading-anchor-permalink" href="#Micro-batching" title="Permalink"></a></h3><p>A render makes thousands of small writes. Handing each one to the consumer separately would cost more than the render does, so they are batched. A write of <code>immediate_threshold</code> bytes or more goes over as its own chunk. Smaller ones accumulate until the batch fills, until 64 of them have arrived, or until a timer fires a millisecond after the last flush. Chunk boundaries therefore follow the batching and have nothing to do with where elements begin and end.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+chunks = String[]
+for chunk in StreamingRender() do io
+    @render io @ul begin
+        for i in 1:20
+            @li &quot;Item $i&quot;
+        end
+    end
+end
+    push!(chunks, String(chunk))
+end
+
+println(&quot;Total chunks: &quot;, length(chunks))
+println(&quot;First chunk: &quot;, repr(first(chunks)))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total chunks: 2
+First chunk: &quot;&lt;ul&gt;&lt;li&gt;Item 1&lt;/li&gt;&lt;li&gt;Item 2&lt;/li&gt;&lt;li&gt;Item 3&lt;/li&gt;&lt;li&gt;Item 4&lt;/li&gt;&lt;li&gt;Item 5&lt;/li&gt;&lt;li&gt;Item 6&lt;/li&gt;&lt;li&gt;Item 7&lt;/li&gt;&lt;li&gt;Item 8&lt;/li&gt;&lt;li&gt;Item 9&lt;/li&gt;&lt;li&gt;Item 10&lt;/li&gt;&lt;li&gt;Item 11&lt;/li&gt;&lt;li&gt;Item 12&lt;/li&gt;&lt;li&gt;Item 13&lt;/li&gt;&lt;li&gt;Item 14&lt;/li&gt;&lt;li&gt;Item 15&lt;/li&gt;&lt;li&gt;Item 16&quot;</code></pre><h3 id="StreamingRender-Configuration"><a class="docs-heading-anchor" href="#StreamingRender-Configuration">StreamingRender Configuration</a><a id="StreamingRender-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#StreamingRender-Configuration" title="Permalink"></a></h3><p>Three keywords control the batching. <code>chunk_size</code> is how many bytes a batch may reach before it is flushed, clamped to 256. <code>immediate_threshold</code> is the write size that bypasses batching. <code>buffer_size</code> is how many chunks the channel holds before the render task blocks, which is what applies backpressure when a consumer reads more slowly than the render produces.</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function sample_document()
+    @div begin
+        @h1 &quot;Document Title&quot;
+        for i in 1:10
+            @section begin
+                @h2 &quot;Section $i&quot;
+                @p &quot;Content for section $i&quot;
+            end
+        end
+    end
+end
+
+@deftag macro sample_document end
+
+chunks = String[]
+for chunk in StreamingRender(;
+    chunk_size = 128,
+    immediate_threshold = 128,
+    buffer_size = 8,
+) do render_io
+    @render render_io @sample_document
+end
+    push!(chunks, String(chunk))
+end
+
+println(&quot;Configured streaming produced &quot;, length(chunks), &quot; chunks&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Configured streaming produced 6 chunks</code></pre><h3 id="Stopping-a-Stream-Early"><a class="docs-heading-anchor" href="#Stopping-a-Stream-Early">Stopping a Stream Early</a><a id="Stopping-a-Stream-Early-1"></a><a class="docs-heading-anchor-permalink" href="#Stopping-a-Stream-Early" title="Permalink"></a></h3><p>Rendering runs in its own task, so a consumer that stops reading part way through leaves that task blocked with nowhere to put the next chunk. <code>close</code> releases it:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+stream = StreamingRender() do io
+    @render io @ul begin
+        for i in 1:10_000
+            @li &quot;Item $i&quot;
+        end
+    end
+end
+
+first_chunk = nothing
+for chunk in stream
+    global first_chunk = String(chunk)
+    break
+end
+close(stream)
+
+println(&quot;Read &quot;, length(first_chunk), &quot; bytes, then closed the stream&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Read 246 bytes, then closed the stream</code></pre><p>Reading a stream to the end closes it for you, so <code>close</code> is only needed when a client disconnects or the consumer has seen enough.</p><h2 id="Advanced-Patterns"><a class="docs-heading-anchor" href="#Advanced-Patterns">Advanced Patterns</a><a id="Advanced-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Patterns" title="Permalink"></a></h2><h3 id="Buffered-Rendering"><a class="docs-heading-anchor" href="#Buffered-Rendering">Buffered Rendering</a><a id="Buffered-Rendering-1"></a><a class="docs-heading-anchor-permalink" href="#Buffered-Rendering" title="Permalink"></a></h3><p>A fragment can be rendered on its own and spliced in later, which is what caching part of a page needs. The buffer holds markup this code produced, so it goes back in as a <code>SafeString</code>:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function left_content()
+    @nav begin
+        @h3 &quot;Navigation&quot;
+        @ul begin
+            @li @a {href = &quot;/&quot;} &quot;Home&quot;
+            @li @a {href = &quot;/about&quot;} &quot;About&quot;
+            @li @a {href = &quot;/contact&quot;} &quot;Contact&quot;
+        end
+    end
+end
+
+@component function right_content()
+    @article begin
+        @h2 &quot;Main Content&quot;
+        @p &quot;This is the main content area.&quot;
+        @p &quot;It contains the primary information.&quot;
+    end
+end
+
+@component function two_column_layout(; left_content, right_content)
+    left_buffer = IOBuffer()
+    right_buffer = IOBuffer()
+
+    @render left_buffer @div {class = &quot;column-left&quot;} @&lt;left_content
+    @render right_buffer @div {class = &quot;column-right&quot;} @&lt;right_content
+
+    @div {class = &quot;two-column&quot;} begin
+        @text SafeString(String(take!(left_buffer)))
+        @text SafeString(String(take!(right_buffer)))
+    end
+end
+
+@deftag macro two_column_layout end
+
+html = @render @two_column_layout {left_content, right_content}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;two-column&quot;&gt;
+  &lt;div class&#61;&quot;column-left&quot;&gt;
+    &lt;nav&gt;
+      &lt;h3&gt;Navigation&lt;/h3&gt;
+      &lt;ul&gt;
+        &lt;li&gt;&lt;a href&#61;&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href&#61;&quot;/about&quot;&gt;About&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href&#61;&quot;/contact&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+  &lt;div class&#61;&quot;column-right&quot;&gt;
+    &lt;article&gt;
+      &lt;h2&gt;Main Content&lt;/h2&gt;
+      &lt;p&gt;This is the main content area.&lt;/p&gt;
+      &lt;p&gt;It contains the primary information.&lt;/p&gt;
+    &lt;/article&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Loading-Data-During-a-Render"><a class="docs-heading-anchor" href="#Loading-Data-During-a-Render">Loading Data During a Render</a><a id="Loading-Data-During-a-Render-1"></a><a class="docs-heading-anchor-permalink" href="#Loading-Data-During-a-Render" title="Permalink"></a></h3><p>A component runs while the page renders. It can fetch what it needs at that point, and the caller does not have to prepare everything up front:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function render_data(; data)
+    @div begin
+        @h3 $(data.title)
+        @ul begin
+            for item in data.items
+                @li $item
+            end
+        end
+    end
+end
+
+@component function lazy_section(; data_loader)
+    @div {class = &quot;lazy-load&quot;} begin
+        data = data_loader()
+
+        if isnothing(data)
+            @p &quot;No data available&quot;
+        else
+            @&lt;render_data {data}
+        end
+    end
+end
+
+@deftag macro lazy_section end
+
+# Stands in for a database call
+function expensive_database_query()
+    return (title = &quot;Query Results&quot;, items = [&quot;Result 1&quot;, &quot;Result 2&quot;, &quot;Result 3&quot;])
+end
+
+function empty_query()
+    return nothing
+end
+
+# Example with data
+html1 = @render @lazy_section {
+    data_loader = () -&gt; expensive_database_query()
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;lazy-load&quot;&gt;
+  &lt;div&gt;
+    &lt;h3&gt;Query Results&lt;/h3&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Result 1&lt;/li&gt;
+      &lt;li&gt;Result 2&lt;/li&gt;
+      &lt;li&gt;Result 3&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs"># Example without data
+html2 = @render @lazy_section {
+    data_loader = () -&gt; empty_query()
+}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div class&#61;&quot;lazy-load&quot;&gt;
+  &lt;p&gt;No data available&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<hr />
+</div><h3 id="Progressive-Enhancement"><a class="docs-heading-anchor" href="#Progressive-Enhancement">Progressive Enhancement</a><a id="Progressive-Enhancement-1"></a><a class="docs-heading-anchor-permalink" href="#Progressive-Enhancement" title="Permalink"></a></h3><p>Render basic content first, enhance later:</p><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+@component function progressive_gallery(; images)
+    @div {class = &quot;gallery&quot;} begin
+        for img in images
+            @img {
+                src = img.thumbnail,
+                &quot;data-full-src&quot; := img.full_size,
+                loading = &quot;lazy&quot;,
+                alt = img.alt
+            }
+        end
+
+        # Enhancement script
+        @script &quot;&quot;&quot;
+        // Progressively load full images
+        document.querySelectorAll(&#39;[data-full-src]&#39;).forEach(img =&gt; {
+            // Load full size when visible
+        });
+        &quot;&quot;&quot;
+    end
+end
+
+@deftag macro progressive_gallery end
+
+# Example usage
+images = [
+    (thumbnail = &quot;/thumb1.jpg&quot;, full_size = &quot;/full1.jpg&quot;, alt = &quot;Image 1&quot;),
+    (thumbnail = &quot;/thumb2.jpg&quot;, full_size = &quot;/full2.jpg&quot;, alt = &quot;Image 2&quot;),
+    (thumbnail = &quot;/thumb3.jpg&quot;, full_size = &quot;/full3.jpg&quot;, alt = &quot;Image 3&quot;)
+]
+
+html = @render @progressive_gallery {images}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;div
+  class&#61;&quot;gallery&quot;&gt;&lt;img src&#61;&quot;/thumb1.jpg&quot; data-full-src&#61;&quot;/full1.jpg&quot; loading&#61;&quot;lazy&quot; alt&#61;&quot;Image 1&quot;&gt;&lt;img src&#61;&quot;/thumb2.jpg&quot; data-full-src&#61;&quot;/full2.jpg&quot; loading&#61;&quot;lazy&quot; alt&#61;&quot;Image 2&quot;&gt;&lt;img src&#61;&quot;/thumb3.jpg&quot; data-full-src&#61;&quot;/full3.jpg&quot; loading&#61;&quot;lazy&quot; alt&#61;&quot;Image 3&quot;&gt;&lt;script&gt;// Progressively load full images
+document.querySelectorAll&#40;&#39;&#91;data-full-src&#93;&#39;&#41;.forEach&#40;img &#61;&gt; &#123;
+    // Load full size when visible
+&#125;&#41;;
+&lt;/script&gt;&lt;/div&gt;</code></pre>
+<hr />
+</div><h2 id="Best-Practices"><a class="docs-heading-anchor" href="#Best-Practices">Best Practices</a><a id="Best-Practices-1"></a><a class="docs-heading-anchor-permalink" href="#Best-Practices" title="Permalink"></a></h2><h3 id="1.-Choose-the-Right-Output"><a class="docs-heading-anchor" href="#1.-Choose-the-Right-Output">1. Choose the Right Output</a><a id="1.-Choose-the-Right-Output-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Choose-the-Right-Output" title="Permalink"></a></h3><ul><li>Use <code>IO</code> for server responses</li><li>Use <code>String</code> for testing or caching</li><li>Use <code>StreamingRender</code> for large/slow content</li></ul><h3 id="2.-Minimize-Dynamic-Content"><a class="docs-heading-anchor" href="#2.-Minimize-Dynamic-Content">2. Minimize Dynamic Content</a><a id="2.-Minimize-Dynamic-Content-1"></a><a class="docs-heading-anchor-permalink" href="#2.-Minimize-Dynamic-Content" title="Permalink"></a></h3><pre><code class="language-julia hljs">using HypertextTemplates
+using HypertextTemplates.Elements
+
+# Good: Static structure, dynamic content
+@component function good_list(; items)
+    @ul {class = &quot;static-class&quot;} begin
+        for item in items
+            @li $item  # Only content is dynamic
+        end
+    end
+end
+
+@deftag macro good_list end
+
+# Less optimal: Dynamic structure
+function compute_class(items)
+    length(items) &gt; 5 ? &quot;long-list&quot; : &quot;short-list&quot;
+end
+
+function compute_item_class(item)
+    startswith(item, &quot;A&quot;) ? &quot;a-item&quot; : &quot;other-item&quot;
+end
+
+@component function suboptimal_list(; items)
+    @ul {class = compute_class(items)} begin  # Computed every render
+        for item in items
+            @li {class = compute_item_class(item)} $item
+        end
+    end
+end
+
+@deftag macro suboptimal_list end
+
+# Example usage
+items = [&quot;Apple&quot;, &quot;Banana&quot;, &quot;Cherry&quot;]
+
+@render @good_list {items}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul class&#61;&quot;static-class&quot;&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Banana&lt;/li&gt;
+  &lt;li&gt;Cherry&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div><pre><code class="language-julia hljs">@render @suboptimal_list {items}</code></pre><div class="markdown"><hr />
+<pre><code class="language-html">&lt;ul class&#61;&quot;short-list&quot;&gt;
+  &lt;li class&#61;&quot;a-item&quot;&gt;Apple&lt;/li&gt;
+  &lt;li class&#61;&quot;other-item&quot;&gt;Banana&lt;/li&gt;
+  &lt;li class&#61;&quot;other-item&quot;&gt;Cherry&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+<hr />
+</div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../elements-attributes/">« Elements &amp; Attributes</a><a class="docs-footer-nextpage" href="../advanced-features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Thursday 3 September 2026 04:45">Thursday 3 September 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
